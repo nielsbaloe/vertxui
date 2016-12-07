@@ -1,11 +1,14 @@
 vertx-ui
 ===
 
-A compile-time UI package optimised for Vert.X. Ideal as microservice, serving a part of the browser screen.
-I am programming towards a GUI that is written in Java, compiled to javascript at runtime, strongly-binded with entity classes, and directly communication with the Vert.X eventbus or even a VertX. service proxy (http://vertx.io/docs/vertx-service-proxy/java ) for example:
+A VertX optimised UI by runtime java to javascript. Ideal as microservice, serving a part of the browser screen. Compilation to javascript at runtime (not at compile-time using any maven/IDE frameworks), strong-binding with entity classes.
 
-   public class GUI extends VertxUI {
+Right now the runtime javascript translation by TeaVM works, without Vert.X eventbus or service-proxy (http://vertx.io/docs/vertx-service-proxy/java ) in the client yet.
 
+A future example would be:
+
+    public class GUI extends VertxUI {
+    
 	// Model (inline as demonstration)
 	public class Model {
 		public String user;
@@ -45,6 +48,5 @@ I am programming towards a GUI that is written in Java, compiled to javascript a
 		title.inner("Received from the server: "+received);
 
 	}
-
-  }
+    }
 
