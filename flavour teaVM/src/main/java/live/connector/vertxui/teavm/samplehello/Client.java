@@ -1,4 +1,4 @@
-package live.connector.vertxui.samples.helloworld;
+package live.connector.vertxui.teavm.samplehello;
 
 import org.teavm.jso.ajax.XMLHttpRequest;
 import org.teavm.jso.browser.Window;
@@ -24,7 +24,7 @@ public class Client {
 
 		helloButton = document.createElement("button").cast();
 		helloButton.setAttribute("id", "hello-button");
-		helloButton.setInnerHTML("Click me!");
+		helloButton.setInnerHTML("Click me");
 		helloButton.listenClick(evt -> clicked());
 		wrap.appendChild(helloButton);
 
@@ -32,7 +32,7 @@ public class Client {
 		wrap.appendChild(responsePanel);
 
 		thinkingPanel = document.createElement("thinking-panel");
-		thinkingPanel.setInnerHTML("The server waits a few seconds for demonstration purposes ;)");
+		thinkingPanel.setInnerHTML("The server waits as demonstration");
 		thinkingPanel.getStyle().setProperty("display", "none");
 		wrap.appendChild(thinkingPanel);
 	}

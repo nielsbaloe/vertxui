@@ -1,9 +1,10 @@
-package live.connector.vertxui.core;
+package live.connector.vertxui.teavm;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
@@ -14,15 +15,15 @@ import org.teavm.tooling.TeaVMTool;
 import org.teavm.tooling.TeaVMToolException;
 
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Runtime java-to-javascript compilation inside vertX, using TeaVM.
+ * Runtime java-to-javascript compilation inside vertX.
  * 
- * Very incomplete: TODO finish: add access to the eventbus (!!!), show sharing
- * of model-classes. TODO optimise: make a vert.x-workerthread of the
- * translation.
- *
+ * Very very very incomplete: TODO finish: add access to the eventbus (!!!),
+ * show sharing of model-classes.
+ * 
  * Docs TeaVM: http://teavm.org https://github.com/konsoletyper/teavm
  * 
  * Git: https://github.com/nielsbaloe/vertx-ui
@@ -30,20 +31,54 @@ import io.vertx.ext.web.RoutingContext;
  * @author ng
  *
  */
-public class VertxUIT implements Handler<RoutingContext> {
+public class VertxUI implements Handler<RoutingContext> {
 
 	private final static Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	private String result;
+	private String cache;
+
+	private Class<?> classs;
+	private boolean debug;
+	private boolean withHtml;
+
+	/**
+	 * Convert the class to html/javascript at runtime. With debugging, you can
+	 * make changes in your IDE, save, and refresh your browser which will take
+	 * the latest .class files that your IDE has just compiled.
+	 * 
+	 * @param classs
+	 *            the given class
+	 * @param debug
+	 *            whether we output debug information, minimise output, and
+	 *            recompile again on each browser request.
+	 * @param withHtml
+	 *            whether we want to the result to be html with the javascript
+	 *            in there.
+	 */
+	public VertxUI(Class<?> classs, boolean debug, boolean withHtml) {
+		this.classs = classs;
+		this.debug = debug;
+		this.withHtml = withHtml;
+		Vertx.currentContext().executeBlocking(future -> {
+			future.complete(getJavascript());
+		}, b -> {
+			cache = (String) b.result();
+		});
+	}
 
 	@Override
 	public void handle(RoutingContext event) {
-		event.response().end(result);
+		if (debug) {
+			cache = getJavascript();
+		}
+		event.response().end(cache);
 	}
 
-	public VertxUIT(Class<?> classs, boolean optimise) throws IOException, TeaVMToolException {
-		File temp = File.createTempFile("prefix", "suffix");
+	private String getJavascript() {
+		File temp = null;
 		try {
+			temp = File.createTempFile("prefix", "suffix");
+
 			// Documentation:
 			// https://github.com/konsoletyper/teavm/wiki/Building-JavaScript-with-Maven-and-TeaVM
 			TeaVMTool teaVmTool = new TeaVMTool();
@@ -54,27 +89,31 @@ public class VertxUIT implements Handler<RoutingContext> {
 			teaVmTool.setRuntime(RuntimeCopyOperation.MERGED);
 			teaVmTool.setMainPageIncluded(false);
 			teaVmTool.setBytecodeLogging(false);
-			teaVmTool.setDebugInformationGenerated(!optimise);
-			teaVmTool.setMinifying(optimise);
+			teaVmTool.setDebugInformationGenerated(debug);
+			teaVmTool.setMinifying(!debug);
 			teaVmTool.generate();
 			ProblemProvider problemProvider = teaVmTool.getProblemProvider();
 			List<Problem> severes = problemProvider.getSevereProblems();
 			for (Problem problem : problemProvider.getProblems()) {
 				LOGGER.warning("Warning: " + problem.getClass() + ":" + problem.getText());
-				// + "- " + problem.getLocation());
 			}
 			for (Problem problem : problemProvider.getSevereProblems()) {
 				LOGGER.severe(problem.getClass() + ":" + problem.getText());
-				// + "- " + problem.getLocation());
 			}
 			if (!severes.isEmpty()) {
 				throw new TeaVMToolException("Severe build error(s) occurred");
 			}
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("<!DOCTYPE html><html><head></head><body onload='main()'><script>");
-			stringBuilder.append(FileUtils.readFileToString(temp, "UTF-8"));
-			stringBuilder.append("</script></body></html>");
-			result = stringBuilder.toString();
+			String result = FileUtils.readFileToString(temp, "UTF-8");
+
+			if (withHtml) {
+				// javascript is not in the <head> to prevent onload errors
+				result = "<!DOCTYPE html><html><head/><body onload='main()'><script>" + result
+						+ "</script></body></html>";
+			}
+			return result;
+		} catch (IOException | TeaVMToolException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			return "";
 		} finally {
 			if (temp.exists()) { // just in case
 				temp.delete();

@@ -1,17 +1,19 @@
-package live.connector.vertxui.samples.helloworld;
+package live.connector.vertxui.teavm.samplehello;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.teavm.tooling.TeaVMToolException;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
-import live.connector.vertxui.core.VertxUIT;
+import live.connector.vertxui.teavm.VertxUI;
 
 public class Server extends AbstractVerticle {
 
@@ -26,21 +28,24 @@ public class Server extends AbstractVerticle {
 	@Override
 	public void start() throws IOException, TeaVMToolException {
 		Router router = Router.router(vertx);
-		router.route("/client").handler(new VertxUIT(Client.class, true));
+		router.route("/client").handler(new VertxUI(Client.class, false, true));
 		router.route("/server").handler(handle -> {
-			vertx.setTimer(2000, l -> {
+			vertx.setTimer(1000, l -> {
 				handle.response().end("Hello, " + handle.request().getHeader("User-Agent"));
 			});
 		});
 		HttpServerOptions serverOptions = new HttpServerOptions();
-		serverOptions.setCompressionSupported(true);
-		vertx.createHttpServer(serverOptions).requestHandler(router::accept).listen(80, listenHandler -> {
-			if (listenHandler.failed()) {
-				LOGGER.log(Level.SEVERE, "Startup error", listenHandler.cause());
-				System.exit(0); // stop on startup error
-			}
-		});
-		LOGGER.info("Deployed");
+		serverOptions.setCompressionSupported(true); // http compression
+		HttpServer server = vertx.createHttpServer(serverOptions).requestHandler(router::accept).listen(80,
+				listenHandler -> {
+					if (listenHandler.failed()) {
+						LOGGER.log(Level.SEVERE, "Startup error", listenHandler.cause());
+						System.exit(0); // stop on startup error
+					}
+				});
+		LOGGER.info("Initialised: " + router.getRoutes().parallelStream().map(a -> {
+			return "  http://localhost:" + server.actualPort() + a.getPath();
+		}).collect(Collectors.joining()));
 	}
 
 }
