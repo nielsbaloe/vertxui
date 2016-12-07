@@ -1,4 +1,4 @@
-package live.connector.vertx.samples.helloworld;
+package live.connector.vertxui.samples.helloworld;
 
 import org.teavm.jso.ajax.XMLHttpRequest;
 import org.teavm.jso.browser.Window;

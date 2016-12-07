@@ -1,4 +1,4 @@
-package live.connector.vertx.samples.helloworld;
+package live.connector.vertxui.samples.helloworld;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
