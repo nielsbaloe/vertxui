@@ -19,16 +19,15 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
 
 /**
- * Runtime java-to-javascript compilation inside vertX.
+ * Runtime java-to-javascript compilation inside vertX, see
+ * https://github.com/nielsbaloe/vertx-ui .
  * 
- * Very very very incomplete: TODO finish: add access to the eventbus (!!!),
- * show sharing of model-classes.
+ * Very very very incomplete: TODO finish: add access to the eventbus and a
+ * service-proxy, demonstrate sharing entity classes.
  * 
  * Docs TeaVM: http://teavm.org https://github.com/konsoletyper/teavm
  * 
- * Git: https://github.com/nielsbaloe/vertx-ui
- * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 public class VertxUI implements Handler<RoutingContext> {
@@ -36,7 +35,6 @@ public class VertxUI implements Handler<RoutingContext> {
 	private final static Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	private String cache;
-
 	private Class<?> classs;
 	private boolean debug;
 	private boolean withHtml;
@@ -60,21 +58,21 @@ public class VertxUI implements Handler<RoutingContext> {
 		this.debug = debug;
 		this.withHtml = withHtml;
 		Vertx.currentContext().executeBlocking(future -> {
-			future.complete(getJavascript());
-		}, b -> {
-			cache = (String) b.result();
+			future.complete(getJavascript(classs, debug, withHtml));
+		}, result -> {
+			cache = (String) result.result();
 		});
 	}
 
 	@Override
 	public void handle(RoutingContext event) {
 		if (debug) {
-			cache = getJavascript();
+			cache = getJavascript(classs, debug, withHtml);
 		}
 		event.response().end(cache);
 	}
 
-	private String getJavascript() {
+	public static String getJavascript(Class<?> classs, boolean debug, boolean withHtml) {
 		File temp = null;
 		try {
 			temp = File.createTempFile("prefix", "suffix");

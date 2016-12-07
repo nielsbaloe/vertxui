@@ -34,8 +34,7 @@ public class Server extends AbstractVerticle {
 				handle.response().end("Hello, " + handle.request().getHeader("User-Agent"));
 			});
 		});
-		HttpServerOptions serverOptions = new HttpServerOptions();
-		serverOptions.setCompressionSupported(true); // http compression
+		HttpServerOptions serverOptions = new HttpServerOptions().setCompressionSupported(true);
 		HttpServer server = vertx.createHttpServer(serverOptions).requestHandler(router::accept).listen(80,
 				listenHandler -> {
 					if (listenHandler.failed()) {
