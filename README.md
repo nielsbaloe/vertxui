@@ -5,7 +5,7 @@ A VertX optimised UI by runtime java to javascript translation. Ideal as microse
 
 The runtime translation means that you don't need any Maven/IDE tools during development. You don't even need file access at runtime. Using java instead of javascript means strong-typing, direct binding with entity classes, and having access to the java ánd the javascript ecosystems.
 
-To debug,  the VertxUI debug parameter to true, save your java file in your IDE (which triggers the auto-compilation) and VertxUI will translate the classfiles to javascript every time you refresh the browser.
+To debug, set the VertxUI debug parameter to true, save your .java file in your IDE (for auto-compilation) and VertxUI will translate the classfiles to javascript when you refresh the browser.
 
 Right now the hello world TeaVM works, without Vert.X eventbus or service-proxy (http://vertx.io/docs/vertx-service-proxy/java ) in the client yet.
 
