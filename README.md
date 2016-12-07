@@ -1,9 +1,13 @@
 vertx-ui
 ===
 
-A VertX optimised UI by runtime java to javascript. Ideal as microservice, serving a part of the browser screen. Compilation to javascript at runtime (not at compile-time using any maven/IDE frameworks), strong-binding with entity classes.
+A VertX optimised UI by runtime java to javascript translation. Ideal as microservice when serving just a piece of your browser screen. 
 
-Right now the runtime javascript translation by TeaVM works, without Vert.X eventbus or service-proxy (http://vertx.io/docs/vertx-service-proxy/java ) in the client yet.
+The runtime translation means that you don't need any Maven/IDE tools during development. You don't even need file access at runtime. Using java instead of javascript means strong-typing, direct binding with entity classes, and having access to as well the java and the javascript ecosystems to write your browser user interface.
+
+To debug,  the VertxUI debug parameter to true, and VertxUI  will translate to javascript every time you refresh the browser.
+
+Right now the hello world TeaVM works, without Vert.X eventbus or service-proxy (http://vertx.io/docs/vertx-service-proxy/java ) in the client yet.
 
 A future example would be:
 
