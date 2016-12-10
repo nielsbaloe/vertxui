@@ -1,4 +1,4 @@
-package live.connector.vertxui.teavm;
+package live.connector.vertxui.core;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,9 +21,6 @@ import io.vertx.ext.web.RoutingContext;
 /**
  * Runtime java-to-javascript compilation inside vertX, see
  * https://github.com/nielsbaloe/vertx-ui .
- * 
- * Very very very incomplete: TODO finish: add access to the eventbus and a
- * service-proxy, demonstrate sharing entity classes.
  * 
  * Docs TeaVM: http://teavm.org https://github.com/konsoletyper/teavm
  * 
@@ -86,14 +83,14 @@ public class VertxUI implements Handler<RoutingContext> {
 			teaVmTool.setCacheDirectory(temp.getParentFile());
 			teaVmTool.setRuntime(RuntimeCopyOperation.MERGED);
 			teaVmTool.setMainPageIncluded(false);
-			teaVmTool.setBytecodeLogging(false);
+			teaVmTool.setBytecodeLogging(debug);
 			teaVmTool.setDebugInformationGenerated(debug);
 			teaVmTool.setMinifying(!debug);
 			teaVmTool.generate();
 			ProblemProvider problemProvider = teaVmTool.getProblemProvider();
 			List<Problem> severes = problemProvider.getSevereProblems();
 			for (Problem problem : problemProvider.getProblems()) {
-				LOGGER.warning("Warning: " + problem.getClass() + ":" + problem.getText());
+				LOGGER.warning(problem.getClass() + ":" + problem.getText());
 			}
 			for (Problem problem : problemProvider.getSevereProblems()) {
 				LOGGER.severe(problem.getClass() + ":" + problem.getText());

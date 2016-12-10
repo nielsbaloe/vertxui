@@ -1,4 +1,4 @@
-package live.connector.vertxui.teavm.samplehello;
+package live.connector.vertxui.samples.helloWorldFluidHtml;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -13,7 +13,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
-import live.connector.vertxui.teavm.VertxUI;
+import live.connector.vertxui.core.VertxUI;
 
 public class Server extends AbstractVerticle {
 
@@ -21,8 +21,6 @@ public class Server extends AbstractVerticle {
 
 	public static void main(String[] args) throws InterruptedException {
 		Vertx.vertx().deployVerticle(MethodHandles.lookup().lookupClass().getName());
-		// Launcher.main(new String[]
-		// {"run",MethodHandles.lookup().lookupClass().getName() });
 	}
 
 	@Override
@@ -42,8 +40,8 @@ public class Server extends AbstractVerticle {
 						System.exit(0); // stop on startup error
 					}
 				});
-		LOGGER.info("Initialised: " + router.getRoutes().parallelStream().map(a -> {
-			return "  http://localhost:" + server.actualPort() + a.getPath();
+		LOGGER.info("Initialised:" + router.getRoutes().stream().map(a -> {
+			return "\n\thttp://localhost:" + server.actualPort() + a.getPath();
 		}).collect(Collectors.joining()));
 	}
 
