@@ -1,17 +1,15 @@
 vertx-ui
 ===
 
-A VertX optimised UI by runtime java to javascript translation. Ideal as microservice when serving just a piece of your browser screen. 
+A Vert.X optimised UI package containing runtime Java to Javascript translation (by TeaVM.org), and a small fluid HTML toolkit. Ideal as microservice when serving just a piece of your browser screen. Use the Java ánd the JavaScript ecosystems for your product.
 
-The runtime translation means that you don't need any Maven/IDE tools during development. You don't even need file access at runtime. Using java instead of javascript means strong-typing, direct binding with entity classes, and having access to the java Ã¡nd the javascript ecosystems.
+The runtime translation means that you don't need any Maven/IDE tools during development. You don't even need file access at runtime. Using java instead of javascript means strong-typing, direct binding with entity classes, and convenient tooling.
 
-To debug, set the VertxUI debug parameter to true, save your .java file in your IDE (for auto-compilation) and VertxUI will translate the classfiles to javascript when you refresh the browser.
+To debug, set the VertxUI debug parameter to true, press CTRL+S  in your IDE (to triggerauto-compilation) and VertxUI will translate the classfiles to javascript when you refresh the browser.
 
-Right now the hello world TeaVM works, without Vert.X eventbus or service-proxy (http://vertx.io/docs/vertx-service-proxy/java ) in the client yet.
+An almost-there example:
 
-A future example would be:
-
-    public class GUI extends VertxUI {
+    public class Client extends VertxUI {
     
 	// Model (inline as demonstration)
 	public class Model {
@@ -21,14 +19,15 @@ A future example would be:
 
 	private Model model = new Model();
 
-	private Html title;
+	private Div title;
 
-	public GUI() {
-
+	public Client() {
+		Html body = Html.body();
+		
 		// View
-		title = docRoot().div("<h1>Bla</h1>");
-		Html form = docRoot().form();
-		form.input("user", model.user, i -> {
+		Div title = body.div("<h1>Bla</h1>");
+		Form form = body.form()
+			.input("user", model.user, i -> {
 			model.user = i;
 		}).input("password", i -> {
 			model.password = i;
@@ -51,6 +50,6 @@ A future example would be:
 	private void receive(JsonObject received) {
 		title.inner("Received from the server: "+received);
 
-	}
+	  }
     }
 
