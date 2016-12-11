@@ -1,22 +1,22 @@
 vertx-ui
 ===
 
-A [Vert.X](http://vertx.io/) optimised pure-Java UI toolkit with unnoticable-fast server-time Java to Javascript translation (by [TeaVM](http://teavm.org/)), and a fluid HTML toolkit. The Vert.X eventbus does not only stretchs all the way inside your browser (by using websockets with sockjs), but now also in the same programming language.
+A [Vert.X](http://vertx.io/) optimised pure-Java UI toolkit with unnoticable-fast server-time Java to Javascript translation (by [TeaVM](http://teavm.org/)), and a fluid HTML toolkit. The Vert.X eventbus does not only stretchs all the way inside your browser (by websockets with sockjs), but now also in the same programming language.
 
-The server-time translation works at startup time so you don't need any Maven/IDE tools during development. You don't even need file access at runtime, ideal as minimal microservice. Using Java instead of Javascript means strong-typing, direct binding with entity classes, convenient tooling, easy junit testing, and both the Java ánd the JavaScript ecosystems under your fingertips.
+The server-time translation works at server startup time so you don't need to set up any Maven/IDE tools. You don't even need file access at runtime, which makes vert-x ideal as minimal microservice. Heck, remember you don't need to setup Apache or Tomcat too because you're using Vert.X which can [handle thousands of connections per core](https://dzone.com/articles/inside-vertx-comparison-nodejs). Using Java instead of Javascript means strong-typing, direct binding with entity classes, convenient tooling, easy junit testing, and both the Java ánd the JavaScript ecosystems under your fingertips.
 
 Server-time translation does not mean you can not debug your code. To debug, set the VertxUI debug parameter to true, run your code, press CTRL+S in your IDE (to trigger auto-compilation) and VertxUI will translate the classfiles to javascript when you refresh the browser.
 
-## Serverside
+### Serverside
 
-The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary wrapping HTML, ready to be shown in the browser.
+The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary (single-lined) wrapping HTML, ready to be shown in the browser.
 
     router.route("/client").handler(new VertxUI(Client.class, false, true));
 
-Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples).
+Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples). The hello-world example translates from java to javascript within a second server startup time, and that results in 68kb dependency-less javascript+html, or in 16kb HTTP-zipped javscript+html.
 
 
-## Clientside pure DOM
+### Clientside pure DOM
 
 The clientside looks like plain javascript but then with Java (8's lambda) callbacks. This is pure 
 [TeaVM](http://teavm.org/).
