@@ -9,12 +9,11 @@ Server-time translation does not mean you can not debug your code. To debug, set
 
 ### Serverside
 
-The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary (single-lined) wrapping HTML, ready to be shown in the browser.
+The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary (single-lined) wrapping HTML, ready to be shown in the browser. So, not only forget about javascript, but forget about editing html files too.
 
     router.route("/client").handler(new VertxUI(Client.class, false, true));
 
-Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples). The hello-world example translates from java to javascript within a second server startup time, and that results in 68kb dependency-less javascript+html, or in 16kb HTTP-zipped javscript+html. This second startup delay is faster than you putting that file there manually. The resulting javascript is so small because TeaVM only takes into compilation what was needed.
-
+Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples). The hello-world example translates from java to javascript within a second server startup time - that is probably less than you putting that file somewhere in the right folder. The result is one raw 68kb dependency-less javascript+html file, or a 16kb HTTP-zipped file. The resulting javascript is so small because TeaVM only translates from API's what was actually needed.
 
 ### Clientside pure DOM
 
