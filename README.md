@@ -1,6 +1,7 @@
-# vertx-ui
+vertx-ui
+===
 
-A [Vert.X](http://vertx.io/) optimised pure-Java UI toolkit with server-time Java to Javascript translation (by [TeaVM](http://teavm.org/)), and a fluid HTML toolkit. The Vert.X eventbus does not only stretchs all the way inside your browser (by using websockets with sockjs), but now also in the same programming language.
+A [Vert.X](http://vertx.io/) optimised pure-Java UI toolkit with unnoticable-fast server-time Java to Javascript translation (by [TeaVM](http://teavm.org/)), and a fluid HTML toolkit. The Vert.X eventbus does not only stretchs all the way inside your browser (by using websockets with sockjs), but now also in the same programming language.
 
 The server-time translation works at startup time so you don't need any Maven/IDE tools during development. You don't even need file access at runtime, ideal as minimal microservice. Using Java instead of Javascript means strong-typing, direct binding with entity classes, convenient tooling, easy junit testing, and both the Java ánd the JavaScript ecosystems under your fingertips.
 
