@@ -15,6 +15,7 @@ public class Client {
 	private HTMLElement responsePanel;
 	private HTMLElement thinkingPanel;
 
+	// Do not run this one, run the server
 	public static void main(String[] args) {
 		new Client();
 	}

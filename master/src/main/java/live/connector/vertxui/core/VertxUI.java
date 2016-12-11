@@ -42,13 +42,19 @@ public class VertxUI implements Handler<RoutingContext> {
 	 * the latest .class files that your IDE has just compiled.
 	 * 
 	 * @param classs
-	 *            the given class
+	 *            the given class. make a public static String[] libraries or a
+	 *            public static String[] stylesheets with javascript and
+	 *            stylesheets you want to include in the generated html file.
 	 * @param debug
 	 *            whether we output debug information, minimise output, and
 	 *            recompile again on each browser request.
 	 * @param withHtml
-	 *            whether we want to the result to be html with the javascript
-	 *            in there.
+	 *            whether we want to the result to be wrapped inside <!DOCTYPE
+	 *            html><html><head><script>...</script></head><body onload=
+	 *            'main()'></body></html>
+	 * @param jsLibraries
+	 *            other .js files that can be included inside the HTML head.
+	 *            Only makes sense when withHtml is set to true.
 	 */
 	public VertxUI(Class<?> classs, boolean debug, boolean withHtml) {
 		this.classs = classs;
@@ -88,27 +94,55 @@ public class VertxUI implements Handler<RoutingContext> {
 			teaVmTool.setMinifying(!debug);
 			teaVmTool.generate();
 			ProblemProvider problemProvider = teaVmTool.getProblemProvider();
-			List<Problem> severes = problemProvider.getSevereProblems();
 			for (Problem problem : problemProvider.getProblems()) {
 				LOGGER.warning(problem.getClass() + ":" + problem.getText());
 			}
-			for (Problem problem : problemProvider.getSevereProblems()) {
-				LOGGER.severe(problem.getClass() + ":" + problem.getText());
-			}
+			List<Problem> severes = problemProvider.getSevereProblems();
 			if (!severes.isEmpty()) {
-				throw new TeaVMToolException("Severe build error(s) occurred");
+				// Collect errors and throw
+				StringBuilder allSeveres = new StringBuilder("Severe build error(s) occurred: ");
+				for (Problem severe : severes) {
+					allSeveres.append("\n\t");
+					allSeveres.append(severe.getClass());
+					allSeveres.append(":");
+					allSeveres.append(severe.getText());
+				}
+				String allSeveresString = allSeveres.toString();
+				throw new TeaVMToolException(allSeveresString);
 			}
 			String result = FileUtils.readFileToString(temp, "UTF-8");
 
 			if (withHtml) {
-				// javascript is not in the <head> to prevent onload errors
-				result = "<!DOCTYPE html><html><head/><body onload='main()'><script>" + result
-						+ "</script></body></html>";
+				StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head>");
+				try {
+					for (String library : (String[]) classs.getDeclaredField("libraries").get(null)) {
+						html.append("<script type='text/javascript' src='" + library + "'></script>");
+					}
+
+				} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException
+						| SecurityException ne) {
+					// consciously ignore, is OK if it does not exist
+				}
+				try {
+					for (String stylesheet : (String[]) classs.getDeclaredField("stylesheets").get(null)) {
+						html.append("<link rel='stylesheet' href='" + stylesheet + "'>");
+					}
+				} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException
+						| SecurityException ne) {
+					// consciously ignore, is OK if it does not exist
+				}
+				html.append("<script>");
+				html.append(result);
+				html.append("</script></head><body onload='main()'></body></html>");
+				result = html.toString();
 			}
 			return result;
-		} catch (IOException | TeaVMToolException e) {
+		} catch (IOException |
+
+				TeaVMToolException e) {
 			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			return "";
+			// Errors should prevent going live at runtime
+			throw new RuntimeException(e.getMessage(), e);
 		} finally {
 			if (temp.exists()) { // just in case
 				temp.delete();

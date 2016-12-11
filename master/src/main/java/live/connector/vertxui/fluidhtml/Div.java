@@ -1,16 +1,9 @@
 package live.connector.vertxui.fluidhtml;
 
-import org.teavm.jso.dom.html.HTMLElement;
-
 public class Div extends Html {
 
-	protected Div(HTMLElement parent) {
+	protected Div(Html parent) {
 		super("div", parent);
-	}
-
-	protected Div(String inner, HTMLElement parent) {
-		super("div", parent);
-		inner(inner);
 	}
 
 	@Override
@@ -28,4 +21,8 @@ public class Div extends Html {
 		return (Div) super.css(property, value);
 	}
 
+	@Override
+	public Div div() {
+		return (Div) super.div();
+	}
 }

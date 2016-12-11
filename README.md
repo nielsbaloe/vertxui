@@ -3,9 +3,9 @@ vertx-ui
 
 A [Vert.X](http://vertx.io/) optimised pure-Java UI toolkit with unnoticable-fast server-time Java to Javascript translation (by [TeaVM](http://teavm.org/)), and a fluid HTML toolkit. The Vert.X eventbus does not only stretchs all the way inside your browser (by websockets with sockjs), but now also in the same programming language.
 
-The server-time translation works at server startup time so you don't need to set up any Maven/IDE tools. You don't even need file access at runtime, which makes vert-x ideal as minimal microservice. Heck, remember you don't need to setup Apache or Tomcat too because you're using Vert.X which can [handle thousands of connections per core](https://dzone.com/articles/inside-vertx-comparison-nodejs). Using Java instead of Javascript means strong-typing, direct binding with entity classes, convenient tooling, easy junit testing, and both the Java ánd the JavaScript ecosystems under your fingertips.
+The server-time translation works at server startup time so you don't need to set up any Maven/IDE tools for developing, and you don't have your IDE being locked because it is doing 'something in the background' when you save a file (a nightmare you probably recognise with Maven or GWT projects). You don't need file access at runtime, which makes vert-x ideal as minimal microservice. Heck, remember you don't need to setup Apache or Tomcat too because you're using Vert.X which can [handle thousands of connections per core](https://dzone.com/articles/inside-vertx-comparison-nodejs). Using Java instead of Javascript means strong-typing, direct binding with entity classes, convenient tooling, easy junit testing, and both the Java ánd the JavaScript ecosystems under your fingertips.
 
-Server-time translation does not mean you can not debug your code. To debug, set the VertxUI debug parameter to true, run your code, press CTRL+S in your IDE (to trigger auto-compilation) and VertxUI will translate the classfiles to javascript when you refresh the browser.
+Server-time translation does not mean you can not debug your code. To debug, set the VertxUI debug parameter to true and run your code. When you save a file in your IDE (to trigger auto-compilation), VertxUI will translate the latest classfiles to javascript when you refresh the browser.
 
 ### Serverside
 
@@ -13,7 +13,7 @@ The serverside is easy. This single line serves all necessary front-end Javascri
 
     router.route("/client").handler(new VertxUI(Client.class, false, true));
 
-Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples). The hello-world example translates from java to javascript within a second server startup time, and that results in 68kb dependency-less javascript+html, or in 16kb HTTP-zipped javscript+html.
+Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples). The hello-world example translates from java to javascript within a second server startup time, and that results in 68kb dependency-less javascript+html, or in 16kb HTTP-zipped javscript+html. This second startup delay is faster than you putting that file there manually. The resulting javascript is so small because TeaVM only takes into compilation what was needed.
 
 
 ### Clientside pure DOM

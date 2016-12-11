@@ -11,6 +11,7 @@ import org.teavm.tooling.TeaVMToolException;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
@@ -43,12 +44,14 @@ public class Server extends AbstractVerticle {
 			be.complete(true);
 		}));
 
-		HttpServer server = vertx.createHttpServer().requestHandler(router::accept).listen(8020, listenHandler -> {
-			if (listenHandler.failed()) {
-				LOGGER.log(Level.SEVERE, "Startup error", listenHandler.cause());
-				System.exit(0); // stop on startup error
-			}
-		});
+		HttpServerOptions serverOptions = new HttpServerOptions().setCompressionSupported(true);
+		HttpServer server = vertx.createHttpServer(serverOptions).requestHandler(router::accept).listen(80,
+				listenHandler -> {
+					if (listenHandler.failed()) {
+						LOGGER.log(Level.SEVERE, "Startup error", listenHandler.cause());
+						System.exit(0); // stop on startup error
+					}
+				});
 		vertx.eventBus().consumer(Client.address, message -> {
 			LOGGER.info("received: " + message.body() + " replyAddress=" + message.replyAddress());
 			if (message.replyAddress() != null) {

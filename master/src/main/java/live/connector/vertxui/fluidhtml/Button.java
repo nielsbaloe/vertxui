@@ -3,11 +3,10 @@ package live.connector.vertxui.fluidhtml;
 import org.teavm.jso.dom.events.EventListener;
 import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLButtonElement;
-import org.teavm.jso.dom.html.HTMLElement;
 
 public class Button extends Html {
 
-	protected Button(String text, HTMLElement element) {
+	protected Button(String text, Html element) {
 		super("button", element);
 		inner(text);
 	}

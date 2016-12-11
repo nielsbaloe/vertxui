@@ -9,56 +9,60 @@ import org.teavm.jso.dom.xml.Element;
 
 public class Html {
 
-	private final static HTMLDocument document = Window.current().getDocument();
+	protected final static HTMLDocument document = Window.current().getDocument();
 
 	protected HTMLElement element;
 
-	protected Html(String tagName, HTMLElement parent) {
-		if (parent == null) {
-			element = (HTMLElement) document.getBody();
-		} else {
-			element = document.createElement(tagName);
-			parent.appendChild(element);
-		}
+	protected Html(String tagName, Html parent) {
+		element = document.createElement(tagName);
+		parent.element.appendChild(element);
 	}
 
-	public static Html body() {
-		return new Html(null, null);
+	protected Html(HTMLElement parent) {
+		element = parent;
 	}
 
-	public Element el() {
+	public static Body body() {
+		return new Body(document.getBody());
+	}
+
+	public static Head head() {
+		return new Head(document.getHead());
+	}
+
+	public Element dom() {
 		return element;
 	}
 
-	public Html inner(String innerHtml) {
+	protected Html inner(String innerHtml) {
 		element.setInnerHTML(innerHtml);
 		return this;
 	}
 
-	public Html onClick(EventListener<MouseEvent> listener) {
+	protected Html onClick(EventListener<MouseEvent> listener) {
 		element.listenClick(listener);
 		return this;
 	}
 
-	public Button button(String text) {
-		return new Button(text, element);
+	protected Html id(String string) {
+		return attribute("id", string);
 	}
 
-	public Div div() {
-		return new Div(element);
-	}
-
-	public Div div(String inner) {
-		return new Div(inner, element);
-	}
-
-	public Html id(String string) {
-		element.setAttribute("id", string);
+	protected Html css(String property, String value) {
+		element.getStyle().setProperty(property, value);
 		return this;
 	}
 
-	public Html css(String property, String value) {
-		element.getStyle().setProperty(property, value);
+	protected Div div() {
+		return new Div(this);
+	}
+
+	public Button button(String text) {
+		return new Button(text, this);
+	}
+
+	protected Html attribute(String name, String value) {
+		element.setAttribute(name, value);
 		return this;
 	}
 
