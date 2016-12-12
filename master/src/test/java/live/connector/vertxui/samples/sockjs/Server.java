@@ -17,6 +17,7 @@ import io.vertx.ext.web.handler.sockjs.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+import live.connector.vertxui.core.FigWheely;
 import live.connector.vertxui.core.VertxUI;
 
 public class Server extends AbstractVerticle {
@@ -30,20 +31,22 @@ public class Server extends AbstractVerticle {
 	@Override
 	public void start() throws IOException, TeaVMToolException {
 		Router router = Router.router(vertx);
-		router.route("/client").handler(new VertxUI(Client.class, false, true));
 
-		PermittedOptions adresser = new PermittedOptions().setAddress(Client.address);
+		// Sockjs handler
+		PermittedOptions adresser = new PermittedOptions().setAddress(Client.eventBusAddress);
 		BridgeOptions firewall = new BridgeOptions().addInboundPermitted(adresser).addOutboundPermitted(adresser);
 		router.route("/sockjs/*").handler(SockJSHandler.create(vertx).bridge(firewall, be -> {
 			if (be.type() == BridgeEventType.REGISTER) {
 				LOGGER.info("Connected: " + be.socket().writeHandlerID());
-				vertx.eventBus().publish("Client.address", "Hey all, new subscriber " + be.socket().writeHandlerID());
+				vertx.eventBus().publish(Client.eventBusAddress,
+						"Hey all, new subscriber " + be.socket().writeHandlerID());
 			} else if (be.type() == BridgeEventType.SOCKET_CLOSED) {
 				LOGGER.info("Leaving: " + be.socket().writeHandlerID());
 			}
 			be.complete(true);
 		}));
 
+		// HTTP server
 		HttpServerOptions serverOptions = new HttpServerOptions().setCompressionSupported(true);
 		HttpServer server = vertx.createHttpServer(serverOptions).requestHandler(router::accept).listen(80,
 				listenHandler -> {
@@ -52,13 +55,24 @@ public class Server extends AbstractVerticle {
 						System.exit(0); // stop on startup error
 					}
 				});
-		vertx.eventBus().consumer(Client.address, message -> {
+
+		// Client with Figwheely support
+		String clientJSUrl = "/client.js";
+		router.route("/client").handler(requestHandler -> {
+			requestHandler.response().end("<!DOCTYPE html><html><head><script type=text/javascript src=" + clientJSUrl
+					+ "></script></head><body><script>main();" + FigWheely.script + "</script></body></html>");
+		});
+		FigWheely.add(router, clientJSUrl, new VertxUI(Client.class, false), vertx);
+
+		// eventbus example
+		vertx.eventBus().consumer(Client.eventBusAddress, message -> {
 			LOGGER.info("received: " + message.body() + " replyAddress=" + message.replyAddress());
 			if (message.replyAddress() != null) {
 				LOGGER.info("sending: I received so I reply");
 				message.reply("I received so I reply to " + message.replyAddress());
 			}
 		});
+
 		LOGGER.info("Initialised:" + router.getRoutes().stream().map(a -> {
 			return "\n\thttp://localhost:" + server.actualPort() + a.getPath();
 		}).collect(Collectors.joining()));

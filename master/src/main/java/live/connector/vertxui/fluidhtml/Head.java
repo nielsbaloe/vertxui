@@ -1,6 +1,6 @@
 package live.connector.vertxui.fluidhtml;
 
-import org.teavm.jso.JSBody;
+import org.teavm.jso.ajax.XMLHttpRequest;
 import org.teavm.jso.dom.html.HTMLElement;
 
 public class Head extends Html {
@@ -9,36 +9,38 @@ public class Head extends Html {
 		super(head);
 	}
 
-	@JSBody(params = { "filename" }, script = "{var fileref=document.createElement('script');"
-			+ "fileref.setAttribute('type','text/javascript');" + "fileref.setAttribute('src', filename);"
-			+ "document.getElementsByTagName('head')[0].appendChild(fileref);console.log('consoletest');}")
-	public static native void js(String pureJs);
+	/**
+	 * Load one or more .js files.
+	 * 
+	 * @param jss
+	 */
+	public void script(String... jss) {
+		for (String js : jss) {
+			// This works but is not asynchronous, which can cause problems
+			// Html result = new Html("script", this);
+			// result.attribute("type", "text/javascript");
+			// result.attribute("src", js);
 
-	public void src(String js) {
-//		Html result = new Html("script", this);
-//		result.attribute("type", "text/javascript");
-//		result.attribute("async", "false");
-//		result.attribute("src", js);
-
-		 js(js);
-
-		// js("document.write('<script type=\"text/javascript\"
-		// src=\"http://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js\"><//script>');console.log('consoletest');");
-
-		// HTMLElement src = document.createElement("script");
-		// src.setAttribute("style", "text/javascript");
-		// src.setAttribute("src", js);
-		// document.getHead().appendChild(src);
-
-		// document.getHead().setInnerHTML("<script type=\"text/javascript\"
-		// src=\"" + js + "\"></script>");
-
+			XMLHttpRequest xhr = XMLHttpRequest.create();
+			xhr.onComplete(() -> {
+				HTMLElement src = document.createElement("script");
+				src.setAttribute("style", "text/javascript");
+				// src.setAttribute("src", js);
+				src.setAttribute("text", xhr.getResponseText());
+				element.appendChild(src);
+			});
+			xhr.open("GET", js, false);
+			xhr.send();
+		}
 	}
 
-	public void style(String css) {
-		Html result = new Html("link", this);
-		result.attribute("rel", "stylesheet");
-		result.attribute("href", css);
+	public void stylesheet(String... csss) {
+		for (String css : csss) {
+			Html result = new Html("link", this);
+			result.attribute("rel", "stylesheet");
+			result.attribute("async", "false");
+			result.attribute("href", css);
+		}
 	}
 
 }

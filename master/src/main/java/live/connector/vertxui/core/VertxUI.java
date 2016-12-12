@@ -15,7 +15,6 @@ import org.teavm.tooling.TeaVMTool;
 import org.teavm.tooling.TeaVMToolException;
 
 import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
 
 /**
@@ -32,9 +31,9 @@ public class VertxUI implements Handler<RoutingContext> {
 	private final static Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	private String cache;
-	private Class<?> classs;
-	private boolean debug;
 	private boolean withHtml;
+	protected Class<?> classs;
+	protected boolean debug;
 
 	/**
 	 * Convert the class to html/javascript at runtime. With debugging, you can
@@ -49,36 +48,46 @@ public class VertxUI implements Handler<RoutingContext> {
 	 *            whether we output debug information, minimise output, and
 	 *            recompile again on each browser request.
 	 * @param withHtml
-	 *            whether we want to the result to be wrapped inside <!DOCTYPE
-	 *            html><html><head><script>...</script></head><body onload=
-	 *            'main()'></body></html>
-	 * @param jsLibraries
-	 *            other .js files that can be included inside the HTML head.
-	 *            Only makes sense when withHtml is set to true.
+	 *            whether we want to the result to be wrapped inside
+	 * 
+	 *            <!DOCTYPE html><html><head> <script>...</script> </head>
+	 *            <body> <script>main()</script> </body></html>
+	 * @param clientJSUrl
+	 * 
 	 */
-	public VertxUI(Class<?> classs, boolean debug, boolean withHtml) {
+	public VertxUI(Class<?> classs, boolean withHtml) {
 		this.classs = classs;
-		this.debug = debug;
 		this.withHtml = withHtml;
-		Vertx.currentContext().executeBlocking(future -> {
-			future.complete(getJavascript(classs, debug, withHtml));
-		}, result -> {
-			cache = (String) result.result();
-		});
+		debug = false;
+
+		try {
+			// Below here is asynchronous generation of javascript, however we
+			// want this to be synchronous for two reasons:
+			// 1. we want to stop the startupprocess when there are severe
+			// errors to prevent deploying erronymous vertx'es.
+			// 2. when the server says 'started up' this should mean that
+			// everything is good to go, so this should include translation
+			// to the client code.
+			// Vertx.currentContext().executeBlocking(future -> {
+			// future.complete(getJavascript(classs, debug, withHtml));
+			// }, result -> { cache = (String) result.result(); });
+			translate();
+		} catch (IOException | TeaVMToolException e) {
+			LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			// Errors should prevent going live at runtime
+			throw new RuntimeException(e.getMessage(), e);
+		}
 	}
 
 	@Override
 	public void handle(RoutingContext event) {
-		if (debug) {
-			cache = getJavascript(classs, debug, withHtml);
-		}
 		event.response().end(cache);
 	}
 
-	public static String getJavascript(Class<?> classs, boolean debug, boolean withHtml) {
+	public void translate() throws TeaVMToolException, IOException {
 		File temp = null;
 		try {
-			temp = File.createTempFile("prefix", "suffix");
+			temp = File.createTempFile("vertxui", "js");
 
 			// Documentation:
 			// https://github.com/konsoletyper/teavm/wiki/Building-JavaScript-with-Maven-and-TeaVM
@@ -89,7 +98,7 @@ public class VertxUI implements Handler<RoutingContext> {
 			teaVmTool.setCacheDirectory(temp.getParentFile());
 			teaVmTool.setRuntime(RuntimeCopyOperation.MERGED);
 			teaVmTool.setMainPageIncluded(false);
-			teaVmTool.setBytecodeLogging(debug);
+			teaVmTool.setBytecodeLogging(false);
 			teaVmTool.setDebugInformationGenerated(debug);
 			teaVmTool.setMinifying(!debug);
 			teaVmTool.generate();
@@ -110,39 +119,12 @@ public class VertxUI implements Handler<RoutingContext> {
 				String allSeveresString = allSeveres.toString();
 				throw new TeaVMToolException(allSeveresString);
 			}
-			String result = FileUtils.readFileToString(temp, "UTF-8");
-
+			cache = FileUtils.readFileToString(temp, "UTF-8");
 			if (withHtml) {
-				StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head>");
-				try {
-					for (String library : (String[]) classs.getDeclaredField("libraries").get(null)) {
-						html.append("<script type='text/javascript' src='" + library + "'></script>");
-					}
-
-				} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException
-						| SecurityException ne) {
-					// consciously ignore, is OK if it does not exist
-				}
-				try {
-					for (String stylesheet : (String[]) classs.getDeclaredField("stylesheets").get(null)) {
-						html.append("<link rel='stylesheet' href='" + stylesheet + "'>");
-					}
-				} catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException
-						| SecurityException ne) {
-					// consciously ignore, is OK if it does not exist
-				}
-				html.append("<script>");
-				html.append(result);
-				html.append("</script></head><body onload='main()'></body></html>");
-				result = html.toString();
+				// main in script so we can dynamicly load scripts
+				cache = "<!DOCTYPE html><html><head><script>" + cache
+						+ "</script></head><body><script>main()</script></body></html>";
 			}
-			return result;
-		} catch (IOException |
-
-				TeaVMToolException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			// Errors should prevent going live at runtime
-			throw new RuntimeException(e.getMessage(), e);
 		} finally {
 			if (temp.exists()) { // just in case
 				temp.delete();

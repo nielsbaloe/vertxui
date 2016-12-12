@@ -1,5 +1,6 @@
 package live.connector.vertxui.fluidhtml;
 
+import org.teavm.jso.JSBody;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.events.EventListener;
 import org.teavm.jso.dom.events.MouseEvent;
@@ -10,6 +11,12 @@ import org.teavm.jso.dom.xml.Element;
 public class Html {
 
 	protected final static HTMLDocument document = Window.current().getDocument();
+
+	/**
+	 * Javascript input for optimalisation only.
+	 */
+	@JSBody(params = { "javascript" }, script = "javascript")
+	protected static native void javascript(String pureJs);
 
 	protected HTMLElement element;
 
@@ -22,14 +29,25 @@ public class Html {
 		element = parent;
 	}
 
-	public static Body body() {
+	/**
+	 * Do not create but GET the body.
+	 * 
+	 */
+	public static Body getBody() {
 		return new Body(document.getBody());
 	}
 
-	public static Head head() {
+	/**
+	 * Do not create but GET the head.
+	 * 
+	 */
+	public static Head getHead() {
 		return new Head(document.getHead());
 	}
 
+	/**
+	 * @return as org.w3 element object.
+	 */
 	public Element dom() {
 		return element;
 	}

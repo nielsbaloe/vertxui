@@ -26,7 +26,7 @@ public class Server extends AbstractVerticle {
 	@Override
 	public void start() throws IOException, TeaVMToolException {
 		Router router = Router.router(vertx);
-		router.route("/client").handler(new VertxUI(Client.class, false, true));
+		router.route("/client").handler(new VertxUI(Client.class, true));
 		router.route("/server").handler(handle -> {
 			vertx.setTimer(1000, l -> {
 				handle.response().end("Hello, " + handle.request().getHeader("User-Agent"));

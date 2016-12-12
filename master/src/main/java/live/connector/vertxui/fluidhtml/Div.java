@@ -1,9 +1,34 @@
 package live.connector.vertxui.fluidhtml;
 
+import java.lang.invoke.MethodHandles;
+
+import org.teavm.jso.dom.html.HTMLElement;
+
 public class Div extends Html {
 
 	protected Div(Html parent) {
 		super("div", parent);
+	}
+
+	protected Div(HTMLElement element) {
+		super(element);
+	}
+
+	/**
+	 * Get an existing object from the dom by 'id'.
+	 * 
+	 * @param id
+	 *            the id
+	 * @return a fluid-html object
+	 */
+	public static Div dom(String id) {
+		HTMLElement found = document.getElementById("id");
+		if (!found.getTagName().equals(MethodHandles.lookup().lookupClass().getName().toLowerCase())) {
+			throw new IllegalArgumentException(
+					"Requested non-existing dom with id=" + id + ": tagname=" + found.getTagName()
+							+ " requesting tagname=" + MethodHandles.lookup().lookupClass().getName().toLowerCase());
+		}
+		return new Div(found);
 	}
 
 	@Override
@@ -25,4 +50,5 @@ public class Div extends Html {
 	public Div div() {
 		return (Div) super.div();
 	}
+
 }

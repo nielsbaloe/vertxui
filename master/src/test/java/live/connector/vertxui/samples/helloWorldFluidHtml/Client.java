@@ -10,8 +10,8 @@ import live.connector.vertxui.fluidhtml.Html;
 public class Client {
 
 	private Button button;
-	private Div responsePanel;
-	private Div thinkingPanel;
+	private Div response;
+	private Div thinking;
 
 	// Do not run this one, run the server
 	public static void main(String[] args) {
@@ -19,16 +19,16 @@ public class Client {
 	}
 
 	public Client() {
-		Body body = Html.body();
+		Body body = Html.getBody();
 		button = body.button("Click me").id("hello-button").onClick(evt -> clicked());
-		responsePanel = body.div();
-		thinkingPanel = body.div().inner("The server waits as demonstration").id("thinking-panel").css("display",
+		response = body.div();
+		thinking = body.div().inner("The server waits as demonstration").id("thinking-panel").css("display",
 				"none");
 	}
 
 	private void clicked() {
 		button.disable();
-		thinkingPanel.css("display", "");
+		thinking.css("display", "");
 
 		XMLHttpRequest xhr = XMLHttpRequest.create();
 		xhr.onComplete(() -> responsed(xhr.getResponseText()));
@@ -40,8 +40,8 @@ public class Client {
 		System.out.println("received: " + text);
 		button.enable();
 
-		responsePanel.div().inner(text);
-		thinkingPanel.css("display", "none");
+		response.div().inner(text);
+		thinking.css("display", "none");
 	}
 
 }

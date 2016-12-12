@@ -11,9 +11,9 @@ public class Client {
 
 	private final HTMLDocument document = Window.current().getDocument();
 
-	private HTMLButtonElement helloButton;
-	private HTMLElement responsePanel;
-	private HTMLElement thinkingPanel;
+	private HTMLButtonElement button;
+	private HTMLElement response;
+	private HTMLElement thinking;
 
 	// Do not run this one, run the server
 	public static void main(String[] args) {
@@ -23,24 +23,24 @@ public class Client {
 	public Client() {
 		HTMLBodyElement body = document.getBody();
 
-		helloButton = document.createElement("button").cast();
-		helloButton.setAttribute("id", "hello-button");
-		helloButton.setInnerHTML("Click me");
-		helloButton.listenClick(evt -> clicked());
-		body.appendChild(helloButton);
+		button = document.createElement("button").cast();
+		button.setAttribute("id", "hello-button");
+		button.setInnerHTML("Click me");
+		button.listenClick(evt -> clicked());
+		body.appendChild(button);
 
-		responsePanel = document.createElement("response-panel");
-		body.appendChild(responsePanel);
+		response = document.createElement("div");
+		body.appendChild(response);
 
-		thinkingPanel = document.createElement("thinking-panel");
-		thinkingPanel.setInnerHTML("The server waits as demonstration");
-		thinkingPanel.getStyle().setProperty("display", "none");
-		body.appendChild(thinkingPanel);
+		thinking = document.createElement("div");
+		thinking.setInnerHTML("The server waits as demonstration");
+		thinking.getStyle().setProperty("display", "none");
+		body.appendChild(thinking);
 	}
 
 	private void clicked() {
-		helloButton.setDisabled(true);
-		thinkingPanel.getStyle().setProperty("display", "");
+		button.setDisabled(true);
+		thinking.getStyle().setProperty("display", "");
 
 		XMLHttpRequest xhr = XMLHttpRequest.create();
 		xhr.onComplete(() -> responsed(xhr.getResponseText()));
@@ -50,13 +50,13 @@ public class Client {
 
 	private void responsed(String text) {
 		System.out.println("received: " + text);
-		helloButton.setDisabled(false);
+		button.setDisabled(false);
 
 		HTMLElement responseElem = document.createElement("div");
 		responseElem.appendChild(document.createTextNode(text));
-		responsePanel.appendChild(responseElem);
+		response.appendChild(responseElem);
 
-		thinkingPanel.getStyle().setProperty("display", "none");
+		thinking.getStyle().setProperty("display", "none");
 	}
 
 }
