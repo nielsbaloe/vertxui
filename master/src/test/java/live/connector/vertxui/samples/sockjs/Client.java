@@ -6,19 +6,17 @@ import live.connector.vertxui.fluidhtml.Html;
 /**
  * TODO
  * 
- * - check: fluidhtml: perhaps use http://j2html.com and look at groovy
- * markupbuilder...
+ * - finish FigWheely: reload or show error at client, also add support for
+ * other files.
+ * 
+ * - figure out how to simulate react.js and replace fluid html with something
+ * lighter. perhaps use http://j2html.com and look at groovy markupbuilder... -
+ * https://facebook.github.io/react/docs/rendering-elements.html
  * 
  * - finish Wrapping the client for SockJS here
  * https://github.com/konsoletyper/teavm/wiki/Interacting-with-JavaScript
  * http://teavm.org/javadoc/0.4.x/jso/core/
  * http://teavm.org/javadoc/0.4.x/jso/apis/
- * 
- * - finish FigWheely: reload or show error at client, also add support for
- * other files.
- * 
- * - multiline in java https://github.com/benelog/multiline to simulate react.js
- * https://facebook.github.io/react/docs/rendering-elements.html +>>
  * 
  * - an example with a plain websocket
  * 
@@ -42,11 +40,12 @@ public class Client {
 		Html.getHead().script("https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js",
 				"https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
 
-		Html.getBody().div().inner("kiekeboo");
+		Html.getBody().div().button("kiekeboo").onClick(e -> {
+			System.out.println("blaa");
+		});
 
 		EventBus eb = new EventBus("http://localhost/client");
 		eb.onOpen(() -> {
-			System.out.println("connected!!");
 			// eb.registerHandler('some-address', function(error, message) {
 			// System.out.println('received: ', error, JSON.stringify(message));
 			// });

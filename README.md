@@ -19,7 +19,8 @@ The serverside is easy. This single line serves all necessary front-end Javascri
 
 If you want the file to be automaticly reloaded when the classfile changes, use FigWheely:
 
-	FigWheely.add(router, "/client", new VertxUI(Client.class, false), vertx);
+	String url = "/client";
+	router.route(url).handler(FigWheely.add(url, Client.class, false));
     
 Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples).
 

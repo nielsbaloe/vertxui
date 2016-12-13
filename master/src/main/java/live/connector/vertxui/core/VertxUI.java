@@ -33,7 +33,15 @@ public class VertxUI implements Handler<RoutingContext> {
 	private String cache;
 	private boolean withHtml;
 	protected Class<?> classs;
-	protected boolean debug;
+	private boolean debug;
+
+	/**
+	 * Create a VertxUI with debug false.
+	 * 
+	 */
+	public VertxUI(Class<?> classs, boolean withHtml) {
+		this(classs, withHtml, false);
+	}
 
 	/**
 	 * Convert the class to html/javascript at runtime. With debugging, you can
@@ -55,10 +63,10 @@ public class VertxUI implements Handler<RoutingContext> {
 	 * @param clientJSUrl
 	 * 
 	 */
-	public VertxUI(Class<?> classs, boolean withHtml) {
+	public VertxUI(Class<?> classs, boolean withHtml, boolean debug) {
 		this.classs = classs;
 		this.withHtml = withHtml;
-		debug = false;
+		this.debug = debug;
 
 		try {
 			// Below here is asynchronous generation of javascript, however we

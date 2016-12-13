@@ -14,7 +14,8 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.ServerWebSocket;
-import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import live.connector.vertxui.samples.sockjs.Client;
 
 public class FigWheely extends AbstractVerticle {
 
@@ -34,10 +35,14 @@ public class FigWheely extends AbstractVerticle {
 
 	private static List<Watchable> watchables = new ArrayList<>();
 
-	public static void add(Router router, String url, VertxUI vertxUI, Vertx vertx) {
-		router.route(url).handler(vertxUI);
+	public static Handler<RoutingContext> add(String url, Class<Client> classs, boolean withHtml) {
+		if (withHtml) {
+			LOGGER.warning(
+					"It does not make sense to use Figwheely when withHtml=true is set, because state (like shown html) is not hot swappable.");
+		}
+		VertxUI vertxUI = new VertxUI(classs, withHtml, true);
 
-		String location = buildDir + vertxUI.classs.getCanonicalName().replace(".", "/") + ".class";
+		String location = buildDir + classs.getCanonicalName().replace(".", "/") + ".class";
 		File file = new File(location);
 		if (!file.exists()) {
 			throw new IllegalArgumentException(
@@ -51,9 +56,9 @@ public class FigWheely extends AbstractVerticle {
 		watchables.add(watchable);
 
 		if (started == false) {
-			vertx.deployVerticle(FigWheely.class.getName());
+			Vertx.currentContext().owner().deployVerticle(FigWheely.class.getName());
 		}
-		vertxUI.debug = true;
+		return vertxUI;
 	}
 
 	protected static boolean started = false;
@@ -86,7 +91,7 @@ public class FigWheely extends AbstractVerticle {
 		vertx.executeBlocking(future -> {
 			while (true) {
 				try {
-					Thread.sleep(500);
+					Thread.sleep(250);
 				} catch (InterruptedException e) {
 				}
 				for (Watchable watchable : watchables) {
@@ -109,7 +114,19 @@ public class FigWheely extends AbstractVerticle {
 		});
 	}
 
-	public static final String script = "var figwheely=new WebSocket('ws://localhost:8090');"
-			+ "figwheely.onmessage = function(m){console.log(m.data);}";
+	public static final String script = "new WebSocket('ws://localhost:8090').onmessage = function(m)"
+			+ "{removejscssfile(m.data.substr(8),'js');};                                          "
+			+ "function removejscssfile(filename, filetype){                "
+			+ "var el= (filetype=='js')?'script':'link';                                             "
+			+ "var attr= (filetype=='js')? 'src':'href'; "
+			+ "var all=document.getElementsByTagName(el);                       "
+			+ "for (var i=all.length; i>=0; i--) {             "
+			+ "   if (all[i] && all[i].getAttribute(attr)!=null && all[i].getAttribute(attr).indexOf(filename)!=-1) {"
+			+ "       all[i].parentNode.removeChild(all[i]);                                        "
+			+ "       var script= document.createElement('script');            "
+			+ "       script.type='text/javascript';                           "
+			+ "       script.src=filename;                     "
+			+ "       all[i].parentNode.appendChild(script);                   "
+			+ "  }  } };                           ";
 
 }

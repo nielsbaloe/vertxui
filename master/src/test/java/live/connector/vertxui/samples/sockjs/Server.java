@@ -18,7 +18,6 @@ import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import live.connector.vertxui.core.FigWheely;
-import live.connector.vertxui.core.VertxUI;
 
 public class Server extends AbstractVerticle {
 
@@ -60,9 +59,10 @@ public class Server extends AbstractVerticle {
 		String clientJSUrl = "/client.js";
 		router.route("/client").handler(requestHandler -> {
 			requestHandler.response().end("<!DOCTYPE html><html><head><script type=text/javascript src=" + clientJSUrl
-					+ "></script></head><body><script>main();" + FigWheely.script + "</script></body></html>");
+					+ "></script></head><body><script>" + FigWheely.script + "main()</script></body></html>");
 		});
-		FigWheely.add(router, clientJSUrl, new VertxUI(Client.class, false), vertx);
+		String url = "/client.js";
+		router.route(url).handler(FigWheely.add(url, Client.class, false));
 
 		// eventbus example
 		vertx.eventBus().consumer(Client.eventBusAddress, message -> {
