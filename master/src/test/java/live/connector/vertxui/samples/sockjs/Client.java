@@ -6,8 +6,8 @@ import live.connector.vertxui.fluidhtml.Html;
 /**
  * TODO
  * 
- * - finish FigWheely: reload or show error at client, also add support for
- * other files.
+ * - finish FigWheely: show error at client, reload other resources than js/css,
+ * rewrite for easy removal.
  * 
  * - figure out how to simulate react.js and replace fluid html with something
  * lighter. perhaps use http://j2html.com and look at groovy markupbuilder... -
@@ -20,7 +20,8 @@ import live.connector.vertxui.fluidhtml.Html;
  * 
  * - an example with a plain websocket
  * 
- * - an example with vertx service-proxy
+ * - an example with vertx service-proxy or a much better way to interact with
+ * services (but strong binded!) - a la GWT?
  * 
  * - announce at vertx-awesome github list!
  * 
@@ -39,9 +40,12 @@ public class Client {
 	public Client() {
 		Html.getHead().script("https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js",
 				"https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
+		// Html.getHead().stylesheet("http://localhost/my.css");
 
-		Html.getBody().div().button("kiekeboo").onClick(e -> {
-			System.out.println("blaa");
+		Html body = Html.getBody();
+		body.button("kiekeboo").onClick(e -> {
+			System.out.println("blafsdfsdfsd!");
+			body.button("sdfsdf");
 		});
 
 		EventBus eb = new EventBus("http://localhost/client");

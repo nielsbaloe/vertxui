@@ -3,6 +3,7 @@ package live.connector.vertxui.core;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -42,11 +43,29 @@ public class FigWheely extends AbstractVerticle {
 		}
 		VertxUI vertxUI = new VertxUI(classs, withHtml, true);
 
-		String location = buildDir + classs.getCanonicalName().replace(".", "/") + ".class";
-		File file = new File(location);
+		addItem(url, buildDir + classs.getCanonicalName().replace(".", "/") + ".class", vertxUI);
+
+		if (started == false) {
+			Vertx.currentContext().owner().deployVerticle(FigWheely.class.getName());
+		}
+		return vertxUI;
+	}
+
+	public static Handler<RoutingContext> add(String url, String file) {
+		addItem(url, file, null);
+		return a -> {
+			try {
+				a.response().end(new String(Files.readAllBytes(new File(file).toPath())));
+			} catch (IOException e) {
+				LOGGER.log(Level.SEVERE, "Error while serving " + file, e);
+			}
+		};
+	}
+
+	private static void addItem(String url, String fileLocation, VertxUI vertxUI) {
+		File file = new File(fileLocation);
 		if (!file.exists()) {
-			throw new IllegalArgumentException(
-					"buildDir is probably not '" + buildDir + "', tried to load " + location);
+			throw new IllegalArgumentException("failed to load " + fileLocation);
 		}
 		Watchable watchable = new Watchable();
 		watchable.file = file;
@@ -54,11 +73,6 @@ public class FigWheely extends AbstractVerticle {
 		watchable.vertxUI = vertxUI;
 		watchable.url = url;
 		watchables.add(watchable);
-
-		if (started == false) {
-			Vertx.currentContext().owner().deployVerticle(FigWheely.class.getName());
-		}
-		return vertxUI;
 	}
 
 	protected static boolean started = false;
@@ -98,7 +112,9 @@ public class FigWheely extends AbstractVerticle {
 					if (watchable.file.lastModified() != watchable.lastModified) {
 						watchable.lastModified = watchable.file.lastModified();
 						try {
-							watchable.vertxUI.translate();
+							if (watchable.vertxUI != null) {
+								watchable.vertxUI.translate();
+							}
 							for (Object obj : vertx.sharedData().getLocalMap(browserIds).keySet()) {
 								vertx.eventBus().send((String) obj, "reload: " + watchable.url);
 							}
@@ -115,18 +131,23 @@ public class FigWheely extends AbstractVerticle {
 	}
 
 	public static final String script = "new WebSocket('ws://localhost:8090').onmessage = function(m)"
-			+ "{removejscssfile(m.data.substr(8),'js');};                                          "
-			+ "function removejscssfile(filename, filetype){                "
-			+ "var el= (filetype=='js')?'script':'link';                                             "
-			+ "var attr= (filetype=='js')? 'src':'href'; "
-			+ "var all=document.getElementsByTagName(el);                       "
-			+ "for (var i=all.length; i>=0; i--) {             "
+			+ "{removejscssfile(m.data.substr(8));};                                          "
+			+ "function removejscssfile(filename){                \n"
+			+ "if (filename.endsWith('js')) filetype='js'; else filetype='css';         "
+			+ "var el = (filetype=='js')? 'script':'link';                                             \n"
+			+ "var attr = (filetype=='js')? 'src':'href';                                  \n"
+			+ "var all =document.getElementsByTagName(el);                               \n"
+			+ "for (var i=all.length; i>=0; i--) {                                        \n"
 			+ "   if (all[i] && all[i].getAttribute(attr)!=null && all[i].getAttribute(attr).indexOf(filename)!=-1) {"
-			+ "       all[i].parentNode.removeChild(all[i]);                                        "
-			+ "       var script= document.createElement('script');            "
-			+ "       script.type='text/javascript';                           "
-			+ "       script.src=filename;                     "
-			+ "       all[i].parentNode.appendChild(script);                   "
+			+ "       var parent=all[i].parentNode;                                          \n"
+			+ "       parent.removeChild(all[i]);                                        \n"
+			+ "       var script = document.createElement(el);                         \n"
+			+ "		  if (filetype=='js') {                                                  \n"
+			+ "      	  script.type='text/javascript'; script.src=filename;"
+			+ "       } else {                                                        "
+			+ "      	  script.rel='stylesheet'; script.href=filename+'?'+(new Date().getTime());"
+			+ "       }                                                                     "
+			+ "       parent.appendChild(script);      console.log('yes',filename,script);                     \n"
 			+ "  }  } };                           ";
 
 }

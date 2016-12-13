@@ -56,13 +56,16 @@ public class Server extends AbstractVerticle {
 				});
 
 		// Client with Figwheely support
-		String clientJSUrl = "/client.js";
+		String clientUrl = "/client.js";
+		String cssUrl = "/my.css";
 		router.route("/client").handler(requestHandler -> {
-			requestHandler.response().end("<!DOCTYPE html><html><head><script type=text/javascript src=" + clientJSUrl
-					+ "></script></head><body><script>" + FigWheely.script + "main()</script></body></html>");
+			requestHandler.response()
+					.end("<!DOCTYPE html><html><head><link rel=stylesheet href=" + cssUrl + "?"
+							+ System.currentTimeMillis() + ">" + "<script type=text/javascript src=" + clientUrl
+							+ "></script></head><body><script>" + FigWheely.script + "main()</script></body></html>");
 		});
-		String url = "/client.js";
-		router.route(url).handler(FigWheely.add(url, Client.class, false));
+		router.route(clientUrl).handler(FigWheely.add(clientUrl, Client.class, false));
+		router.route(cssUrl+"*").handler(FigWheely.add(cssUrl, "sources/sample.css"));
 
 		// eventbus example
 		vertx.eventBus().consumer(Client.eventBusAddress, message -> {
