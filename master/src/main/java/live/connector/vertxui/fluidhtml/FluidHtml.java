@@ -8,7 +8,7 @@ import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Element;
 
-public class Html {
+public class FluidHtml {
 
 	protected final static HTMLDocument document = Window.current().getDocument();
 
@@ -20,12 +20,12 @@ public class Html {
 
 	protected HTMLElement element;
 
-	protected Html(String tagName, Html parent) {
+	protected FluidHtml(String tagName, FluidHtml parent) {
 		element = document.createElement(tagName);
 		parent.element.appendChild(element);
 	}
 
-	protected Html(HTMLElement parent) {
+	protected FluidHtml(HTMLElement parent) {
 		element = parent;
 	}
 
@@ -52,21 +52,21 @@ public class Html {
 		return element;
 	}
 
-	protected Html inner(String innerHtml) {
+	protected FluidHtml inner(String innerHtml) {
 		element.setInnerHTML(innerHtml);
 		return this;
 	}
 
-	protected Html onClick(EventListener<MouseEvent> listener) {
+	protected FluidHtml onClick(EventListener<MouseEvent> listener) {
 		element.listenClick(listener);
 		return this;
 	}
 
-	protected Html id(String string) {
+	protected FluidHtml id(String string) {
 		return attribute("id", string);
 	}
 
-	protected Html css(String property, String value) {
+	protected FluidHtml css(String property, String value) {
 		element.getStyle().setProperty(property, value);
 		return this;
 	}
@@ -79,7 +79,7 @@ public class Html {
 		return new Button(text, this);
 	}
 
-	protected Html attribute(String name, String value) {
+	protected FluidHtml attribute(String name, String value) {
 		element.setAttribute(name, value);
 		return this;
 	}

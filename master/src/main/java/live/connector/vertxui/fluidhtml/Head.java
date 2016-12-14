@@ -3,7 +3,7 @@ package live.connector.vertxui.fluidhtml;
 import org.teavm.jso.ajax.XMLHttpRequest;
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class Head extends Html {
+public class Head extends FluidHtml {
 
 	protected Head(HTMLElement head) {
 		super(head);
@@ -36,7 +36,7 @@ public class Head extends Html {
 
 	public void stylesheet(String... csss) {
 		for (String css : csss) {
-			Html result = new Html("link", this);
+			FluidHtml result = new FluidHtml("link", this);
 			result.attribute("rel", "stylesheet");
 			result.attribute("async", "false");
 			result.attribute("href", css);

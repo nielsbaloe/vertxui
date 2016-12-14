@@ -5,7 +5,7 @@ import org.teavm.jso.ajax.XMLHttpRequest;
 import live.connector.vertxui.fluidhtml.Body;
 import live.connector.vertxui.fluidhtml.Button;
 import live.connector.vertxui.fluidhtml.Div;
-import live.connector.vertxui.fluidhtml.Html;
+import live.connector.vertxui.fluidhtml.FluidHtml;
 
 public class Client {
 
@@ -19,7 +19,7 @@ public class Client {
 	}
 
 	public Client() {
-		Body body = Html.getBody();
+		Body body = FluidHtml.getBody();
 		button = body.button("Click me").id("hello-button").onClick(evt -> clicked());
 		response = body.div();
 		thinking = body.div().inner("The server waits as demonstration").id("thinking-panel").css("display",

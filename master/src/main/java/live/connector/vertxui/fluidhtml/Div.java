@@ -4,9 +4,9 @@ import java.lang.invoke.MethodHandles;
 
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class Div extends Html {
+public class Div extends FluidHtml {
 
-	protected Div(Html parent) {
+	protected Div(FluidHtml parent) {
 		super("div", parent);
 	}
 
@@ -16,6 +16,8 @@ public class Div extends Html {
 
 	/**
 	 * Get an existing object from the dom by 'id'.
+	 * 
+	 * // TODO refactor: move up to FluidHtml
 	 * 
 	 * @param id
 	 *            the id

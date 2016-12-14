@@ -17,7 +17,9 @@ import io.vertx.ext.web.handler.sockjs.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
-import live.connector.vertxui.core.FigWheely;
+import live.connector.vertxui.core.FigWheelyJs;
+import live.connector.vertxui.core.StaticHandlerIgnoring;
+import live.connector.vertxui.core.VertxUI;
 
 public class Server extends AbstractVerticle {
 
@@ -28,8 +30,12 @@ public class Server extends AbstractVerticle {
 	}
 
 	@Override
-	public void start() throws IOException, TeaVMToolException {
+	public void start() {
 		Router router = Router.router(vertx);
+
+		// Boot figwheely first, so that VertX'es don't get their first
+		// java2javascript translation with debug=false
+		FigWheelyJs.with(router);
 
 		// Sockjs handler
 		PermittedOptions adresser = new PermittedOptions().setAddress(Client.eventBusAddress);
@@ -45,16 +51,6 @@ public class Server extends AbstractVerticle {
 			be.complete(true);
 		}));
 
-		// HTTP server
-		HttpServerOptions serverOptions = new HttpServerOptions().setCompressionSupported(true);
-		HttpServer server = vertx.createHttpServer(serverOptions).requestHandler(router::accept).listen(80,
-				listenHandler -> {
-					if (listenHandler.failed()) {
-						LOGGER.log(Level.SEVERE, "Startup error", listenHandler.cause());
-						System.exit(0); // stop on startup error
-					}
-				});
-
 		// Client with Figwheely support
 		String clientUrl = "/client.js";
 		String cssUrl = "/my.css";
@@ -62,10 +58,18 @@ public class Server extends AbstractVerticle {
 			requestHandler.response()
 					.end("<!DOCTYPE html><html><head><link rel=stylesheet href=" + cssUrl + "?"
 							+ System.currentTimeMillis() + ">" + "<script type=text/javascript src=" + clientUrl
-							+ "></script></head><body><script>" + FigWheely.script + "main()</script></body></html>");
+							+ "></script></head><body><script>" + FigWheelyJs.script + "main()</script></body></html>");
 		});
-		router.route(clientUrl).handler(FigWheely.add(clientUrl, Client.class, false));
-		router.route(cssUrl+"*").handler(FigWheely.add(cssUrl, "sources/sample.css"));
+		try {
+			// router.route("/figwheely.js").handler(new
+			// VertxUI(FigWheelyJs.class, false));
+			router.route(clientUrl).handler(new VertxUI(Client.class, false));
+			router.route(cssUrl + "*").handler(StaticHandlerIgnoring.creatort("sources/sample.css"));
+		} catch (TeaVMToolException | IOException e) {
+			// Error on first-time java-2-javascript translation: stop deploying
+			LOGGER.log(Level.SEVERE, "Startup error", e);
+			System.exit(0); // stop on startup error
+		}
 
 		// eventbus example
 		vertx.eventBus().consumer(Client.eventBusAddress, message -> {
@@ -75,6 +79,16 @@ public class Server extends AbstractVerticle {
 				message.reply("I received so I reply to " + message.replyAddress());
 			}
 		});
+
+		// HTTP server
+		HttpServerOptions serverOptions = new HttpServerOptions().setCompressionSupported(true);
+		HttpServer server = vertx.createHttpServer(serverOptions).requestHandler(router::accept).listen(80,
+				listenHandler -> {
+					if (listenHandler.failed()) {
+						LOGGER.log(Level.SEVERE, "Startup error", listenHandler.cause());
+						System.exit(0); // stop on startup error
+					}
+				});
 
 		LOGGER.info("Initialised:" + router.getRoutes().stream().map(a -> {
 			return "\n\thttp://localhost:" + server.actualPort() + a.getPath();

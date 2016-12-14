@@ -1,10 +1,11 @@
+/* Change these while looking at the browser and running the sockjs example containing a figwheely. */
 body {
-/*	background-image: url("http://cdn.backgroundhost.com/backgrounds/subtlepatterns/tileable_wood_texture.png")
+	background-image:
+		url("http://cdn.backgroundhost.com/backgrounds/subtlepatterns/tileable_wood_texture.png")
+		/*	background-image: url("http://cdn.backgroundhost.com/backgrounds/subtlepatterns/rip_jobs.png")
 */
-	background-image: url("http://cdn.backgroundhost.com/backgrounds/subtlepatterns/rip_jobs.png")
-
 }
 
 html {
-	margin-left: 120px;
+	margin-left: 400px;
 }

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
@@ -38,8 +37,11 @@ public class VertxUI implements Handler<RoutingContext> {
 	/**
 	 * Create a VertxUI with debug false.
 	 * 
+	 * @throws IOException
+	 * @throws TeaVMToolException
+	 * 
 	 */
-	public VertxUI(Class<?> classs, boolean withHtml) {
+	public VertxUI(Class<?> classs, boolean withHtml) throws TeaVMToolException, IOException {
 		this(classs, withHtml, false);
 	}
 
@@ -61,30 +63,35 @@ public class VertxUI implements Handler<RoutingContext> {
 	 *            <!DOCTYPE html><html><head> <script>...</script> </head>
 	 *            <body> <script>main()</script> </body></html>
 	 * @param clientJSUrl
+	 * @throws IOException
+	 * @throws TeaVMToolException
 	 * 
 	 */
-	public VertxUI(Class<?> classs, boolean withHtml, boolean debug) {
+	public VertxUI(Class<?> classs, boolean withHtml, boolean debug) throws TeaVMToolException, IOException {
 		this.classs = classs;
 		this.withHtml = withHtml;
 		this.debug = debug;
 
-		try {
-			// Below here is asynchronous generation of javascript, however we
-			// want this to be synchronous for two reasons:
-			// 1. we want to stop the startupprocess when there are severe
-			// errors to prevent deploying erronymous vertx'es.
-			// 2. when the server says 'started up' this should mean that
-			// everything is good to go, so this should include translation
-			// to the client code.
-			// Vertx.currentContext().executeBlocking(future -> {
-			// future.complete(getJavascript(classs, debug, withHtml));
-			// }, result -> { cache = (String) result.result(); });
-			translate();
-		} catch (IOException | TeaVMToolException e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			// Errors should prevent going live at runtime
-			throw new RuntimeException(e.getMessage(), e);
+		if (FigWheelyVertX.started) {
+			this.debug = true;
+			if (withHtml) {
+				LOGGER.warning(
+						"It does not make sense to use Figwheely when withHtml=true is set, because state (like shown html) is not hot swappable.");
+			}
+			String file = FigWheelyVertX.buildDir + classs.getCanonicalName().replace(".", "/") + ".class";
+			FigWheelyVertX.add(file, this);
 		}
+		// Below here is asynchronous generation of javascript, however we
+		// want this to be synchronous for two reasons:
+		// 1. we want to stop the startupprocess when there are severe
+		// errors to prevent deploying erronymous vertx'es.
+		// 2. when the server says 'started up' this should mean that
+		// everything is good to go, so this should include translation
+		// to the client code.
+		// Vertx.currentContext().executeBlocking(future -> {
+		// future.complete(getJavascript(classs, debug, withHtml));
+		// }, result -> { cache = (String) result.result(); });
+		translate();
 	}
 
 	@Override

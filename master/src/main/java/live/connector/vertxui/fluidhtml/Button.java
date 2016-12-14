@@ -4,9 +4,9 @@ import org.teavm.jso.dom.events.EventListener;
 import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLButtonElement;
 
-public class Button extends Html {
+public class Button extends FluidHtml {
 
-	protected Button(String text, Html element) {
+	protected Button(String text, FluidHtml element) {
 		super("button", element);
 		inner(text);
 	}

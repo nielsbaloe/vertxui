@@ -59,7 +59,7 @@ You can also use fluid HTML, which is a lot shorter and more readable.
 
 Of course you can mix with existing html and javascript, and call it:
 
-	Div responses = Div.fromDom(theId);
+	Div responses = Div.dom(theId);
 
 
 ## EventBus websocket at server and client in pure java 
