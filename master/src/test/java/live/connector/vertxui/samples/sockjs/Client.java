@@ -7,12 +7,12 @@ import live.connector.vertxui.fluidhtml.FluidHtml;
 /**
  * TODO development:
  * 
- * - finish FigWheely: show errors at client, reload other resources than
- * js/css, refactor for easy removal.
+ * - finish FigWheely: show errors at client, rewrite FigWheely pure js in fluid
+ * html.
  * 
  * - figure out how to simulate react.js and replace fluid html with something
  * lighter which PUSHes. perhaps use http://j2html.com and look at groovy
- * markupbuilder... - *
+ * markupbuilder............ http://vertx.io/docs/vertx-web/java/#_templates
  * https://facebook.github.io/react/docs/rendering-elements.html
  * https://vuejs.org/v2/examples/todomvc.html
  * https://www.codeproject.com/articles/265364/first-adventures-in-google-closure

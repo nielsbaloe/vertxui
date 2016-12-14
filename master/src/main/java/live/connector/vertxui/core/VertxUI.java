@@ -30,9 +30,9 @@ public class VertxUI implements Handler<RoutingContext> {
 	private final static Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	private String cache;
-	private boolean withHtml;
+	protected boolean withHtml;
 	protected Class<?> classs;
-	private boolean debug;
+	protected boolean debug;
 
 	/**
 	 * Create a VertxUI with debug false.
@@ -72,15 +72,8 @@ public class VertxUI implements Handler<RoutingContext> {
 		this.withHtml = withHtml;
 		this.debug = debug;
 
-		if (FigWheelyVertX.started) {
-			this.debug = true;
-			if (withHtml) {
-				LOGGER.warning(
-						"It does not make sense to use Figwheely when withHtml=true is set, because state (like shown html) is not hot swappable.");
-			}
-			String file = FigWheelyVertX.buildDir + classs.getCanonicalName().replace(".", "/") + ".class";
-			FigWheelyVertX.add(file, this);
-		}
+		FigWheelyVertX.addVertX(this);
+
 		// Below here is asynchronous generation of javascript, however we
 		// want this to be synchronous for two reasons:
 		// 1. we want to stop the startupprocess when there are severe

@@ -3,7 +3,7 @@ package live.connector.vertxui.core;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
 
-public class FigWheelyJs {
+public class FigWheely {
 
 	public static void main(String agrs[]) {
 		// TODO refactor: put javascript below here in Java code
@@ -27,7 +27,7 @@ public class FigWheelyJs {
 			+ "       } else {                                                        "
 			+ "      	  script.rel='stylesheet'; script.href=filename+'?'+(new Date().getTime());"
 			+ "       }                                                                     "
-			+ "       parent.appendChild(script);                    \n" + "  }  } };                           ";
+			+ "       parent.appendChild(script);   console.log(filename);                 \n" + "  }  } };                           ";
 
 	/**
 	 * Server bootstrap.
@@ -39,8 +39,8 @@ public class FigWheelyJs {
 		if (FigWheelyVertX.started) {
 			throw new IllegalArgumentException("Can only start once");
 		}
-		Vertx.currentContext().owner().deployVerticle(FigWheelyVertX.class.getName());
 		FigWheelyVertX.started = true;
+		Vertx.currentContext().owner().deployVerticle(FigWheelyVertX.class.getName());
 		FigWheelyVertX.router = router;
 	}
 

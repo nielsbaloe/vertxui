@@ -17,8 +17,8 @@ import io.vertx.ext.web.handler.sockjs.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
-import live.connector.vertxui.core.FigWheelyJs;
-import live.connector.vertxui.core.StaticHandlerIgnoring;
+import live.connector.vertxui.core.FigWheely;
+import live.connector.vertxui.core.StaticHandlery;
 import live.connector.vertxui.core.VertxUI;
 
 public class Server extends AbstractVerticle {
@@ -34,8 +34,9 @@ public class Server extends AbstractVerticle {
 		Router router = Router.router(vertx);
 
 		// Boot figwheely first, so that VertX'es don't get their first
-		// java2javascript translation with debug=false
-		FigWheelyJs.with(router);
+		// java2javascript translation with debug=false. This single line
+		// enables/disables FigWheely.
+		FigWheely.with(router);
 
 		// Sockjs handler
 		PermittedOptions adresser = new PermittedOptions().setAddress(Client.eventBusAddress);
@@ -53,18 +54,19 @@ public class Server extends AbstractVerticle {
 
 		// Client with Figwheely support
 		String clientUrl = "/client.js";
-		String cssUrl = "/my.css";
+		String cssUrl = "/sources/sample.css";
 		router.route("/client").handler(requestHandler -> {
 			requestHandler.response()
 					.end("<!DOCTYPE html><html><head><link rel=stylesheet href=" + cssUrl + "?"
 							+ System.currentTimeMillis() + ">" + "<script type=text/javascript src=" + clientUrl
-							+ "></script></head><body><script>" + FigWheelyJs.script + "main()</script></body></html>");
+							+ "></script></head><body><script>" + FigWheely.script
+							+ "main()</script><div id='picture'/></body></html>");
 		});
 		try {
 			// router.route("/figwheely.js").handler(new
 			// VertxUI(FigWheelyJs.class, false));
 			router.route(clientUrl).handler(new VertxUI(Client.class, false));
-			router.route(cssUrl + "*").handler(StaticHandlerIgnoring.creatort("sources/sample.css"));
+			router.route("/sources/*").handler(StaticHandlery.create("sources"));
 		} catch (TeaVMToolException | IOException e) {
 			// Error on first-time java-2-javascript translation: stop deploying
 			LOGGER.log(Level.SEVERE, "Startup error", e);
