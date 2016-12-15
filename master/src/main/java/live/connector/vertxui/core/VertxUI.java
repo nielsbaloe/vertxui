@@ -3,7 +3,9 @@ package live.connector.vertxui.core;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
@@ -14,6 +16,7 @@ import org.teavm.tooling.TeaVMTool;
 import org.teavm.tooling.TeaVMToolException;
 
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
 
 /**
@@ -27,7 +30,7 @@ import io.vertx.ext.web.RoutingContext;
  */
 public class VertxUI implements Handler<RoutingContext> {
 
-	private final static Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	private String cache;
 	protected boolean withHtml;
@@ -74,17 +77,23 @@ public class VertxUI implements Handler<RoutingContext> {
 
 		FigWheelyVertX.addVertX(this);
 
-		// Below here is asynchronous generation of javascript, however we
-		// want this to be synchronous for two reasons:
-		// 1. we want to stop the startupprocess when there are severe
-		// errors to prevent deploying erronymous vertx'es.
-		// 2. when the server says 'started up' this should mean that
-		// everything is good to go, so this should include translation
-		// to the client code.
-		// Vertx.currentContext().executeBlocking(future -> {
-		// future.complete(getJavascript(classs, debug, withHtml));
-		// }, result -> { cache = (String) result.result(); });
-		translate();
+		if (FigWheelyVertX.started) {
+			Vertx.currentContext().executeBlocking(future -> {
+				try {
+					translate();
+				} catch (TeaVMToolException | IOException e) {
+					log.log(Level.SEVERE, e.getMessage(), e);
+				}
+				future.complete();
+			}, result -> {
+			});
+		} else {
+			// When not in debug mode, we want to run this synchronous. It means
+			// that the server will have a small delay when starting up, however
+			// it does NOT startup when there are severe errors (which is a good
+			// thing).
+			translate();
+		}
 	}
 
 	@Override
@@ -112,17 +121,21 @@ public class VertxUI implements Handler<RoutingContext> {
 			teaVmTool.generate();
 			ProblemProvider problemProvider = teaVmTool.getProblemProvider();
 			for (Problem problem : problemProvider.getProblems()) {
-				LOGGER.warning(problem.getClass() + ":" + problem.getText());
+				log.warning(problem.getClass() + ":" + problem.getText());
 			}
 			List<Problem> severes = problemProvider.getSevereProblems();
 			if (!severes.isEmpty()) {
 				// Collect errors and throw
 				StringBuilder allSeveres = new StringBuilder("Severe build error(s) occurred: ");
 				for (Problem severe : severes) {
-					allSeveres.append("\n\t");
-					allSeveres.append(severe.getClass());
-					allSeveres.append(":");
+					allSeveres.append("\n\tat ");
+					allSeveres.append(severe.getLocation().getMethod());
+					allSeveres.append("::");
+					allSeveres.append(severe.getLocation().getSourceLocation().getLine());
+					allSeveres.append(": ");
 					allSeveres.append(severe.getText());
+					allSeveres.append(": ");
+					allSeveres.append(Arrays.toString(severe.getParams()));
 				}
 				String allSeveresString = allSeveres.toString();
 				throw new TeaVMToolException(allSeveresString);

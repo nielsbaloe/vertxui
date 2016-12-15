@@ -13,17 +13,25 @@ public class Client {
 	private Div response;
 	private Div thinking;
 
-	// Do not run this one, run the server
+	// Please don't run this class but run the Server instead.
 	public static void main(String[] args) {
-		new Client();
+		try {
+			new Client();
+		} catch (Error ule) {
+			// This looks weird but teaVM does not know UnsatisfiedLinkError....
+			if (ule.getClass().getSimpleName().equals("UnsatisfiedLinkError")) {
+				System.out.println("Please don't run this class but run the Server instead.");
+			} else {
+				ule.printStackTrace();
+			}
+		}
 	}
 
 	public Client() {
 		Body body = FluidHtml.getBody();
 		button = body.button("Click me").id("hello-button").onClick(evt -> clicked());
 		response = body.div();
-		thinking = body.div().inner("The server waits as demonstration").id("thinking-panel").css("display",
-				"none");
+		thinking = body.div().inner("The server waits as demonstration").id("thinking-panel").css("display", "none");
 	}
 
 	private void clicked() {

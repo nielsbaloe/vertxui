@@ -20,13 +20,37 @@ public class FluidHtml {
 
 	protected HTMLElement element;
 
+	/**
+	 * If we create an object with 'new' instead of the fluent notation, we
+	 * should only add to the parent once.
+	 */
+	private boolean appendedToParent;
+
+	/**
+	 * Add the object. The parent is only null when we create objects that will
+	 * be appended later on.
+	 * 
+	 */
 	protected FluidHtml(String tagName, FluidHtml parent) {
 		element = document.createElement(tagName);
-		parent.element.appendChild(element);
+		if (parent != null) {
+			parent.element.appendChild(element);
+			appendedToParent = true;
+		} else {
+			appendedToParent = false;
+		}
 	}
 
+	/**
+	 * For when this represents an existing object: getBody() getHead() and
+	 * dom().
+	 * 
+	 * @param parent
+	 *            the existing object
+	 */
 	protected FluidHtml(HTMLElement parent) {
 		element = parent;
+		appendedToParent = true;
 	}
 
 	/**
@@ -82,6 +106,10 @@ public class FluidHtml {
 	protected FluidHtml attribute(String name, String value) {
 		element.setAttribute(name, value);
 		return this;
+	}
+
+	public Li li(String text) {
+		return new Li(text, this);
 	}
 
 }

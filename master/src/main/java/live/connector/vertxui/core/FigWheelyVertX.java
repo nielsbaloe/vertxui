@@ -24,7 +24,7 @@ public class FigWheelyVertX extends AbstractVerticle {
 	/**
 	 * Override target-dir when necessary, default is "target/classes/".
 	 */
-	public static String buildDir = "target/classes/";
+	public static String buildDir = "target/classes";
 	public static int port = 8090;
 	public static boolean started = false;
 	protected static Router router;
@@ -59,7 +59,8 @@ public class FigWheelyVertX extends AbstractVerticle {
 			log.warning(
 					"It does not make sense to use Figwheely when withHtml=true is set, because bootstrap (like shown html) is not hot swappable.");
 		}
-		String classFile = FigWheelyVertX.buildDir + handler.classs.getCanonicalName().replace(".", "/") + ".class";
+		String classFile = FigWheelyVertX.buildDir + "/" + handler.classs.getCanonicalName().replace(".", "/")
+				+ ".class";
 		File file = new File(classFile);
 		if (!file.exists()) {
 			throw new IllegalArgumentException("please set FigWheelyVertX.buildDir, failed to load " + classFile);

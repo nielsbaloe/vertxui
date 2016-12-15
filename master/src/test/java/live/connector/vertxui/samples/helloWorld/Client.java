@@ -15,9 +15,18 @@ public class Client {
 	private HTMLElement response;
 	private HTMLElement thinking;
 
-	// Do not run this one, run the server
+	// Please don't run this class but run the Server instead.
 	public static void main(String[] args) {
-		new Client();
+		try {
+			new Client();
+		} catch (Error ule) {
+			// This looks weird but teaVM does not know UnsatisfiedLinkError....
+			if (ule.getClass().getSimpleName().equals("UnsatisfiedLinkError")) {
+				System.out.println("Please don't run this class but run the Server instead.");
+			} else {
+				ule.printStackTrace();
+			}
+		}
 	}
 
 	public Client() {

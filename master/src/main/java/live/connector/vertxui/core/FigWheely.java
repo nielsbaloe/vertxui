@@ -27,7 +27,7 @@ public class FigWheely {
 			+ "       } else {                                                        "
 			+ "      	  script.rel='stylesheet'; script.href=filename+'?'+(new Date().getTime());"
 			+ "       }                                                                     "
-			+ "       parent.appendChild(script);   console.log(filename);                 \n" + "  }  } };                           ";
+			+ "       parent.appendChild(script);   	                 \n" + "  }  } };                           ";
 
 	/**
 	 * Server bootstrap.

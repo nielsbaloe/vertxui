@@ -1,6 +1,8 @@
 package live.connector.vertxui.fluidhtml;
 
 import java.lang.invoke.MethodHandles;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.teavm.jso.dom.html.HTMLElement;
 
@@ -51,6 +53,20 @@ public class Div extends FluidHtml {
 	@Override
 	public Div div() {
 		return (Div) super.div();
+	}
+
+	// TODO as test
+	public Div div(Stream<FluidHtml> fluidHtmls) {
+		Div result = (Div) super.div();
+		for (FluidHtml fluidHtml : fluidHtmls.collect(Collectors.toList())) {
+			result.element.appendChild(fluidHtml.element);
+		}
+		return result;
+	}
+
+	@Override
+	public Li li(String text) {
+		return (Li) super.li(text);
 	}
 
 }
