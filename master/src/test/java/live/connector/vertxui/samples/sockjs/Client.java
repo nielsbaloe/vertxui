@@ -1,7 +1,7 @@
 package live.connector.vertxui.samples.sockjs;
 
 import live.connector.vertxui.core.EventBus;
-import live.connector.vertxui.fluidhtml.FluidHtml;
+import live.connector.vertxui.fluentHtml.FluentHtml;
 
 /**
  * @author Niels Gorisse
@@ -26,7 +26,7 @@ public class Client {
 	}
 
 	public Client() {
-		FluidHtml.getHead().script("https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js",
+		FluentHtml.getHead().script("https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js",
 				"https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
 
 		// TODO: not implemented yet!

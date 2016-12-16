@@ -1,8 +1,8 @@
-package live.connector.vertxui.fluidhtml;
+package live.connector.vertxui.fluentHtml;
 
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class Body extends FluidHtml {
+public class Body extends FluentHtml {
 
 	protected Body(HTMLElement parent) {
 		super(parent);

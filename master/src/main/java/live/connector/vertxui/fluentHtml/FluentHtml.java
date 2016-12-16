@@ -1,4 +1,4 @@
-package live.connector.vertxui.fluidhtml;
+package live.connector.vertxui.fluentHtml;
 
 import org.teavm.jso.JSBody;
 import org.teavm.jso.browser.Window;
@@ -8,7 +8,7 @@ import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Element;
 
-public class FluidHtml {
+public class FluentHtml {
 
 	protected final static HTMLDocument document = Window.current().getDocument();
 
@@ -24,14 +24,14 @@ public class FluidHtml {
 	 * If we create an object with 'new' instead of the fluent notation, we
 	 * should only add to the parent once.
 	 */
-	private boolean appendedToParent;
+	protected boolean appendedToParent;
 
 	/**
 	 * Add the object. The parent is only null when we create objects that will
 	 * be appended later on.
 	 * 
 	 */
-	protected FluidHtml(String tagName, FluidHtml parent) {
+	protected FluentHtml(String tagName, FluentHtml parent) {
 		element = document.createElement(tagName);
 		if (parent != null) {
 			parent.element.appendChild(element);
@@ -48,7 +48,7 @@ public class FluidHtml {
 	 * @param parent
 	 *            the existing object
 	 */
-	protected FluidHtml(HTMLElement parent) {
+	protected FluentHtml(HTMLElement parent) {
 		element = parent;
 		appendedToParent = true;
 	}
@@ -76,21 +76,21 @@ public class FluidHtml {
 		return element;
 	}
 
-	protected FluidHtml inner(String innerHtml) {
+	protected FluentHtml inner(String innerHtml) {
 		element.setInnerHTML(innerHtml);
 		return this;
 	}
 
-	protected FluidHtml onClick(EventListener<MouseEvent> listener) {
+	protected FluentHtml onClick(EventListener<MouseEvent> listener) {
 		element.listenClick(listener);
 		return this;
 	}
 
-	protected FluidHtml id(String string) {
+	protected FluentHtml id(String string) {
 		return attribute("id", string);
 	}
 
-	protected FluidHtml css(String property, String value) {
+	protected FluentHtml css(String property, String value) {
 		element.getStyle().setProperty(property, value);
 		return this;
 	}
@@ -103,7 +103,7 @@ public class FluidHtml {
 		return new Button(text, this);
 	}
 
-	protected FluidHtml attribute(String name, String value) {
+	protected FluentHtml attribute(String name, String value) {
 		element.setAttribute(name, value);
 		return this;
 	}

@@ -1,12 +1,12 @@
-package live.connector.vertxui.fluidhtml;
+package live.connector.vertxui.fluentHtml;
 
 import org.teavm.jso.dom.events.EventListener;
 import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLButtonElement;
 
-public class Button extends FluidHtml {
+public class Button extends FluentHtml {
 
-	protected Button(String text, FluidHtml element) {
+	protected Button(String text, FluentHtml element) {
 		super("button", element);
 		inner(text);
 	}

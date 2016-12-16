@@ -55,10 +55,7 @@ public class FigWheelyVertX extends AbstractVerticle {
 			return;
 		}
 		handler.debug = true;
-		if (handler.withHtml) {
-			log.warning(
-					"It does not make sense to use Figwheely when withHtml=true is set, because bootstrap (like shown html) is not hot swappable.");
-		}
+
 		String classFile = FigWheelyVertX.buildDir + "/" + handler.classs.getCanonicalName().replace(".", "/")
 				+ ".class";
 		File file = new File(classFile);

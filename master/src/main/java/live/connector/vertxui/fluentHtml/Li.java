@@ -1,13 +1,13 @@
-package live.connector.vertxui.fluidhtml;
+package live.connector.vertxui.fluentHtml;
 
-public class Li extends FluidHtml {
+public class Li extends FluentHtml {
 
-	protected Li(String text, FluidHtml parent) {
+	protected Li(String text, FluentHtml parent) {
 		super("li", parent);
 		inner(text);
 	}
 
-	protected Li(FluidHtml parent) {
+	protected Li(FluentHtml parent) {
 		super("li", parent);
 	}
 
@@ -19,5 +19,6 @@ public class Li extends FluidHtml {
 	 */
 	public Li(String text) {
 		super("li", null);
+		inner(text);
 	}
 }

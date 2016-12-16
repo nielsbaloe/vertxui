@@ -1,14 +1,12 @@
-package live.connector.vertxui.fluidhtml;
+package live.connector.vertxui.fluentHtml;
 
 import java.lang.invoke.MethodHandles;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class Div extends FluidHtml {
+public class Div extends FluentHtml {
 
-	protected Div(FluidHtml parent) {
+	protected Div(FluentHtml parent) {
 		super("div", parent);
 	}
 
@@ -18,8 +16,6 @@ public class Div extends FluidHtml {
 
 	/**
 	 * Get an existing object from the dom by 'id'.
-	 * 
-	 * // TODO refactor: move up to FluidHtml
 	 * 
 	 * @param id
 	 *            the id
@@ -55,18 +51,18 @@ public class Div extends FluidHtml {
 		return (Div) super.div();
 	}
 
-	// TODO as test
-	public Div div(Stream<FluidHtml> fluidHtmls) {
-		Div result = (Div) super.div();
-		for (FluidHtml fluidHtml : fluidHtmls.collect(Collectors.toList())) {
-			result.element.appendChild(fluidHtml.element);
-		}
-		return result;
-	}
-
 	@Override
 	public Li li(String text) {
 		return (Li) super.li(text);
+	}
+
+	// TODO work out concept
+	public void append(FluentHtml app) {
+		if (app.appendedToParent) {
+			throw new IllegalArgumentException("Already added to a dom (fluently or with append()): " + app);
+		}
+		element.appendChild(app.element);
+		app.appendedToParent = true;
 	}
 
 }

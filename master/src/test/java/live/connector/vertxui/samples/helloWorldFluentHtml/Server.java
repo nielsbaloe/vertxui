@@ -1,4 +1,4 @@
-package live.connector.vertxui.samples.helloWorldFluidHtml;
+package live.connector.vertxui.samples.helloWorldFluentHtml;
 
 import java.lang.invoke.MethodHandles;
 

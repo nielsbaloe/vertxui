@@ -119,26 +119,42 @@ public class VertxUI implements Handler<RoutingContext> {
 			teaVmTool.setDebugInformationGenerated(debug);
 			teaVmTool.setMinifying(!debug);
 			teaVmTool.generate();
+
+			// Warnings
 			ProblemProvider problemProvider = teaVmTool.getProblemProvider();
-			for (Problem problem : problemProvider.getProblems()) {
-				log.warning(problem.getClass() + ":" + problem.getText());
-			}
+			StringBuilder allWarnings = new StringBuilder();
 			List<Problem> severes = problemProvider.getSevereProblems();
-			if (!severes.isEmpty()) {
-				// Collect errors and throw
-				StringBuilder allSeveres = new StringBuilder("Severe build error(s) occurred: ");
-				for (Problem severe : severes) {
-					allSeveres.append("\n\tat ");
-					allSeveres.append(severe.getLocation().getMethod());
-					allSeveres.append("::");
-					allSeveres.append(severe.getLocation().getSourceLocation().getLine());
-					allSeveres.append(": ");
-					allSeveres.append(severe.getText());
-					allSeveres.append(": ");
-					allSeveres.append(Arrays.toString(severe.getParams()));
+			problemProvider.getProblems().stream().filter(s -> !severes.contains(s)).forEach(problem -> {
+				if (allWarnings.length() == 0) {
+					allWarnings.append("TeaVM warnings:");
 				}
-				String allSeveresString = allSeveres.toString();
-				throw new TeaVMToolException(allSeveresString);
+				allWarnings.append("\n\tat ");
+				allWarnings.append(problem.getLocation().getMethod());
+				allWarnings.append("::");
+				allWarnings.append(problem.getLocation().getSourceLocation().getLine());
+				allWarnings.append(": ");
+				allWarnings.append(problem.getText());
+				allWarnings.append(": ");
+				allWarnings.append(Arrays.toString(problem.getParams()));
+			});
+			if (allWarnings.length() != 0) {
+				log.warning(allWarnings.toString());
+			}
+
+			// Errors
+			if (!severes.isEmpty()) {
+				StringBuilder allSeveres = new StringBuilder("Severe build error(s) occurred: ");
+				for (Problem problem : severes) {
+					allSeveres.append("\n\tat ");
+					allSeveres.append(problem.getLocation().getMethod());
+					allSeveres.append("::");
+					allSeveres.append(problem.getLocation().getSourceLocation().getLine());
+					allSeveres.append(": ");
+					allSeveres.append(problem.getText());
+					allSeveres.append(": ");
+					allSeveres.append(Arrays.toString(problem.getParams()));
+				}
+				throw new TeaVMToolException(allSeveres.toString());
 			}
 			cache = FileUtils.readFileToString(temp, "UTF-8");
 			if (withHtml) {

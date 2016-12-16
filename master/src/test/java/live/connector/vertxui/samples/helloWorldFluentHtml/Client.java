@@ -1,11 +1,11 @@
-package live.connector.vertxui.samples.helloWorldFluidHtml;
+package live.connector.vertxui.samples.helloWorldFluentHtml;
 
 import org.teavm.jso.ajax.XMLHttpRequest;
 
-import live.connector.vertxui.fluidhtml.Body;
-import live.connector.vertxui.fluidhtml.Button;
-import live.connector.vertxui.fluidhtml.Div;
-import live.connector.vertxui.fluidhtml.FluidHtml;
+import live.connector.vertxui.fluentHtml.Body;
+import live.connector.vertxui.fluentHtml.Button;
+import live.connector.vertxui.fluentHtml.Div;
+import live.connector.vertxui.fluentHtml.FluentHtml;
 
 public class Client {
 
@@ -28,7 +28,7 @@ public class Client {
 	}
 
 	public Client() {
-		Body body = FluidHtml.getBody();
+		Body body = FluentHtml.getBody();
 		button = body.button("Click me").id("hello-button").onClick(evt -> clicked());
 		response = body.div();
 		thinking = body.div().inner("The server waits as demonstration").id("thinking-panel").css("display", "none");

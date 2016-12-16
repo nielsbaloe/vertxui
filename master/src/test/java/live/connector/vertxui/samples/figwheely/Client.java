@@ -1,7 +1,7 @@
 package live.connector.vertxui.samples.figwheely;
 
-import live.connector.vertxui.fluidhtml.Button;
-import live.connector.vertxui.fluidhtml.FluidHtml;
+import live.connector.vertxui.fluentHtml.Button;
+import live.connector.vertxui.fluentHtml.FluentHtml;
 
 public class Client {
 
@@ -20,13 +20,13 @@ public class Client {
 	}
 
 	/**
-	 * Please, run the server and change some text in the constructor below, and
-	 * look at your browser, press the button or see what happens. Don't forget
-	 * to edit the /sources/sample.css file and look at your browser at the same
-	 * time.
+	 * Please, run the server and change some text in the constructor below,
+	 * save, and look at your browser, press the button or see what happens.
+	 * Don't forget to edit the /sources/sample.css file, save, and look at your
+	 * browser at the same time.
 	 */
 	public Client() {
-		FluidHtml body = FluidHtml.getBody();
+		FluentHtml body = FluentHtml.getBody();
 		Button button = body.button("First text");
 		button.onClick(e -> {
 			System.out.println("Hello *insert your name* !!!");
