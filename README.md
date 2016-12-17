@@ -1,13 +1,26 @@
 vertx-ui
 ===
 
-A [Vert.X](http://vertx.io/) pure-Java UI toolkit with fast server-time Java to Javascript translation (by [TeaVM](http://teavm.org/)), a small fluid HTML toolkit, and automatic browser reloading called Figwheely. The Vert.X eventbus does not only stretchs all the way inside your browser (with SockJS websockets), but now also in the same programming language.
+A [Vert.X](http://vertx.io/) pure-Java UI toolkit with fast server-time Java to Javascript translation (by [TeaVM](http://teavm.org/)), a mini fluent HTML toolkit, and automatic browser reloading. Write serverside and clientside in Java with a lot of advantages.
 
-Using Java instead of Javascript means strong-typing, direct binding with entity classes, convenient tooling, easy junit testing of UI code, Java 8 lambda's and streams to write javascript and generate html, and both the Java ánd the JavaScript ecosystems under your fingertips.
+Pure-Java clientside means:
+* strong-typed client-side Javascript
+* use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML code like React and other js libraries)
+* use the same DTO/entity classes server-side and client-side.
+* access to both the Java (threads etc) ánd the Javascript ecosystems
+* easy junit testing of client-side code, and other convenient Java tooling
+ 
+Vert.X adds:
+* probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
+* no need for anything else: no Apache and Tomcat.
 
-The server-time translation works at server startup time so you don't need to set up any Maven/IDE tools for developing, and you don't have your IDE being locked because it is doing 'something in the background' when you save a file (a nightmare you probably recognise with Maven or GWT).
-
-You don't need file access at runtime, which makes vertx-ui ideal as minimal microservice. Heck, remember you don't need to setup Apache or Tomcat too because you're using Vert.X which can [handle thousands of connections per core](https://dzone.com/articles/inside-vertx-comparison-nodejs).
+Vertx-ui serves on top of that:
+* an EventBus at server and clients in the same language.
+* forget about URL's, just register and publish objects from and to the EventBus.
+* no IDE tooling and IDE near-locking background processing, the Java to Javascript translation happens server-time.
+* for development: automatic browser reloading of generated javascript and other files (.css/.jpg) without browser refresh.
+* forget about HTML, just write a bit of code in fluent HTML.
+* ideal as microservice: no file access necessary at the server.
 
 
 ### Serverside
@@ -83,21 +96,21 @@ The model+view (browser):
 	public static class ModelSendDto { // Models are placed inline as example
 		public String name;
 	}
-
+	
 	public static class ModelReceiveDto {
 		public String betterTitle;
 	}
-
+	
 	private ModelSendDto model = new ModelSendDto();
 	private Div response;
-
+	
 	public View() {
-
+		
 		// View
 		Body body = FluentHtml.getBody();
 		response = body.div();
 		Input input = body.div().input("text", "aName");
-
+		
 		// Controller
 		EventBus eventBus = new EventBus("localhost:8100");
 		input.keyUp(changed -> {
