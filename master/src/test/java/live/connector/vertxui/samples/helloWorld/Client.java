@@ -45,6 +45,7 @@ public class Client {
 		thinking.setInnerHTML("The server waits as demonstration");
 		thinking.getStyle().setProperty("display", "none");
 		body.appendChild(thinking);
+		
 	}
 
 	private void clicked() {

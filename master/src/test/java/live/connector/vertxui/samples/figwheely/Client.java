@@ -1,6 +1,7 @@
 package live.connector.vertxui.samples.figwheely;
 
 import live.connector.vertxui.fluentHtml.Button;
+import live.connector.vertxui.fluentHtml.Div;
 import live.connector.vertxui.fluentHtml.FluentHtml;
 
 public class Client {
@@ -26,12 +27,11 @@ public class Client {
 	 * browser at the same time.
 	 */
 	public Client() {
-		FluentHtml body = FluentHtml.getBody();
-		Button button = body.button("First text");
-		button.onClick(e -> {
-			System.out.println("Hello *insert your name* !!!");
-			button.inner("Something else!");
-			body.button("sdfsdff!");
+		Div div = FluentHtml.getBody().div();
+		Button button = div.button("Look at the Client and css, and change something!");
+		button.click(e -> {
+			button.inner("Something else!!");
+			div.button("sdfsdff!");
 		});
 	}
 

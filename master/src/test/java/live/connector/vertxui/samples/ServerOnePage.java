@@ -12,10 +12,15 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
-import live.connector.vertxui.core.FigWheely;
-import live.connector.vertxui.core.FigWheelyVertX;
 import live.connector.vertxui.core.VertxUI;
 
+/**
+ * This server serves one VertxUI page, and replies something as a server -
+ * ideal as example and for testing purposes.
+ * 
+ * @author ng
+ *
+ */
 public class ServerOnePage extends AbstractVerticle {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
@@ -33,7 +38,7 @@ public class ServerOnePage extends AbstractVerticle {
 
 			// FigWheelyVertX.buildDir = "target/test-classes";
 			// FigWheely.with(router);
-			
+
 			router.route("/client").handler(new VertxUI(classs, true));
 			router.route("/server").handler(handle -> {
 				vertx.setTimer(1000, l -> {

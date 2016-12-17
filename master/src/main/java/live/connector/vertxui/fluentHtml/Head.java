@@ -37,9 +37,9 @@ public class Head extends FluentHtml {
 	public void stylesheet(String... csss) {
 		for (String css : csss) {
 			FluentHtml result = new FluentHtml("link", this);
-			result.attribute("rel", "stylesheet");
-			result.attribute("async", "false");
-			result.attribute("href", css);
+			result.attr("rel", "stylesheet");
+			result.attr("async", "false");
+			result.attr("href", css);
 		}
 	}
 

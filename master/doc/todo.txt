@@ -1,10 +1,10 @@
 
  * TODO development:
  * 
- * - finish FigWheely: show errors at client, rewrite FigWheely pure js in fluid
+ * - finish FigWheely: show errors at client, rewrite FigWheely pure js in fluent
  * html.
  * 
- * - figure out how to simulate react.js and replace fluid html with something
+ * - figure out how to simulate react.js and replace fluent html with something
  * lighter which PUSHes. perhaps use http://j2html.com and look at groovy
  * markupbuilder............ http://vertx.io/docs/vertx-web/java/#_templates
  * https://facebook.github.io/react/docs/rendering-elements.html
@@ -18,9 +18,6 @@
  * 
  * - an example with a plain websocket
  * 
- * - an example with vertx service-proxy or a much better way to interact with
- * services (but strong binded!) - a la GWT? - eventbus-subscription both ways?
- * js: eventBus.subscribe(DatabaseVertX::onCreate);
  * 
  * - implement TODOMVC http://todomvc.com/
  * https://github.com/tastejs/todomvc/tree/gh-pages/examples/gwt/gwttodo

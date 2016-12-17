@@ -3,6 +3,7 @@ package live.connector.vertxui.fluentHtml;
 import org.teavm.jso.JSBody;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.events.EventListener;
+import org.teavm.jso.dom.events.KeyboardEvent;
 import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.dom.html.HTMLElement;
@@ -81,13 +82,13 @@ public class FluentHtml {
 		return this;
 	}
 
-	protected FluentHtml onClick(EventListener<MouseEvent> listener) {
+	protected FluentHtml click(EventListener<MouseEvent> listener) {
 		element.listenClick(listener);
 		return this;
 	}
 
 	protected FluentHtml id(String string) {
-		return attribute("id", string);
+		return attr("id", string);
 	}
 
 	protected FluentHtml css(String property, String value) {
@@ -95,21 +96,30 @@ public class FluentHtml {
 		return this;
 	}
 
-	protected Div div() {
+	public Div div() {
 		return new Div(this);
 	}
 
-	public Button button(String text) {
+	protected Input input(String type, String name) {
+		return new Input(type, name, this);
+	}
+
+	protected Button button(String text) {
 		return new Button(text, this);
 	}
 
-	protected FluentHtml attribute(String name, String value) {
+	protected FluentHtml attr(String name, String value) {
 		element.setAttribute(name, value);
 		return this;
 	}
 
-	public Li li(String text) {
+	protected Li li(String text) {
 		return new Li(text, this);
+	}
+
+	protected FluentHtml keyUp(EventListener<KeyboardEvent> listener) {
+		element.listenKeyUp(listener);
+		return this;
 	}
 
 }

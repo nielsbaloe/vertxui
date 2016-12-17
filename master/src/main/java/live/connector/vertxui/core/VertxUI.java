@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.teavm.diagnostics.Problem;
 import org.teavm.diagnostics.ProblemProvider;
+import org.teavm.model.CallLocation;
 import org.teavm.tooling.RuntimeCopyOperation;
 import org.teavm.tooling.TeaVMTool;
 import org.teavm.tooling.TeaVMToolException;
@@ -32,7 +33,7 @@ public class VertxUI implements Handler<RoutingContext> {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	private String cache;
+	protected String cache;
 	protected boolean withHtml;
 	protected Class<?> classs;
 	protected boolean debug;
@@ -76,24 +77,18 @@ public class VertxUI implements Handler<RoutingContext> {
 		this.debug = debug;
 
 		FigWheelyVertX.addVertX(this);
-
-		if (FigWheelyVertX.started) {
-			Vertx.currentContext().executeBlocking(future -> {
-				try {
-					translate();
-				} catch (TeaVMToolException | IOException e) {
-					log.log(Level.SEVERE, e.getMessage(), e);
+		Vertx.currentContext().executeBlocking(future -> {
+			try {
+				future.complete(translate());
+			} catch (TeaVMToolException | IOException e) {
+				log.log(Level.SEVERE, e.getMessage(), e);
+				if (!FigWheelyVertX.started) {
+					System.exit(0); // stop on startup errors
 				}
-				future.complete();
-			}, result -> {
-			});
-		} else {
-			// When not in debug mode, we want to run this synchronous. It means
-			// that the server will have a small delay when starting up, however
-			// it does NOT startup when there are severe errors (which is a good
-			// thing).
-			translate();
-		}
+			}
+		}, result -> {
+			cache = (String) result.result();
+		});
 	}
 
 	@Override
@@ -101,7 +96,7 @@ public class VertxUI implements Handler<RoutingContext> {
 		event.response().end(cache);
 	}
 
-	public void translate() throws TeaVMToolException, IOException {
+	public String translate() throws TeaVMToolException, IOException {
 		File temp = null;
 		try {
 			temp = File.createTempFile("vertxui", "js");
@@ -128,14 +123,7 @@ public class VertxUI implements Handler<RoutingContext> {
 				if (allWarnings.length() == 0) {
 					allWarnings.append("TeaVM warnings:");
 				}
-				allWarnings.append("\n\tat ");
-				allWarnings.append(problem.getLocation().getMethod());
-				allWarnings.append("::");
-				allWarnings.append(problem.getLocation().getSourceLocation().getLine());
-				allWarnings.append(": ");
-				allWarnings.append(problem.getText());
-				allWarnings.append(": ");
-				allWarnings.append(Arrays.toString(problem.getParams()));
+				getProblemString(allWarnings, problem);
 			});
 			if (allWarnings.length() != 0) {
 				log.warning(allWarnings.toString());
@@ -144,29 +132,37 @@ public class VertxUI implements Handler<RoutingContext> {
 			// Errors
 			if (!severes.isEmpty()) {
 				StringBuilder allSeveres = new StringBuilder("Severe build error(s) occurred: ");
-				for (Problem problem : severes) {
-					allSeveres.append("\n\tat ");
-					allSeveres.append(problem.getLocation().getMethod());
-					allSeveres.append("::");
-					allSeveres.append(problem.getLocation().getSourceLocation().getLine());
-					allSeveres.append(": ");
-					allSeveres.append(problem.getText());
-					allSeveres.append(": ");
-					allSeveres.append(Arrays.toString(problem.getParams()));
-				}
+				severes.forEach(problem -> {
+					getProblemString(allSeveres, problem);
+				});
 				throw new TeaVMToolException(allSeveres.toString());
 			}
-			cache = FileUtils.readFileToString(temp, "UTF-8");
+			String result = FileUtils.readFileToString(temp, "UTF-8");
 			if (withHtml) {
 				// main in script so we can dynamicly load scripts
-				cache = "<!DOCTYPE html><html><head><script>" + cache
+				result = "<!DOCTYPE html><html><head><script>" + result
 						+ "</script></head><body><script>main()</script></body></html>";
 			}
+			return result;
 		} finally {
 			if (temp.exists()) { // just in case
 				temp.delete();
 			}
 		}
+	}
+
+	private void getProblemString(StringBuilder allSeveres, Problem problem) {
+		allSeveres.append("\n\tat ");
+		CallLocation where = problem.getLocation();
+		allSeveres.append(where.getMethod());
+		allSeveres.append("::");
+		if (where.getSourceLocation() != null) {
+			allSeveres.append(where.getSourceLocation().getLine());
+		}
+		allSeveres.append(": ");
+		allSeveres.append(problem.getText());
+		allSeveres.append(": ");
+		allSeveres.append(Arrays.toString(problem.getParams()));
 	}
 
 }

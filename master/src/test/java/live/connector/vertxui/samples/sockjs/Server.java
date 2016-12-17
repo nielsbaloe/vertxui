@@ -27,7 +27,7 @@ public class Server extends AbstractVerticle {
 		Vertx.vertx().deployVerticle(MethodHandles.lookup().lookupClass().getName());
 	}
 
-	// TODO this is just a scetch, this does NOT WORK intentionally
+	// TODO this is just a scetch, this is WORK IN PROGRESS (nearly there)
 	@Override
 	public void start() throws TeaVMToolException, IOException {
 		Router router = Router.router(vertx);

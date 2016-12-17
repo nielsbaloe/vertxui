@@ -19,8 +19,9 @@ public class Div extends FluentHtml {
 	 * 
 	 * @param id
 	 *            the id
-	 * @return a fluid-html object
+	 * @return a fluent html object
 	 */
+
 	public static Div dom(String id) {
 		HTMLElement found = document.getElementById("id");
 		if (!found.getTagName().equals(MethodHandles.lookup().lookupClass().getName().toLowerCase())) {
@@ -47,6 +48,11 @@ public class Div extends FluentHtml {
 	}
 
 	@Override
+	public Button button(String text) {
+		return (Button) super.button(text);
+	}
+
+	@Override
 	public Div div() {
 		return (Div) super.div();
 	}
@@ -56,7 +62,17 @@ public class Div extends FluentHtml {
 		return (Li) super.li(text);
 	}
 
-	// TODO work out concept
+	@Override
+	public Input input(String type, String name) {
+		return (Input) super.input(type, name);
+	}
+
+	/**
+	 * Add a non-fluid (with 'new') created object. Note that writing fluent
+	 * code is preferred.
+	 * 
+	 * @param app
+	 */
 	public void append(FluentHtml app) {
 		if (app.appendedToParent) {
 			throw new IllegalArgumentException("Already added to a dom (fluently or with append()): " + app);

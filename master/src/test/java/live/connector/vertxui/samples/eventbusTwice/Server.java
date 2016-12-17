@@ -1,4 +1,4 @@
-package live.connector.vertxui.samples.fluentHtml;
+package live.connector.vertxui.samples.eventbusTwice;
 
 import java.lang.invoke.MethodHandles;
 
@@ -8,11 +8,17 @@ import live.connector.vertxui.samples.ServerOnePage;
 public class Server extends ServerOnePage {
 
 	public Server() {
-		super(Client.class);
+		super(View.class);
 	}
 
 	public static void main(String[] args) {
 		Vertx.vertx().deployVerticle(MethodHandles.lookup().lookupClass().getName());
 	}
 
+	@Override
+	public void start() {
+		super.start();
+		
+	}
+	
 }

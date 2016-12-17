@@ -106,7 +106,7 @@ public class FigWheelyVertX extends AbstractVerticle {
 						try {
 							String url = null;
 							if (watchable.handler != null) {
-								watchable.handler.translate();
+								watchable.handler.cache = watchable.handler.translate();
 								url = router.getRoutes().get(watchable.urlNumber).getPath();
 							} else {
 								url = watchable.url;

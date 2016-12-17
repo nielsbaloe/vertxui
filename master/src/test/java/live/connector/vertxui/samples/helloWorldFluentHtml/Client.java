@@ -29,7 +29,7 @@ public class Client {
 
 	public Client() {
 		Body body = FluentHtml.getBody();
-		button = body.button("Click me").id("hello-button").onClick(evt -> clicked());
+		button = body.div().button("Click me").id("hello-button").click(evt -> clicked());
 		response = body.div();
 		thinking = body.div().inner("The server waits as demonstration").id("thinking-panel").css("display", "none");
 	}
