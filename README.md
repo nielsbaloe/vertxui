@@ -46,7 +46,7 @@ The clientside looks like plain javascript but then with Java (8's lambda) callb
 		...
 	}
 
-## Clientside fluent HTML
+### Clientside fluent HTML
 
 You can also use fluent HTML, which is a lot shorter and more readable.
 
@@ -70,13 +70,13 @@ Use Java 8 streams too for fluent filtering and creating. Streams are not (yet) 
     List.list("ccc", "c").filter(a -> a.length() > 2).map(t -> new Li(t)).foreachDoEffect(ul::append);
 
 
-## EventBus at server and client in pure java gives beautiful MVC 
+### EventBus at server and client in pure java gives beautiful MVC 
 
-The eventbus is available in Java at both sides. This is just like in GWT, but then without all the boilerplate nonsense. Just register the samen DTO at clientside and serverside to be received or send.
+The eventbus is available in Java at both sides. This is just like in GWT, but then without all the boilerplate nonsense. Just register the same DTO at clientside and serverside to be received or send. This is easier then also facilitating which service the DTO should go to, the server can work it out.
 
-This project is just a few weeks old - so hang on - this will work 100% very soon, but not yet.
+This project is just a few weeks old - so hang on - this will work 100% very soon, but not yet. Please check again later.
 
-The model+view client-side is:
+The model+view (browser):
 
     public class View {
 
@@ -109,14 +109,21 @@ The model+view client-side is:
 		});
 	}
 
-The server code will this kind of code:
+The controller (server) fragments look like this. In the start() of your vert.x you can bind specific DTO-classes to specific service-functions
 
-		vertx.eventBus().consumer(ModelSendDto.class.getName(), message-> {
-			ModelSendDto modelSend = Json.decodeValue((String)message.body(), ModelSendDto.class);
+	// receive a message
+	vertx.eventBus().consumer(ModelSendDto.class.getName(), message-> {
+		ModelSendDto modelSend = Json.decodeValue((String)message.body(), ModelSendDto.class);
 			
-			message.reply(Json.encode(new View.ModelReceiveDto());
+		// reply to one message
+		message.reply(Json.encode(new View.ModelReceiveDto());
 			
 		};
+	
+	// publish to everyone	
+	vertx.eventBus().publish(ModelReceiveDto.class.getName(), new View.ModelReceiveDto() );
 		
-		vertx.eventBus().publish(ModelReceiveDto.class.getName(), new View.ModelReceiveDto() );
-		
+	// example registration of a DTO in the start() of your verticle
+	vertx.eventBus().consumer(Order.class,mongoHandler::saveOrder);
+
+
