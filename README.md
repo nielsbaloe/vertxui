@@ -1,11 +1,11 @@
 vertx-ui
 ===
 
-A [Vert.X](http://vertx.io/) pure-Java UI toolkit with fast server-time Java to Javascript translation (by [TeaVM](http://teavm.org/)), a mini fluent HTML toolkit, and automatic browser reloading. Write serverside and clientside in Java with a lot of advantages.
+A [Vert.X](http://vertx.io/) pure-Java UI toolkit with fast server-time Java (bytecode) to Javascript translation (by [TeaVM](http://teavm.org/)), a mini fluent HTML toolkit, and automatic browser reloading. Write serverside and clientside in Java with a lot of advantages.
 
 Pure-Java clientside means:
 * strong-typed client-side Javascript
-* use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML code like React and other js libraries)
+* use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML like React and others)
 * use the same DTO/entity classes server-side and client-side.
 * access to both the Java (threads etc) ánd the Javascript ecosystems
 * easy junit testing of client-side code, and other convenient Java tooling
@@ -91,22 +91,21 @@ This project is just a few weeks old - so hang on - this will work 100% very soo
 
 The model+view (browser):
 
-    public class View {
-
-	public static class ModelSendDto { // Models are placed inline as example
+	class ModelSendDto {
 		public String name;
 	}
 	
-	public static class ModelReceiveDto {
+	class ModelReceiveDto {
 		public String betterTitle;
 	}
-	
+
+	class View {
+
 	private ModelSendDto model = new ModelSendDto();
 	private Div response;
 	
 	public View() {
 		
-		// View
 		Body body = FluentHtml.getBody();
 		response = body.div();
 		Input input = body.div().input("text", "aName");
@@ -129,14 +128,15 @@ The controller (server) fragments look like this. In the start() of your vert.x 
 		ModelSendDto modelSend = Json.decodeValue((String)message.body(), ModelSendDto.class);
 			
 		// reply to one message
-		message.reply(Json.encode(new View.ModelReceiveDto());
+		message.reply(Json.encode(new ModelReceiveDto());
 			
 		};
 	
-	// publish to everyone	
-	vertx.eventBus().publish(ModelReceiveDto.class.getName(), new View.ModelReceiveDto() );
+	// publish to all users
+	vertx.eventBus().publish(ModelReceiveDto.class.getName(), new ModelReceiveDto() );
 		
-	// example registration of a DTO in the start() of your verticle
+	// example registration of a DTO in the start() of your verticle: if an Order.class is received,
+	// call method MongoHandler::saveOrder(Order).
 	vertx.eventBus().consumer(Order.class,mongoHandler::saveOrder);
 
 

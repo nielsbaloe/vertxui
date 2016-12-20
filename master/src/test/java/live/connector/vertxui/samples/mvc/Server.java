@@ -1,4 +1,4 @@
-package live.connector.vertxui.samples.eventbusTwice;
+package live.connector.vertxui.samples.mvc;
 
 import java.lang.invoke.MethodHandles;
 
@@ -8,7 +8,7 @@ import live.connector.vertxui.samples.ServerOnePage;
 public class Server extends ServerOnePage {
 
 	public Server() {
-		super(View.class);
+		super(View.class, true);
 	}
 
 	public static void main(String[] args) {
@@ -18,7 +18,7 @@ public class Server extends ServerOnePage {
 	@Override
 	public void start() {
 		super.start();
-		
+
 	}
-	
+
 }

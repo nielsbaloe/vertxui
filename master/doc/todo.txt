@@ -1,26 +1,20 @@
 
  * TODO development:
  * 
- * - finish FigWheely: show errors at client, rewrite FigWheely pure js in fluent
- * html.
+ * - lighter fluent HTML which generates text and does smart virtual DOM replacement - like react.js
  * 
- * - figure out how to simulate react.js and replace fluent html with something
- * lighter which PUSHes. perhaps use http://j2html.com and look at groovy
- * markupbuilder............ http://vertx.io/docs/vertx-web/java/#_templates
- * https://facebook.github.io/react/docs/rendering-elements.html
- * https://vuejs.org/v2/examples/todomvc.html
- * https://www.codeproject.com/articles/265364/first-adventures-in-google-closure
- * 
- * - finish Wrapping the client for SockJS
+ * - finish Wrapping the client for SockJS: EventBus
  * https://github.com/konsoletyper/teavm/wiki/Interacting-with-JavaScript
  * http://teavm.org/javadoc/0.4.x/jso/core/
  * http://teavm.org/javadoc/0.4.x/jso/apis/
  * 
- * - an example with a plain websocket
+ * - finish FigWheely: show errors at client, rewrite FigWheely pure js in fluent
+ * html.
  * 
+ * - an example with a plain websocket
  * 
  * - implement TODOMVC http://todomvc.com/
  * https://github.com/tastejs/todomvc/tree/gh-pages/examples/gwt/gwttodo
  * 
- * - announce at vertx-awesome github list!
+ * - announce at vertx-awesome github list
  * 

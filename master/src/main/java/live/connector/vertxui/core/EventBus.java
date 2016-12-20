@@ -1,7 +1,8 @@
 package live.connector.vertxui.core;
 
-import org.teavm.flavour.json.JSON;
 import org.teavm.flavour.json.test.TeaVMJSONRunner;
+import org.teavm.jso.JSObject;
+import org.teavm.jso.JSProperty;
 
 import io.vertx.core.Handler;
 import live.connector.vertxui.fluentHtml.FluentHtml;
@@ -12,30 +13,41 @@ import live.connector.vertxui.fluentHtml.FluentHtml;
  * @author Niels Gorisse
  *
  */
-public class EventBus {
+public class EventBus implements JSObject {
 
 	static {
 		FluentHtml.getHead().script("https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js",
 				"https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
 	}
 
-	public EventBus(String serverAddress) {
-		// TODO Auto-generated constructor stub
+	public EventBus(String serverAddress, String[] options) {
 	}
 
-	public void onOpen(Handler<JSON> handler) {
+	@JSProperty()
+	public void onopen(Handler<String> handler) {
 		// TODO Auto-generated method stub
 	}
 
+	// function (address, headers, callback) {
+	@JSProperty()
 	public void registerHandler(String address, Handler<String> handler) {
 		// TODO
 	}
 
+	// /e.unregisterHandler = function (address, headers, callback) {
+	@JSProperty()
+	public void unregisterHandler(String address, String[] headers, Handler<String> callback) {
+
+	}
+
+	// function (address, message, headers) {
+	@JSProperty()
 	public String publish(String address, String message) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	// (address, message, headers, callback) {
 	public void send(String address, String message, String something, Handler<?> reply) {
 		// TODO Auto-generated method stub
 	}

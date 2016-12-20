@@ -13,20 +13,6 @@ public class Client {
 	private Div response;
 	private Div thinking;
 
-	// Please don't run this class but run the Server instead.
-	public static void main(String[] args) {
-		try {
-			new Client();
-		} catch (Error ule) {
-			// This looks weird but teaVM does not know UnsatisfiedLinkError....
-			if (ule.getClass().getSimpleName().equals("UnsatisfiedLinkError")) {
-				System.out.println("Please don't run this class but run the Server instead.");
-			} else {
-				ule.printStackTrace();
-			}
-		}
-	}
-
 	public Client() {
 		Body body = FluentHtml.getBody();
 		button = body.div().button("Click me").id("hello-button").click(evt -> clicked());
@@ -52,4 +38,17 @@ public class Client {
 		thinking.css("display", "none");
 	}
 
+	// Please don't run this class but run the Server instead.
+	public static void main(String[] args) {
+		try {
+			new Client();
+		} catch (Error ule) {
+			// This looks weird but teaVM does not know UnsatisfiedLinkError....
+			if (ule.getClass().getSimpleName().equals("UnsatisfiedLinkError")) {
+				System.out.println("Please don't run this class but run the Server instead.");
+			} else {
+				ule.printStackTrace();
+			}
+		}
+	}
 }

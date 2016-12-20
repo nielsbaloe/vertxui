@@ -13,10 +13,10 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
-import live.connector.vertxui.core.FigWheely;
-import live.connector.vertxui.core.FigWheelyVertX;
-import live.connector.vertxui.core.StaticHandlery;
 import live.connector.vertxui.core.VertxUI;
+import live.connector.vertxui.figwheely.FigWheely;
+import live.connector.vertxui.figwheely.FigWheelyVertX;
+import live.connector.vertxui.figwheely.StaticHandlery;
 
 public class Server extends AbstractVerticle {
 

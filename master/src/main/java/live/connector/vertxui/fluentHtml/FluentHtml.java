@@ -96,8 +96,12 @@ public class FluentHtml {
 		return this;
 	}
 
-	public Div div() {
-		return new Div(this);
+	public Div div(FluentHtml... fluentHtmls) {
+		Div result = div();
+		for (FluentHtml fluentHtml : fluentHtmls) {
+			result.append(fluentHtml);
+		}
+		return result;
 	}
 
 	protected Input input(String type, String name) {
@@ -120,6 +124,10 @@ public class FluentHtml {
 	protected FluentHtml keyUp(EventListener<KeyboardEvent> listener) {
 		element.listenKeyUp(listener);
 		return this;
+	}
+
+	public Div div() {
+		return new Div(this);
 	}
 
 }

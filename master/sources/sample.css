@@ -16,5 +16,5 @@ html {
 	min-width: 48px;
 	min-height: 48px;
 	background-size: 100% 100%;
-	background-image: url("1.jpg") /* change 1 to 2 and save */
+	background-image: url("1.jpg") /* change 1 to 2 and save while figwheely is running */
 }

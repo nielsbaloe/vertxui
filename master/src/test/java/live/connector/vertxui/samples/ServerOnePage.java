@@ -13,6 +13,8 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import live.connector.vertxui.core.VertxUI;
+import live.connector.vertxui.figwheely.FigWheely;
+import live.connector.vertxui.figwheely.FigWheelyVertX;
 
 /**
  * This server serves one VertxUI page, and replies something as a server -
@@ -26,9 +28,11 @@ public class ServerOnePage extends AbstractVerticle {
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	private Class<?> classs;
+	private boolean withFigwheely;
 
-	public ServerOnePage(Class<?> classs) {
+	public ServerOnePage(Class<?> classs, boolean withFigwheely) {
 		this.classs = classs;
+		this.withFigwheely = withFigwheely;
 	}
 
 	@Override
@@ -36,8 +40,10 @@ public class ServerOnePage extends AbstractVerticle {
 		try {
 			Router router = Router.router(vertx);
 
-			// FigWheelyVertX.buildDir = "target/test-classes";
-			// FigWheely.with(router);
+			if (withFigwheely) {
+				FigWheelyVertX.buildDir = "target/test-classes";
+				FigWheely.with(router);
+			}
 
 			router.route("/client").handler(new VertxUI(classs, true));
 			router.route("/server").handler(handle -> {

@@ -9,27 +9,12 @@ import org.teavm.jso.dom.html.HTMLElement;
 
 public class Client {
 
-	private final HTMLDocument document = Window.current().getDocument();
-
 	private HTMLButtonElement button;
 	private HTMLElement response;
 	private HTMLElement thinking;
 
-	// Please don't run this class but run the Server instead.
-	public static void main(String[] args) {
-		try {
-			new Client();
-		} catch (Error ule) {
-			// This looks weird but teaVM does not know UnsatisfiedLinkError....
-			if (ule.getClass().getSimpleName().equals("UnsatisfiedLinkError")) {
-				System.out.println("Please don't run this class but run the Server instead.");
-			} else {
-				ule.printStackTrace();
-			}
-		}
-	}
-
 	public Client() {
+		HTMLDocument document = Window.current().getDocument();
 		HTMLBodyElement body = document.getBody();
 
 		button = document.createElement("button").cast();
@@ -45,7 +30,7 @@ public class Client {
 		thinking.setInnerHTML("The server waits as demonstration");
 		thinking.getStyle().setProperty("display", "none");
 		body.appendChild(thinking);
-		
+
 	}
 
 	private void clicked() {
@@ -62,11 +47,26 @@ public class Client {
 		System.out.println("received: " + text);
 		button.setDisabled(false);
 
+		HTMLDocument document = Window.current().getDocument();
 		HTMLElement responseElem = document.createElement("div");
 		responseElem.appendChild(document.createTextNode(text));
 		response.appendChild(responseElem);
 
 		thinking.getStyle().setProperty("display", "none");
+	}
+
+	// Please don't run this class but run the Server instead.
+	public static void main(String[] args) {
+		try {
+			new Client();
+		} catch (Error ule) {
+			// This looks weird but teaVM does not know UnsatisfiedLinkError....
+			if (ule.getClass().getSimpleName().equals("UnsatisfiedLinkError")) {
+				System.out.println("Please don't run this class but run the Server instead.");
+			} else {
+				ule.printStackTrace();
+			}
+		}
 	}
 
 }

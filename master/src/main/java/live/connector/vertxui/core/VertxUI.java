@@ -19,6 +19,7 @@ import org.teavm.tooling.TeaVMToolException;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
+import live.connector.vertxui.figwheely.FigWheelyVertX;
 
 /**
  * Runtime java-to-javascript compilation inside vertX, see
@@ -33,10 +34,10 @@ public class VertxUI implements Handler<RoutingContext> {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	protected String cache;
-	protected boolean withHtml;
-	protected Class<?> classs;
-	protected boolean debug;
+	private String cache;
+	private boolean withHtml;
+	private Class<?> classs;
+	private boolean debug;
 
 	/**
 	 * Create a VertxUI with debug false.
@@ -76,7 +77,17 @@ public class VertxUI implements Handler<RoutingContext> {
 		this.withHtml = withHtml;
 		this.debug = debug;
 
-		FigWheelyVertX.addVertX(this);
+		if (FigWheelyVertX.started) {
+			debug = true;
+
+			String classFile = FigWheelyVertX.buildDir + "/" + classs.getCanonicalName().replace(".", "/")
+					+ ".class";
+			File file = new File(classFile);
+			if (!file.exists()) {
+				throw new IllegalArgumentException("please set FigWheelyVertX.buildDir, failed to load " + classFile);
+			}
+			FigWheelyVertX.addVertX(file,this);
+		}
 		Vertx.currentContext().executeBlocking(future -> {
 			try {
 				future.complete(translate());
@@ -91,9 +102,23 @@ public class VertxUI implements Handler<RoutingContext> {
 		});
 	}
 
+	public void sychronousReTranslate() throws TeaVMToolException, IOException {
+		cache = translate();
+	}
+
 	@Override
 	public void handle(RoutingContext event) {
-		event.response().end(cache);
+		String reply = cache;
+		if (reply == null) {
+			reply = "<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
+					+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
+					+ "border-top: 2px solid #3498db; width:33px; height:33px; -webkit-animation: spin 0.8s linear infinite;"
+					+ "animation:spin 0.8s linear infinite; } "
+					+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
+					+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
+					+ "</style></head><body><div class=loader></div></body></html>";
+		}
+		event.response().end(reply);
 	}
 
 	public String translate() throws TeaVMToolException, IOException {

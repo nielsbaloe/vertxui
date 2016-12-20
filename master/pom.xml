@@ -22,11 +22,6 @@
 			<version>3.3.2</version>
 		</dependency>
 		<dependency>
-			<groupId>io.vertx</groupId>
-			<artifactId>vertx-sockjs-service-proxy</artifactId>
-			<version>3.3.2</version>
-		</dependency>
-		<dependency>
 			<groupId>org.teavm</groupId>
 			<artifactId>teavm-tooling</artifactId>
 			<version>0.4.3</version>
@@ -35,11 +30,6 @@
 			<groupId>org.teavm</groupId>
 			<artifactId>teavm-classlib</artifactId>
 			<version>0.4.3</version>
-		</dependency>
-		<dependency>
-			<groupId>org.functionaljava</groupId>
-			<artifactId>functionaljava</artifactId>
-			<version>4.6</version>
 		</dependency>
 		<dependency>
 			<groupId>io.vertx</groupId>

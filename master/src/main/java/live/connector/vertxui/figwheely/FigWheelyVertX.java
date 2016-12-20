@@ -1,4 +1,4 @@
-package live.connector.vertxui.core;
+package live.connector.vertxui.figwheely;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +16,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.ext.web.Router;
+import live.connector.vertxui.core.VertxUI;
 
 public class FigWheelyVertX extends AbstractVerticle {
 
@@ -46,28 +47,19 @@ public class FigWheelyVertX extends AbstractVerticle {
 	protected static void addFile(File file, String url) {
 		Watchable watchable = new Watchable();
 		watchable.file = file;
+		watchable.lastModified = file.lastModified();
 		watchable.url = url;
 		watchables.add(watchable);
 	}
 
-	protected static void addVertX(VertxUI handler) {
-		if (!started) {
-			return;
-		}
-		handler.debug = true;
-
-		String classFile = FigWheelyVertX.buildDir + "/" + handler.classs.getCanonicalName().replace(".", "/")
-				+ ".class";
-		File file = new File(classFile);
-		if (!file.exists()) {
-			throw new IllegalArgumentException("please set FigWheelyVertX.buildDir, failed to load " + classFile);
-		}
+	public static boolean addVertX(File file, VertxUI handler) {
 		Watchable watchable = new Watchable();
 		watchable.file = file;
 		watchable.lastModified = file.lastModified();
 		watchable.handler = handler;
 		watchable.urlNumber = router.getRoutes().size();
 		watchables.add(watchable);
+		return true;
 	}
 
 	@Override
@@ -106,7 +98,7 @@ public class FigWheelyVertX extends AbstractVerticle {
 						try {
 							String url = null;
 							if (watchable.handler != null) {
-								watchable.handler.cache = watchable.handler.translate();
+								watchable.handler.sychronousReTranslate();
 								url = router.getRoutes().get(watchable.urlNumber).getPath();
 							} else {
 								url = watchable.url;

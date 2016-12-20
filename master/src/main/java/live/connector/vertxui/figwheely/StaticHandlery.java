@@ -1,4 +1,4 @@
-package live.connector.vertxui.core;
+package live.connector.vertxui.figwheely;
 
 import java.io.File;
 

@@ -6,6 +6,21 @@ import live.connector.vertxui.fluentHtml.FluentHtml;
 
 public class Client {
 
+	/**
+	 * Please, run the server and change some text in the constructor below,
+	 * save, and then look at your browser, press the button or see what
+	 * happens. Don't forget to edit the /sources/sample.css file, save, and
+	 * look at your browser at the same time. Do NOT reload your browser!
+	 */
+	public Client() {
+		Div div = FluentHtml.getBody().div();
+		Button button = div.button("Look at the Client and css, and change something WITHOUT reloading the browser!");
+		button.click(e -> {
+			button.inner("Something else!!");
+			div.button("sdfsdf!");
+		});
+	}
+
 	// Please don't run this class but run the Server instead.
 	public static void main(String[] args) {
 		try {
@@ -18,21 +33,6 @@ public class Client {
 				ule.printStackTrace();
 			}
 		}
-	}
-
-	/**
-	 * Please, run the server and change some text in the constructor below,
-	 * save, and look at your browser, press the button or see what happens.
-	 * Don't forget to edit the /sources/sample.css file, save, and look at your
-	 * browser at the same time.
-	 */
-	public Client() {
-		Div div = FluentHtml.getBody().div();
-		Button button = div.button("Look at the Client and css, and change something!");
-		button.click(e -> {
-			button.inner("Something else!!");
-			div.button("sdfsdff!");
-		});
 	}
 
 }

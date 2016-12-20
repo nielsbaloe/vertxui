@@ -8,7 +8,7 @@ import live.connector.vertxui.samples.ServerOnePage;
 public class Server extends ServerOnePage {
 
 	public Server() {
-		super(Client.class);
+		super(Client.class, false);
 	}
 
 	public static void main(String[] args) {

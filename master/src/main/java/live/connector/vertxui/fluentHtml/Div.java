@@ -53,8 +53,8 @@ public class Div extends FluentHtml {
 	}
 
 	@Override
-	public Div div() {
-		return (Div) super.div();
+	public Div div(FluentHtml... fluentHtmls) {
+		return (Div) super.div(fluentHtmls);
 	}
 
 	@Override
