@@ -1,35 +1,11 @@
 package live.connector.vertxui.fluentHtml;
 
-import java.lang.invoke.MethodHandles;
-
-import org.teavm.jso.dom.html.HTMLElement;
+import java.util.List;
 
 public class Div extends FluentHtml {
 
 	protected Div(FluentHtml parent) {
 		super("div", parent);
-	}
-
-	protected Div(HTMLElement element) {
-		super(element);
-	}
-
-	/**
-	 * Get an existing object from the dom by 'id'.
-	 * 
-	 * @param id
-	 *            the id
-	 * @return a fluent html object
-	 */
-
-	public static Div dom(String id) {
-		HTMLElement found = document.getElementById("id");
-		if (!found.getTagName().equals(MethodHandles.lookup().lookupClass().getName().toLowerCase())) {
-			throw new IllegalArgumentException(
-					"Requested non-existing dom with id=" + id + ": tagname=" + found.getTagName()
-							+ " requesting tagname=" + MethodHandles.lookup().lookupClass().getName().toLowerCase());
-		}
-		return new Div(found);
 	}
 
 	@Override
@@ -53,8 +29,13 @@ public class Div extends FluentHtml {
 	}
 
 	@Override
-	public Div div(FluentHtml... fluentHtmls) {
-		return (Div) super.div(fluentHtmls);
+	public Div div(List<? extends FluentHtml> list) {
+		return (Div) super.div(list);
+	}
+
+	@Override
+	public Div div(FluentHtml[] list) {
+		return (Div) super.div(list);
 	}
 
 	@Override
@@ -67,18 +48,8 @@ public class Div extends FluentHtml {
 		return (Input) super.input(type, name);
 	}
 
-	/**
-	 * Add a non-fluid (with 'new') created object. Note that writing fluent
-	 * code is preferred.
-	 * 
-	 * @param app
-	 */
-	public void append(FluentHtml app) {
-		if (app.appendedToParent) {
-			throw new IllegalArgumentException("Already added to a dom (fluently or with append()): " + app);
-		}
-		element.appendChild(app.element);
-		app.appendedToParent = true;
+	public void hidden(boolean b) {
+		element.setHidden(b);
 	}
 
 }

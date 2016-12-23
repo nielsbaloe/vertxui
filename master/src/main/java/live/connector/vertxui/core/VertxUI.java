@@ -80,13 +80,12 @@ public class VertxUI implements Handler<RoutingContext> {
 		if (FigWheelyVertX.started) {
 			debug = true;
 
-			String classFile = FigWheelyVertX.buildDir + "/" + classs.getCanonicalName().replace(".", "/")
-					+ ".class";
+			String classFile = FigWheelyVertX.buildDir + "/" + classs.getCanonicalName().replace(".", "/") + ".class";
 			File file = new File(classFile);
 			if (!file.exists()) {
 				throw new IllegalArgumentException("please set FigWheelyVertX.buildDir, failed to load " + classFile);
 			}
-			FigWheelyVertX.addVertX(file,this);
+			FigWheelyVertX.addVertX(file, this);
 		}
 		Vertx.currentContext().executeBlocking(future -> {
 			try {
@@ -94,7 +93,8 @@ public class VertxUI implements Handler<RoutingContext> {
 			} catch (TeaVMToolException | IOException e) {
 				log.log(Level.SEVERE, e.getMessage(), e);
 				if (!FigWheelyVertX.started) {
-					System.exit(0); // stop on startup errors
+					// stop on startup errors when not in debug
+					Vertx.currentContext().owner().close();
 				}
 			}
 		}, result -> {
@@ -112,8 +112,8 @@ public class VertxUI implements Handler<RoutingContext> {
 		if (reply == null) {
 			reply = "<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
 					+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
-					+ "border-top: 2px solid #3498db; width:33px; height:33px; -webkit-animation: spin 0.8s linear infinite;"
-					+ "animation:spin 0.8s linear infinite; } "
+					+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
+					+ "animation:spin 1.0s linear infinite; } "
 					+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
 					+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
 					+ "</style></head><body><div class=loader></div></body></html>";

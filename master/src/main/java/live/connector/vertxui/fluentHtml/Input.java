@@ -6,15 +6,12 @@ import org.teavm.jso.dom.html.HTMLInputElement;
 
 public class Input extends FluentHtml {
 
-	protected Input(String type, String name, FluentHtml element) {
+	protected Input(FluentHtml element) {
 		super("input", element);
-		attr("type", type);
-		attr("name", name);
 	}
 
-	@Override
 	public Input keyUp(EventListener<KeyboardEvent> listener) {
-		return (Input) super.keyUp(listener);
+		return (Input) super.listen("keyup", listener);
 	}
 
 	@Override
@@ -36,7 +33,7 @@ public class Input extends FluentHtml {
 
 	// TODO put into fluentHtml
 	public String getValue() {
-		return element.getNodeValue();
+		return ((HTMLInputElement) element).getValue();
 	}
 
 }

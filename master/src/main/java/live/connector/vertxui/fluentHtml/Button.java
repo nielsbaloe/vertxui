@@ -6,9 +6,8 @@ import org.teavm.jso.dom.html.HTMLButtonElement;
 
 public class Button extends FluentHtml {
 
-	protected Button(String text, FluentHtml element) {
+	protected Button(FluentHtml element) {
 		super("button", element);
-		inner(text);
 	}
 
 	@Override
@@ -16,9 +15,8 @@ public class Button extends FluentHtml {
 		return (Button) super.inner(innerHtml);
 	}
 
-	@Override
 	public Button click(EventListener<MouseEvent> listener) {
-		return (Button) super.click(listener);
+		return (Button) super.listen("click", listener);
 	}
 
 	@Override

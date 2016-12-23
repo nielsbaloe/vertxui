@@ -82,7 +82,7 @@ public class FigWheelyVertX extends AbstractVerticle {
 		}).listen(port, listenHandler -> {
 			if (listenHandler.failed()) {
 				log.log(Level.SEVERE, "Startup error", listenHandler.cause());
-				System.exit(0); // stop on startup error
+				vertx.close(); // stop on startup error
 			}
 		});
 

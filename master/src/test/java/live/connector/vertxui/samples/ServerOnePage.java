@@ -56,7 +56,7 @@ public class ServerOnePage extends AbstractVerticle {
 					listenHandler -> {
 						if (listenHandler.failed()) {
 							log.log(Level.SEVERE, "Startup error", listenHandler.cause());
-							System.exit(0); // stop on startup error
+							vertx.close(); // stop on startup error
 						}
 					});
 			log.info("Initialised:" + router.getRoutes().stream().map(a -> {
@@ -64,7 +64,7 @@ public class ServerOnePage extends AbstractVerticle {
 			}).collect(Collectors.joining()));
 		} catch (IOException | TeaVMToolException e) {
 			e.printStackTrace();
-			System.exit(0); // stop on startup error
+			vertx.close(); // stop on startup error
 		}
 
 	}

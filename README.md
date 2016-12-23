@@ -6,20 +6,22 @@ A [Vert.X](http://vertx.io/) pure-Java UI toolkit with fast server-time Java (by
 Pure-Java clientside means:
 * strong-typed client-side Javascript
 * use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML like React and others)
-* use the same DTO/entity classes server-side and client-side.
+* use the same DTO/entity classes and constants server-side and client-side.
 * access to both the Java (threads etc) ánd the Javascript ecosystems
 * easy junit testing of client-side code, and other convenient Java tooling
  
 Vert.X adds:
 * probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
 * no need for anything else: no Apache and Tomcat.
+* an Eventbus serverside
 
 Vertx-ui serves on top of that:
 * an EventBus at server and clients in the same language.
 * forget about URL's, just register and publish objects from and to the EventBus.
+* forget about HTML, just write a bit of code in fluent HTML.
 * no IDE tooling and IDE near-locking background processing, the Java to Javascript translation happens server-time.
 * for development: automatic browser reloading of generated javascript and other files (.css/.jpg) without browser refresh.
-* forget about HTML, just write a bit of code in fluent HTML.
+* Fluent html has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
 * ideal as microservice: no file access necessary at the server.
 
 
@@ -61,7 +63,7 @@ The clientside looks like plain javascript but then with Java (8's lambda) callb
 
 ### Clientside fluent HTML
 
-You can also use fluent HTML, which is a lot shorter and more readable.
+You can also use fluent HTML, which is a lot shorter and more readable. Don't worry about speed, fluent HTML uses a virtual DOM behind the scenes.
 
 		Button button = body.button("Click me").id("hello-button").onClick(evt -> clicked());
 		...
@@ -78,9 +80,9 @@ Of course you can mix with existing html and javascript by an encapsulated docum
 	
 	HTMLElement element = responses.dom(); // to Dom
 
-Use Java 8 streams too for fluent filtering and creating. Streams are not (yet) Java 8 or ReactRX but functionaljava.org :
+TeaVM translation supports lambda's, however not streams yet so that is where the syntax-compatible Sy is for:
 
-    List.list("ccc", "c").filter(a -> a.length() > 2).map(t -> new Li(t)).foreachDoEffect(ul::append);
+	Str.eamd("aaa", "a").filter(a -> a.length() > 2).map(t -> new Li(t)).forEach(ul::append);
 
 
 ### EventBus at server and client in pure java gives beautiful MVC 

@@ -55,14 +55,14 @@ public class Server extends AbstractVerticle {
 		} catch (TeaVMToolException | IOException | IllegalArgumentException e) {
 			// Error on first-time java-2-javascript translation: stop deploying
 			log.log(Level.SEVERE, "Startup error", e);
-			System.exit(0); // stop on startup error
+			vertx.close(); // stop on startup error
 		}
 		HttpServerOptions serverOptions = new HttpServerOptions().setCompressionSupported(true);
 		HttpServer server = vertx.createHttpServer(serverOptions).requestHandler(router::accept).listen(80,
 				listenHandler -> {
 					if (listenHandler.failed()) {
 						log.log(Level.SEVERE, "Startup error", listenHandler.cause());
-						System.exit(0); // stop on startup error
+						vertx.close(); // stop on startup error
 					}
 				});
 		log.info("Initialised:" + router.getRoutes().stream().map(a -> {

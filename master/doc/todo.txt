@@ -18,3 +18,19 @@
  * 
  * - announce at vertx-awesome github list
  * 
+ 
+ 
+ TODO list of bugs:
+-	HTMLElement input = ...
+	input.listenKeyUp(event -> {
+			System.out.println("yes "+ event);
+		});
+	>> TypeError: b.q is not a function, Line 1258 G($t,a,b){var c;if(b===null){c=$rt_s(17);}else{c=b.q();}return WK($t,a,EI(c));
+	(note: a event.method() does work, there is just no .toString() call)
+
+- 	public interface Func<T, R> { R apply(T t); }
+	 Func<String, Integer> test = s -> 5;
+	>> forever transpiling
+	
+
+	
