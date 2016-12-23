@@ -6,23 +6,25 @@ import live.connector.vertxui.fluentHtml.Body;
 import live.connector.vertxui.fluentHtml.Button;
 import live.connector.vertxui.fluentHtml.Div;
 import live.connector.vertxui.fluentHtml.FluentHtml;
+import live.connector.vertxui.fluentHtml.NameStyle;
 
 public class Client {
 
 	private Button button;
 	private Div response;
-	private Div thinking;
+	private FluentHtml thinking;
 
 	public Client() {
 		Body body = FluentHtml.getBody();
 		button = body.div().button("Click me").id("hello-button").click(evt -> clicked());
 		response = body.div();
-		thinking = body.div().inner("The server waits as demonstration").id("thinking-panel").css("display", "none");
+		thinking = body.div().inner("The server waits as demonstration").id("thinking-panel").css(NameStyle.display,
+				"none");
 	}
 
 	private void clicked() {
 		button.disable();
-		thinking.css("display", "");
+		thinking.css(NameStyle.display, "");
 
 		XMLHttpRequest xhr = XMLHttpRequest.create();
 		xhr.onComplete(() -> responsed(xhr.getResponseText()));
@@ -35,7 +37,7 @@ public class Client {
 		button.enable();
 
 		response.div().inner(text);
-		thinking.css("display", "none");
+		thinking.css(NameStyle.display, "none");
 	}
 
 	// Please don't run this class but run the Server instead.

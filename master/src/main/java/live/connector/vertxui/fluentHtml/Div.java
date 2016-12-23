@@ -9,23 +9,8 @@ public class Div extends FluentHtml {
 	}
 
 	@Override
-	public Div inner(String innerHtml) {
-		return (Div) super.inner(innerHtml);
-	}
-
-	@Override
 	public Div id(String string) {
 		return (Div) super.id(string);
-	}
-
-	@Override
-	public Div css(String property, String value) {
-		return (Div) super.css(property, value);
-	}
-
-	@Override
-	public Button button(String text) {
-		return (Button) super.button(text);
 	}
 
 	@Override
@@ -36,11 +21,6 @@ public class Div extends FluentHtml {
 	@Override
 	public Div div(FluentHtml[] list) {
 		return (Div) super.div(list);
-	}
-
-	@Override
-	public Li li(String text) {
-		return (Li) super.li(text);
 	}
 
 	@Override

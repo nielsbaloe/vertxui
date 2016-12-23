@@ -1,6 +1,6 @@
 package live.connector.vertxui.fluentHtml;
 
-public enum AName {
+public enum NameAttr {
 	hidden, high, href, hreflang, icon, id, ismap, itemprop, //
 	keytype, kind, label, lang, language, list, loop, low, manifest, //
 	max, maxlength, media, method, min, multiple, name, novalidate, open, //
@@ -13,24 +13,23 @@ public enum AName {
 	dirnme, disable, download, draggable, dropzone, enctype, form, formaction, //
 	headers, height, accept, accesskey, action, align, alt, async, //
 	autocomplete, autofocus, autoplay, autosave, //
-	forr, defaultt, classs, httpEquiv, acceptCharset;
+	for_, default_, class_, http_equiv, accept_charset;
 
 	public String nameValid() {
 		switch (this) {
-		case httpEquiv:
+		case http_equiv:
 			return "http-equiv";
-		case acceptCharset:
+		case accept_charset:
 			return "accept-charset";
-		case forr:
+		case for_:
 			return "for";
-		case defaultt:
+		case default_:
 			return "default";
-		case classs:
+		case class_:
 			return "classs";
 		default:
 			return name();
 		}
 	}
-	
-	
+
 };
