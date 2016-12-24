@@ -1,8 +1,10 @@
 package live.connector.vertxui.core;
 
 import org.teavm.flavour.json.test.TeaVMJSONRunner;
+import org.teavm.jso.JSBody;
 import org.teavm.jso.JSObject;
 import org.teavm.jso.JSProperty;
+import org.teavm.jso.typedarrays.Int32Array;
 
 import io.vertx.core.Handler;
 import live.connector.vertxui.fluentHtml.FluentHtml;
@@ -13,59 +15,49 @@ import live.connector.vertxui.fluentHtml.FluentHtml;
  * @author Niels Gorisse
  *
  */
-public class EventBus implements JSObject {
+public abstract class EventBus implements JSObject {
 
 	static {
 		FluentHtml.getHead().script("https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js",
 				"https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
 	}
 
-	public EventBus(String serverAddress, String[] options) {
-	}
+	public static native Int32Array create(int length);
+
+	@JSBody(params = { "address", "options" }, script = "return new EventBus(address,options);")
+	public static native EventBus get(String address, String[] options);
 
 	@JSProperty()
-	public void onopen(Handler<String> handler) {
-		// TODO Auto-generated method stub
-	}
+	public abstract void onopen(Handler<String> handler);
 
-	// function (address, headers, callback) {
 	@JSProperty()
-	public void registerHandler(String address, Handler<String> handler) {
-		// TODO
-	}
+	public abstract void registerHandler(String address, String[] headers, Handler<String> handler);
 
-	// /e.unregisterHandler = function (address, headers, callback) {
 	@JSProperty()
-	public void unregisterHandler(String address, String[] headers, Handler<String> callback) {
+	public abstract void unregisterHandler(String address, String[] headers, Handler<String> callback);
 
-	}
-
-	// function (address, message, headers) {
 	@JSProperty()
-	public String publish(String address, String message) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public abstract String publish(String address, String message, String[] headers);
 
-	// (address, message, headers, callback) {
-	public void send(String address, String message, String something, Handler<?> reply) {
-		// TODO Auto-generated method stub
-	}
+	@JSProperty()
+	public abstract void send(String address, String message, String[] headers, Handler<String> callback);
 
-	public void onClose(Runnable object) {
-		// TODO Auto-generated method stub
-	}
+	@JSProperty()
+	public abstract void onClose(Runnable object);
 
-	public void onError(Handler<String> object) {
-		// TODO Auto-generated method stub
-	}
+	@JSProperty()
+	public abstract void onError(Handler<String> callback);
 
 	/**
 	 * Push a DTO to the server, where we registered this class to be received
 	 * at the right place.
 	 */
 	public <T> void publish(T model) {
-		publish(model.getClass().getName(), TeaVMJSONRunner.serialize(model).asText());
+		publish(model.getClass().getName(), model);
+	}
+
+	public <T> void publish(String address, T model) {
+		publish(model.getClass().getName(), TeaVMJSONRunner.serialize(model).asText(), null);
 	}
 
 	/**
@@ -77,8 +69,12 @@ public class EventBus implements JSObject {
 	 * @param handler
 	 *            a method that handles the dto
 	 */
-	public <T> void consume(Class<T> classs, Handler<T> handler) {
-		registerHandler(classs.getName(), string -> {
+	public <T> void register(Class<T> classs, Handler<T> handler) {
+		register(classs.getName(), null, handler);
+	}
+
+	public <T> void register(String address, Class<T> classs, Handler<T> handler) {
+		registerHandler(address, null, string -> {
 			handler.handle(TeaVMJSONRunner.deserialize(string, classs));
 		});
 	}

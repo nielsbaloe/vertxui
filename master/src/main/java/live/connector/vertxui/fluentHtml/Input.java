@@ -11,7 +11,7 @@ public class Input extends FluentHtml {
 	}
 
 	public Input keyUp(EventListener<KeyboardEvent> listener) {
-		return (Input) super.listen(NameListener.keyup, listener);
+		return (Input) super.listen(NameListen.keyup, listener);
 	}
 
 	@Override

@@ -16,7 +16,7 @@ public class Button extends FluentHtml {
 	}
 
 	public Button click(EventListener<MouseEvent> listener) {
-		return (Button) super.listen(NameListener.click, listener);
+		return (Button) super.listen(NameListen.click, listener);
 	}
 
 	@Override

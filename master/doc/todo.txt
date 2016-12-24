@@ -2,6 +2,8 @@
  * TODO development:
  * 
  * - lighter fluent HTML which generates text and does smart virtual DOM replacement - like react.js
+* https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
+*
  * 
  * - finish Wrapping the client for SockJS: EventBus
  * https://github.com/konsoletyper/teavm/wiki/Interacting-with-JavaScript

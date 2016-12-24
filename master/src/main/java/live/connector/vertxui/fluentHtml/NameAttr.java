@@ -26,9 +26,26 @@ public enum NameAttr {
 		case default_:
 			return "default";
 		case class_:
-			return "classs";
+			return "class";
 		default:
 			return name();
+		}
+	}
+
+	public static NameAttr valueOfValid(String name) {
+		switch (name) {
+		case "http-equiv":
+			return http_equiv;
+		case "accept-charset":
+			return accept_charset;
+		case "for":
+			return for_;
+		case "default":
+			return default_;
+		case "class":
+			return class_;
+		default:
+			return valueOf(name);
 		}
 	}
 

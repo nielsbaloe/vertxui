@@ -32,7 +32,20 @@ public enum NameStyle {
 	transitionDelay, unicodeBidi, verticalAlign, visibility, whiteSpace, width, wordBreak, //
 	wordSpacing, wordWrap, widows, zIndex;
 
-	public String nameValid() { // TODO test
+	public String nameValid() {
 		return name().replaceAll("([a-z])([A-Z]+)", "$1-$2").toLowerCase();
 	}
+
+	public static NameStyle valueOfValid(String linestyle) {
+		String x = null;
+		for (String y : linestyle.split("-")) {
+			if (x == null) {
+				x = y;
+			} else {
+				x += y.substring(0, 1).toUpperCase() + y.substring(1);
+			}
+		}
+		return valueOf(x);
+	}
+
 }

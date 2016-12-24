@@ -12,6 +12,8 @@ import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Attr;
 import org.teavm.jso.dom.xml.NamedNodeMap;
+import org.teavm.jso.dom.xml.Node;
+import org.teavm.jso.dom.xml.NodeList;
 
 import live.connector.vertxui.reacty.ReactC;
 import live.connector.vertxui.reacty.ReactM;
@@ -45,7 +47,7 @@ public class FluentHtml {
 	private String tag;
 	private Map<NameAttr, String> attrs;
 	private Map<NameStyle, String> styles;
-	private Map<NameListener, EventListener<?>> listeners;
+	private Map<NameListen, EventListener<?>> listeners;
 	private List<FluentHtml> childs;
 	private String inner;
 
@@ -127,13 +129,23 @@ public class FluentHtml {
 		return this.inner;
 	}
 
-	public FluentHtml listen(NameListener event, EventListener<?> listener) {
+	/**
+	 * Only works when you didn't directly manipulated the dom.
+	 */
+	public FluentHtml unlisten(NameListen name) {
+		if (listeners != null) {
+			element.removeEventListener(name.name(), listeners.get(name));
+		}
+		return this;
+	}
+
+	public FluentHtml listen(NameListen name, EventListener<?> value) {
 		if (listeners == null) {
 			listeners = new HashMap<>();
 		}
-		listeners.put(event, listener);
+		listeners.put(name, value);
 		if (element != null) {
-			element.addEventListener(event.name(), listener);
+			element.addEventListener(name.name(), value);
 		}
 		return this;
 	}
@@ -274,7 +286,7 @@ public class FluentHtml {
 			add.inner(add.inner);
 		}
 		if (add.listeners != null) {
-			for (NameListener name : add.listeners.keySet()) {
+			for (NameListen name : add.listeners.keySet()) {
 				add.element.addEventListener(name.name(), add.listeners.get(name));
 			}
 		}
@@ -283,7 +295,11 @@ public class FluentHtml {
 				while (child.tag == null) { // skip ReactC objects
 					child = ((ReactC) child).generate();
 				}
-				syncCreate(child);
+				if (child.element == null) {
+					syncCreate(child);
+				} else { // recycling of the old element!
+					syncRender(child);
+				}
 				add.element.appendChild(child.element);
 			}
 		}
@@ -293,17 +309,21 @@ public class FluentHtml {
 		return (str1 == null ? str2 == null : str1.equals(str2));
 	}
 
-	// preconditions: we are attached (element!=null) and the other already has
-	// elements
+	/**
+	 * Check whether the fluenthtml and its element are in sync
+	 */
+	// TODO bijhouden wat er veranderd is, zodat niet heel deze check hoeft te
+	// worden doorgevoerd
 	private static void syncRender(FluentHtml add) {
 		if (!compare(add.tag, add.element.getTagName())) {
 			syncCreate(add);
 			return;
 		}
 		// innerHtml
-		if (!compare(add.inner, add.element.getInnerHTML())) {
-			add.element.setInnerHTML(add.inner);
-		}
+		// TODO aanzetten bij reply bug
+		// if (!compare(add.inner, add.element.getInnerHTML())) {
+		// add.element.setInnerHTML(add.inner);
+		// }
 		// Attrs
 		// TODO: if add.attrs==null
 		NamedNodeMap<Attr> elementAttrs = add.element.getAttributes();
@@ -346,16 +366,26 @@ public class FluentHtml {
 			}
 		}
 		// TODO remove all listeners!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		for (NameListener name : add.listeners.keySet()) { // add or adjust
-			EventListener<?> value = add.listeners.get(name);
-			// .............?
+		// for (NameListen name : add.listeners.keySet()) { // add or adjust
+		// EventListener<?> value = add.listeners.get(name);
+		// .............?
+		// }
+		NodeList<Node> existChildren = add.element.getChildNodes();
+		for (int x = 0; x < add.childs.size(); x++) {
+			FluentHtml child = add.childs.get(x);
+			while (child.tag == null) { // skip ReactC objects
+				child = ((ReactC) child).generate();
+			}
+			child.element = (HTMLElement) existChildren.get(x);
+			if (child.element == null) {
+				syncCreate(child);
+			} else {
+				syncRender(child);
+			}
 		}
-		
-		// TODO HIER GEBLEVEN private List<FluentHtml> childs;
-
-		// TODO: functies toevoegen voor removeListener() e.d.
-		System.out.println("I'm rerendering");
-		// https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
+		for (int x = add.childs.size(); x < existChildren.getLength(); x++) {
+			add.element.removeChild(existChildren.get(x));
+		}
 	}
 
 	// Constructor-tags:
