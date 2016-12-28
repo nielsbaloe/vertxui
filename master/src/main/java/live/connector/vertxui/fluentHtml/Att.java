@@ -1,9 +1,9 @@
 package live.connector.vertxui.fluentHtml;
 
-public enum NameAttr {
+public enum Att {
 	hidden, high, href, hreflang, icon, id, ismap, itemprop, //
 	keytype, kind, label, lang, language, list, loop, low, manifest, //
-	max, maxlength, media, method, min, multiple, name, novalidate, open, //
+	max, maxlength, media, method, min, multiple, novalidate, open, //
 	optimum, pattern, ping, paceholder, poster, preload, pubdate, radiogroup, //
 	readonly, rel, required, reversed, role, rows, rowspan, sandbox, spellcheck, scope, //
 	scoped, seamless, seleted, shape, size, sizes, span, src, srcdoc, srclang, srcset, //
@@ -13,26 +13,28 @@ public enum NameAttr {
 	dirnme, disable, download, draggable, dropzone, enctype, form, formaction, //
 	headers, height, accept, accesskey, action, align, alt, async, //
 	autocomplete, autofocus, autoplay, autosave, //
-	for_, default_, class_, http_equiv, accept_charset;
+	name_, for_, default_, class_, http_equiv, accept_charset;
 
 	public String nameValid() {
 		switch (this) {
-		case http_equiv:
+		case http_equiv: // java: '-' illegal
 			return "http-equiv";
-		case accept_charset:
+		case accept_charset: // java: '-' illegal
 			return "accept-charset";
-		case for_:
+		case for_: // java: reserved keyword
 			return "for";
-		case default_:
+		case default_:// java: reserved keyword
 			return "default";
-		case class_:
+		case class_:// java: reserved keyword
 			return "class";
+		case name_:// javascript: reserved keyword
+			return "name";
 		default:
 			return name();
 		}
 	}
 
-	public static NameAttr valueOfValid(String name) {
+	public static Att valueOfValid(String name) {
 		switch (name) {
 		case "http-equiv":
 			return http_equiv;
@@ -44,6 +46,8 @@ public enum NameAttr {
 			return default_;
 		case "class":
 			return class_;
+		case "name":// javascript: reserved keyword
+			return name_;
 		default:
 			return valueOf(name);
 		}

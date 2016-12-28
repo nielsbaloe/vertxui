@@ -1,26 +1,27 @@
 package live.connector.vertxui.samples.helloWorld;
 
-import org.teavm.jso.ajax.XMLHttpRequest;
-import org.teavm.jso.browser.Window;
-import org.teavm.jso.dom.html.HTMLBodyElement;
-import org.teavm.jso.dom.html.HTMLButtonElement;
-import org.teavm.jso.dom.html.HTMLDocument;
-import org.teavm.jso.dom.html.HTMLElement;
+import com.google.gwt.xhr.client.XMLHttpRequest;
+
+import elemental.client.Browser;
+import elemental.dom.Document;
+import elemental.dom.Element;
+import elemental.html.Window;
 
 public class Client {
 
-	private HTMLButtonElement button;
-	private HTMLElement response;
-	private HTMLElement thinking;
+	private Document document = Browser.getDocument();
+
+	private Element button;
+	private Element response;
+	private Element thinking;
 
 	public Client() {
-		HTMLDocument document = Window.current().getDocument();
-		HTMLBodyElement body = document.getBody();
+		Element body = document.getBody();
 
-		button = document.createElement("button").cast();
+		button = document.createElement("button");
 		button.setAttribute("id", "hello-button");
 		button.setInnerHTML("Click me");
-		button.listenClick(evt -> clicked());
+		button.setOndblclick(evt -> clicked());
 		body.appendChild(button);
 
 		response = document.createElement("div");
@@ -47,8 +48,7 @@ public class Client {
 		System.out.println("received: " + text);
 		button.setDisabled(false);
 
-		HTMLDocument document = Window.current().getDocument();
-		HTMLElement responseElem = document.createElement("div");
+		Element responseElem = document.createElement("div");
 		responseElem.appendChild(document.createTextNode(text));
 		response.appendChild(responseElem);
 

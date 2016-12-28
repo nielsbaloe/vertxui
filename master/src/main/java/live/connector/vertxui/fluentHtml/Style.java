@@ -1,6 +1,6 @@
 package live.connector.vertxui.fluentHtml;
 
-public enum NameStyle {
+public enum Style {
 
 	alignContent, alignItems, alignSelf, animation, animationDelay, animationDirection, //
 	animationDuration, animationFillMode, animationIterationCount, animationName, //
@@ -33,10 +33,17 @@ public enum NameStyle {
 	wordSpacing, wordWrap, widows, zIndex;
 
 	public String nameValid() {
-		return name().replaceAll("([a-z])([A-Z]+)", "$1-$2").toLowerCase();
+		StringBuffer result = new StringBuffer();
+		for (char a : name().toCharArray()) {
+			if (Character.isUpperCase(a)) {
+				result.append("-");
+			}
+			result.append(a);
+		}
+		return result.toString().toLowerCase();
 	}
 
-	public static NameStyle valueOfValid(String linestyle) {
+	public static Style valueOfValid(String linestyle) {
 		String x = null;
 		for (String y : linestyle.split("-")) {
 			if (x == null) {

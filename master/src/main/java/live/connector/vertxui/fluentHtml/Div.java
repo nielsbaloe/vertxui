@@ -28,8 +28,9 @@ public class Div extends FluentHtml {
 		return (Input) super.input(type, name);
 	}
 
-	public void hidden(boolean b) {
+	public Div hidden(boolean b) {
 		element.setHidden(b);
+		return this;
 	}
 
 }

@@ -1,12 +1,13 @@
 package live.connector.vertxui.samples.mvc;
 
+import java.util.Arrays;
+
 import live.connector.vertxui.fluentHtml.Body;
 import live.connector.vertxui.fluentHtml.Div;
 import live.connector.vertxui.fluentHtml.FluentHtml;
 import live.connector.vertxui.fluentHtml.Input;
 import live.connector.vertxui.fluentHtml.Li;
 import live.connector.vertxui.reacty.ReactC;
-import live.connector.vertxui.streamy.Str;
 
 class ModelSendDto {
 	public String name;
@@ -43,7 +44,7 @@ public class View {
 		// Append something
 		response.add(new Li("bla"));
 		// Append a stream of things
-		response.add(Str.eamd("aaa", "a").filter(e -> e.length() > 1).map(t -> new Li(t)));
+		response.add(Arrays.asList("aaa", "a").stream().filter(e -> e.length() > 1).map(t -> new Li(t)));
 		// Create a custom class with a custom constructor that gets the model
 		// (not here) and call sync() on your class when the model changes.
 		response.add(new ReactC() {

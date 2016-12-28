@@ -6,8 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.teavm.tooling.TeaVMToolException;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
@@ -52,7 +50,7 @@ public class Server extends AbstractVerticle {
 			router.route(clientUrl).handler(new VertxUI(Client.class, false));
 
 			router.route("/sources/*").handler(StaticHandlery.create("sources"));
-		} catch (TeaVMToolException | IOException | IllegalArgumentException e) {
+		} catch (IOException | IllegalArgumentException e) {
 			// Error on first-time java-2-javascript translation: stop deploying
 			log.log(Level.SEVERE, "Startup error", e);
 			vertx.close(); // stop on startup error

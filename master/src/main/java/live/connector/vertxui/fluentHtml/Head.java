@@ -1,11 +1,12 @@
 package live.connector.vertxui.fluentHtml;
 
-import org.teavm.jso.ajax.XMLHttpRequest;
-import org.teavm.jso.dom.html.HTMLElement;
+import com.google.gwt.xhr.client.XMLHttpRequest;
+
+import elemental.dom.Element;
 
 public class Head extends FluentHtml {
 
-	protected Head(HTMLElement head) {
+	protected Head(Element head) {
 		super(head);
 	}
 
@@ -14,6 +15,17 @@ public class Head extends FluentHtml {
 	 * 
 	 * @param jss
 	 */
+
+	static class XMLHttpRequestSyc extends XMLHttpRequest {
+
+		protected XMLHttpRequestSyc() {
+		}
+
+		public final native void open(String httpMethod, String url, boolean sync) /*-{
+																						this.open(httpMethod, url, sync);
+																						}-*/;
+	}
+
 	public void script(String... jss) {
 		for (String js : jss) {
 			// This works but is not asynchronous, which can cause problems
@@ -21,13 +33,15 @@ public class Head extends FluentHtml {
 			// result.attribute("type", "text/javascript");
 			// result.attribute("src", js);
 
-			XMLHttpRequest xhr = XMLHttpRequest.create();
-			xhr.onComplete(() -> {
-				HTMLElement src = document.createElement("script");
-				src.setAttribute("style", "text/javascript");
-				// src.setAttribute("src", js);
-				src.setAttribute("text", xhr.getResponseText());
-				element.appendChild(src);
+			XMLHttpRequestSyc xhr = (XMLHttpRequestSyc) XMLHttpRequestSyc.create();
+			xhr.setOnReadyStateChange(a -> {
+				if (a.getReadyState() == XMLHttpRequest.DONE && a.getStatus() == 200) {
+					Element src = document.createElement("script");
+					src.setAttribute("style", "text/javascript");
+					// src.setAttribute("src", js);
+					src.setAttribute("text", xhr.getResponseText());
+					element.appendChild(src);
+				}
 			});
 			xhr.open("GET", js, false);
 			xhr.send();
@@ -37,9 +51,9 @@ public class Head extends FluentHtml {
 	public void stylesheet(String... csss) {
 		for (String css : csss) {
 			FluentHtml result = new FluentHtml("link", this);
-			result.attr(NameAttr.rel, "stylesheet");
-			result.attr(NameAttr.async, "false");
-			result.attr(NameAttr.href, css);
+			result.attr(Att.rel, "stylesheet");
+			result.attr(Att.async, "false");
+			result.attr(Att.href, css);
 		}
 	}
 

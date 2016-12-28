@@ -1,7 +1,7 @@
 vertx-ui
 ===
 
-A [Vert.X](http://vertx.io/) pure-Java UI toolkit with fast server-time Java (bytecode) to Javascript translation (by [TeaVM](http://teavm.org/)), a mini fluent HTML toolkit, and automatic browser reloading. Write serverside and clientside in Java with a lot of advantages.
+A [Vert.X](http://vertx.io/) pure-Java UI toolkit containing a Fluent HTML toolkit, an Eventbus at server and clientside, and automatic browser reloading. Write serverside and clientside in Java with a lot of advantages.
 
 Pure-Java clientside means:
 * strong-typed client-side Javascript
@@ -33,11 +33,9 @@ The serverside is easy. This single line serves all necessary front-end Javascri
 
 Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples).
 
-The hello-world example translates from java to javascript within a second (and after that less) server startup time - that is probably less than you putting that file somewhere in the right folder. The result is one raw 68kb dependency-less javascript+html file, or a 16kb HTTP-zipped file. The resulting javascript is so small because TeaVM only translates from APIs that what was actually used.
-
 ### Automatic browser reloading
 
-Server-time translation does not mean you can not debug your code. To debug, set the VertxUI parameter to true and the javascript will not be minified and debug info is added too (thanks to TeaVM).
+Server-time translation does not mean you can not debug your code. To debug, set the VertxUI parameter to true.
 
 If you want to speed up your development and not loose the browserstate by pressing reload, use FigWheely which automaticly ensures browsers reload changed javascript or any other file (.css .jpg etc). You will never want to write .css or behavior javascript without FigWheely:
 
@@ -46,7 +44,7 @@ If you want to speed up your development and not loose the browserstate by press
 ### Clientside pure DOM
 
 The clientside looks like plain javascript but then with Java (8's lambda) callbacks. This is pure 
-[TeaVM](http://teavm.org/).
+[TeaVM](http://teavm.org/) (will be GWT elemental):
 
 		HTMLButtonElement button = document.createElement("button").cast();
 		button.setAttribute("id", "hello-button");
@@ -80,9 +78,10 @@ Of course you can mix with existing html and javascript by an encapsulated docum
 	
 	HTMLElement element = responses.dom(); // to Dom
 
-TeaVM translation supports lambda's, however not streams yet so that is where the syntax-compatible Sy is for:
+GWT supports lambda's too:
 
-	Str.eamd("aaa", "a").filter(a -> a.length() > 2).map(t -> new Li(t)).forEach(ul::append);
+
+	Arrays.asList("apple","a").stream().filter(a->a.length()>2).map(t -> new Li(t)).forEach(ul::append);
 
 
 ### EventBus at server and client in pure java gives beautiful MVC 

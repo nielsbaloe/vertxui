@@ -1,6 +1,5 @@
 package live.connector.vertxui.samples.figwheely;
 
-import live.connector.vertxui.fluentHtml.Button;
 import live.connector.vertxui.fluentHtml.Div;
 import live.connector.vertxui.fluentHtml.FluentHtml;
 
@@ -14,7 +13,8 @@ public class Client {
 	 */
 	public Client() {
 		Div div = FluentHtml.getBody().div();
-		Button button = div.button("Look at the Client and css, and change something WITHOUT reloading the browser!");
+		FluentHtml button = div
+				.button("Look at the Client and css, and change something WITHOUT reloading the browser!");
 		button.click(e -> {
 			button.inner("Something else!!");
 			div.button("sdfsdf!");

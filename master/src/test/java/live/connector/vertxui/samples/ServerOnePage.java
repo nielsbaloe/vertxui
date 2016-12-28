@@ -6,8 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.teavm.tooling.TeaVMToolException;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -62,7 +60,7 @@ public class ServerOnePage extends AbstractVerticle {
 			log.info("Initialised:" + router.getRoutes().stream().map(a -> {
 				return "\n\thttp://localhost:" + server.actualPort() + a.getPath();
 			}).collect(Collectors.joining()));
-		} catch (IOException | TeaVMToolException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			vertx.close(); // stop on startup error
 		}

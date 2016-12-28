@@ -4,21 +4,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.teavm.jso.browser.Window;
-import org.teavm.jso.dom.css.CSSStyleDeclaration;
-import org.teavm.jso.dom.events.EventListener;
-import org.teavm.jso.dom.html.HTMLDocument;
-import org.teavm.jso.dom.html.HTMLElement;
-import org.teavm.jso.dom.xml.Attr;
-import org.teavm.jso.dom.xml.NamedNodeMap;
-import org.teavm.jso.dom.xml.Node;
-import org.teavm.jso.dom.xml.NodeList;
-
+import elemental.client.Browser;
+import elemental.css.CSSStyleDeclaration;
+import elemental.dom.Document;
+import elemental.dom.Element;
+import elemental.dom.NamedNodeMap;
+import elemental.dom.Node;
+import elemental.dom.NodeList;
+import elemental.events.EventListener;
 import live.connector.vertxui.reacty.ReactC;
 import live.connector.vertxui.reacty.ReactM;
 import live.connector.vertxui.reacty.ReactMC;
-import live.connector.vertxui.streamy.Str;
 
 /**
  * Create fluent HTML. // TODO Markup: +child: methode, +childs: constructor,
@@ -29,7 +28,7 @@ import live.connector.vertxui.streamy.Str;
  */
 public class FluentHtml {
 
-	protected final static HTMLDocument document = Window.current().getDocument();
+	protected final static Document document = Browser.getDocument();
 
 	// @JSBody(params = { "javascript" }, script = "javascript")
 	// protected static native void javascript(String pureJs);
@@ -38,16 +37,16 @@ public class FluentHtml {
 	 * If we are attached, this element exists, otherwise this is null (or we
 	 * must be synced).
 	 */
-	protected HTMLElement element;
+	protected Element element;
 
 	/**
 	 * Attached or detached: these are tag, attrs and children. If tag null, we
 	 * are a non-API tag.
 	 */
 	private String tag;
-	private Map<NameAttr, String> attrs;
-	private Map<NameStyle, String> styles;
-	private Map<NameListen, EventListener<?>> listeners;
+	private Map<Att, String> attrs;
+	private Map<Style, String> styles;
+	private Map<Event, EventListener> listeners;
 	private List<FluentHtml> childs;
 	private String inner;
 
@@ -71,7 +70,7 @@ public class FluentHtml {
 	 * @param parent
 	 *            the existing object
 	 */
-	protected FluentHtml(HTMLElement parent) {
+	protected FluentHtml(Element parent) {
 		element = parent;
 	}
 
@@ -94,7 +93,7 @@ public class FluentHtml {
 	/**
 	 * Do not create but GET the dom object.
 	 */
-	public HTMLElement dom() {
+	public Element dom() {
 		return element;
 	}
 
@@ -109,11 +108,15 @@ public class FluentHtml {
 
 	@SuppressWarnings("unchecked")
 	protected static <T extends FluentHtml> T dom(String id, Class<? extends FluentHtml> classs) {
-		HTMLElement found = document.getElementById("id");
-		if (!found.getTagName().equals(classs.getSimpleName().toLowerCase())) {
-			throw new IllegalArgumentException("Requested non-existing dom with id=" + id + ": tagname="
-					+ found.getTagName() + " requesting tagname=" + classs.getSimpleName().toLowerCase());
-		}
+		Element found = document.getElementById("id");
+		// System.out.println(found.getTagName());
+		// if (!found.getTagName().equals(classs.getSimpleName().toLowerCase()))
+		// {
+		// throw new IllegalArgumentException("Requested non-existing dom with
+		// id=" + id + ": tagname="
+		// + found.getTagName() + " requesting tagname=" +
+		// classs.getSimpleName().toLowerCase());
+		// }
 		return (T) new FluentHtml(found);
 	}
 
@@ -132,39 +135,39 @@ public class FluentHtml {
 	/**
 	 * Only works when you didn't directly manipulated the dom.
 	 */
-	public FluentHtml unlisten(NameListen name) {
+	public FluentHtml unlisten(Event name) {
 		if (listeners != null) {
-			element.removeEventListener(name.name(), listeners.get(name));
+			((Node) element).removeEventListener(name.name(), listeners.get(name));
 		}
 		return this;
 	}
 
-	public FluentHtml listen(NameListen name, EventListener<?> value) {
+	public FluentHtml listen(Event name, EventListener value) {
 		if (listeners == null) {
 			listeners = new HashMap<>();
 		}
 		listeners.put(name, value);
 		if (element != null) {
-			element.addEventListener(name.name(), value);
+			((Node) element).addEventListener(name.name(), value);
 		}
 		return this;
 	}
 
-	public EventListener<?> listen(String event) {
+	public EventListener listen(String event) {
 		if (listeners == null) {
 			return null;
 		}
 		return listeners.get(event);
 	}
 
-	public String css(NameStyle name) {
+	public String css(Style name) {
 		if (styles == null) {
 			return null;
 		}
 		return styles.get(name);
 	}
 
-	public FluentHtml css(NameStyle name, String value) {
+	public FluentHtml css(Style name, String value) {
 		if (styles == null) {
 			styles = new HashMap<>();
 		}
@@ -175,14 +178,14 @@ public class FluentHtml {
 		return this;
 	}
 
-	public String attr(NameAttr name) {
+	public String attr(Att name) {
 		if (attrs == null) {
 			return null;
 		}
 		return attrs.get(name);
 	}
 
-	public FluentHtml attr(NameAttr name, String value) {
+	public FluentHtml attr(Att name, String value) {
 		if (attrs == null) {
 			attrs = new HashMap<>();
 		}
@@ -198,19 +201,19 @@ public class FluentHtml {
 	}
 
 	public String id() {
-		return attr(NameAttr.id);
+		return attr(Att.id);
 	}
 
 	public FluentHtml id(String string) {
-		return attr(NameAttr.id, string);
+		return attr(Att.id, string);
 	}
 
 	public String classs() {
-		return attr(NameAttr.class_);
+		return attr(Att.class_);
 	}
 
 	public FluentHtml classs(String string) {
-		return attr(NameAttr.class_, string);
+		return attr(Att.class_, string);
 	}
 
 	public FluentHtml add(List<? extends FluentHtml> items) {
@@ -234,8 +237,8 @@ public class FluentHtml {
 		return this;
 	}
 
-	public FluentHtml add(Str<FluentHtml> streamy) {
-		add(streamy.collectToList());
+	public FluentHtml add(Stream<FluentHtml> streamy) {
+		add(streamy.collect(Collectors.toList()));
 		return this;
 	}
 
@@ -273,12 +276,12 @@ public class FluentHtml {
 	private static void syncCreate(FluentHtml add) {
 		add.element = document.createElement(add.tag);
 		if (add.attrs != null) {
-			for (NameAttr name : add.attrs.keySet()) {
+			for (Att name : add.attrs.keySet()) {
 				add.element.setAttribute(name.nameValid(), add.attrs.get(name));
 			}
 		}
 		if (add.styles != null) {
-			for (NameStyle name : add.styles.keySet()) {
+			for (Style name : add.styles.keySet()) {
 				add.element.getStyle().setProperty(name.nameValid(), add.styles.get(name));
 			}
 		}
@@ -286,8 +289,8 @@ public class FluentHtml {
 			add.inner(add.inner);
 		}
 		if (add.listeners != null) {
-			for (NameListen name : add.listeners.keySet()) {
-				add.element.addEventListener(name.name(), add.listeners.get(name));
+			for (Event name : add.listeners.keySet()) {
+				((Node) add.element).addEventListener(name.name(), add.listeners.get(name));
 			}
 		}
 		if (add.childs != null) {
@@ -326,27 +329,27 @@ public class FluentHtml {
 		// }
 		// Attrs
 		// TODO: if add.attrs==null
-		NamedNodeMap<Attr> elementAttrs = add.element.getAttributes();
-		for (NameAttr name : add.attrs.keySet()) { // add or adjust
+		NamedNodeMap elementAttrs = (NamedNodeMap) add.element.getAttributes();
+		for (Att name : add.attrs.keySet()) { // add or adjust
 			String value = add.attrs.get(name);
 
-			Attr elementNow = elementAttrs.getNamedItem(name.nameValid());
+			Node elementNow = elementAttrs.getNamedItem(name.nameValid());
 			if (elementNow == null) {
 				add.element.setAttribute(name.nameValid(), value);
-			} else if (!elementNow.getValue().equals(value)) {
-				elementNow.setValue(value);
+			} else if (!elementNow.getNodeValue().equals(value)) {
+				elementNow.setNodeValue(value);
 			}
 		}
-		for (int x = 0; x < elementAttrs.getLength(); x++) { // remove
-			Attr elementAttr = elementAttrs.item(x);
-			if (!add.attrs.containsKey(NameAttr.valueOfValid(elementAttr.getName()))) {
-				elementAttr.delete();
+		for (int x = elementAttrs.getLength() - 1; x != -1; x--) { // remove
+			Node elementAttr = elementAttrs.item(x);
+			if (!add.attrs.containsKey(Att.valueOfValid(elementAttr.getNodeName()))) {
+				elementAttrs.removeNamedItem(elementAttr.getNodeName());
 			}
 		}
 		// Style
 		CSSStyleDeclaration elementStyles = add.element.getStyle();
 		// TODO: if add.styles==null
-		for (NameStyle name : add.styles.keySet()) { // add or adjust
+		for (Style name : add.styles.keySet()) { // add or adjust
 			String nameValid = name.nameValid();
 			String value = add.styles.get(name);
 
@@ -359,9 +362,9 @@ public class FluentHtml {
 				elementStyles.setProperty(nameValid, value);
 			}
 		}
-		for (int x = 0; x < elementStyles.getLength(); x++) { // remove
+		for (int x = elementStyles.getLength() - 1; x != -1; x--) { // remove
 			String elementStyle = elementStyles.item(x);
-			if (!add.styles.containsKey(NameStyle.valueOfValid(elementStyle))) {
+			if (!add.styles.containsKey(Style.valueOfValid(elementStyle))) {
 				elementStyles.removeProperty(elementStyle);
 			}
 		}
@@ -370,13 +373,13 @@ public class FluentHtml {
 		// EventListener<?> value = add.listeners.get(name);
 		// .............?
 		// }
-		NodeList<Node> existChildren = add.element.getChildNodes();
+		NodeList existChildren = add.element.getChildNodes();
 		for (int x = 0; x < add.childs.size(); x++) {
 			FluentHtml child = add.childs.get(x);
 			while (child.tag == null) { // skip ReactC objects
 				child = ((ReactC) child).generate();
 			}
-			child.element = (HTMLElement) existChildren.get(x);
+			child.element = (Element) existChildren.item(x);
 			if (child.element == null) {
 				syncCreate(child);
 			} else {
@@ -384,8 +387,21 @@ public class FluentHtml {
 			}
 		}
 		for (int x = add.childs.size(); x < existChildren.getLength(); x++) {
-			add.element.removeChild(existChildren.get(x));
+			add.element.removeChild(existChildren.item(x));
 		}
+	}
+
+	public FluentHtml hidden(boolean hidden) {
+		if (hidden) {
+			css(Style.visibility, "hidden");
+		} else {
+			css(Style.visibility, "visible");
+		}
+		return this;
+	}
+
+	public String getValue() {
+		return element.getNodeValue();
 	}
 
 	// Constructor-tags:
@@ -397,15 +413,20 @@ public class FluentHtml {
 
 	public Input input(String type, String name) {
 		Input result = new Input(this);
-		result.attr(NameAttr.type, type);
-		result.attr(NameAttr.name, name);
+		result.attr(Att.type, type);
+		result.attr(Att.name_, name);
 		return result;
 	}
 
-	public Button button(String text) {
-		Button result = new Button(this);
+	public FluentHtml button(String text) {
+		FluentHtml result = new FluentHtml("button", this);
 		result.inner(text);
 		return result;
+	}
+
+	public FluentHtml click(EventListener listener) {
+		listen(Event.click, listener);
+		return this;
 	}
 
 	public Li li(String text) {

@@ -1,11 +1,5 @@
 package live.connector.vertxui.core;
 
-import org.teavm.flavour.json.test.TeaVMJSONRunner;
-import org.teavm.jso.JSBody;
-import org.teavm.jso.JSObject;
-import org.teavm.jso.JSProperty;
-import org.teavm.jso.typedarrays.Int32Array;
-
 import io.vertx.core.Handler;
 import live.connector.vertxui.fluentHtml.FluentHtml;
 
@@ -15,37 +9,36 @@ import live.connector.vertxui.fluentHtml.FluentHtml;
  * @author Niels Gorisse
  *
  */
-public abstract class EventBus implements JSObject {
+public abstract class EventBus {
 
 	static {
 		FluentHtml.getHead().script("https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js",
 				"https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
 	}
 
-	public static native Int32Array create(int length);
-
-	@JSBody(params = { "address", "options" }, script = "return new EventBus(address,options);")
+	// @JSBody(params = { "address", "options" }, script = "return new
+	// EventBus(address,options);")
 	public static native EventBus get(String address, String[] options);
 
-	@JSProperty()
+	// @JSProperty()
 	public abstract void onopen(Handler<String> handler);
 
-	@JSProperty()
+	// @JSProperty()
 	public abstract void registerHandler(String address, String[] headers, Handler<String> handler);
 
-	@JSProperty()
+	// @JSProperty()
 	public abstract void unregisterHandler(String address, String[] headers, Handler<String> callback);
 
-	@JSProperty()
+	// @JSProperty()
 	public abstract String publish(String address, String message, String[] headers);
 
-	@JSProperty()
+	// @JSProperty()
 	public abstract void send(String address, String message, String[] headers, Handler<String> callback);
 
-	@JSProperty()
+	// @JSProperty()
 	public abstract void onClose(Runnable object);
 
-	@JSProperty()
+	// @JSProperty()
 	public abstract void onError(Handler<String> callback);
 
 	/**
@@ -57,7 +50,8 @@ public abstract class EventBus implements JSObject {
 	}
 
 	public <T> void publish(String address, T model) {
-		publish(model.getClass().getName(), TeaVMJSONRunner.serialize(model).asText(), null);
+		// TODO publish(model.getClass().getName(),
+		// TeaVMJSONRunner.serialize(model).asText(), null);
 	}
 
 	/**
@@ -74,9 +68,10 @@ public abstract class EventBus implements JSObject {
 	}
 
 	public <T> void register(String address, Class<T> classs, Handler<T> handler) {
-		registerHandler(address, null, string -> {
-			handler.handle(TeaVMJSONRunner.deserialize(string, classs));
-		});
+		// TODO
+		// registerHandler(address, null, string -> {
+		// handler.handle(TeaVMJSONRunner.deserialize(string, classs));
+		// });
 	}
 
 }

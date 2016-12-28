@@ -3,18 +3,8 @@ package live.connector.vertxui.core;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.commons.io.FileUtils;
-import org.teavm.diagnostics.Problem;
-import org.teavm.diagnostics.ProblemProvider;
-import org.teavm.model.CallLocation;
-import org.teavm.tooling.RuntimeCopyOperation;
-import org.teavm.tooling.TeaVMTool;
-import org.teavm.tooling.TeaVMToolException;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -43,10 +33,9 @@ public class VertxUI implements Handler<RoutingContext> {
 	 * Create a VertxUI with debug false.
 	 * 
 	 * @throws IOException
-	 * @throws TeaVMToolException
 	 * 
 	 */
-	public VertxUI(Class<?> classs, boolean withHtml) throws TeaVMToolException, IOException {
+	public VertxUI(Class<?> classs, boolean withHtml) throws IOException {
 		this(classs, withHtml, false);
 	}
 
@@ -69,10 +58,9 @@ public class VertxUI implements Handler<RoutingContext> {
 	 *            <body> <script>main()</script> </body></html>
 	 * @param clientJSUrl
 	 * @throws IOException
-	 * @throws TeaVMToolException
 	 * 
 	 */
-	public VertxUI(Class<?> classs, boolean withHtml, boolean debug) throws TeaVMToolException, IOException {
+	public VertxUI(Class<?> classs, boolean withHtml, boolean debug) throws IOException {
 		this.classs = classs;
 		this.withHtml = withHtml;
 		this.debug = debug;
@@ -90,7 +78,7 @@ public class VertxUI implements Handler<RoutingContext> {
 		Vertx.currentContext().executeBlocking(future -> {
 			try {
 				future.complete(translate());
-			} catch (TeaVMToolException | IOException e) {
+			} catch (IOException e) {
 				log.log(Level.SEVERE, e.getMessage(), e);
 				if (!FigWheelyVertX.started) {
 					// stop on startup errors when not in debug
@@ -102,7 +90,7 @@ public class VertxUI implements Handler<RoutingContext> {
 		});
 	}
 
-	public void sychronousReTranslate() throws TeaVMToolException, IOException {
+	public void sychronousReTranslate() throws IOException {
 		cache = translate();
 	}
 
@@ -121,73 +109,62 @@ public class VertxUI implements Handler<RoutingContext> {
 		event.response().end(reply);
 	}
 
-	public String translate() throws TeaVMToolException, IOException {
-		File temp = null;
-		try {
-			temp = File.createTempFile("vertxui", "js");
-
-			// Documentation:
-			// https://github.com/konsoletyper/teavm/wiki/Building-JavaScript-with-Maven-and-TeaVM
-			TeaVMTool teaVmTool = new TeaVMTool();
-			teaVmTool.setMainClass(classs.getCanonicalName());
-			teaVmTool.setTargetDirectory(temp.getParentFile());
-			teaVmTool.setTargetFileName(temp.getName());
-			teaVmTool.setCacheDirectory(temp.getParentFile());
-			teaVmTool.setRuntime(RuntimeCopyOperation.MERGED);
-			teaVmTool.setMainPageIncluded(false);
-			teaVmTool.setBytecodeLogging(false);
-			teaVmTool.setDebugInformationGenerated(debug);
-			teaVmTool.setMinifying(!debug);
-			teaVmTool.generate();
-
-			// Warnings
-			ProblemProvider problemProvider = teaVmTool.getProblemProvider();
-			StringBuilder allWarnings = new StringBuilder();
-			List<Problem> severes = problemProvider.getSevereProblems();
-			problemProvider.getProblems().stream().filter(s -> !severes.contains(s)).forEach(problem -> {
-				if (allWarnings.length() == 0) {
-					allWarnings.append("TeaVM warnings:");
-				}
-				getProblemString(allWarnings, problem);
-			});
-			if (allWarnings.length() != 0) {
-				log.warning(allWarnings.toString());
-			}
-
-			// Errors
-			if (!severes.isEmpty()) {
-				StringBuilder allSeveres = new StringBuilder("Severe build error(s) occurred: ");
-				severes.forEach(problem -> {
-					getProblemString(allSeveres, problem);
-				});
-				throw new TeaVMToolException(allSeveres.toString());
-			}
-			String result = FileUtils.readFileToString(temp, "UTF-8");
-			if (withHtml) {
-				// main in script so we can dynamicly load scripts
-				result = "<!DOCTYPE html><html><head><script>" + result
-						+ "</script></head><body><script>main()</script></body></html>";
-			}
-			return result;
-		} finally {
-			if (temp.exists()) { // just in case
-				temp.delete();
-			}
-		}
-	}
-
-	private void getProblemString(StringBuilder allSeveres, Problem problem) {
-		allSeveres.append("\n\tat ");
-		CallLocation where = problem.getLocation();
-		allSeveres.append(where.getMethod());
-		allSeveres.append("::");
-		if (where.getSourceLocation() != null) {
-			allSeveres.append(where.getSourceLocation().getLine());
-		}
-		allSeveres.append(": ");
-		allSeveres.append(problem.getText());
-		allSeveres.append(": ");
-		allSeveres.append(Arrays.toString(problem.getParams()));
-	}
+	// public String translate() throws IOException {
+	// File temp = null;
+	// try {
+	// temp = File.createTempFile("vertxui", "js");
+	//
+	// // Documentation:
+	// //
+	// https://github.com/konsoletyper/teavm/wiki/Building-JavaScript-with-Maven-and-TeaVM
+	// TeaVMTool teaVmTool = new TeaVMTool();
+	// teaVmTool.setMainClass(classs.getCanonicalName());
+	// teaVmTool.setTargetDirectory(temp.getParentFile());
+	// teaVmTool.setTargetFileName(temp.getName());
+	// teaVmTool.setCacheDirectory(temp.getParentFile());
+	// teaVmTool.setRuntime(RuntimeCopyOperation.MERGED);
+	// teaVmTool.setMainPageIncluded(false);
+	// teaVmTool.setBytecodeLogging(debug);
+	// teaVmTool.setDebugInformationGenerated(debug);
+	// teaVmTool.setMinifying(!debug);
+	// teaVmTool.generate();
+	//
+	// // Warnings
+	// ProblemProvider problemProvider = teaVmTool.getProblemProvider();
+	// StringBuilder allWarnings = new StringBuilder();
+	// List<Problem> severes = problemProvider.getSevereProblems();
+	// problemProvider.getProblems().stream().filter(s ->
+	// !severes.contains(s)).forEach(problem -> {
+	// if (allWarnings.length() == 0) {
+	// allWarnings.append("TeaVM warnings:");
+	// }
+	// getProblemString(allWarnings, problem);
+	// });
+	// if (allWarnings.length() != 0) {
+	// log.warning(allWarnings.toString());
+	// }
+	//
+	// // Errors
+	// if (!severes.isEmpty()) {
+	// StringBuilder allSeveres = new StringBuilder("Severe build error(s)
+	// occurred: ");
+	// severes.forEach(problem -> {
+	// getProblemString(allSeveres, problem);
+	// });
+	// throw new TeaVMToolException(allSeveres.toString());
+	// }
+	// String result = FileUtils.readFileToString(temp, "UTF-8");
+	// if (withHtml) {
+	// // main in script so we can dynamicly load scripts
+	// result = "<!DOCTYPE html><html><head><script>" + result
+	// + "</script></head><body><script>main()</script></body></html>";
+	// }
+	// return result;
+	// } finally {
+	// if (temp.exists()) { // just in case
+	// temp.delete();
+	// }
+	// }
+	// }
 
 }

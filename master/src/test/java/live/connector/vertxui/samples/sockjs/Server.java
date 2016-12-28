@@ -6,8 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.teavm.tooling.TeaVMToolException;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
@@ -29,7 +27,7 @@ public class Server extends AbstractVerticle {
 
 	// TODO this is just a scetch, this is WORK IN PROGRESS (nearly there)
 	@Override
-	public void start() throws TeaVMToolException, IOException {
+	public void start() throws IOException {
 		Router router = Router.router(vertx);
 
 		// Sockjs handler

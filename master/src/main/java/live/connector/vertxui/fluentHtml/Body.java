@@ -1,10 +1,10 @@
 package live.connector.vertxui.fluentHtml;
 
-import org.teavm.jso.dom.html.HTMLElement;
+import elemental.dom.Element;
 
 public class Body extends FluentHtml {
 
-	protected Body(HTMLElement parent) {
+	protected Body(Element parent) {
 		super(parent);
 	}
 

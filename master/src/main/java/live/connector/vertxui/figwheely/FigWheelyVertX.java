@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.teavm.tooling.TeaVMToolException;
-
 import com.google.gson.Gson;
 
 import io.vertx.core.AbstractVerticle;
@@ -107,7 +105,7 @@ public class FigWheelyVertX extends AbstractVerticle {
 								// LOGGER.info("reload: " + url);
 								vertx.eventBus().send((String) obj, "reload: " + url);
 							}
-						} catch (IOException | TeaVMToolException e) {
+						} catch (IOException e) {
 							for (Object obj : vertx.sharedData().getLocalMap(browserIds).keySet()) {
 								vertx.eventBus().send((String) obj, "error: " + e.getMessage());
 							}
