@@ -1,17 +1,12 @@
 
  * TODO development:
  * 
- * - lighter fluent HTML which generates text and does smart virtual DOM replacement - like react.js
-* https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
-*
- * 
+ * - finish virtual DOM
+ * https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
+ *
  * - finish Wrapping the client for SockJS: EventBus
- * https://github.com/konsoletyper/teavm/wiki/Interacting-with-JavaScript
- * http://teavm.org/javadoc/0.4.x/jso/core/
- * http://teavm.org/javadoc/0.4.x/jso/apis/
  * 
- * - finish FigWheely: show errors at client, rewrite FigWheely pure js in fluent
- * html.
+ * - finish FigWheely: show errors at client, rewrite FigWheely pure js in fluent html.
  * 
  * - an example with a plain websocket
  * 

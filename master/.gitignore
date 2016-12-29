@@ -1,3 +1,6 @@
 /target/
 /.settings/
 /.vertx/
+/war/
+/gwt-unitCache/
+

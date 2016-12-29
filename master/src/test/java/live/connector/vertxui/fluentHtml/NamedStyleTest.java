@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import live.connector.vertxui.client.fluent.Att;
+import live.connector.vertxui.client.fluent.Style;
+
 public class NamedStyleTest {
 
 	@Test
