@@ -1,9 +1,9 @@
-package live.connector.vertxui.server.samples.figwheely;
+package live.connector.vertxui.server.samples.chatWebsocket;
 
 import java.lang.invoke.MethodHandles;
 
 import io.vertx.core.Vertx;
-import live.connector.vertxui.client.samples.figwheely.Client;
+import live.connector.vertxui.client.samples.chatWebsocket.Client;
 import live.connector.vertxui.server.samples.AllExamplesServer;
 
 public class Server extends AllExamplesServer {

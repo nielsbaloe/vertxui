@@ -4,9 +4,9 @@ import java.lang.invoke.MethodHandles;
 
 import io.vertx.core.Vertx;
 import live.connector.vertxui.client.samples.helloWorldFluentHtml.Client;
-import live.connector.vertxui.server.samples.ServerOnePage;
+import live.connector.vertxui.server.samples.AllExamplesServer;
 
-public class Server extends ServerOnePage {
+public class Server extends AllExamplesServer {
 
 	public Server() {
 		super(Client.class);

@@ -15,6 +15,7 @@ import elemental.dom.Element;
 import elemental.dom.NamedNodeMap;
 import elemental.dom.Node;
 import elemental.dom.NodeList;
+import elemental.events.Event;
 import elemental.events.EventListener;
 import elemental.js.dom.JsDocument;
 
@@ -143,10 +144,6 @@ public class Fluent {
 	 * 
 	 */
 
-	public Fluent listen(Event name, EventListener value) {
-		return listen(name.name(), value);
-	}
-
 	public Fluent listen(String name, EventListener value) {
 		if (listeners == null) {
 			listeners = new HashMap<>();
@@ -166,67 +163,67 @@ public class Fluent {
 		return this;
 	}
 
-	public EventListener listen(Event event) {
+	public EventListener listen(String event) {
 		if (listeners == null) {
 			return null;
 		}
-		return listeners.get(event.name());
+		return listeners.get(event);
 	}
 
 	public Fluent keyup(EventListener listener) {
-		return listen(Event.keyup, listener);
+		return listen(Event.KEYUP, listener);
 	}
 
 	public Fluent click(EventListener listener) {
-		return listen(Event.click, listener);
+		return listen(Event.CLICK, listener);
 	}
 
 	public Fluent focus(EventListener listener) {
-		return listen(Event.focus, listener);
+		return listen(Event.FOCUS, listener);
 	}
 
 	public Fluent blur(EventListener listener) {
-		return listen(Event.blur, listener);
+		return listen(Event.BLUR, listener);
 	}
 
 	public Fluent keydown(EventListener listener) {
-		return listen(Event.keydown, listener);
+		return listen(Event.KEYDOWN, listener);
 	}
 
 	public Fluent keypress(EventListener listener) {
-		return listen(Event.keypress, listener);
+		return listen(Event.KEYPRESS, listener);
 	}
 
 	public Fluent dblclick(EventListener listener) {
-		return listen(Event.dblclick, listener);
+		return listen(Event.DBLCLICK, listener);
 	}
 
 	public Fluent mousedown(EventListener listener) {
-		return listen(Event.mousedown, listener);
+		return listen(Event.MOUSEDOWN, listener);
 	}
 
 	public Fluent mouseup(EventListener listener) {
-		return listen(Event.mouseup, listener);
+		return listen(Event.MOUSEUP, listener);
 	}
 
 	public Fluent mouseover(EventListener listener) {
-		return listen(Event.mouseover, listener);
+		return listen(Event.MOUSEOVER, listener);
 	}
 
 	public Fluent mouseenter(EventListener listener) {
-		return listen(Event.mouseenter, listener);
+		return listen("mouseenter", listener); // TODO mail GWT missing event
 	}
 
 	public Fluent mouseleave(EventListener listener) {
-		return listen(Event.mouseleave, listener);
+		return listen("mouseleave", listener); // TODO mail GWT missing Event
 	}
 
 	public Fluent mousemove(EventListener listener) {
-		return listen(Event.mousemove, listener);
+		return listen(Event.MOUSEMOVE, listener);
 	}
 
 	public Fluent mouseout(EventListener listener) {
-		return listen(Event.mouseout, listener);
+		return listen(Event.MOUSEOUT, listener);
 	}
 
 	/**
@@ -531,9 +528,18 @@ public class Fluent {
 		return valueGetter(element);
 	}
 
-	public final native String valueGetter(Element element) /*-{
-															return element.value;
-															}-*/;
+	public Fluent value(String value) {
+		valueSetter(element, value);
+		return this;
+	}
+
+	private final native String valueGetter(Element element) /*-{
+																return element.value;
+																}-*/;
+
+	private final native void valueSetter(Element element, String value) /*-{
+																			element.value=value;
+																			}-*/;
 
 	// Constructor-tags:
 	// Constructor-tags:

@@ -10,13 +10,13 @@ public class Client implements EntryPoint {
 	 * Please, run the server and change some text in the constructor below,
 	 * save, and then look at your browser, press the button or see what
 	 * happens. Don't forget to edit the /sources/sample.css file, save, and
-	 * look at your browser at the same time. Do NOT reload your browser!
+	 * look at your browser at the same time. Do NOT reload your browser.
 	 */
 
 	public static String figLocation = "/figwheely.js";
 
 	public Client() {
-		Fluent.getHead().style("/sources/sample.css?" + System.currentTimeMillis());
+		Fluent.getHead().style("/sourcez/sample.css?" + System.currentTimeMillis());
 
 		Fluent body = Fluent.getBody();
 		body.script(figLocation);

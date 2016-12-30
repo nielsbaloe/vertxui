@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 
+import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.RoutingContext;
@@ -37,7 +38,7 @@ public class VertxUI {
 	 * @param classs
 	 * @throws IOException
 	 */
-	public VertxUI(Class<?> classs) throws IOException {
+	public VertxUI(Class<?> classs) {
 		this(classs, false, false);
 	}
 
@@ -72,10 +73,22 @@ public class VertxUI {
 	 * @throws IOException
 	 * 
 	 */
-	public VertxUI(Class<?> classs, boolean withHtml, boolean debug) throws IOException {
+	public VertxUI(Class<?> classs, boolean withHtml, boolean debug) {
 		this.classs = classs;
 		this.withHtml = withHtml;
 		this.debug = debug;
+
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				Context context = Vertx.currentContext();
+				if (context == null) {
+					return;
+				}
+				Vertx vertx = context.owner();
+				vertx.deploymentIDs().forEach(vertx::undeploy);
+				vertx.close();
+			}
+		});
 
 		if (FigWheely.started) {
 			this.debug = true;
@@ -89,14 +102,18 @@ public class VertxUI {
 		}
 
 		if (this.withHtml) {
-			FileUtils.writeStringToFile(new File("war/index.html"),
-					"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
-							+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
-							+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
-							+ "animation:spin 1.0s linear infinite; } "
-							+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
-							+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
-							+ "</style></head><body><div class=loader></div></body></html>");
+			try {
+				FileUtils.writeStringToFile(new File("war/index.html"),
+						"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
+								+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
+								+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
+								+ "animation:spin 1.0s linear infinite; } "
+								+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
+								+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
+								+ "</style></head><body><div class=loader></div></body></html>");
+			} catch (IOException ie) {
+				throw new IllegalArgumentException("Could not write war/index.html: ", ie);
+			}
 		}
 
 		Vertx.currentContext().executeBlocking(future -> {
@@ -106,23 +123,14 @@ public class VertxUI {
 			} catch (IOException | InterruptedException e) {
 				log.log(Level.SEVERE, e.getMessage(), e);
 				if (!FigWheely.started) {
-					// stop on startup errors when not in debug
-					// stop on startup error
-					Runtime.getRuntime().addShutdownHook(new Thread() {
-						public void run() {
-							Vertx vertx = Vertx.currentContext().owner();
-							vertx.deploymentIDs().forEach(vertx::undeploy);
-							vertx.close();
-						}
-					});
-					System.exit(0);
+					System.exit(0); // stop on startup errors when not in debug
 				}
 			}
 		}, result -> {
 		});
 	}
 
-	public static Handler<RoutingContext> with(Class<?> classs) throws IOException {
+	public static Handler<RoutingContext> with(Class<?> classs) {
 		new VertxUI(classs);
 		return StaticHandler.create("war").setCachingEnabled(false);
 	}

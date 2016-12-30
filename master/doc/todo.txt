@@ -1,7 +1,7 @@
 Development:
+- chatSockjs with complete Eventbus
 - mvc: finish virtual DOM https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
-- SockJS/EventBus
-- plain websocket example
-- TODOMVC http://todomvc.com/  https://github.com/tastejs/todomvc/tree/gh-pages/examples/gwt/src/com/todo/client
-- announce at vertx-awesome github list
+- http://todomvc.com/  https://github.com/tastejs/todomvc/tree/gh-pages/examples/gwt/src/com/todo/client
+- split in vertxui-server vertxui-fluid and vertxui-examples
+- announce at vertx-awesome github list and GWT list and elsewhere
 

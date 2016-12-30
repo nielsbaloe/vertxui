@@ -10,10 +10,8 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.ServerWebSocket;
 import io.vertx.ext.web.Router;
 
 public class FigWheely extends AbstractVerticle {
@@ -78,20 +76,17 @@ public class FigWheely extends AbstractVerticle {
 		FigWheely.router = router;
 
 		Vertx vertx = Vertx.currentContext().owner();
-		server.websocketHandler(new Handler<ServerWebSocket>() {
-			@Override
-			public void handle(final ServerWebSocket ws) {
-				if (!ws.path().equals("/" + url)) {
-					ws.reject();
-					return;
-				}
-				final String id = ws.textHandlerID();
-				// log.info("welcoming " + id);
-				vertx.sharedData().getLocalMap(browserIds).put(id, "whatever");
-				ws.closeHandler(data -> {
-					vertx.sharedData().getLocalMap(browserIds).remove(id);
-				});
+		server.websocketHandler(webSocket -> {
+			if (!webSocket.path().equals("/" + url)) {
+				webSocket.reject();
+				return;
 			}
+			final String id = webSocket.textHandlerID();
+			// log.info("welcoming " + id);
+			vertx.sharedData().getLocalMap(browserIds).put(id, "whatever");
+			webSocket.closeHandler(data -> {
+				vertx.sharedData().getLocalMap(browserIds).remove(id);
+			});
 		});
 		vertx.deployVerticle(MethodHandles.lookup().lookupClass().getName());
 	}
