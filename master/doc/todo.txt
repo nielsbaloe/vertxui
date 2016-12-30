@@ -1,33 +1,7 @@
+Development:
+- mvc: finish virtual DOM https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
+- SockJS/EventBus
+- plain websocket example
+- TODOMVC http://todomvc.com/  https://github.com/tastejs/todomvc/tree/gh-pages/examples/gwt/src/com/todo/client
+- announce at vertx-awesome github list
 
- * TODO development:
- * 
- * - finish virtual DOM
- * https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
- *
- * - finish Wrapping the client for SockJS: EventBus
- * 
- * - finish FigWheely: show errors at client, rewrite FigWheely pure js in fluent html.
- * 
- * - an example with a plain websocket
- * 
- * - implement TODOMVC http://todomvc.com/
- * https://github.com/tastejs/todomvc/tree/gh-pages/examples/gwt/gwttodo
- * 
- * - announce at vertx-awesome github list
- * 
- 
- 
- TODO list of bugs:
--	HTMLElement input = ...
-	input.listenKeyUp(event -> {
-			System.out.println("yes "+ event);
-		});
-	>> TypeError: b.q is not a function, Line 1258 G($t,a,b){var c;if(b===null){c=$rt_s(17);}else{c=b.q();}return WK($t,a,EI(c));
-	(note: a event.method() does work, there is just no .toString() call)
-
-- 	public interface Func<T, R> { R apply(T t); }
-	 Func<String, Integer> test = s -> 5;
-	>> forever transpiling
-	
-
-	

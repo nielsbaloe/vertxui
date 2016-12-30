@@ -4,7 +4,6 @@ import com.google.gwt.core.client.EntryPoint;
 
 import live.connector.vertxui.client.fluent.Fluent;
 
-// TODO: after teavm->GWT, a.nocache.js reloads but the name of the big .cache.js is unknown...
 public class Client implements EntryPoint {
 
 	/**
@@ -17,8 +16,7 @@ public class Client implements EntryPoint {
 	public static String figLocation = "/figwheely.js";
 
 	public Client() {
-		Fluent head = Fluent.getHead();
-		head.style("/sources/sample.css?" + System.currentTimeMillis());
+		Fluent.getHead().style("/sources/sample.css?" + System.currentTimeMillis());
 
 		Fluent body = Fluent.getBody();
 		body.script(figLocation);

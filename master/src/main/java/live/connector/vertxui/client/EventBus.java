@@ -53,7 +53,7 @@ public abstract class EventBus {
 	// }
 	//
 	// public <T> void publish(String address, T model) {
-	// // TODO publish(model.getClass().getName(),
+	// //  publish(model.getClass().getName(),
 	// // TeaVMJSONRunner.serialize(model).asText(), null);
 	// }
 	//
@@ -73,7 +73,6 @@ public abstract class EventBus {
 	//
 	// public <T> void register(String address, Class<T> classs, Handler<T>
 	// handler) {
-	// // TODO
 	// // registerHandler(address, null, string -> {
 	// // handler.handle(TeaVMJSONRunner.deserialize(string, classs));
 	// // });

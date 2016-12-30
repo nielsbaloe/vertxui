@@ -19,8 +19,11 @@ import elemental.events.EventListener;
 import elemental.js.dom.JsDocument;
 
 /**
- * Create fluent HTML. // TODO Markup: +child: methode, +childs: constructor,
- * attrs: attr()
+ * Fluent HTML. Use getDocument() getBody() and getHead() to start building your
+ * interface. Adding childs is done by using the methods (like .li() ) or by
+ * some constructors that can handle multiple arguments (like .div(li[]) ).
+ * Attributes are set by attr(), styles by style(), and listeners by listen() or
+ * their appropriate methods.
  * 
  * @author ng
  *
@@ -49,7 +52,7 @@ public class Fluent {
 	private String tag;
 	private Map<Att, String> attrs;
 	private Map<Style, String> styles;
-	private Map<Event, EventListener> listeners;
+	private Map<String, EventListener> listeners;
 	private List<Fluent> childs;
 	private String inner;
 
@@ -58,7 +61,7 @@ public class Fluent {
 	 */
 	protected Fluent(String tag, Fluent parent) {
 		this.tag = tag;
-		if (tag != null) {
+		if (tag != null && parent != null) {
 			element = document.createElement(tag);
 			if (parent != null) {
 				parent.element.appendChild(element);
@@ -136,26 +139,28 @@ public class Fluent {
 	}
 
 	/**
-	 * Add or remove (value null) an eventlistener.
+	 * Add or remove (by value null) an eventlistener.
 	 * 
-	 * @param name
-	 * @param value
-	 * @return
 	 */
+
 	public Fluent listen(Event name, EventListener value) {
+		return listen(name.name(), value);
+	}
+
+	public Fluent listen(String name, EventListener value) {
 		if (listeners == null) {
 			listeners = new HashMap<>();
 		}
 		if (value != null) {
 			listeners.put(name, value);
 			if (element != null) {
-				((Node) element).addEventListener(name.name(), value);
+				((Node) element).addEventListener(name, value);
 			}
 		} else { // remove
 			EventListener oldValue = listeners.get(name);
 			listeners.remove(name);
 			if (element != null) {
-				((Node) element).removeEventListener(name.name(), oldValue);
+				((Node) element).removeEventListener(name, oldValue);
 			}
 		}
 		return this;
@@ -165,17 +170,90 @@ public class Fluent {
 		if (listeners == null) {
 			return null;
 		}
-		return listeners.get(event);
+		return listeners.get(event.name());
 	}
 
-	public Fluent keyUp(EventListener listener) {
+	public Fluent keyup(EventListener listener) {
 		return listen(Event.keyup, listener);
 	}
 
 	public Fluent click(EventListener listener) {
 		return listen(Event.click, listener);
 	}
-	// TODO complete the list
+
+	public Fluent focus(EventListener listener) {
+		return listen(Event.focus, listener);
+	}
+
+	public Fluent blur(EventListener listener) {
+		return listen(Event.blur, listener);
+	}
+
+	public Fluent keydown(EventListener listener) {
+		return listen(Event.keydown, listener);
+	}
+
+	public Fluent keypress(EventListener listener) {
+		return listen(Event.keypress, listener);
+	}
+
+	public Fluent dblclick(EventListener listener) {
+		return listen(Event.dblclick, listener);
+	}
+
+	public Fluent mousedown(EventListener listener) {
+		return listen(Event.mousedown, listener);
+	}
+
+	public Fluent mouseup(EventListener listener) {
+		return listen(Event.mouseup, listener);
+	}
+
+	public Fluent mouseover(EventListener listener) {
+		return listen(Event.mouseover, listener);
+	}
+
+	public Fluent mouseenter(EventListener listener) {
+		return listen(Event.mouseenter, listener);
+	}
+
+	public Fluent mouseleave(EventListener listener) {
+		return listen(Event.mouseleave, listener);
+	}
+
+	public Fluent mousemove(EventListener listener) {
+		return listen(Event.mousemove, listener);
+	}
+
+	public Fluent mouseout(EventListener listener) {
+		return listen(Event.mouseout, listener);
+	}
+
+	/**
+	 * Set or remove (by value null) a css style.
+	 * 
+	 * @param name
+	 * @param value
+	 * @return
+	 */
+	public Fluent css(Style name, String value) {
+		if (styles == null) {
+			styles = new HashMap<>();
+		}
+		if (value == null) {
+			styles.remove(name);
+		} else {
+			styles.put(name, value);
+		}
+		if (element != null) {
+			if (value == null) {
+				element.getStyle().removeProperty(name.nameValid());
+			} else {
+				element.getStyle().setProperty(name.nameValid(), value);
+			}
+		}
+		return this;
+	}
 
 	public String css(Style name) {
 		if (styles == null) {
@@ -184,25 +262,13 @@ public class Fluent {
 		return styles.get(name);
 	}
 
-	public Fluent css(Style name, String value) {
-		if (styles == null) {
-			styles = new HashMap<>();
-		}
-		// TODO remove
-		styles.put(name, value);
-		if (element != null) {
-			element.getStyle().setProperty(name.nameValid(), value);
-		}
-		return this;
-	}
-
-	public String attr(Att name) {
-		if (attrs == null) {
-			return null;
-		}
-		return attrs.get(name);
-	}
-
+	/**
+	 * Set or remove (by value null) an attribute.
+	 * 
+	 * @param name
+	 * @param value
+	 * @return
+	 */
 	public Fluent attr(Att name, String value) {
 		if (attrs == null) {
 			attrs = new HashMap<>();
@@ -223,8 +289,11 @@ public class Fluent {
 		return this;
 	}
 
-	public String tag() {
-		return tag;
+	public String attr(Att name) {
+		if (attrs == null) {
+			return null;
+		}
+		return attrs.get(name);
 	}
 
 	public String id() {
@@ -242,6 +311,12 @@ public class Fluent {
 	public Fluent classs(String string) {
 		return attr(Att.class_, string);
 	}
+
+	public String tag() {
+		return tag;
+	}
+
+	// Add
 
 	public Fluent add(List<? extends Fluent> items) {
 		for (Fluent item : items) {
@@ -270,7 +345,8 @@ public class Fluent {
 	}
 
 	public <T> Fluent add(T model, ReactM<T> method) {
-		return new ReactMC<T>(model, method);
+		add(new ReactMC<T>(model, method));
+		return this;
 	}
 
 	public Fluent add(Fluent add) {
@@ -278,15 +354,18 @@ public class Fluent {
 			childs = new ArrayList<>();
 		}
 		childs.add(add);
-		sync(add);
+		sync(this, add);
 		return this;
 	}
 
 	public void sync() {
-		sync(this);
+		// TODO: hmm, how to sync ourselves? not necessary?
+		for (Fluent child : childs) {
+			sync(this, child);
+		}
 	}
 
-	private void sync(Fluent add) {
+	private void sync(Fluent parent, Fluent add) {
 		if (element == null) { // not attached: no rendering
 			return;
 		}
@@ -294,15 +373,18 @@ public class Fluent {
 			add = ((ReactC) add).generate();
 		}
 		if (add.element != null) { // add is already attached
-			syncRender(add);
+			console.log("already attached " + add.tag);
+			syncRender(parent, add);
 		} else {
-			syncCreate(add);
+			syncCreate(parent, add);
 		}
 	}
 
-	private static void syncCreate(Fluent add) {
-		console.log("creating "+add.tag);
+	private static void syncCreate(Fluent parent, Fluent add) {
+		console.log("creating " + add.tag);
 		add.element = document.createElement(add.tag);
+		parent.element.appendChild(add.element);
+
 		if (add.attrs != null) {
 			for (Att name : add.attrs.keySet()) {
 				add.element.setAttribute(name.nameValid(), add.attrs.get(name));
@@ -317,8 +399,8 @@ public class Fluent {
 			add.inner(add.inner);
 		}
 		if (add.listeners != null) {
-			for (Event name : add.listeners.keySet()) {
-				((Node) add.element).addEventListener(name.name(), add.listeners.get(name));
+			for (String name : add.listeners.keySet()) {
+				((Node) add.element).addEventListener(name, add.listeners.get(name));
 			}
 		}
 		if (add.childs != null) {
@@ -327,17 +409,16 @@ public class Fluent {
 					child = ((ReactC) child).generate();
 				}
 				if (child.element == null) {
-					syncCreate(child);
+					syncCreate(add, child);
 				} else { // recycling of the old element!
-					syncRender(child);
+					syncRender(add, child);
 				}
-				add.element.appendChild(child.element);
 			}
 		}
 	}
 
 	private static boolean compare(String str1, String str2) {
-		return (str1 == null ? str2 == null : str1.equals(str2));
+		return (str1 == null ? str2 == null : str1.equalsIgnoreCase(str2));
 	}
 
 	/**
@@ -345,76 +426,85 @@ public class Fluent {
 	 */
 	// TODO bijhouden wat er veranderd is, zodat niet heel deze check hoeft te
 	// worden doorgevoerd
-	private static void syncRender(Fluent add) {
+	private static void syncRender(Fluent parent, Fluent add) {
 		if (!compare(add.tag, add.element.getTagName())) {
-			syncCreate(add);
+			syncCreate(parent, add);
 			return;
 		}
 		// innerHtml
-		// TODO aanzetten bij reply bug
-		// if (!compare(add.inner, add.element.getInnerHTML())) {
-		// add.element.setInnerHTML(add.inner);
-		// }
+		if (!compare(add.inner, add.element.getInnerHTML())) {
+			add.element.setInnerHTML(add.inner);
+		}
 		// Attrs
-		// TODO: if add.attrs==null
 		NamedNodeMap elementAttrs = (NamedNodeMap) add.element.getAttributes();
-		for (Att name : add.attrs.keySet()) { // add or adjust
-			String value = add.attrs.get(name);
+		if (add.attrs != null) {
+			for (Att name : add.attrs.keySet()) { // add or adjust
+				String value = add.attrs.get(name);
 
-			Node elementNow = elementAttrs.getNamedItem(name.nameValid());
-			if (elementNow == null) {
-				add.element.setAttribute(name.nameValid(), value);
-			} else if (!elementNow.getNodeValue().equals(value)) {
-				elementNow.setNodeValue(value);
+				Node elementNow = elementAttrs.getNamedItem(name.nameValid());
+				if (elementNow == null) {
+					add.element.setAttribute(name.nameValid(), value);
+				} else if (!elementNow.getNodeValue().equals(value)) {
+					elementNow.setNodeValue(value);
+				}
 			}
 		}
 		for (int x = elementAttrs.getLength() - 1; x != -1; x--) { // remove
 			Node elementAttr = elementAttrs.item(x);
-			if (!add.attrs.containsKey(Att.valueOfValid(elementAttr.getNodeName()))) {
+			if (add.attrs == null || !add.attrs.containsKey(Att.valueOfValid(elementAttr.getNodeName()))) {
 				elementAttrs.removeNamedItem(elementAttr.getNodeName());
 			}
 		}
 		// Style
 		CSSStyleDeclaration elementStyles = add.element.getStyle();
-		// TODO: if add.styles==null
-		for (Style name : add.styles.keySet()) { // add or adjust
-			String nameValid = name.nameValid();
-			String value = add.styles.get(name);
+		if (add.styles != null) {
+			for (Style name : add.styles.keySet()) { // add or adjust
+				String nameValid = name.nameValid();
+				String value = add.styles.get(name);
 
-			String elementNow = elementStyles.getPropertyValue(nameValid);
-			if (elementNow == null) {
-				elementStyles.setProperty(nameValid, value);
-			} else if (!elementNow.equals(value)) {
-				elementStyles.removeProperty(nameValid);
-				// TODO is remove necessary?
-				elementStyles.setProperty(nameValid, value);
+				String elementNow = elementStyles.getPropertyValue(nameValid);
+				if (elementNow == null) {
+					elementStyles.setProperty(nameValid, value);
+				} else if (!elementNow.equals(value)) {
+					elementStyles.removeProperty(nameValid);
+					// TODO is remove necessary?
+					elementStyles.setProperty(nameValid, value);
+				}
 			}
 		}
 		for (int x = elementStyles.getLength() - 1; x != -1; x--) { // remove
 			String elementStyle = elementStyles.item(x);
-			if (!add.styles.containsKey(Style.valueOfValid(elementStyle))) {
+			if (add.styles == null || !add.styles.containsKey(Style.valueOfValid(elementStyle))) {
 				elementStyles.removeProperty(elementStyle);
 			}
 		}
-		// TODO remove all listeners!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// TODO remove all listeners!
 		// for (NameListen name : add.listeners.keySet()) { // add or adjust
 		// EventListener<?> value = add.listeners.get(name);
 		// .............?
 		// }
 		NodeList existChildren = add.element.getChildNodes();
-		for (int x = 0; x < add.childs.size(); x++) {
-			Fluent child = add.childs.get(x);
-			while (child.tag == null) { // skip ReactC objects
-				child = ((ReactC) child).generate();
-			}
-			child.element = (Element) existChildren.item(x);
-			if (child.element == null) {
-				syncCreate(child);
-			} else {
-				syncRender(child);
+		if (add.childs != null) {
+			for (int x = 0; x < add.childs.size(); x++) {
+				Fluent child = add.childs.get(x);
+				while (child.tag == null) { // skip ReactC objects
+					child = ((ReactC) child).generate();
+				}
+				child.element = (Element) existChildren.item(x);
+				if (child.element == null) {
+					syncCreate(parent, child);
+				} else {
+					syncRender(parent, child);
+				}
 			}
 		}
-		for (int x = add.childs.size(); x < existChildren.getLength(); x++) {
+
+		// Just remove remaining children
+		int size = 0;
+		if (add.childs != null) {
+			size = add.childs.size();
+		}
+		for (int x = size; x < existChildren.getLength(); x++) {
 			add.element.removeChild(existChildren.item(x));
 		}
 	}
@@ -437,9 +527,13 @@ public class Fluent {
 		}
 	}
 
-	public String getValue() {
-		return element.getNodeValue();
+	public String value() {
+		return valueGetter(element);
 	}
+
+	public final native String valueGetter(Element element) /*-{
+															return element.value;
+															}-*/;
 
 	// Constructor-tags:
 	// Constructor-tags:
@@ -551,13 +645,14 @@ public class Fluent {
 		return new Fluent("keygen", this);
 	}
 
-	public void style(String... csss) {
+	public Fluent style(String... csss) {
 		for (String css : csss) {
 			Fluent result = new Fluent("link", this);
 			result.attr(Att.rel, "stylesheet");
 			result.attr(Att.async, "false");
 			result.attr(Att.href, css);
 		}
+		return this;
 	}
 
 	public Fluent meta() {
@@ -889,7 +984,7 @@ public class Fluent {
 																						}-*/;
 	}
 
-	public void script(String... jss) {
+	public Fluent script(String... jss) {
 		for (String js : jss) {
 			// This works but is not asynchronous, which can cause problems
 			// Fluent result = new Fluent ("script", this);
@@ -900,6 +995,7 @@ public class Fluent {
 			xhr.setOnReadyStateChange(a -> {
 				if (a.getReadyState() == XMLHttpRequest.DONE && a.getStatus() == 200) {
 					new Fluent("script", this).inner(xhr.getResponseText());
+					// This worked under teavm:
 					// Element src = document.createElement("script");
 					// src.setAttribute("type", "text/javascript");
 					// // src.setAttribute("src", js);
@@ -910,6 +1006,7 @@ public class Fluent {
 			xhr.open("GET", js, false);
 			xhr.send();
 		}
+		return this;
 	}
 
 	public Fluent section() {

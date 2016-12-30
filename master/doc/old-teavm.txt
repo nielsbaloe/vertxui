@@ -1,0 +1,52 @@
+
+	public String translateTeaVM() throws IOException {
+		File temp = null;
+		try {
+			temp = File.createTempFile("vertxui", "js");
+			TeaVMTool teaVmTool = new TeaVMTool();
+			teaVmTool.setMainClass(classs.getCanonicalName());
+			teaVmTool.setTargetDirectory(temp.getParentFile());
+			teaVmTool.setTargetFileName(temp.getName());
+			teaVmTool.setCacheDirectory(temp.getParentFile());
+			teaVmTool.setRuntime(RuntimeCopyOperation.MERGED);
+			teaVmTool.setMainPageIncluded(false);
+			teaVmTool.setBytecodeLogging(debug);
+			teaVmTool.setDebugInformationGenerated(debug);
+			teaVmTool.setMinifying(!debug);
+			teaVmTool.generate();
+
+			// Warnings
+			ProblemProvider problemProvider = teaVmTool.getProblemProvider();
+			StringBuilder allWarnings = new StringBuilder();
+			List<Problem> severes = problemProvider.getSevereProblems();
+			problemProvider.getProblems().stream().filter(s -> !severes.contains(s)).forEach(problem -> {
+				if (allWarnings.length() == 0) {
+					allWarnings.append("TeaVM warnings:");
+				}
+				getProblemString(allWarnings, problem);
+			});
+			if (allWarnings.length() != 0) {
+				log.warning(allWarnings.toString());
+			}
+
+			// Errors
+			if (!severes.isEmpty()) {
+				StringBuilder allSeveres = new StringBuilder("Severe build error(s): ");
+				severes.forEach(problem -> {
+					getProblemString(allSeveres, problem);
+				});
+				throw new IOException(allSeveres.toString());
+			}
+			String result = FileUtils.readFileToString(temp, "UTF-8");
+			if (withHtml) {
+				// main in script so we can dynamicly load scripts
+				result = "<!DOCTYPE html><html><head><script>" + result
+						+ "</script></head><body><script>main()</script></body></html>";
+			}
+			return result;
+		} finally {
+			if (temp.exists()) { // just in case
+				temp.delete();
+			}
+		}
+	}

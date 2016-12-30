@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -76,15 +77,15 @@ public class VertxUI {
 		this.withHtml = withHtml;
 		this.debug = debug;
 
-		if (FigWheelyVertX.started) {
+		if (FigWheely.started) {
 			this.debug = true;
 			this.withHtml = true;
-			String classFile = FigWheelyVertX.buildDir + "/" + classs.getCanonicalName().replace(".", "/") + ".class";
+			String classFile = FigWheely.buildDir + "/" + classs.getCanonicalName().replace(".", "/") + ".class";
 			File file = new File(classFile);
 			if (!file.exists()) {
-				throw new IllegalArgumentException("please set FigWheelyVertX.buildDir, failed to load " + classFile);
+				throw new IllegalArgumentException("please set FigWheely.buildDir, failed to load " + classFile);
 			}
-			FigWheelyVertX.addVertX(file, this);
+			FigWheely.addVertX(file, this);
 		}
 
 		if (this.withHtml) {
@@ -97,13 +98,14 @@ public class VertxUI {
 							+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
 							+ "</style></head><body><div class=loader></div></body></html>");
 		}
+
 		Vertx.currentContext().executeBlocking(future -> {
 			try {
 				translate();
 				future.complete();
 			} catch (IOException | InterruptedException e) {
 				log.log(Level.SEVERE, e.getMessage(), e);
-				if (!FigWheelyVertX.started) {
+				if (!FigWheely.started) {
 					// stop on startup errors when not in debug
 					// stop on startup error
 					Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -129,105 +131,33 @@ public class VertxUI {
 		translate();
 	}
 
-	// public String translate() throws IOException {
-	// File temp = null;
-	// try {
-	// temp = File.createTempFile("vertxui", "js");
-	// TeaVMTool teaVmTool = new TeaVMTool();
-	// teaVmTool.setMainClass(classs.getCanonicalName());
-	// teaVmTool.setTargetDirectory(temp.getParentFile());
-	// teaVmTool.setTargetFileName(temp.getName());
-	// teaVmTool.setCacheDirectory(temp.getParentFile());
-	// teaVmTool.setRuntime(RuntimeCopyOperation.MERGED);
-	// teaVmTool.setMainPageIncluded(false);
-	// teaVmTool.setBytecodeLogging(debug);
-	// teaVmTool.setDebugInformationGenerated(debug);
-	// teaVmTool.setMinifying(!debug);
-	// teaVmTool.generate();
-	//
-	// // Warnings
-	// ProblemProvider problemProvider = teaVmTool.getProblemProvider();
-	// StringBuilder allWarnings = new StringBuilder();
-	// List<Problem> severes = problemProvider.getSevereProblems();
-	// problemProvider.getProblems().stream().filter(s ->
-	// !severes.contains(s)).forEach(problem -> {
-	// if (allWarnings.length() == 0) {
-	// allWarnings.append("TeaVM warnings:");
-	// }
-	// getProblemString(allWarnings, problem);
-	// });
-	// if (allWarnings.length() != 0) {
-	// log.warning(allWarnings.toString());
-	// }
-	//
-	// // Errors
-	// if (!severes.isEmpty()) {
-	// StringBuilder allSeveres = new StringBuilder("Severe build error(s)
-	// occurred: ");
-	// severes.forEach(problem -> {
-	// getProblemString(allSeveres, problem);
-	// });
-	// throw new TeaVMToolException(allSeveres.toString());
-	// }
-	// String result = FileUtils.readFileToString(temp, "UTF-8");
-	// if (withHtml) {
-	// // main in script so we can dynamicly load scripts
-	// result = "<!DOCTYPE html><html><head><script>" + result
-	// + "</script></head><body><script>main()</script></body></html>";
-	// }
-	// return result;
-	// } finally {
-	// if (temp.exists()) { // just in case
-	// temp.delete();
-	// }
-	// }
-	// }
+	public String sourceLocation = null;
 
 	public void translate() throws IOException, InterruptedException {
+		long start = System.currentTimeMillis();
+		Stream.of("src", "src/main", "src/main/java", sourceLocation).forEach(location -> {
+			if (location != null && new File(location).exists()) {
+				sourceLocation = location;
+			}
+		});
+		// log.info("sourceLocation=" + sourceLocation);
 
-		// List<File> list = new ArrayList<>();
-		// list.add(new File("src"));
-		// ModuleDef module = new ModuleDef(thisClass.getName());// ,
-		// module.addResourcePath("src");
-		// module.addEntryPointTypeName(thisClass.getName());
-		// // module.addisInherited("elemental.Elemental");
-		// // module.addPublicPackage("elemental.Elemental", new String[0], new
-		// // String[0], new String[0], false, false);
-		//
-		// // Directly (works, but classpath does not contain 'src'
-		// Memory.initialize();
-		// SpeedTracerLogger.init();
-		// CompilerOptions options = new CompilerOptionsImpl();
-		// options.addModuleName(thisClass.getName());
-		// options.setStrict(true);
-		// options.setClassMetadataDisabled(true);
-		// options.setDisableUpdateCheck(true);
-		// if (debug) {
-		// options.setIncrementalCompileEnabled(true);
-		// } else {
-		// options.setOptimizationLevel(CompilerOptions.OPTIMIZE_LEVEL_MAX);
-		// options.setIncrementalCompileEnabled(false);
-		// }
-		// com.google.gwt.dev.Compiler.compile(new PrintWriterTreeLogger(),
-		// options, module);
-		// System.exit(0);
-
-		String src = "src/main/java/"; // TODO do automatic search and set
 		String className = classs.getName();
-		String xmlFile = "live/connector/vertxui/client/Whatever"; // TODO
-																	// dynamic
-		File gwtXml = new File(src + xmlFile + ".gwt.xml");
+		String xmlFile = classs.getSimpleName();
+		String path = "live/connector/vertxui/client"; // TODO dynamic (examples
+														// outside)
+		File gwtXml = new File(sourceLocation + "/" + xmlFile + ".gwt.xml");
 		try {
 			FileUtils.writeStringToFile(gwtXml,
 					"<module rename-to='a'><inherits name='elemental.Elemental'/><entry-point class='" + className
-							+ "'/><source path=''/></module>");
+							+ "'/><source path='" + path + "'/></module>");
 			String options = "-strict -XnoclassMetadata -XdisableUpdateCheck";
 			if (debug) {
 				options += " -draftCompile -optimize 0 -incremental";
 			} else {
 				options += " -nodraftCompile -optimize 9 -noincremental";
 			}
-			String classpath = System.getProperty("java.class.path") + ";" + src;
+			String classpath = System.getProperty("java.class.path") + ";" + sourceLocation;
 			String line = null;
 			Process p = Runtime.getRuntime()
 					.exec("java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile);
@@ -256,11 +186,40 @@ public class VertxUI {
 		} finally {
 			gwtXml.delete();
 		}
+
+		System.out.println("Done compiling in " + (System.currentTimeMillis() - start) + " ms");
 		if (withHtml) {
 			FileUtils.writeStringToFile(new File("war/index.html"),
 					"<!DOCTYPE html><html><body><script type='text/javascript' src='a/a.nocache.js?time="
 							+ Math.random() + "'></script></body></html>");
 		}
+
+		// List<File> list = new ArrayList<>();
+		// list.add(new File("src"));
+		// ModuleDef module = new ModuleDef(classs.getName());// ,
+		// module.addResourcePath("src");
+		// module.addEntryPointTypeName(classs.getName());
+		// // module.addisInherited("elemental.Elemental");
+		// // module.addPublicPackage("elemental.Elemental", new String[0], new
+		// // String[0], new String[0], false, false);
+		//
+		// // Directly (works, but classpath does not contain 'src'
+		// Memory.initialize();
+		// SpeedTracerLogger.init();
+		// CompilerOptions options = new CompilerOptionsImpl();
+		// options.addModuleName(thisClass.getName());
+		// options.setStrict(true);
+		// options.setClassMetadataDisabled(true);
+		// options.setDisableUpdateCheck(true);
+		// if (debug) {
+		// options.setIncrementalCompileEnabled(true);
+		// } else {
+		// options.setOptimizationLevel(CompilerOptions.OPTIMIZE_LEVEL_MAX);
+		// options.setIncrementalCompileEnabled(false);
+		// }
+		// com.google.gwt.dev.Compiler.compile(new PrintWriterTreeLogger(),
+		// options, module);
+		// System.exit(0);
 	}
 
 }

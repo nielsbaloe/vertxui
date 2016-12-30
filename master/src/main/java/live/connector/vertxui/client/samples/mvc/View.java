@@ -6,6 +6,7 @@ import com.google.gwt.core.client.EntryPoint;
 
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ReactC;
+import live.connector.vertxui.client.fluent.console;
 
 class ModelSendDto {
 	public String name;
@@ -55,18 +56,16 @@ public class View implements EntryPoint {
 		// which is here 'response'!!
 		response.add(model, m -> {
 			if (m.name != null) {
-				return Fluent.Li("with model: " + m.name);
-			} else {
-				return null;
+				return Fluent.Li(m.name);
+			} else { // TODO support null case
+				return Fluent.Li("no name yet.");
 			}
 		});
 
-		input.keyUp(event -> {
-			model.name = input.getValue();
-			if (model.name != null) {
-				System.out.println(model.name);
-			}
-			response.sync(); // RE-RENDER!!
+		input.keyup(event -> {
+			model.name = input.value();
+			console.log("model name: " + model.name);
+			response.sync(); // re-render
 		});
 
 	}
