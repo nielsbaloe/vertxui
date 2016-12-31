@@ -1,15 +1,14 @@
-package live.connector.vertxui.server.samples.helloWorldFluentHtml;
+package live.connector.vertxui.server.samples.chatSockjs;
 
 import java.lang.invoke.MethodHandles;
 
 import io.vertx.core.Vertx;
-import live.connector.vertxui.client.samples.helloWorldFluentHtml.Client;
 import live.connector.vertxui.server.samples.AllExamplesServer;
 
-public class Server extends AllExamplesServer {
+public class ExampleChatSockjs extends AllExamplesServer {
 
-	public Server() {
-		super(Client.class);
+	public ExampleChatSockjs() {
+		super(live.connector.vertxui.client.samples.chatSockjs.ExampleChatSockjs.class);
 	}
 
 	public static void main(String[] args) {

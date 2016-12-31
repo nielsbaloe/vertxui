@@ -24,6 +24,7 @@ Vertx-ui serves on top of that:
 * Fluent html has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
 * ideal as microservice: no file access necessary at the server.
 
+Examples are included for: hello world, hello world in fluent html, automatic browser reloading Figwheely, chat with websockets, chat with SockJS, TodoMVC, and more.
 
 ### Serverside
 
@@ -43,19 +44,18 @@ If you want to speed up your development and not loose the browserstate by press
   
 ### Clientside pure DOM
 
-The clientside looks like plain javascript but then with Java (8's lambda) callbacks. This is pure 
-[TeaVM](http://teavm.org/) (will be GWT elemental):
+The clientside looks like plain javascript but then with Java (8's lambda) callbacks. This is pure GWT elemental:
 
-		HTMLButtonElement button = document.createElement("button").cast();
+		button = document.createElement("button");
 		button.setAttribute("id", "hello-button");
 		button.setInnerHTML("Click me");
-		button.listenClick(evt -> clicked());
+		button.setOnclick(evt -> clicked());
 		body.appendChild(button);
 		...
 		
 	private void clicked() {
-		button.setDisabled(true);
-		thinkingPanel.getStyle().setProperty("display", "");
+		button.setAttribute("disabled", "");
+		thinking.getStyle().setProperty("display", "");
 		...
 	}
 
@@ -67,8 +67,8 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 		...
 		
 	private void clicked() {
-		button.disable();
-		thinkingPanel.css("display", "");
+		button.disabled(true);
+		thinking.css(Style.display, "");
 		...
 	}
 
@@ -81,7 +81,7 @@ Of course you can mix with existing html and javascript by an encapsulated docum
 GWT supports lambda's too:
 
 
-	Arrays.asList("apple","a").stream().filter(a->a.length()>2).map(t -> new Li(t)).forEach(ul::append);
+	Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li(t)).forEach(ul::append);
 
 
 ### EventBus at server and client in pure java gives beautiful MVC 

@@ -178,6 +178,10 @@ public class Fluent {
 		return listen(Event.CLICK, listener);
 	}
 
+	public Fluent load(EventListener listener) {
+		return listen("load", listener); // TODO mail GWT missing event
+	}
+
 	public Fluent focus(EventListener listener) {
 		return listen(Event.FOCUS, listener);
 	}
@@ -651,16 +655,6 @@ public class Fluent {
 		return new Fluent("keygen", this);
 	}
 
-	public Fluent style(String... csss) {
-		for (String css : csss) {
-			Fluent result = new Fluent("link", this);
-			result.attr(Att.rel, "stylesheet");
-			result.attr(Att.async, "false");
-			result.attr(Att.href, css);
-		}
-		return this;
-	}
-
 	public Fluent meta() {
 		return new Fluent("meta", this);
 	}
@@ -990,29 +984,57 @@ public class Fluent {
 																						}-*/;
 	}
 
-	public Fluent script(String... jss) {
-		for (String js : jss) {
-			// This works but is not asynchronous, which can cause problems
-			// Fluent result = new Fluent ("script", this);
-			// result.attribute("type", "text/javascript");
-			// result.attribute("src", js);
+	private native static void eval(String code) /*-{
+													eval(code);
+													}-*/;
 
+	public static void scriptSyncEval(String... jss) {
+		for (String js : jss) {
 			XMLHttpRequestSyc xhr = (XMLHttpRequestSyc) XMLHttpRequestSyc.create();
 			xhr.setOnReadyStateChange(a -> {
 				if (a.getReadyState() == XMLHttpRequest.DONE && a.getStatus() == 200) {
-					new Fluent("script", this).inner(xhr.getResponseText());
-					// This worked under teavm:
-					// Element src = document.createElement("script");
-					// src.setAttribute("type", "text/javascript");
-					// // src.setAttribute("src", js);
-					// src.setAttribute("text", xhr.getResponseText());
-					// element.appendChild(src);
+					eval(xhr.getResponseText());
 				}
 			});
 			xhr.open("GET", js, false);
 			xhr.send();
 		}
-		return this;
+	}
+
+	/**
+	 * Load one or more javascript files, asynchronous as normal. You can't use
+	 * these libraries in your code directly, for that, use scriptAsyncEval().
+	 * 
+	 * @param jss
+	 * @return
+	 */
+	public static void script(String... jss) {
+		for (String js : jss) {
+			new Fluent("script", getHead()).attr(Att.type, "text/javascript").attr(Att.src, js);
+
+			// This works too, is async
+			// XMLHttpRequestSyc xhr = (XMLHttpRequestSyc)
+			// XMLHttpRequestSyc.create();
+			// xhr.setOnReadyStateChange(a -> {
+			// if (a.getReadyState() == XMLHttpRequest.DONE && a.getStatus() ==
+			// 200) {
+			// new Fluent("script", this).inner(xhr.getResponseText());
+			// // Element src = document.createElement("script");
+			// // src.setAttribute("type", "text/javascript");
+			// // // src.setAttribute("src", js);
+			// // src.setInnerText(xhr.getResponseText());
+			// // element.appendChild(src);
+			// }
+			// });
+			// xhr.open("GET", js, false);
+			// xhr.send();
+		}
+	}
+
+	public static void style(String... csss) {
+		for (String css : csss) {
+			new Fluent("link", getHead()).attr(Att.rel, "stylesheet").attr(Att.href, css);
+		}
 	}
 
 	public Fluent section() {

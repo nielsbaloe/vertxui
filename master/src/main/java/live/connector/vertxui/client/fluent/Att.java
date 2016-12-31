@@ -13,7 +13,7 @@ public enum Att {
 	dirnme, disable, download, draggable, dropzone, enctype, form, formaction, //
 	headers, height, accept, accesskey, action, align, alt, async, //
 	autocomplete, autofocus, autoplay, autosave, //
-	name_, for_, default_, class_, http_equiv, accept_charset;
+	name_, for_, default_, class_, http_equiv, accept_charset, text;
 
 	public String nameValid() {
 		switch (this) {

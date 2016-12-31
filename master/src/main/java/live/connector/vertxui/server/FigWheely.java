@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
@@ -18,12 +19,11 @@ public class FigWheely extends AbstractVerticle {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	/**
-	 * Override target-dir when necessary.
-	 */
 	public static String buildDir = "target/classes";
-	public static boolean started = false;
 	public static String url = "figwheelySocket";
+	public static int port = 8090;
+
+	protected static boolean started = false;
 
 	private static Router router;
 	private static final String browserIds = "figwheelyEventBus";
@@ -68,14 +68,19 @@ public class FigWheely extends AbstractVerticle {
 	 * @param router
 	 *            the router which will be watched
 	 */
-	public static void with(HttpServer server, Router router) {
+	public static void with(Router router) {
 		if (started) {
 			throw new IllegalArgumentException("Can only start once");
 		}
 		started = true;
 		FigWheely.router = router;
 
-		Vertx vertx = Vertx.currentContext().owner();
+		Vertx.currentContext().owner().deployVerticle(MethodHandles.lookup().lookupClass().getName());
+	}
+
+	@Override
+	public void start() {
+		HttpServer server = vertx.createHttpServer();
 		server.websocketHandler(webSocket -> {
 			if (!webSocket.path().equals("/" + url)) {
 				webSocket.reject();
@@ -88,11 +93,13 @@ public class FigWheely extends AbstractVerticle {
 				vertx.sharedData().getLocalMap(browserIds).remove(id);
 			});
 		});
-		vertx.deployVerticle(MethodHandles.lookup().lookupClass().getName());
-	}
+		server.listen(port, listenHandler -> {
+			if (listenHandler.failed()) {
+				log.log(Level.SEVERE, "Startup error", listenHandler.cause());
+				System.exit(0); // stop on startup error
+			}
+		});
 
-	@Override
-	public void start() {
 		vertx.executeBlocking(future -> {
 			while (true) {
 				try {
@@ -129,7 +136,7 @@ public class FigWheely extends AbstractVerticle {
 		});
 	}
 
-	public static final String script = "new WebSocket('ws://localhost:80/" + url
+	public static final String script = "new WebSocket('ws://localhost:" + port + "/" + url
 			+ "').onmessage = function(m) {console.log(m.data);removejscssfile(m.data.substr(8));};                                          "
 			+ "console.log('FigWheely started');                                                                                 "
 			+ "function removejscssfile(filename){                 "

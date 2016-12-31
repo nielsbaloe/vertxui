@@ -5,6 +5,7 @@ import com.google.gwt.xhr.client.XMLHttpRequest;
 
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Style;
+import live.connector.vertxui.client.fluent.console;
 
 public class Client implements EntryPoint {
 
@@ -35,7 +36,7 @@ public class Client implements EntryPoint {
 	}
 
 	private void responsed(String text) {
-		System.out.println("received: " + text);
+		console.log("received: " + text);
 		button.disabled(false);
 
 		response.div().inner(text);

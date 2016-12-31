@@ -6,9 +6,9 @@ import io.vertx.core.Vertx;
 import live.connector.vertxui.client.samples.helloWorld.Client;
 import live.connector.vertxui.server.samples.AllExamplesServer;
 
-public class Server extends AllExamplesServer {
+public class ExampleHelloWorld extends AllExamplesServer {
 
-	public Server() {
+	public ExampleHelloWorld() {
 		super(Client.class);
 	}
 

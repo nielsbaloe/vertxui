@@ -1,15 +1,15 @@
-package live.connector.vertxui.server.samples.figwheely;
+package live.connector.vertxui.server.samples.mvc;
 
 import java.lang.invoke.MethodHandles;
 
 import io.vertx.core.Vertx;
-import live.connector.vertxui.client.samples.figwheely.Client;
+import live.connector.vertxui.client.samples.mvc.View;
 import live.connector.vertxui.server.samples.AllExamplesServer;
 
-public class Server extends AllExamplesServer {
+public class ExampleMvc extends AllExamplesServer {
 
-	public Server() {
-		super(Client.class);
+	public ExampleMvc() {
+		super(View.class);
 	}
 
 	public static void main(String[] args) {

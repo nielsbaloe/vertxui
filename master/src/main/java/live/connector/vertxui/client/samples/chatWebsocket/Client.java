@@ -24,7 +24,7 @@ public class Client implements EntryPoint {
 		Fluent input = body.input("text", "_");
 		Fluent messages = body.div();
 
-		WebSocket webSocket = Browser.getWindow().newWebSocket("ws://localhost/chatWebsocket");
+		WebSocket webSocket = window.newWebSocket("ws://localhost/chatWebsocket");
 		webSocket.setOnopen(e -> {
 			webSocket.send(name + ": Ola, I'm " + name + ".");
 		});
@@ -34,7 +34,7 @@ public class Client implements EntryPoint {
 		input.keydown(evt -> {
 			if (((UIEvent) evt).getKeyCode() == 13) {
 				webSocket.send(name + ": " + input.value());
-				input.value("");
+				input.value(""); // clear the inputfield
 			}
 		});
 	}

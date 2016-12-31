@@ -45,7 +45,7 @@ public class AllExamplesServer extends AbstractVerticle {
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
 		// Start figwheely and serve the javascript file
-		FigWheely.with(server, router);
+		FigWheely.with(router);
 		router.get(Client.figLocation).handler(a -> {
 			a.response().end(FigWheely.script);
 		});
@@ -61,25 +61,28 @@ public class AllExamplesServer extends AbstractVerticle {
 		});
 
 		// Chat-websocket example
-		List<String> chatWebsockets = new ArrayList<>();
-		// or locally shared in a map:
-		// vertx.sharedData().getLocalMap("chatRoom." + room).put(id, "_");
-		server.websocketHandler(webSocket -> {
-			if (!webSocket.path().equals("/chatWebsocket")) {
-				webSocket.reject();
-				return;
-			}
-			final String id = webSocket.textHandlerID();
-			chatWebsockets.add(id); // entering
-			webSocket.closeHandler(data -> {
-				chatWebsockets.remove(id); // leaving
+		if (classs.getName().equals(live.connector.vertxui.client.samples.chatWebsocket.Client.class.getName())) {
+			// The if-statement is for interference with sockjs.
+			List<String> chatWebsockets = new ArrayList<>();
+			// or locally shared in a map:
+			// vertx.sharedData().getLocalMap("chatRoom." + room).put(id, "_");
+			server.websocketHandler(webSocket -> {
+				if (!webSocket.path().equals("/chatWebsocket")) {
+					webSocket.reject();
+					return;
+				}
+				final String id = webSocket.textHandlerID();
+				chatWebsockets.add(id); // entering
+				webSocket.closeHandler(data -> {
+					chatWebsockets.remove(id); // leaving
+				});
+				webSocket.handler(buffer -> { // broadcast
+					String message = buffer.toString();
+					chatWebsockets.forEach(i -> vertx.eventBus().send(i, message));
+					// to reply to one: webSocket.writeFinalTextFrame(...);
+				});
 			});
-			webSocket.handler(buffer -> { // broadcast
-				String message = buffer.toString();
-				chatWebsockets.forEach(i -> vertx.eventBus().send(i, message));
-				// to reply: webSocket.writeFinalTextFrame(...);
-			});
-		});
+		}
 
 		// chatSockjs example
 		final String freeway = "freeway";

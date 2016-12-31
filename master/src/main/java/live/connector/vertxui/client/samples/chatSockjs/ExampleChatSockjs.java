@@ -12,12 +12,13 @@ import live.connector.vertxui.client.fluent.Fluent;
  *
  */
 
-public class Client implements EntryPoint {
+public class ExampleChatSockjs implements EntryPoint {
 
 	public static final String freeway = "freeway";
 
-	public Client() {
-		EventBus.scripts();
+	public ExampleChatSockjs() {
+		Fluent.scriptSyncEval("https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js",
+				"https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
 
 		String name = Browser.getWindow().prompt("What is your name?", "");
 
@@ -25,22 +26,24 @@ public class Client implements EntryPoint {
 		Fluent input = body.input("text", "_");
 		Fluent messages = body.div();
 
-		EventBus eventBus = EventBus.create("localhost/sockjs", null);
-		eventBus.onopen(() -> {
+		EventBus eventBus = EventBus.create("http://localhost/sockjs", null);
+		eventBus.onopen(evt -> {
 			eventBus.send(freeway, name + ": Ola, I'm " + name + ".", null, null);
 		});
-		eventBus.registerHandler(freeway, null, (status, message) -> {
-			messages.li(message);
-		});
+		// eventBus.registerHandler(freeway, null, (status, message) -> {
+		// messages.li(message);
+		// });
 		input.keydown(evt -> {
 			if (((UIEvent) evt).getKeyCode() == 13) {
 				eventBus.send("freeway", name + ": " + input.value(), null, null);
-				input.value("");
+				input.value(""); // clear the inputfield
 			}
 		});
 	}
 
 	@Override
 	public void onModuleLoad() {
+
 	}
+
 }
