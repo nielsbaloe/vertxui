@@ -5,6 +5,7 @@ import com.google.gwt.xhr.client.XMLHttpRequest;
 
 import elemental.dom.Document;
 import elemental.dom.Element;
+import live.connector.vertxui.client.console;
 import live.connector.vertxui.client.fluent.Fluent;
 
 public class Client implements EntryPoint {
@@ -48,7 +49,7 @@ public class Client implements EntryPoint {
 	}
 
 	private void responsed(String text) {
-		System.out.println("received: " + text);
+		console.log("received: " + text);
 		button.removeAttribute("disabled");
 
 		Element responseElem = document.createElement("div");

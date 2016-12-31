@@ -62,7 +62,7 @@ public class AllExamplesServer extends AbstractVerticle {
 		});
 
 		// Chat by websocket
-		if (classs.getName().equals(live.connector.vertxui.client.samples.chatWebsocket.Client.class.getName())) {
+		if (classs == live.connector.vertxui.client.samples.chatWebsocket.Client.class) {
 			List<String> ids = new ArrayList<>();
 			server.websocketHandler(socket -> {
 				if (!socket.path().equals("/chatWebsocket")) {
@@ -83,7 +83,7 @@ public class AllExamplesServer extends AbstractVerticle {
 		}
 
 		// Chat by SockJS (find the differences)
-		if (classs.getName().equals(live.connector.vertxui.client.samples.chatSockjs.Client.class.getName())) {
+		if (classs == live.connector.vertxui.client.samples.chatSockjs.Client.class) {
 			List<String> ids = new ArrayList<>();
 			router.route("/chatSockjs/*").handler(SockJSHandler.create(vertx).socketHandler(socket -> {
 				final String id = socket.writeHandlerID();
@@ -99,25 +99,24 @@ public class AllExamplesServer extends AbstractVerticle {
 		}
 
 		// EventBus example
-		if (classs.getName().equals(live.connector.vertxui.client.samples.eventBus.Client.class.getName())) {
-			// or locally shared in a map:
-			// vertx.sharedData().getLocalMap("chatRoom." + room).put(id, "_");
-			final String freeway = "freeway";
+		if (classs == live.connector.vertxui.client.samples.chatEventBus.Client.class) {
+			final String freeway = live.connector.vertxui.client.samples.chatEventBus.Client.freeway;
 			PermittedOptions adresser = new PermittedOptions().setAddress(freeway);
 			BridgeOptions firewall = new BridgeOptions().addInboundPermitted(adresser).addOutboundPermitted(adresser);
-			router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(firewall, be -> {
-				if (be.type() == BridgeEventType.REGISTER) {
-					log.info("Connected: " + be.socket().writeHandlerID());
-					vertx.eventBus().publish(freeway, "Hey all, new subscriber " + be.socket().writeHandlerID());
-				} else if (be.type() == BridgeEventType.SOCKET_CLOSED) {
-					log.info("Leaving: " + be.socket().writeHandlerID());
+			router.route("/chatEventbus/*").handler(SockJSHandler.create(vertx).bridge(firewall, be -> {
+				final String id = be.socket().writeHandlerID();
+				if (be.getRawMessage() == null) { // connected
+				} else if (be.type() == BridgeEventType.REGISTER) { // entering
+				} else if (be.type() == BridgeEventType.SOCKET_CLOSED) { // leaving
+					vertx.eventBus().publish(freeway, "Hey all, leaving id=" + id); // broadcast-example
 				}
+				// broadcasting to everyone is done automaticly by the Bridge!
 				be.complete(true);
 			}));
-			vertx.eventBus().consumer(freeway, message -> {
-				log.info("received: " + message.body() + " replyAddress=" + message.replyAddress());
+			vertx.eventBus().consumer(freeway, message -> { // receiving
+				// TODO mail vertx: no way to detect which user
+				// (EventBusBridgeImpl::checkAndSend())
 				if (message.replyAddress() != null) {
-					log.info("sending: I received so I reply");
 					message.reply("I received so I reply to " + message.replyAddress());
 				}
 			});

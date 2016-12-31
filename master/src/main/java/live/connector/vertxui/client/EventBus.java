@@ -1,7 +1,10 @@
 package live.connector.vertxui.client;
 
+import com.google.gwt.core.client.JavaScriptObject;
+
+import elemental.events.Event;
 import elemental.events.EventListener;
-import elemental.js.dom.JsElementalMixinBase;
+import elemental.json.JsonObject;
 import live.connector.vertxui.client.fluent.Fluent;
 
 /**
@@ -10,7 +13,7 @@ import live.connector.vertxui.client.fluent.Fluent;
  * @author Niels Gorisse
  *
  */
-public class EventBus extends JsElementalMixinBase { // JavaScriptObject
+public class EventBus extends JavaScriptObject {
 
 	protected EventBus() {
 	}
@@ -18,38 +21,47 @@ public class EventBus extends JsElementalMixinBase { // JavaScriptObject
 	static {
 		SockJS.ensureStaticLoading();
 		Fluent.scriptSyncEval("https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
+		// TODO mail vertx why not a CDN version?
 	}
 
 	public final native static EventBus create(String address, String[] options) /*-{
 																					return new EventBus(address, options);
 																					}-*/;
 
+	// TODO callbacks for onopen and send, and uncommented methods
 	public final native void onopen(EventListener listener)/*-{
-															this.onopen = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);
+															this.onopen = @live.connector.vertxui.client.EventBus::getHandlerFor(Lelemental/events/EventListener;)(listener);
 															}-*/;
 
-	public final native void send(String address, String message, String[] headers, EventListener listener)/*-{
-																											this.send(address,message,headers, @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener));
+	public final native void send(String address, String message, String[] headers, EventListener callback)/*-{
+																											this.send(address,message,headers, @live.connector.vertxui.client.EventBus::getHandlerFor(Lelemental/events/EventListener;)(callback) );
 																											}-*/;
 
-	// public static interface Receiver {
-	// public void handle(String status, String message);
-	// }
+	public final native void registerHandler(String address, String[] headers, EventBusReplyReceive receiver)/*-{
+																												this.registerHandler(address,headers, function(a,b) 
+																												{ @live.connector.vertxui.client.EventBus::doit(Llive/connector/vertxui/client/EventBusReplyReceive;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
+																												(receiver,a,b); }
+																												   );
+																												}-*/;
+
+	private static void doit(EventBusReplyReceive handler, JsonObject error, JsonObject message) {
+		handler.handle(error, message);
+	}
+
+	public final native void unregisterHandler(String address, String[] headers, EventBusReplyReceive receiver)/*-{
+																												this.unregisterHandler(address,headers, function(a,b) 
+																												{ @live.connector.vertxui.client.EventBus::doit(Llive/connector/vertxui/client/EventBusReplyReceive;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
+																												(receiver,a,b); }
+																												);
+																												}-*/;
+
+	public final native void publish(String address, String message, String[] headers)/*-{
+																						this.publish(address,message,headers);
+																						}-*/;
+
+	// public final native void onClose(Runnable object);
 	//
-	// public final native void registerHandler(String address, String[]
-	// headers, Receiver handler)/*-{
-	// this.registerHandler(address,headers,handler);
-	// }-*/;;
-	//
-	// public native void unregisterHandler(String address, String[] headers,
-	// Handler<String> callback);
-	//
-	// public native String publish(String address, String message, String[]
-	// headers);
-	//
-	// public native void onClose(Runnable object);
-	//
-	// public native void onError(Handler<String> callback);
+	// public final native void onError(Handler<String> callback);
 	//
 	// /**
 	// * Push a DTO to the server, where we registered this class to be received
@@ -59,9 +71,8 @@ public class EventBus extends JsElementalMixinBase { // JavaScriptObject
 	// publish(model.getClass().getName(), model);
 	// }
 	//
-	// public <T> void publish(String address, T model) {
-	// // publish(model.getClass().getName(),
-	// // SONRunner.serialize(model).asText(), null);
+	// public <T> void publish(String address, T model, String[] headers) {
+	// publish(address, Json.stringify(model), headers);
 	// }
 	//
 	// /**
@@ -84,5 +95,28 @@ public class EventBus extends JsElementalMixinBase { // JavaScriptObject
 	// // handler.handle(SONRunner.deserialize(string, classs));
 	// // });
 	// }
+
+	// lambda stuff copied from JsElementalMixinBase
+
+	private native static JavaScriptObject ccreateHandler(EventListener listener) /*-{
+																					var handler = listener.handler;
+																					if (!handler) {
+																					handler = $entry(function(event) {
+																					@live.connector.vertxui.client.EventBus::handleEvent(Lelemental/events/EventListener;Lelemental/events/Event;)(listener, event);
+																					});
+																					handler.listener = listener;
+																					// TODO(knorton): Remove at Christmas when removeEventListener is removed.
+																					listener.handler = handler;
+																					}
+																					return handler;
+																					}-*/;
+
+	private static void handleEvent(EventListener listener, Event event) {
+		listener.handleEvent(event);
+	}
+
+	private static JavaScriptObject getHandlerFor(EventListener listener) {
+		return listener == null ? null : ccreateHandler(listener);
+	}
 
 }

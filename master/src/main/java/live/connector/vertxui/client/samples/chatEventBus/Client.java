@@ -1,4 +1,4 @@
-package live.connector.vertxui.client.samples.eventBus;
+package live.connector.vertxui.client.samples.chatEventBus;
 
 import com.google.gwt.core.client.EntryPoint;
 
@@ -14,26 +14,25 @@ import live.connector.vertxui.client.fluent.Fluent;
 
 public class Client implements EntryPoint {
 
-	public static final String freeway = "freeway";
+	public static final String freeway = "twoWayAddressOpenedAtServerBridge";
 
 	public Client() {
-
 		String name = Browser.getWindow().prompt("What is your name?", "");
 
 		Fluent body = Fluent.getBody();
 		Fluent input = body.input("text", "_");
 		Fluent messages = body.div();
 
-		EventBus eventBus = EventBus.create("http://localhost/eventbus", null);
+		EventBus eventBus = EventBus.create("http://localhost/chatEventbus", null);
 		eventBus.onopen(evt -> {
-			eventBus.send(freeway, name + ": Ola, I'm " + name + ".", null, null);
+			eventBus.publish(freeway, name + ": Ola, I'm " + name + ".", null);
+			eventBus.registerHandler(freeway, null, (error, in) -> { // onmessage
+				messages.li(in.get("body").asString());
+			});
 		});
-		// eventBus.registerHandler(freeway, null, (status, message) -> {
-		// messages.li(message);
-		// });
 		input.keydown(evt -> {
 			if (((UIEvent) evt).getKeyCode() == 13) {
-				eventBus.send("freeway", name + ": " + input.value(), null, null);
+				eventBus.publish(freeway, name + ": " + input.value(), null);
 				input.value(""); // clear the inputfield
 			}
 		});
