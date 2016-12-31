@@ -14,6 +14,7 @@ import org.apache.commons.io.FileUtils;
 import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 
@@ -33,23 +34,13 @@ public class VertxUI {
 	private boolean debug;
 
 	/**
-	 * Create a VertxUI with html-file false and debug false
+	 * Create a VertxUI with html-file false and debug false (for production).
 	 * 
 	 * @param classs
 	 * @throws IOException
 	 */
 	public VertxUI(Class<?> classs) {
 		this(classs, false, false);
-	}
-
-	/**
-	 * Create a VertxUI with debug false.
-	 * 
-	 * @throws IOException
-	 * 
-	 */
-	public VertxUI(Class<?> classs, boolean withHtml) throws IOException {
-		this(classs, withHtml, false);
 	}
 
 	/**
@@ -161,7 +152,7 @@ public class VertxUI {
 							+ "'/><source path='" + path + "'/></module>");
 			String options = "-strict -XnoclassMetadata -XdisableUpdateCheck";
 			if (debug) {
-				options += " -draftCompile -optimize 0 -incremental";
+				options += " -draftCompile -optimize 0 -incremental -style PRETTY";
 			} else {
 				options += " -nodraftCompile -optimize 9 -noincremental";
 			}
@@ -197,9 +188,14 @@ public class VertxUI {
 
 		System.out.println("Done compiling in " + (System.currentTimeMillis() - start) + " ms");
 		if (withHtml) {
-			FileUtils.writeStringToFile(new File("war/index.html"),
-					"<!DOCTYPE html><html><body><script type='text/javascript' src='a/a.nocache.js?time="
-							+ Math.random() + "'></script></body></html>");
+			String html = "<!DOCTYPE html><html><body><script type='text/javascript' src='a/a.nocache.js?time="
+					+ Math.random() + "'></script></body></html>";
+			Vertx.currentContext().owner().fileSystem().writeFile("war/index.html", Buffer.buffer(html), a -> {
+				if (a.failed()) {
+					throw new IllegalArgumentException("Could not create html file", a.cause());
+				}
+			});
+
 		}
 
 		// List<File> list = new ArrayList<>();

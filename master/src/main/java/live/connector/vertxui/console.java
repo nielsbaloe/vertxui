@@ -1,4 +1,5 @@
-package live.connector.vertxui.client.fluent;
+package live.connector.vertxui;
+
 
 public class console {
 

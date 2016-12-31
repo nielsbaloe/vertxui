@@ -18,6 +18,7 @@ import elemental.dom.NodeList;
 import elemental.events.Event;
 import elemental.events.EventListener;
 import elemental.js.dom.JsDocument;
+import live.connector.vertxui.client.console;
 
 /**
  * Fluent HTML. Use getDocument() getBody() and getHead() to start building your

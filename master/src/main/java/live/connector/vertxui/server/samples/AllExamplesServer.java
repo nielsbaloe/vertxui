@@ -50,60 +50,78 @@ public class AllExamplesServer extends AbstractVerticle {
 			a.response().end(FigWheely.script);
 		});
 
-		// Figwheely example: serve sources folder
+		// Figwheely example: serve sources folder (if figwheely is off, it's
+		// just a normal statichandler)
 		router.get("/sourcez/*").handler(FigStaticHandler.create("sources", "/sourcez/"));
 
-		// Hello world examples: wait and do some server stuff, simulating ajax
+		// Hello world examples: wait and do some server stuff for AJAX
 		router.post("/server").handler(handle -> {
 			vertx.setTimer(1000, l -> {
 				handle.response().end("Hello, " + handle.request().getHeader("User-Agent"));
 			});
 		});
 
-		// Chat-websocket example
+		// Chat by websocket
 		if (classs.getName().equals(live.connector.vertxui.client.samples.chatWebsocket.Client.class.getName())) {
-			// The if-statement is for interference with sockjs.
-			List<String> chatWebsockets = new ArrayList<>();
-			// or locally shared in a map:
-			// vertx.sharedData().getLocalMap("chatRoom." + room).put(id, "_");
-			server.websocketHandler(webSocket -> {
-				if (!webSocket.path().equals("/chatWebsocket")) {
-					webSocket.reject();
+			List<String> ids = new ArrayList<>();
+			server.websocketHandler(socket -> {
+				if (!socket.path().equals("/chatWebsocket")) {
+					socket.reject();
 					return;
 				}
-				final String id = webSocket.textHandlerID();
-				chatWebsockets.add(id); // entering
-				webSocket.closeHandler(data -> {
-					chatWebsockets.remove(id); // leaving
+				final String id = socket.textHandlerID();
+				ids.add(id); // entering
+				socket.closeHandler(data -> {
+					ids.remove(id); // leaving
 				});
-				webSocket.handler(buffer -> { // broadcast
+				socket.handler(buffer -> { // receiving
 					String message = buffer.toString();
-					chatWebsockets.forEach(i -> vertx.eventBus().send(i, message));
-					// to reply to one: webSocket.writeFinalTextFrame(...);
+					ids.forEach(i -> vertx.eventBus().send(i, message)); // broadcasting
+					// to reply to one: socket.writeFinalTextFrame(...);
 				});
 			});
 		}
 
-		// chatSockjs example
-		final String freeway = "freeway";
-		PermittedOptions adresser = new PermittedOptions().setAddress(freeway);
-		BridgeOptions firewall = new BridgeOptions().addInboundPermitted(adresser).addOutboundPermitted(adresser);
-		router.route("/sockjs/*").handler(SockJSHandler.create(vertx).bridge(firewall, be -> {
-			if (be.type() == BridgeEventType.REGISTER) {
-				log.info("Connected: " + be.socket().writeHandlerID());
-				vertx.eventBus().publish(freeway, "Hey all, new subscriber " + be.socket().writeHandlerID());
-			} else if (be.type() == BridgeEventType.SOCKET_CLOSED) {
-				log.info("Leaving: " + be.socket().writeHandlerID());
-			}
-			be.complete(true);
-		}));
-		vertx.eventBus().consumer(freeway, message -> {
-			log.info("received: " + message.body() + " replyAddress=" + message.replyAddress());
-			if (message.replyAddress() != null) {
-				log.info("sending: I received so I reply");
-				message.reply("I received so I reply to " + message.replyAddress());
-			}
-		});
+		// Chat by SockJS (find the differences)
+		if (classs.getName().equals(live.connector.vertxui.client.samples.chatSockjs.Client.class.getName())) {
+			List<String> ids = new ArrayList<>();
+			router.route("/chatSockjs/*").handler(SockJSHandler.create(vertx).socketHandler(socket -> {
+				final String id = socket.writeHandlerID();
+				ids.add(id); // entering
+				socket.endHandler(data -> {
+					ids.remove(id); // leaving
+				});
+				socket.handler(buffer -> { // receiving
+					ids.forEach(i -> vertx.eventBus().send(i, buffer)); // broadcasting
+					// to reply to one: socket.write()
+				});
+			}));
+		}
+
+		// EventBus example
+		if (classs.getName().equals(live.connector.vertxui.client.samples.eventBus.Client.class.getName())) {
+			// or locally shared in a map:
+			// vertx.sharedData().getLocalMap("chatRoom." + room).put(id, "_");
+			final String freeway = "freeway";
+			PermittedOptions adresser = new PermittedOptions().setAddress(freeway);
+			BridgeOptions firewall = new BridgeOptions().addInboundPermitted(adresser).addOutboundPermitted(adresser);
+			router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(firewall, be -> {
+				if (be.type() == BridgeEventType.REGISTER) {
+					log.info("Connected: " + be.socket().writeHandlerID());
+					vertx.eventBus().publish(freeway, "Hey all, new subscriber " + be.socket().writeHandlerID());
+				} else if (be.type() == BridgeEventType.SOCKET_CLOSED) {
+					log.info("Leaving: " + be.socket().writeHandlerID());
+				}
+				be.complete(true);
+			}));
+			vertx.eventBus().consumer(freeway, message -> {
+				log.info("received: " + message.body() + " replyAddress=" + message.replyAddress());
+				if (message.replyAddress() != null) {
+					log.info("sending: I received so I reply");
+					message.reply("I received so I reply to " + message.replyAddress());
+				}
+			});
+		}
 
 		// All examples: the main compiled js and html at /war with a fancy 404.
 		router.get("/*").handler(VertxUI.with(classs)).failureHandler(fail -> {

@@ -3,9 +3,9 @@ package live.connector.vertxui.client.samples.helloWorldFluentHtml;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.xhr.client.XMLHttpRequest;
 
+import live.connector.vertxui.client.console;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Style;
-import live.connector.vertxui.client.fluent.console;
 
 public class Client implements EntryPoint {
 

@@ -4,9 +4,9 @@ import java.util.Arrays;
 
 import com.google.gwt.core.client.EntryPoint;
 
+import live.connector.vertxui.client.console;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ReactC;
-import live.connector.vertxui.client.fluent.console;
 
 class ModelSendDto {
 	public String name;

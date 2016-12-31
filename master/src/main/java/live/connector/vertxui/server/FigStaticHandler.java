@@ -9,7 +9,8 @@ import io.vertx.ext.web.RoutingContext;
 
 /**
  * A thin wrapper around StaticHandler that will reload files (like css and jpg)
- * in the browser when FigWheely is turned on.
+ * in the browser when FigWheely is turned on, otherwise it is just a regular
+ * StaticHandler.
  * 
  * @author ng
  *

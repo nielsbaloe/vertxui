@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
@@ -75,7 +76,8 @@ public class FigWheely extends AbstractVerticle {
 		started = true;
 		FigWheely.router = router;
 
-		Vertx.currentContext().owner().deployVerticle(MethodHandles.lookup().lookupClass().getName());
+		Vertx.currentContext().owner().deployVerticle(MethodHandles.lookup().lookupClass().getName(),
+				new DeploymentOptions().setWorker(true));
 	}
 
 	@Override

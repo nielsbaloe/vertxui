@@ -1,14 +1,14 @@
-package live.connector.vertxui.server.samples.chatSockjs;
+package live.connector.vertxui.server.samples.eventBus;
 
 import java.lang.invoke.MethodHandles;
 
 import io.vertx.core.Vertx;
 import live.connector.vertxui.server.samples.AllExamplesServer;
 
-public class ExampleChatSockjs extends AllExamplesServer {
+public class ExampleEventbus extends AllExamplesServer {
 
-	public ExampleChatSockjs() {
-		super(live.connector.vertxui.client.samples.chatSockjs.Client.class);
+	public ExampleEventbus() {
+		super(live.connector.vertxui.client.samples.eventBus.Client.class);
 	}
 
 	public static void main(String[] args) {

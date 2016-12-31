@@ -2,6 +2,7 @@ package live.connector.vertxui.client;
 
 import elemental.events.EventListener;
 import elemental.js.dom.JsElementalMixinBase;
+import live.connector.vertxui.client.fluent.Fluent;
 
 /**
  * A Vert.X sockJs wrapper for in javascript.
@@ -14,6 +15,11 @@ public class EventBus extends JsElementalMixinBase { // JavaScriptObject
 	protected EventBus() {
 	}
 
+	static {
+		SockJS.ensureStaticLoading();
+		Fluent.scriptSyncEval("https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
+	}
+
 	public final native static EventBus create(String address, String[] options) /*-{
 																					return new EventBus(address, options);
 																					}-*/;
@@ -22,13 +28,9 @@ public class EventBus extends JsElementalMixinBase { // JavaScriptObject
 															this.onopen = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);
 															}-*/;
 
-	public static interface SendReply {
-		public void handle(String a, String message);
-	}
-
-	public final native void send(String address, String message, String[] headers, SendReply callback)/*-{
-																										this.send(address,message,headers,callback);
-																										}-*/;
+	public final native void send(String address, String message, String[] headers, EventListener listener)/*-{
+																											this.send(address,message,headers, @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener));
+																											}-*/;
 
 	// public static interface Receiver {
 	// public void handle(String status, String message);
