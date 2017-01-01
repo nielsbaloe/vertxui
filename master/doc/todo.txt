@@ -1,6 +1,6 @@
 Development:
 - finish mvcBootstrap/ virtualDOM   https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
-- test and examplify Eventbus object-json-object methods
+- test and examplify Eventbus object-json-object: not publish/consumer but send->reply, and class-independant
 - create http://todomvc.com
 - split in vertxui-server vertxui-client and vertxui-examples
 - announce at vertx-awesome github list and GWT list and elsewhere
@@ -15,6 +15,4 @@ Development:
 			https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js
 	- updated to sockjs 1.1.1?
 
-- mail GWT:
- 	- elemental.events.Event is missing constants for LOAD, MOUSEENTER, MOUSELEAVE
- 	
+

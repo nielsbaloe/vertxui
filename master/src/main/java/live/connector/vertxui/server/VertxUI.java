@@ -29,6 +29,9 @@ public class VertxUI {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
+	public String sourceLocation = null; // adjust if necessary
+	public String extraGwtLibraries = "<inherits name='com.github.nmorel.gwtjackson.GwtJackson' />";
+
 	private boolean withHtml;
 	private Class<?> classs;
 	private boolean debug;
@@ -130,8 +133,6 @@ public class VertxUI {
 		translate();
 	}
 
-	public String sourceLocation = null;
-
 	public void translate() throws IOException, InterruptedException {
 		long start = System.currentTimeMillis();
 		Stream.of("src", "src/main", "src/main/java", sourceLocation).forEach(location -> {
@@ -148,8 +149,8 @@ public class VertxUI {
 		File gwtXml = new File(sourceLocation + "/" + xmlFile + ".gwt.xml");
 		try {
 			FileUtils.writeStringToFile(gwtXml,
-					"<module rename-to='a'><inherits name='elemental.Elemental'/><entry-point class='" + className
-							+ "'/><source path='" + path + "'/></module>");
+					"<module rename-to='a'><inherits name='elemental.Elemental'/>" + extraGwtLibraries
+							+ "<entry-point class='" + className + "'/><source path='" + path + "'/></module>");
 			String options = "-strict -XnoclassMetadata -XdisableUpdateCheck";
 			if (debug) {
 				options += " -draftCompile -optimize 0 -incremental -style PRETTY";
@@ -167,8 +168,8 @@ public class VertxUI {
 				while (p.isAlive()) {
 					while ((line = bri.readLine()) != null) {
 						info.append(line + "\n");
-						System.out.println(line);
 						if (line.contains("[ERROR]")) {
+							System.out.println(line);
 							error = true;
 						}
 					}
@@ -186,8 +187,8 @@ public class VertxUI {
 			gwtXml.delete();
 		}
 
-		System.out.println("Done compiling in " + (System.currentTimeMillis() - start) + " ms");
-		if (withHtml) {
+		System.out.print("Done compiling in " + (System.currentTimeMillis() - start) + " ms");
+		if (withHtml || !new File("war/index.html").exists()) {
 			String html = "<!DOCTYPE html><html><body><script type='text/javascript' src='a/a.nocache.js?time="
 					+ Math.random() + "'></script></body></html>";
 			Vertx.currentContext().owner().fileSystem().writeFile("war/index.html", Buffer.buffer(html), a -> {

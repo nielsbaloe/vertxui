@@ -1,11 +1,15 @@
 package live.connector.vertxui.client;
 
+import static live.connector.vertxui.client.fluent.Fluent.console;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 
 import elemental.events.EventListener;
-import elemental.js.util.Json;
 import elemental.json.JsonObject;
 import live.connector.vertxui.client.fluent.Fluent;
+import live.connector.vertxui.client.samples.chatEventBus.MyDto;
+import live.connector.vertxui.client.samples.chatEventBus.MyDto.Mapper;
 
 /**
  * A Vert.X sockJs wrapper.
@@ -71,18 +75,20 @@ public class EventBus extends JavaScriptObject {
 																this.onerror = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);
 																}-*/;
 
-	// Extra utils - TODO test!!
-	// if necessary, also check:
-	// https://github.com/hpehl/piriti
-	// https://github.com/heroandtn3/bGwtGson
+	// Extra utils - TODO make class independent and test!!
 
-	public final <T extends JavaScriptObject> void publish(T model, String[] headers) {
-		publish(model.getClass().getName(), Json.stringify(model), headers);
+	public final <T> void publish(String modelClass, T model, String[] headers) {
+		Mapper mapper = GWT.create(Mapper.class);
+		publish(modelClass, mapper.write((MyDto) model), headers);
 	}
 
-	public final <T extends JavaScriptObject> void consumer(Class<T> classs, Handler<T> handler) {
-		registerHandler(classs.getName(), null, (error, message) -> {
-			handler.handle(Json.parse(message.asString()));
+	public final <T> void consumer(Class<T> classs, String modelClass, String[] headers, Handler<T> handler) {
+		Mapper mapper = GWT.create(Mapper.class);
+		registerHandler(modelClass, headers, (error, message) -> {
+			console.log("yess consuming " + message);
+			@SuppressWarnings("unchecked")
+			T result = (T) mapper.read(message.get("body"));
+			handler.handle(result);
 		});
 	}
 

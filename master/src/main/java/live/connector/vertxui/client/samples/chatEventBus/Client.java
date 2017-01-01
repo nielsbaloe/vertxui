@@ -37,11 +37,13 @@ public class Client implements EntryPoint {
 				console.log("server said: " + message.get("body"));
 			});
 
-			eventBus.onclose(e -> {
-				console.log("close");
-			});
-			eventBus.onerror(e -> {
-				console.log(e);
+			// extra: send and receive object with automatic serialisation
+			MyDto send = new MyDto();
+			send.color = "blue";
+			// TODO: hmm, should be with event.send(), not with publish and consumer
+			eventBus.publish(MyDto.classs, send, null);
+			eventBus.consumer(MyDto.class, MyDto.classs, null, received -> {
+				console.log("got object: color=" + received.color);
 			});
 		});
 		input.keydown(evt ->
