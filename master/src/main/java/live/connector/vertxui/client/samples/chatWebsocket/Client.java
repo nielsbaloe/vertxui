@@ -1,8 +1,10 @@
 package live.connector.vertxui.client.samples.chatWebsocket;
 
+import static live.connector.vertxui.client.fluent.Fluent.body;
+import static live.connector.vertxui.client.fluent.Fluent.window;
+
 import com.google.gwt.core.client.EntryPoint;
 
-import elemental.client.Browser;
 import elemental.events.MessageEvent;
 import elemental.events.UIEvent;
 import elemental.html.WebSocket;
@@ -15,13 +17,12 @@ import live.connector.vertxui.client.fluent.Fluent;
 public class Client implements EntryPoint {
 
 	public Client() {
-		String name = Browser.getWindow().prompt("What is your name?", "");
+		String name = window.prompt("What is your name?", "");
 
-		Fluent body = Fluent.getBody();
 		Fluent input = body.input("text", "_");
 		Fluent messages = body.div();
 
-		WebSocket socket = Browser.getWindow().newWebSocket("ws://localhost/chatWebsocket");
+		WebSocket socket = window.newWebSocket("ws://localhost/chatWebsocket");
 		socket.setOnopen(e -> {
 			socket.send(name + ": Ola, I'm " + name + ".");
 		});

@@ -1,126 +1,23 @@
 package live.connector.vertxui.server.samples;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.sockjs.BridgeEventType;
-import io.vertx.ext.web.handler.sockjs.BridgeOptions;
-import io.vertx.ext.web.handler.sockjs.PermittedOptions;
-import io.vertx.ext.web.handler.sockjs.SockJSHandler;
-import live.connector.vertxui.client.samples.figwheely.Client;
-import live.connector.vertxui.server.FigStaticHandler;
-import live.connector.vertxui.server.FigWheely;
 import live.connector.vertxui.server.VertxUI;
 
 /**
  * @author ng
  *
  */
-public class AllExamplesServer extends AbstractVerticle {
+public class AllExamplesServer {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	// public static void main(String[] args) {
-	// Vertx.vertx().deployVerticle(MethodHandles.lookup().lookupClass().getName());
-	// }
-
-	private Class<?> classs;
-
-	public AllExamplesServer(Class<?> classs) {
-		this.classs = classs;
-	}
-
-	@Override
-	public void start() {
-		// Initialize the router and a webserver with HTTP-compression
-		Router router = Router.router(vertx);
-		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
-
-		// Start figwheely and serve the javascript file
-		FigWheely.with(router);
-		router.get(Client.figLocation).handler(a -> {
-			a.response().end(FigWheely.script);
-		});
-
-		// Figwheely example: serve sources folder (if figwheely is off, it's
-		// just a normal statichandler)
-		router.get("/sourcez/*").handler(FigStaticHandler.create("sources", "/sourcez/"));
-
-		// Hello world examples: wait and do some server stuff for AJAX
-		router.post("/server").handler(handle -> {
-			vertx.setTimer(1000, l -> {
-				handle.response().end("Hello, " + handle.request().getHeader("User-Agent"));
-			});
-		});
-
-		// Chat by websocket
-		if (classs == live.connector.vertxui.client.samples.chatWebsocket.Client.class) {
-			List<String> ids = new ArrayList<>();
-			server.websocketHandler(socket -> {
-				if (!socket.path().equals("/chatWebsocket")) {
-					socket.reject();
-					return;
-				}
-				final String id = socket.textHandlerID();
-				ids.add(id); // entering
-				socket.closeHandler(data -> {
-					ids.remove(id); // leaving
-				});
-				socket.handler(buffer -> { // receiving
-					String message = buffer.toString();
-					ids.forEach(i -> vertx.eventBus().send(i, message)); // broadcasting
-					// to reply to one: socket.writeFinalTextFrame(...);
-				});
-			});
-		}
-
-		// Chat by SockJS (find the differences)
-		if (classs == live.connector.vertxui.client.samples.chatSockjs.Client.class) {
-			List<String> ids = new ArrayList<>();
-			router.route("/chatSockjs/*").handler(SockJSHandler.create(vertx).socketHandler(socket -> {
-				final String id = socket.writeHandlerID();
-				ids.add(id); // entering
-				socket.endHandler(data -> {
-					ids.remove(id); // leaving
-				});
-				socket.handler(buffer -> { // receiving
-					ids.forEach(i -> vertx.eventBus().send(i, buffer)); // broadcasting
-					// to reply to one: socket.write()
-				});
-			}));
-		}
-
-		// EventBus example
-		if (classs == live.connector.vertxui.client.samples.chatEventBus.Client.class) {
-			final String freeway = live.connector.vertxui.client.samples.chatEventBus.Client.freeway;
-			PermittedOptions adresser = new PermittedOptions().setAddress(freeway);
-			BridgeOptions firewall = new BridgeOptions().addInboundPermitted(adresser).addOutboundPermitted(adresser);
-			router.route("/chatEventbus/*").handler(SockJSHandler.create(vertx).bridge(firewall, be -> {
-				final String id = be.socket().writeHandlerID();
-				if (be.getRawMessage() == null) { // connected
-				} else if (be.type() == BridgeEventType.REGISTER) { // entering
-				} else if (be.type() == BridgeEventType.SOCKET_CLOSED) { // leaving
-					vertx.eventBus().publish(freeway, "Hey all, leaving id=" + id); // broadcast-example
-				}
-				// broadcasting to everyone is done automaticly by the Bridge!
-				be.complete(true);
-			}));
-			vertx.eventBus().consumer(freeway, message -> { // receiving
-				// TODO mail vertx: no way to detect which user
-				// (EventBusBridgeImpl::checkAndSend())
-				if (message.replyAddress() != null) {
-					message.reply("I received so I reply to " + message.replyAddress());
-				}
-			});
-		}
+	public static void startWarAndServer(Class<?> classs, Router router, HttpServer server) {
 
 		// All examples: the main compiled js and html at /war with a fancy 404.
 		router.get("/*").handler(VertxUI.with(classs)).failureHandler(fail -> {

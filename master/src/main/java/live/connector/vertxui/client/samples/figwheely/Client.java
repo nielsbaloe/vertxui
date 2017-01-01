@@ -1,5 +1,8 @@
 package live.connector.vertxui.client.samples.figwheely;
 
+import static live.connector.vertxui.client.fluent.Fluent.body;
+import static live.connector.vertxui.client.fluent.Fluent.head;
+
 import com.google.gwt.core.client.EntryPoint;
 
 import live.connector.vertxui.client.fluent.Fluent;
@@ -16,10 +19,8 @@ public class Client implements EntryPoint {
 	public static String figLocation = "/figwheely.js";
 
 	public Client() {
-		Fluent.style("/sourcez/sample.css?" + System.currentTimeMillis());
-		Fluent.script(figLocation);
+		head.style("/sourcez/sample.css?" + System.currentTimeMillis()).script(figLocation);
 
-		Fluent body = Fluent.getBody();
 		body.div().id("picture");
 		Fluent button = body.button("Look at the Client and css, and change something WITHOUT reloading the browser!");
 		button.click(e -> {

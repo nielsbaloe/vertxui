@@ -17,8 +17,10 @@ import elemental.dom.Node;
 import elemental.dom.NodeList;
 import elemental.events.Event;
 import elemental.events.EventListener;
+import elemental.html.Console;
+import elemental.html.Window;
 import elemental.js.dom.JsDocument;
-import live.connector.vertxui.client.console;
+import elemental.js.html.JsWindow;
 
 /**
  * Fluent HTML. Use getDocument() getBody() and getHead() to start building your
@@ -32,12 +34,17 @@ import live.connector.vertxui.client.console;
  */
 public class Fluent {
 
-	protected final static Document document = getDocument();// Browser.getDocument();
+	public final static Document document = getDocument();// Browser.getDocument();
+	public final static Window window = getWindow(); // Browser.getWindow();
+	public final static Console console = window.getConsole();
+	public final static Fluent body = new Fluent(document.getBody());
+	public final static Fluent head = new Fluent(document.getHead());
 
-	public static native JsDocument getDocument() /*-{
-													// var child = window.parent.document.getElementById("a");
-													//	child.parentNode.removeChild(child);
-													 // return $doc;
+	private static native JsWindow getWindow() /*-{
+												return window;
+												}-*/;
+
+	private static native JsDocument getDocument() /*-{
 													return window.parent.document;
 														}-*/;
 
@@ -80,22 +87,6 @@ public class Fluent {
 	 */
 	protected Fluent(Element parent) {
 		element = parent;
-	}
-
-	/**
-	 * Do not create but GET the body.
-	 * 
-	 */
-	public static Fluent getBody() {
-		return new Fluent(document.getBody());
-	}
-
-	/**
-	 * Do not create but GET the head.
-	 * 
-	 */
-	public static Fluent getHead() {
-		return new Fluent(document.getHead());
 	}
 
 	/**
@@ -180,7 +171,7 @@ public class Fluent {
 	}
 
 	public Fluent load(EventListener listener) {
-		return listen("load", listener); // TODO mail GWT missing event
+		return listen("load", listener);
 	}
 
 	public Fluent focus(EventListener listener) {
@@ -216,11 +207,11 @@ public class Fluent {
 	}
 
 	public Fluent mouseenter(EventListener listener) {
-		return listen("mouseenter", listener); // TODO mail GWT missing event
+		return listen("mouseenter", listener);
 	}
 
 	public Fluent mouseleave(EventListener listener) {
-		return listen("mouseleave", listener); // TODO mail GWT missing Event
+		return listen("mouseleave", listener);
 	}
 
 	public Fluent mousemove(EventListener listener) {
@@ -828,8 +819,8 @@ public class Fluent {
 		return new Fluent("form", this);
 	}
 
-	public Fluent h1(String text) {
-		return new Fluent("h1", this).inner(text);
+	public static Fluent h1(String text) {
+		return new Fluent("h1", null).inner(text);
 	}
 
 	public Fluent h2(String text) {
@@ -989,7 +980,7 @@ public class Fluent {
 													eval(code);
 													}-*/;
 
-	public static void scriptSyncEval(String... jss) {
+	public Fluent scriptSync(String... jss) {
 		for (String js : jss) {
 			XMLHttpRequestSyc xhr = (XMLHttpRequestSyc) XMLHttpRequestSyc.create();
 			xhr.setOnReadyStateChange(a -> {
@@ -1000,6 +991,7 @@ public class Fluent {
 			xhr.open("GET", js, false);
 			xhr.send();
 		}
+		return this;
 	}
 
 	/**
@@ -1009,9 +1001,9 @@ public class Fluent {
 	 * @param jss
 	 * @return
 	 */
-	public static void script(String... jss) {
+	public Fluent script(String... jss) {
 		for (String js : jss) {
-			new Fluent("script", getHead()).attr(Att.type, "text/javascript").attr(Att.src, js);
+			new Fluent("script", this).attr(Att.type, "text/javascript").attr(Att.src, js);
 
 			// This works too, is async
 			// XMLHttpRequestSyc xhr = (XMLHttpRequestSyc)
@@ -1030,12 +1022,14 @@ public class Fluent {
 			// xhr.open("GET", js, false);
 			// xhr.send();
 		}
+		return this;
 	}
 
-	public static void style(String... csss) {
+	public Fluent style(String... csss) {
 		for (String css : csss) {
-			new Fluent("link", getHead()).attr(Att.rel, "stylesheet").attr(Att.href, css);
+			new Fluent("link", this).attr(Att.rel, "stylesheet").attr(Att.href, css);
 		}
+		return this;
 	}
 
 	public Fluent section() {
@@ -1116,10 +1110,6 @@ public class Fluent {
 
 	public Fluent time() {
 		return new Fluent("time", this);
-	}
-
-	public Fluent title() {
-		return new Fluent("title", this);
 	}
 
 	public Fluent title(String text) {

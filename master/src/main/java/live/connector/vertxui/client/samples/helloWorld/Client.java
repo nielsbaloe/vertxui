@@ -1,16 +1,16 @@
 package live.connector.vertxui.client.samples.helloWorld;
 
+import static live.connector.vertxui.client.fluent.Fluent.console;
+import static live.connector.vertxui.client.fluent.Fluent.document;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.xhr.client.XMLHttpRequest;
 
-import elemental.dom.Document;
 import elemental.dom.Element;
-import live.connector.vertxui.client.console;
-import live.connector.vertxui.client.fluent.Fluent;
 
 public class Client implements EntryPoint {
 
-	private Document document = Fluent.getDocument();
+	public final static String url = "/ajax";
 
 	private Element button;
 	private Element response;
@@ -44,7 +44,7 @@ public class Client implements EntryPoint {
 				responsed(xhr.getResponseText());
 			}
 		});
-		xhr.open("POST", "/server");
+		xhr.open("POST", url);
 		xhr.send();
 	}
 

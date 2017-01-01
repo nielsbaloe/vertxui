@@ -1,20 +1,23 @@
 package live.connector.vertxui.client.samples.helloWorldFluentHtml;
 
+import static live.connector.vertxui.client.fluent.Fluent.body;
+import static live.connector.vertxui.client.fluent.Fluent.console;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.xhr.client.XMLHttpRequest;
 
-import live.connector.vertxui.client.console;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Style;
 
 public class Client implements EntryPoint {
+
+	public final static String url = "/ajax";
 
 	private Fluent button;
 	private Fluent response;
 	private Fluent thinking;
 
 	public Client() {
-		Fluent body = Fluent.getBody();
 		button = body.div().button("Click me!").id("hello-button").click(evt -> clicked());
 		response = body.div();
 		thinking = body.div().inner("The server waits as demonstration!").id("thinking-panel").css(Style.display,
@@ -31,7 +34,7 @@ public class Client implements EntryPoint {
 				responsed(xhr.getResponseText());
 			}
 		});
-		xhr.open("POST", "/server");
+		xhr.open("POST", url);
 		xhr.send();
 	}
 

@@ -2,13 +2,13 @@ package live.connector.vertxui.client;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
-import elemental.events.Event;
 import elemental.events.EventListener;
+import elemental.js.util.Json;
 import elemental.json.JsonObject;
 import live.connector.vertxui.client.fluent.Fluent;
 
 /**
- * A Vert.X sockJs wrapper for in javascript.
+ * A Vert.X sockJs wrapper.
  * 
  * @author Niels Gorisse
  *
@@ -20,25 +20,29 @@ public class EventBus extends JavaScriptObject {
 
 	static {
 		SockJS.ensureStaticLoading();
-		Fluent.scriptSyncEval("https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
-		// TODO mail vertx why not a CDN version?
+		Fluent.head.scriptSync("https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
+
 	}
 
 	public final native static EventBus create(String address, String[] options) /*-{
 																					return new EventBus(address, options);
 																					}-*/;
 
-	// TODO callbacks for onopen and send, and uncommented methods
 	public final native void onopen(EventListener listener)/*-{
-															this.onopen = @live.connector.vertxui.client.EventBus::getHandlerFor(Lelemental/events/EventListener;)(listener);
+															this.onopen = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);		
 															}-*/;
 
-	public final native void send(String address, String message, String[] headers, EventListener callback)/*-{
-																											this.send(address,message,headers, @live.connector.vertxui.client.EventBus::getHandlerFor(Lelemental/events/EventListener;)(callback) );
-																											}-*/;
+	public final native void send(String address, String message, String[] headers, EventBusReplyReceive receiver)/*-{
+																													this.send(address,message,headers, 
+																														function(a,b) 
+																													{ @live.connector.vertxui.client.EventBus::doit(Llive/connector/vertxui/client/EventBusReplyReceive;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
+																													(receiver,a,b); }
+																													);
+																													}-*/;
 
 	public final native void registerHandler(String address, String[] headers, EventBusReplyReceive receiver)/*-{
-																												this.registerHandler(address,headers, function(a,b) 
+																												this.registerHandler(address,headers, 
+																													function(a,b) 
 																												{ @live.connector.vertxui.client.EventBus::doit(Llive/connector/vertxui/client/EventBusReplyReceive;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
 																												(receiver,a,b); }
 																												   );
@@ -59,64 +63,31 @@ public class EventBus extends JavaScriptObject {
 																						this.publish(address,message,headers);
 																						}-*/;
 
-	// public final native void onClose(Runnable object);
-	//
-	// public final native void onError(Handler<String> callback);
-	//
-	// /**
-	// * Push a DTO to the server, where we registered this class to be received
-	// * at the right place.
-	// */
-	// public <T> void publish(T model) {
-	// publish(model.getClass().getName(), model);
-	// }
-	//
-	// public <T> void publish(String address, T model, String[] headers) {
-	// publish(address, Json.stringify(model), headers);
-	// }
-	//
-	// /**
-	// * Consume a DTO from the server, where we registered this class to be
-	// sent
-	// * to here.
-	// *
-	// * @param classs
-	// * the class of the dto that needs to be sended.
-	// * @param handler
-	// * a method that handles the dto
-	// */
-	// public <T> void register(Class<T> classs, Handler<T> handler) {
-	// register(classs.getName(), null, handler);
-	// }
-	//
-	// public <T> void register(String address, Class<T> classs, Handler<T>
-	// handler) {
-	// // registerHandler(address, null, string -> {
-	// // handler.handle(SONRunner.deserialize(string, classs));
-	// // });
-	// }
+	public final native void onclose(EventListener listener) /*-{
+																this.onclose = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);
+																}-*/;
 
-	// lambda stuff copied from JsElementalMixinBase
+	public final native void onerror(EventListener listener) /*-{
+																this.onerror = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);
+																}-*/;
 
-	private native static JavaScriptObject ccreateHandler(EventListener listener) /*-{
-																					var handler = listener.handler;
-																					if (!handler) {
-																					handler = $entry(function(event) {
-																					@live.connector.vertxui.client.EventBus::handleEvent(Lelemental/events/EventListener;Lelemental/events/Event;)(listener, event);
-																					});
-																					handler.listener = listener;
-																					// TODO(knorton): Remove at Christmas when removeEventListener is removed.
-																					listener.handler = handler;
-																					}
-																					return handler;
-																					}-*/;
+	// Extra utils - TODO test!!
+	// if necessary, also check:
+	// https://github.com/hpehl/piriti
+	// https://github.com/heroandtn3/bGwtGson
 
-	private static void handleEvent(EventListener listener, Event event) {
-		listener.handleEvent(event);
+	public final <T extends JavaScriptObject> void publish(T model, String[] headers) {
+		publish(model.getClass().getName(), Json.stringify(model), headers);
 	}
 
-	private static JavaScriptObject getHandlerFor(EventListener listener) {
-		return listener == null ? null : ccreateHandler(listener);
+	public final <T extends JavaScriptObject> void consumer(Class<T> classs, Handler<T> handler) {
+		registerHandler(classs.getName(), null, (error, message) -> {
+			handler.handle(Json.parse(message.asString()));
+		});
+	}
+
+	public static interface Handler<T> {
+		void handle(T object);
 	}
 
 }

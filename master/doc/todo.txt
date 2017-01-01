@@ -1,7 +1,20 @@
 Development:
-- finish EventBus
-- finish virtual DOM / mvc https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
-- create http://todomvc.com/  https://github.com/tastejs/todomvc/tree/gh-pages/examples/gwt/src/com/todo/client
-- split in vertxui-server vertxui-fluid and vertxui-examples
+- finish mvcBootstrap/ virtualDOM   https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
+- test and examplify Eventbus object-json-object methods
+- create http://todomvc.com
+- split in vertxui-server vertxui-client and vertxui-examples
 - announce at vertx-awesome github list and GWT list and elsewhere
 
+
+- mail vertx:
+	- only one websocket possible?
+	- no way to detect which user has sended: EventBusBridgeImpl::checkAndSend())
+	- a send goes to the last one that joined (either server or chatter)
+	- why not a CDN version?
+		https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js
+			https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js
+	- updated to sockjs 1.1.1?
+
+- mail GWT:
+ 	- elemental.events.Event is missing constants for LOAD, MOUSEENTER, MOUSELEAVE
+ 	

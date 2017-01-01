@@ -1,7 +1,7 @@
 vertx-ui
 ===
 
-A [Vert.X](http://vertx.io/) pure-Java UI toolkit containing a Fluent HTML (with virtualDOM behind the scenes)), an Eventbus at server and clientside, and automatic browser reloading.
+A [Vert.X](http://vertx.io/) pure-Java toolkit containing a Fluent HTML (with virtualDOM behind the scenes)), an Eventbus at server and clientside, and automatic browser reloading.
 
 Vertx-ui offers:
 * an EventBus at server and clients in the same language.
@@ -22,16 +22,15 @@ Pure-Java clientside (using GWT-elemental) means:
 Vert.X adds:
 * probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
 * no need for anything else: no Apache and Tomcat.
-* the serverside EventBus, and a wonderful speedy asynch environment
+* the serverside EventBus, and a wonderful speedy async ecosystem.
 
-Examples are included for: hello world, hello world in fluent html, automatic browser reloading (Figwheely), chats with websockets SockJS and the EventBus, TodoMVC, and more.
+Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), webchats with: websockets SockJS plus EventBus, TodoMVC, Bootstrap, and more.
 
 ### Serverside
 
 The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary (single-lined) wrapping HTML, ready to be shown in the browser. So, not only forget about javascript, but forget about editing html files too. Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples).
 
 	router.route("/client").handler(new VertxUI(Client.class, true));
-
 
 ### Automatic browser reloading
 
@@ -58,7 +57,7 @@ The clientside looks like plain javascript but then with Java (8's lambda) callb
 		...
 	}
 
-### Clientside fluent HTML
+### Clientside Fluent HTML
 
 You can also use fluent HTML, which is a lot shorter and more readable. Don't worry about speed, fluent HTML uses a virtual DOM behind the scenes.
 
@@ -107,8 +106,6 @@ The model+view (browser):
 	private Div response;
 	
 	public View() {
-		
-		Body body = FluentHtml.getBody();
 		response = body.div();
 		Input input = body.div().input("text", "aName");
 		
@@ -116,9 +113,9 @@ The model+view (browser):
 		EventBus eventBus = new EventBus("localhost/eventBus");
 		input.keyUp(changed -> {
 			model.name = input.getValue();
-			eventBus.publish(model);
+			eventBus.publish(model, null);
 		});
-		eventBus.consume(Model.class, a -> {
+		eventBus.consumer(Model.class, a -> {
 			response.inner("Server says: " + a);
 		});
 	}

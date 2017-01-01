@@ -9,12 +9,12 @@ public class SockJS extends JsWebSocket {
 	}
 
 	static {
-		Fluent.scriptSyncEval("https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js");
+		Fluent.head.scriptSync("https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js");
 	}
 
 	protected static void ensureStaticLoading() {
 	}
-	
+
 	public final native static SockJS create(String url) /*-{ return new SockJS(url); }-*/;
 
 }
