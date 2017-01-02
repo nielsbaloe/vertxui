@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -15,6 +16,7 @@ import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.Json;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 
@@ -37,16 +39,6 @@ public class VertxUI {
 	private boolean debug;
 
 	/**
-	 * Create a VertxUI with html-file false and debug false (for production).
-	 * 
-	 * @param classs
-	 * @throws IOException
-	 */
-	public VertxUI(Class<?> classs) {
-		this(classs, false, false);
-	}
-
-	/**
 	 * Convert the class to html/javascript at runtime. With debugging, you can
 	 * make changes in your IDE, save, and refresh your browser which will take
 	 * the latest .class files that your IDE has just compiled.
@@ -67,7 +59,7 @@ public class VertxUI {
 	 * @throws IOException
 	 * 
 	 */
-	public VertxUI(Class<?> classs, boolean withHtml, boolean debug) {
+	public VertxUI(Class<?> classs, boolean withHtml, boolean debug, String url) {
 		this.classs = classs;
 		this.withHtml = withHtml;
 		this.debug = debug;
@@ -92,7 +84,8 @@ public class VertxUI {
 			if (!file.exists()) {
 				throw new IllegalArgumentException("please set FigWheely.buildDir, failed to load " + classFile);
 			}
-			FigWheely.addVertX(file, this);
+			// TODO: GWT: find out where the real .js is and reload that one
+			FigWheely.addVertX(file, url + "a/a.nocache.js", this);
 		}
 
 		if (this.withHtml) {
@@ -124,8 +117,8 @@ public class VertxUI {
 		});
 	}
 
-	public static Handler<RoutingContext> with(Class<?> classs) {
-		new VertxUI(classs);
+	public static Handler<RoutingContext> with(Class<?> classs, boolean withHtml, boolean debug, String url) {
+		new VertxUI(classs, withHtml, debug, url);
 		return StaticHandler.create("war").setCachingEnabled(false);
 	}
 
@@ -153,7 +146,7 @@ public class VertxUI {
 							+ "<entry-point class='" + className + "'/><source path='" + path + "'/></module>");
 			String options = "-strict -XnoclassMetadata -XdisableUpdateCheck";
 			if (debug) {
-				options += " -draftCompile -optimize 0 -incremental -style PRETTY";
+				options += " -draftCompile -optimize 0 -incremental";
 			} else {
 				options += " -nodraftCompile -optimize 9 -noincremental";
 			}
@@ -187,7 +180,7 @@ public class VertxUI {
 			gwtXml.delete();
 		}
 
-		System.out.print("Done compiling in " + (System.currentTimeMillis() - start) + " ms");
+		System.out.println("Compiling done in " + (System.currentTimeMillis() - start) + " ms.");
 		if (withHtml || !new File("war/index.html").exists()) {
 			String html = "<!DOCTYPE html><html><body><script type='text/javascript' src='a/a.nocache.js?time="
 					+ Math.random() + "'></script></body></html>";
@@ -227,4 +220,11 @@ public class VertxUI {
 		// System.exit(0);
 	}
 
+	public static <A, B> void bind(String service, Class<A> inputType, Function<A, B> handler) {
+		Vertx.currentContext().owner().eventBus().consumer(service, in -> {
+			A input = (A) Json.decodeValue((String) in.body(), inputType);
+			B output = handler.apply(input);
+			in.reply(Json.encode(output));
+		});
+	}
 }

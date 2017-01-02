@@ -25,10 +25,7 @@ public class ExampleFigWheely extends AbstractVerticle {
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
 		// Start figwheely and serve the javascript file
-		FigWheely.with(router);
-		router.get(Client.figLocation).handler(a -> {
-			a.response().end(FigWheely.script);
-		});
+		router.get(Client.figLocation).handler(FigWheely.create());
 
 		// Figwheely example: serve sources folder (if figwheely is off, it's
 		// just a normal statichandler)

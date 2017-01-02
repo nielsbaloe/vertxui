@@ -75,14 +75,23 @@ public class EventBus extends JavaScriptObject {
 																this.onerror = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);
 																}-*/;
 
-	// Extra utils - TODO make class independent and test!!
+	public final <T, R> void send(String address, T model, String[] headers, Handler<R> replyHandler) {
+		Mapper mapper = GWT.create(Mapper.class);
+		// TODO: mapper is linked to MyDto...
+		String message = mapper.write((MyDto) model);
+		send(address, message, headers, (e, m) -> {
+			@SuppressWarnings("unchecked")
+			R result = (R) mapper.read(m.get("body"));
+			replyHandler.handle(result);
+		});
+	}
 
 	public final <T> void publish(String modelClass, T model, String[] headers) {
 		Mapper mapper = GWT.create(Mapper.class);
 		publish(modelClass, mapper.write((MyDto) model), headers);
 	}
 
-	public final <T> void consumer(Class<T> classs, String modelClass, String[] headers, Handler<T> handler) {
+	public final <T> void consumer(String modelClass, String[] headers, Handler<T> handler) {
 		Mapper mapper = GWT.create(Mapper.class);
 		registerHandler(modelClass, headers, (error, message) -> {
 			console.log("yess consuming " + message);

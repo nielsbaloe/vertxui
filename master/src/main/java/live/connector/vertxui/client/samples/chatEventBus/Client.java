@@ -8,6 +8,7 @@ import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.UIEvent;
 import live.connector.vertxui.client.EventBus;
+import live.connector.vertxui.client.EventBus.Handler;
 import live.connector.vertxui.client.fluent.Fluent;
 
 /**
@@ -17,7 +18,11 @@ import live.connector.vertxui.client.fluent.Fluent;
 
 public class Client implements EntryPoint {
 
+	// EventBus-address of text messages to everyone
 	public static final String freeway = "twoWayAddressOpenedAtServerBridge";
+
+	// EventBus-address of myDto objects
+	public static final String serviceAddressMyDto = "serviceForMyDto";
 
 	public Client() {
 		String name = window.prompt("What is your name?", "");
@@ -32,23 +37,23 @@ public class Client implements EntryPoint {
 				messages.li(in.get("body").asString());
 			});
 
-			// extra: send example
+			// extra example: send example
 			eventBus.send(freeway, name + ": I want a reply", null, (error, message) -> {
 				console.log("server said: " + message.get("body"));
 			});
 
-			// extra: send and receive object with automatic serialisation
-			MyDto send = new MyDto();
-			send.color = "blue";
-			// TODO: hmm, should be with event.send(), not with publish and consumer
-			eventBus.publish(MyDto.classs, send, null);
-			eventBus.consumer(MyDto.class, MyDto.classs, null, received -> {
-				console.log("got object: color=" + received.color);
+			// extra example: send&receive object with automatic serialisation
+			// Note: as an example we send and receive the same class, but you
+			// can send and receive whatever you like.
+			eventBus.send(serviceAddressMyDto, new MyDto("blue"), null, new Handler<MyDto>() {
+				@Override
+				public void handle(MyDto object) {
+					console.log("Server said: " + object.color);
+				}
 			});
 		});
-		input.keydown(evt ->
 
-		{
+		input.keydown(evt -> {
 			if (((UIEvent) evt).getKeyCode() == 13) {
 				eventBus.publish(freeway, name + ": " + input.value(), null);
 				input.value(""); // clear the inputfield

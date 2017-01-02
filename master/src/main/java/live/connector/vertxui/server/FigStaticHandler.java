@@ -6,6 +6,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.StaticHandler;
 
 /**
  * A thin wrapper around StaticHandler that will reload files (like css and jpg)
@@ -21,7 +22,7 @@ public class FigStaticHandler {
 		if (FigWheely.started) {
 			registerFolder(Vertx.factory.context().owner().fileSystem(), root, url);
 		}
-		return io.vertx.ext.web.handler.StaticHandler.create(root);
+		return StaticHandler.create(root);
 	}
 
 	private static void registerFolder(FileSystem fileSystem, String root, String url) {

@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
-import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 
 public class FigWheely extends AbstractVerticle {
 
@@ -26,7 +26,6 @@ public class FigWheely extends AbstractVerticle {
 
 	protected static boolean started = false;
 
-	private static Router router;
 	private static final String browserIds = "figwheelyEventBus";
 	private static List<Watchable> watchables = new ArrayList<>();
 
@@ -35,7 +34,6 @@ public class FigWheely extends AbstractVerticle {
 		File file;
 		String url;
 		VertxUI handler;
-		int urlNumber;
 
 		@Override
 		public String toString() {
@@ -43,41 +41,18 @@ public class FigWheely extends AbstractVerticle {
 		}
 	}
 
-	protected static void addFile(File file, String url) {
-		// log.info("add file " + file + " url="+url);
+	protected static Watchable addFile(File file, String url) {
+		// log.info("Adding: file=" + file + " url=" + url);
 		Watchable watchable = new Watchable();
 		watchable.file = file;
 		watchable.lastModified = file.lastModified();
 		watchable.url = url;
 		watchables.add(watchable);
+		return watchable;
 	}
 
-	public static boolean addVertX(File file, VertxUI handler) {
-		// log.info("add vertx " + file);
-		Watchable watchable = new Watchable();
-		watchable.file = file;
-		watchable.lastModified = file.lastModified();
-		watchable.handler = handler;
-		watchable.urlNumber = router.getRoutes().size();
-		watchables.add(watchable);
-		return true;
-	}
-
-	/**
-	 * Server bootstrap.
-	 * 
-	 * @param router
-	 *            the router which will be watched
-	 */
-	public static void with(Router router) {
-		if (started) {
-			throw new IllegalArgumentException("Can only start once");
-		}
-		started = true;
-		FigWheely.router = router;
-
-		Vertx.currentContext().owner().deployVerticle(MethodHandles.lookup().lookupClass().getName(),
-				new DeploymentOptions().setWorker(true));
+	protected static void addVertX(File file, String url, VertxUI handler) {
+		addFile(file, url).handler = handler;
 	}
 
 	@Override
@@ -110,21 +85,16 @@ public class FigWheely extends AbstractVerticle {
 				}
 				for (Watchable watchable : watchables) {
 					if (watchable.file.lastModified() != watchable.lastModified) {
-						// log.info("Changed: " + watchable.url);
+						log.info("Changed: " + watchable.url);
 						watchable.lastModified = watchable.file.lastModified();
 						try {
-							String url = null;
 							if (watchable.handler != null) {
 								watchable.handler.sychronousReTranslate();
-								url = router.getRoutes().get(watchable.urlNumber).getPath();
-								url += "a/a.nocache.js"; // GWT
-							} else {
-								url = watchable.url;
 							}
 							// log.info("url=" + url);
 							for (Object obj : vertx.sharedData().getLocalMap(browserIds).keySet()) {
 								log.info("reload: " + url);
-								vertx.eventBus().send((String) obj, "reload: " + url);
+								vertx.eventBus().send((String) obj, "reload: " + watchable.url);
 							}
 						} catch (IOException | InterruptedException e) {
 							for (Object obj : vertx.sharedData().getLocalMap(browserIds).keySet()) {
@@ -139,9 +109,9 @@ public class FigWheely extends AbstractVerticle {
 	}
 
 	public static final String script = "new WebSocket('ws://localhost:" + port + "/" + url
-			+ "').onmessage = function(m) {console.log(m.data);removejscssfile(m.data.substr(8));};                                          "
-			+ "console.log('FigWheely started');                                                                                 "
-			+ "function removejscssfile(filename){                 "
+			+ "').onmessage = function(m) {console.log(m.data);removejscssfile(m.data.substr(8));};                                         \n "
+			+ "console.log('FigWheely started');                                                                                \n "
+			+ "function removejscssfile(filename){                 \n"
 			+ "if (filename.endsWith('js')) filetype='js'; else filetype='css';         "
 			+ "var el = (filetype=='js')? 'script':'link';                                              "
 			+ "var attr = (filetype=='js')? 'src':'href';                                  \n"
@@ -157,5 +127,16 @@ public class FigWheely extends AbstractVerticle {
 			+ "      	  script.rel='stylesheet'; script.href=filename+'?'+(new Date().getTime());"
 			+ "       }                                                                     "
 			+ "       parent.appendChild(script);   	                 \n" + "  }  } };                           ";
+
+	public static Handler<RoutingContext> create() {
+		if (started) {
+			throw new IllegalArgumentException("Can only start once");
+		}
+		started = true;
+		Vertx.currentContext().owner().deployVerticle(FigWheely.class.getName());
+		return a -> {
+			a.response().end(FigWheely.script);
+		};
+	}
 
 }

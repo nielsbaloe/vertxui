@@ -1,18 +1,11 @@
 Development:
-- finish mvcBootstrap/ virtualDOM   https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
-- test and examplify Eventbus object-json-object: not publish/consumer but send->reply, and class-independant
+- continue mvcBootstrap/ virtualDOM   https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
+	http://www.w3schools.com/bootstrap/bootstrap_grid_basic.asp
+	Design: totals for all individuals, input fields (date, person, amount, notes), then a list of all entries.
+- fix Eventbus: Mapper is class-dependent now
+- fix FigWheely: name of compiled .js changes
 - create http://todomvc.com
 - split in vertxui-server vertxui-client and vertxui-examples
 - announce at vertx-awesome github list and GWT list and elsewhere
-
-
-- mail vertx:
-	- only one websocket possible?
-	- no way to detect which user has sended: EventBusBridgeImpl::checkAndSend())
-	- a send goes to the last one that joined (either server or chatter)
-	- why not a CDN version?
-		https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js
-			https://cdn.jsdelivr.net/sockjs/1.1.1/sockjs.min.js
-	- updated to sockjs 1.1.1?
 
 

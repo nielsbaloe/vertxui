@@ -38,11 +38,11 @@ Server-time translation does not mean you can not debug your code. To debug, jus
 
 If you want to speed up your development and not loose the browserstate by pressing reload, use FigWheely which automaticly ensures browsers reload changed javascript or any other file (.css .jpg etc). You will never want to write .css or behavior javascript without FigWheely:
 
-	FigWheely.with(router);
+		router.get("/figWheely.js").handler(FigWheely.create());
   
 ### Clientside pure DOM
 
-The clientside looks like plain javascript but then with Java (8's lambda) callbacks. This is pure GWT elemental:
+The clientside looks like plain javascript but then with Java (8's lambda) callbacks. This is pure GWT elemental (previously TeaVM):
 
 		button = document.createElement("button");
 		button.setAttribute("id", "hello-button");
@@ -70,13 +70,12 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 		...
 	}
 
-Work in progress!!: You can create FluentHTML objects yourself, which are state-aware. Fluent Html only updates the components that were changed:
+You can create state-aware FluentHTML objects. Fluent Html only updates the components that were changed: Work in progress!!
 
 		response.add(model, m -> {
 				 return Fluent.Li(m.name);
 			}
 		});
-
     ....
     
 		input.keyup(event -> {
@@ -84,20 +83,18 @@ Work in progress!!: You can create FluentHTML objects yourself, which are state-
 			 response.sync(); // re-render
 		});
 
-GWT has Java 8 lambda's and streams, ideal to write your user interface:
+Use Java 8 lambda's and streams to write your user interface:
 
 	Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li(t)).forEach(ul::append);
 
 ### EventBus at server and client in pure java gives beautiful MVC 
 
-The eventbus is available in Java at both sides. This is just like in GWT, but then stretched out to _all_ browsers (a la socket.io). Just register the same DTO at clientside and serverside to be received or send. This is easier then also facilitating which service the DTO should go to, the server can work it out.
-
-Work in progress!! This project is just weeks old - so hang on - this will work 100% very soon, but not yet. Please check again later.
+The eventbus is available in Java at both sides. This is just like in GWT, but then stretched out to _all_ browsers (a la socket.io) thanks to VertX. Just register the same DTO at clientside and serverside to be received or send. This is easier then also facilitating which service the DTO should go to, the server can work it out.
 
 The model+view (browser):
 
 	class Model {
-		public String betterTitle;
+		public String name;
 	}
 
 	class View {
@@ -111,32 +108,27 @@ The model+view (browser):
 		
 		// Controller
 		EventBus eventBus = new EventBus("localhost/eventBus");
+		
 		input.keyUp(changed -> {
-			model.name = input.getValue();
-			eventBus.publish(model, null);
+			model.name = input.value();
+			eventBus.send("serviceAddress", model, null, new Handler<Output>() {
+				@Override
+				public void handle(Output o) {
+					console.log("Server said: " + o.betterName);
+				}
+			});
 		});
-		eventBus.consumer(Model.class, a -> {
-			response.inner("Server says: " + a);
-		});
+
 	}
 
-The controller (server) fragments look like this. In the start() of your vert.x you can bind specific DTO-classes to specific service-functions
+The controller (serverside) can be for example:
 
-	// receive a message
-	vertx.eventBus().consumer(Model.class.getName(), message-> {
-		Model modelSend = Json.decodeValue((String)message.body(), Model.class);
-			
-		// reply to one message
-		message.reply(Json.encode(model);
-			
-		};
-	
-	// publish to all users
-	vertx.eventBus().publish(Model.class.getName(), new Model() );
+		VertxUI.bind("serviceAddress", Model.class, this::serviceDoSomething);
+		...
+		public Output serviceDoSomething(Model received) {
+			...
+			}
 		
-	// example registration of a DTO in the start() of your verticle: if an Order.class is received,
-	// call method MongoHandler::saveOrder(Order).
-	vertx.eventBus().consumer(Order.class,mongoHandler::saveOrder);
-
+		
 
 Niels Gorisse
