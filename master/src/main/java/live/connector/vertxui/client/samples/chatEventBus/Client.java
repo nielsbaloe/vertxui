@@ -4,11 +4,12 @@ import static live.connector.vertxui.client.fluent.Fluent.body;
 import static live.connector.vertxui.client.fluent.Fluent.console;
 import static live.connector.vertxui.client.fluent.Fluent.window;
 
+import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 
 import elemental.events.UIEvent;
 import live.connector.vertxui.client.EventBus;
-import live.connector.vertxui.client.EventBus.Handler;
 import live.connector.vertxui.client.fluent.Fluent;
 
 /**
@@ -22,7 +23,11 @@ public class Client implements EntryPoint {
 	public static final String freeway = "twoWayAddressOpenedAtServerBridge";
 
 	// EventBus-address of myDto objects
-	public static final String serviceAddressMyDto = "serviceForMyDto";
+	public static final String serviceAddress = "serviceForMyDto";
+
+	// EventBus mapper for the myDto object, for json-object-json conversion
+	public interface MyDtoMapper extends ObjectMapper<MyDto> {
+	}
 
 	public Client() {
 		String name = window.prompt("What is your name?", "");
@@ -45,12 +50,10 @@ public class Client implements EntryPoint {
 			// extra example: send&receive object with automatic serialisation
 			// Note: as an example we send and receive the same class, but you
 			// can send and receive whatever you like.
-			eventBus.send(serviceAddressMyDto, new MyDto("blue"), null, new Handler<MyDto>() {
-				@Override
-				public void handle(MyDto object) {
-					console.log("Server said: " + object.color);
-				}
-			});
+			eventBus.send(serviceAddress, new MyDto("blue"), null, GWT.create(MyDtoMapper.class),
+					GWT.create(MyDtoMapper.class), (MyDto object) -> {
+						console.log("Server said: " + object.color);
+					});
 		});
 
 		input.keydown(evt -> {
@@ -63,7 +66,6 @@ public class Client implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
-
 	}
 
 }

@@ -32,7 +32,7 @@ public class ExampleChatEventbus extends AbstractVerticle {
 
 		// chat with EventBus
 		PermittedOptions freewayOK = new PermittedOptions().setAddress(Client.freeway);
-		PermittedOptions myDtoOK = new PermittedOptions().setAddress(Client.serviceAddressMyDto);
+		PermittedOptions myDtoOK = new PermittedOptions().setAddress(Client.serviceAddress);
 		BridgeOptions firewall = new BridgeOptions().addInboundPermitted(freewayOK).addOutboundPermitted(freewayOK)
 				.addInboundPermitted(myDtoOK).addOutboundPermitted(myDtoOK);
 		router.route("/chatEventbus/*").handler(SockJSHandler.create(vertx).bridge(firewall, be -> {
@@ -48,7 +48,7 @@ public class ExampleChatEventbus extends AbstractVerticle {
 		});
 
 		// extra example: receiving and replying objects
-		VertxUI.bind(Client.serviceAddressMyDto, MyDto.class, this::serviceDoSomething);
+		VertxUI.bind(Client.serviceAddress, MyDto.class, this::serviceDoSomething);
 
 		AllExamplesServer.startWarAndServer(Client.class, router, server);
 	}

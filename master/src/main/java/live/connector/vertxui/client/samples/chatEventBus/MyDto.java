@@ -1,21 +1,26 @@
 package live.connector.vertxui.client.samples.chatEventBus;
 
-import com.github.nmorel.gwtjackson.client.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MyDto {
 
-	// put this mapper here for client-side Json translation...
-	public static interface Mapper extends ObjectMapper<MyDto> {
-	}
-
 	public String color;
 
-	public MyDto() {
+	public Car car = Car.Volvo;
+
+	public List<String> options = new ArrayList<>();
+
+	public MyDto() { // empty constructor needed for serialization
+		options.add("lether chairs");
 	}
 
 	public MyDto(String color) {
 		this.color = color;
 	}
 
+	public enum Car {
+		Toyota, Volvo, Honda
+	}
 
 }

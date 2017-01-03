@@ -1,18 +1,15 @@
 package live.connector.vertxui.client;
 
-import static live.connector.vertxui.client.fluent.Fluent.console;
-
-import com.google.gwt.core.client.GWT;
+import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.JavaScriptObject;
 
 import elemental.events.EventListener;
 import elemental.json.JsonObject;
 import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.samples.chatEventBus.MyDto;
-import live.connector.vertxui.client.samples.chatEventBus.MyDto.Mapper;
 
 /**
- * A Vert.X sockJs wrapper.
+ * A Vert.X sockJs EventBus wrapper for
+ * https://github.com/vert-x3/vertx-bus-bower
  * 
  * @author Niels Gorisse
  *
@@ -75,28 +72,27 @@ public class EventBus extends JavaScriptObject {
 																this.onerror = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);
 																}-*/;
 
-	public final <T, R> void send(String address, T model, String[] headers, Handler<R> replyHandler) {
-		Mapper mapper = GWT.create(Mapper.class);
-		// TODO: mapper is linked to MyDto...
-		String message = mapper.write((MyDto) model);
-		send(address, message, headers, (e, m) -> {
-			@SuppressWarnings("unchecked")
-			R result = (R) mapper.read(m.get("body"));
+	public final <T, R> void send(String address, T model, String[] headers, ObjectMapper<T> inMapper,
+			ObjectMapper<R> outMapper, Handler<R> replyHandler) {
+		send(address, inMapper.write(model), headers, (error, message) -> {
+			if (error != null) {
+				throw new IllegalArgumentException(error.asString());
+			}
+			R result = outMapper.read(message.get("body"));
 			replyHandler.handle(result);
 		});
 	}
 
-	public final <T> void publish(String modelClass, T model, String[] headers) {
-		Mapper mapper = GWT.create(Mapper.class);
-		publish(modelClass, mapper.write((MyDto) model), headers);
+	public final <T> void publish(String address, T model, String[] headers, ObjectMapper<T> inMapper) {
+		publish(address, inMapper.write(model), headers);
 	}
 
-	public final <T> void consumer(String modelClass, String[] headers, Handler<T> handler) {
-		Mapper mapper = GWT.create(Mapper.class);
-		registerHandler(modelClass, headers, (error, message) -> {
-			console.log("yess consuming " + message);
-			@SuppressWarnings("unchecked")
-			T result = (T) mapper.read(message.get("body"));
+	public final <R> void consumer(String address, String[] headers, ObjectMapper<R> outMapper, Handler<R> handler) {
+		registerHandler(address, headers, (error, message) -> {
+			if (error != null) {
+				throw new IllegalArgumentException(error.asString());
+			}
+			R result = outMapper.read(message.get("body"));
 			handler.handle(result);
 		});
 	}

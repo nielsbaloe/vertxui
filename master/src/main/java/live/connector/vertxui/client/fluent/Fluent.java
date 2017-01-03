@@ -980,6 +980,15 @@ public class Fluent {
 													eval(code);
 													}-*/;
 
+	/**
+	 * Load javascript files synchronously and evalue/execute them directly too.
+	 * You can also add them at the head of the html-document with
+	 * Vertx.addLibrariesJs(), which is the same but more 'to the rules'. You
+	 * need this if you want to use the javascript right after loading it (which
+	 * is normal in most cases).
+	 * 
+	 * @return
+	 */
 	public Fluent scriptSync(String... jss) {
 		for (String js : jss) {
 			XMLHttpRequestSyc xhr = (XMLHttpRequestSyc) XMLHttpRequestSyc.create();

@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,12 +33,29 @@ public class VertxUI {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	public String sourceLocation = null; // adjust if necessary
-	public String extraGwtLibraries = "<inherits name='com.github.nmorel.gwtjackson.GwtJackson' />";
-
 	private boolean withHtml;
 	private Class<?> classs;
 	private boolean debug;
+
+	/**
+	 * Adjust the location of your source files if they are not in /src,
+	 * /src/main or /src/main/java .
+	 */
+	public String sourceLocation = null;
+
+	static {
+		librariesGwt = new ArrayList<>();
+		addLibrariesGwt("elemental.Elemental");
+		addLibrariesGwt("com.github.nmorel.gwtjackson.GwtJackson");
+	}
+
+	public static void addLibrariesGwt(String... gwts) {
+		for (String gwt : gwts) {
+			librariesGwt.add(gwt);
+		}
+	}
+
+	private static List<String> librariesGwt;
 
 	/**
 	 * Convert the class to html/javascript at runtime. With debugging, you can
@@ -128,6 +147,8 @@ public class VertxUI {
 
 	public void translate() throws IOException, InterruptedException {
 		long start = System.currentTimeMillis();
+
+		// Figure out source location
 		Stream.of("src", "src/main", "src/main/java", sourceLocation).forEach(location -> {
 			if (location != null && new File(location).exists()) {
 				sourceLocation = location;
@@ -136,14 +157,18 @@ public class VertxUI {
 		// log.info("sourceLocation=" + sourceLocation);
 
 		String className = classs.getName();
-		String xmlFile = classs.getSimpleName();
+		String xmlFile = "gwtTemp";
 		String path = "live/connector/vertxui/client"; // TODO dynamic (examples
 														// outside)
 		File gwtXml = new File(sourceLocation + "/" + xmlFile + ".gwt.xml");
 		try {
-			FileUtils.writeStringToFile(gwtXml,
-					"<module rename-to='a'><inherits name='elemental.Elemental'/>" + extraGwtLibraries
-							+ "<entry-point class='" + className + "'/><source path='" + path + "'/></module>");
+			// Generate temporary gwt file
+			StringBuilder content = new StringBuilder("<module rename-to='a'>");
+			librariesGwt.forEach(l -> content.append("<inherits name='" + l + "'/>"));
+			content.append("<entry-point class='" + className + "'/><source path='" + path + "'/></module>");
+			FileUtils.writeStringToFile(gwtXml, content.toString());
+
+			// Compile to javacript
 			String options = "-strict -XnoclassMetadata -XdisableUpdateCheck";
 			if (debug) {
 				options += " -draftCompile -optimize 0 -incremental";
@@ -181,14 +206,16 @@ public class VertxUI {
 		}
 
 		System.out.println("Compiling done in " + (System.currentTimeMillis() - start) + " ms.");
-		if (withHtml || !new File("war/index.html").exists()) {
-			String html = "<!DOCTYPE html><html><body><script type='text/javascript' src='a/a.nocache.js?time="
-					+ Math.random() + "'></script></body></html>";
-			Vertx.currentContext().owner().fileSystem().writeFile("war/index.html", Buffer.buffer(html), a -> {
-				if (a.failed()) {
-					throw new IllegalArgumentException("Could not create html file", a.cause());
-				}
-			});
+		if (withHtml) {
+			StringBuilder content = new StringBuilder("<!DOCTYPE html><head>");
+			content.append(
+					"</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
+			Vertx.currentContext().owner().fileSystem().writeFile("war/index.html", Buffer.buffer(content.toString()),
+					a -> {
+						if (a.failed()) {
+							throw new IllegalArgumentException("Could not create html file", a.cause());
+						}
+					});
 
 		}
 
