@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 
-import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
@@ -33,15 +32,14 @@ public class VertxUI {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	private boolean withHtml;
 	private Class<?> classs;
 	private boolean debug;
 
 	/**
-	 * Adjust the location of your source files if they are not in /src,
-	 * /src/main or /src/main/java .
+	 * Set the location of your source files if not /src, /src/main or
+	 * /src/main/java .
 	 */
-	public String sourceLocation = null;
+	public static String sourceLocation = null;
 
 	static {
 		librariesGwt = new ArrayList<>();
@@ -49,6 +47,9 @@ public class VertxUI {
 		addLibrariesGwt("com.github.nmorel.gwtjackson.GwtJackson");
 	}
 
+	/**
+	 * Add gwt libraries if you need to do so.
+	 */
 	public static void addLibrariesGwt(String... gwts) {
 		for (String gwt : gwts) {
 			librariesGwt.add(gwt);
@@ -58,46 +59,18 @@ public class VertxUI {
 	private static List<String> librariesGwt;
 
 	/**
-	 * Convert the class to html/javascript at runtime. With debugging, you can
-	 * make changes in your IDE, save, and refresh your browser which will take
-	 * the latest .class files that your IDE has just compiled.
+	 * Serve the /war folder. Also, if a source folder is found, convert the
+	 * class to html+javascript .
 	 * 
-	 * @param classs
-	 *            the given class. make a public static String[] libraries or a
-	 *            public static String[] stylesheets with javascript and
-	 *            stylesheets you want to include in the generated html file.
-	 * @param debug
-	 *            whether we output debug information, minimise output, and
-	 *            recompile again on each browser request.
-	 * @param withHtml
-	 *            whether we want to the result to be wrapped inside
-	 * 
-	 *            <!DOCTYPE html><html><head> <script>...</script> </head>
-	 *            <body> <script>main()</script> </body></html>
-	 * @param clientJSUrl
-	 * @throws IOException
+	 * If figwheely is started, debugging is always set to true.
 	 * 
 	 */
-	public VertxUI(Class<?> classs, boolean withHtml, boolean debug, String url) {
+	private VertxUI(Class<?> classs, boolean debug, String url) {
 		this.classs = classs;
-		this.withHtml = withHtml;
 		this.debug = debug;
-
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				Context context = Vertx.currentContext();
-				if (context == null) {
-					return;
-				}
-				Vertx vertx = context.owner();
-				vertx.deploymentIDs().forEach(vertx::undeploy);
-				vertx.close();
-			}
-		});
 
 		if (FigWheely.started) {
 			this.debug = true;
-			this.withHtml = true;
 			String classFile = FigWheely.buildDir + "/" + classs.getCanonicalName().replace(".", "/") + ".class";
 			File file = new File(classFile);
 			if (!file.exists()) {
@@ -107,37 +80,32 @@ public class VertxUI {
 			FigWheely.addVertX(file, url + "a/a.nocache.js", this);
 		}
 
-		if (this.withHtml) {
-			try {
-				FileUtils.writeStringToFile(new File("war/index.html"),
-						"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
-								+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
-								+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
-								+ "animation:spin 1.0s linear infinite; } "
-								+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
-								+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
-								+ "</style></head><body><div class=loader></div></body></html>");
-			} catch (IOException ie) {
-				throw new IllegalArgumentException("Could not write war/index.html: ", ie);
-			}
-		}
-
+		// do a first translation
 		Vertx.currentContext().executeBlocking(future -> {
 			try {
 				translate();
 				future.complete();
 			} catch (IOException | InterruptedException e) {
 				log.log(Level.SEVERE, e.getMessage(), e);
-				if (!FigWheely.started) {
-					System.exit(0); // stop on startup errors when not in debug
-				}
+				System.exit(0); // stop on startup errors
 			}
 		}, result -> {
 		});
 	}
 
-	public static Handler<RoutingContext> with(Class<?> classs, boolean withHtml, boolean debug, String url) {
-		new VertxUI(classs, withHtml, debug, url);
+	public static Handler<RoutingContext> with(Class<?> classs, boolean debug, String url) {
+
+		// If no sourceLocation, then we are in production so we don't do
+		// anything at all.
+		Stream.of("src", "src/main", "src/main/java", sourceLocation).forEach(location -> {
+			if (location != null && new File(location).exists()) {
+				sourceLocation = location;
+			}
+		});
+		if (sourceLocation != null) {
+			new VertxUI(classs, debug, url);
+		}
+
 		return StaticHandler.create("war").setCachingEnabled(false);
 	}
 
@@ -148,27 +116,29 @@ public class VertxUI {
 	public void translate() throws IOException, InterruptedException {
 		long start = System.currentTimeMillis();
 
-		// Figure out source location
-		Stream.of("src", "src/main", "src/main/java", sourceLocation).forEach(location -> {
-			if (location != null && new File(location).exists()) {
-				sourceLocation = location;
-			}
-		});
-		// log.info("sourceLocation=" + sourceLocation);
+		// Write index.html file which autoreloads
+		FileUtils.writeStringToFile(new File("war/index.html"),
+				"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
+						+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
+						+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
+						+ "animation:spin 1.0s linear infinite; } "
+						+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
+						+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
+						+ "</style></head><body><div class=loader></div></body></html>");
 
+		// Write the .gml.xml file
 		String className = classs.getName();
 		String xmlFile = "gwtTemp";
-		String path = "live/connector/vertxui/client"; // TODO dynamic (examples
-														// outside)
+		String path = "live/connector/vertxui/client";
+		// TODO dynamic (examples in other project)
 		File gwtXml = new File(sourceLocation + "/" + xmlFile + ".gwt.xml");
-		try {
-			// Generate temporary gwt file
-			StringBuilder content = new StringBuilder("<module rename-to='a'>");
-			librariesGwt.forEach(l -> content.append("<inherits name='" + l + "'/>"));
-			content.append("<entry-point class='" + className + "'/><source path='" + path + "'/></module>");
-			FileUtils.writeStringToFile(gwtXml, content.toString());
+		StringBuilder content = new StringBuilder("<module rename-to='a'>");
+		librariesGwt.forEach(l -> content.append("<inherits name='" + l + "'/>"));
+		content.append("<entry-point class='" + className + "'/><source path='" + path + "'/></module>");
+		FileUtils.writeStringToFile(gwtXml, content.toString());
 
-			// Compile to javacript
+		// Compile to javacript
+		try {
 			String options = "-strict -XnoclassMetadata -XdisableUpdateCheck";
 			if (debug) {
 				options += " -draftCompile -optimize 0 -incremental";
@@ -201,23 +171,19 @@ public class VertxUI {
 			if (error) {
 				throw new IOException("Compile error(s): " + info);
 			}
+			System.out.println("Compiling done in " + (System.currentTimeMillis() - start) + " ms.");
 		} finally {
 			gwtXml.delete();
 		}
 
-		System.out.println("Compiling done in " + (System.currentTimeMillis() - start) + " ms.");
-		if (withHtml) {
-			StringBuilder content = new StringBuilder("<!DOCTYPE html><head>");
-			content.append(
-					"</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
-			Vertx.currentContext().owner().fileSystem().writeFile("war/index.html", Buffer.buffer(content.toString()),
-					a -> {
-						if (a.failed()) {
-							throw new IllegalArgumentException("Could not create html file", a.cause());
-						}
-					});
-
-		}
+		// Write the final index.html file
+		StringBuilder html = new StringBuilder("<!DOCTYPE html><head>");
+		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
+		Vertx.currentContext().owner().fileSystem().writeFile("war/index.html", Buffer.buffer(html.toString()), a -> {
+			if (a.failed()) {
+				throw new IllegalArgumentException("Could not create html file", a.cause());
+			}
+		});
 
 		// List<File> list = new ArrayList<>();
 		// list.add(new File("src"));

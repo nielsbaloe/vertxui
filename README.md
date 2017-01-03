@@ -1,9 +1,9 @@
-vertx-ui
+vertxui
 ===
 
 A [Vert.X](http://vertx.io/) pure-Java toolkit containing a Fluent HTML (with virtualDOM behind the scenes)), an Eventbus at server and clientside, and automatic browser reloading.
 
-Vertx-ui offers:
+VertxUI offers:
 * an EventBus at server and clients in the same language.
 * forget about URL's, just register and publish objects from and to the EventBus.
 * forget about HTML, just write fluent HTML.
