@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -15,6 +14,7 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 
 import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.Json;
@@ -213,11 +213,15 @@ public class VertxUI {
 		// System.exit(0);
 	}
 
-	public static <A, B> void bind(String service, Class<A> inputType, Function<A, B> handler) {
-		Vertx.currentContext().owner().eventBus().consumer(service, in -> {
-			A input = (A) Json.decodeValue((String) in.body(), inputType);
-			B output = handler.apply(input);
-			in.reply(Json.encode(output));
+	public interface ReplyHandler<A, B> {
+		public B reply(MultiMap headers, A input);
+	}
+
+	public static <A, B> void bind(String service, Class<A> inputType, ReplyHandler<A, B> handler) {
+		Vertx.currentContext().owner().eventBus().consumer(service, message -> {
+			A input = (A) Json.decodeValue((String) message.body(), inputType);
+			B output = handler.reply(message.headers(), input);
+			message.reply(Json.encode(output));
 		});
 	}
 }

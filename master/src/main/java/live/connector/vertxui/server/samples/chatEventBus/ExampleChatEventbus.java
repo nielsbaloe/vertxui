@@ -4,6 +4,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -12,7 +13,7 @@ import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import live.connector.vertxui.client.samples.chatEventBus.Client;
-import live.connector.vertxui.client.samples.chatEventBus.MyDto;
+import live.connector.vertxui.client.samples.chatEventBus.Dto;
 import live.connector.vertxui.server.VertxUI;
 import live.connector.vertxui.server.samples.AllExamplesServer;
 
@@ -36,8 +37,9 @@ public class ExampleChatEventbus extends AbstractVerticle {
 		BridgeOptions firewall = new BridgeOptions().addInboundPermitted(freewayOK).addOutboundPermitted(freewayOK)
 				.addInboundPermitted(myDtoOK).addOutboundPermitted(myDtoOK);
 		router.route("/chatEventbus/*").handler(SockJSHandler.create(vertx).bridge(firewall, be -> {
-			// id=be.socket().writeHandlerID() and type=be.type().name());
-			// broadcasting to everyone is done automaticly!
+			// log.info("id=" + be.socket().writeHandlerID() + " type=" +
+			// be.type().name() + " message=" + be.getRawMessage());
+			// broadcasting to everyone is done automaticly
 			be.complete(true);
 		}));
 		// to broadcast: vertx.eventBus().publish(Client.freeway,"Bla");
@@ -48,14 +50,14 @@ public class ExampleChatEventbus extends AbstractVerticle {
 		});
 
 		// extra example: receiving and replying objects
-		VertxUI.bind(Client.serviceAddress, MyDto.class, this::serviceDoSomething);
+		VertxUI.bind(Client.serviceAddress, Dto.class, this::serviceDoSomething);
 
 		AllExamplesServer.startWarAndServer(Client.class, router, server);
 	}
 
-	public MyDto serviceDoSomething(MyDto received) {
-		log.info("Extra example: received a dto with color=" + received.color);
-		return new MyDto("red");
+	public Dto serviceDoSomething(MultiMap headers, Dto received) {
+		log.info("Extra example: received a dto with action=" + headers.get("action") + " and color=" + received.color);
+		return new Dto("red");
 	}
 
 }

@@ -33,15 +33,16 @@ public class EventBus extends JavaScriptObject {
 															this.onopen = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);		
 															}-*/;
 
-	public final native void send(String address, String message, String[] headers, EventBusReplyReceive receiver)/*-{
-																													this.send(address,message,headers, 
-																														function(a,b) 
-																													{ @live.connector.vertxui.client.EventBus::doit(Llive/connector/vertxui/client/EventBusReplyReceive;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
-																													(receiver,a,b); }
-																													);
-																													}-*/;
+	public final native void send(String address, String message, JsonObject headers,
+			EventBusReplyReceive receiver)/*-{
+											this.send(address,message,headers, 
+												function(a,b) 
+											{ @live.connector.vertxui.client.EventBus::doit(Llive/connector/vertxui/client/EventBusReplyReceive;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
+											(receiver,a,b); }
+											);
+											}-*/;
 
-	public final native void registerHandler(String address, String[] headers, EventBusReplyReceive receiver)/*-{
+	public final native void registerHandler(String address, JsonObject headers, EventBusReplyReceive receiver)/*-{
 																												this.registerHandler(address,headers, 
 																													function(a,b) 
 																												{ @live.connector.vertxui.client.EventBus::doit(Llive/connector/vertxui/client/EventBusReplyReceive;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
@@ -53,14 +54,14 @@ public class EventBus extends JavaScriptObject {
 		handler.handle(error, message);
 	}
 
-	public final native void unregisterHandler(String address, String[] headers, EventBusReplyReceive receiver)/*-{
-																												this.unregisterHandler(address,headers, function(a,b) 
-																												{ @live.connector.vertxui.client.EventBus::doit(Llive/connector/vertxui/client/EventBusReplyReceive;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
-																												(receiver,a,b); }
-																												);
-																												}-*/;
+	public final native void unregisterHandler(String address, JsonObject headers, EventBusReplyReceive receiver)/*-{
+																													this.unregisterHandler(address,headers, function(a,b) 
+																													{ @live.connector.vertxui.client.EventBus::doit(Llive/connector/vertxui/client/EventBusReplyReceive;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
+																													(receiver,a,b); }
+																													);
+																													}-*/;
 
-	public final native void publish(String address, String message, String[] headers)/*-{
+	public final native void publish(String address, String message, JsonObject headers)/*-{
 																						this.publish(address,message,headers);
 																						}-*/;
 
@@ -72,7 +73,7 @@ public class EventBus extends JavaScriptObject {
 																this.onerror = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);
 																}-*/;
 
-	public final <T, R> void send(String address, T model, String[] headers, ObjectMapper<T> inMapper,
+	public final <T, R> void send(String address, T model, JsonObject headers, ObjectMapper<T> inMapper,
 			ObjectMapper<R> outMapper, Handler<R> replyHandler) {
 		send(address, inMapper.write(model), headers, (error, message) -> {
 			if (error != null) {
@@ -83,11 +84,11 @@ public class EventBus extends JavaScriptObject {
 		});
 	}
 
-	public final <T> void publish(String address, T model, String[] headers, ObjectMapper<T> inMapper) {
+	public final <T> void publish(String address, T model, JsonObject headers, ObjectMapper<T> inMapper) {
 		publish(address, inMapper.write(model), headers);
 	}
 
-	public final <R> void consumer(String address, String[] headers, ObjectMapper<R> outMapper, Handler<R> handler) {
+	public final <R> void consumer(String address, JsonObject headers, ObjectMapper<R> outMapper, Handler<R> handler) {
 		registerHandler(address, headers, (error, message) -> {
 			if (error != null) {
 				throw new IllegalArgumentException(error.asString());

@@ -3,7 +3,7 @@ package live.connector.vertxui.client.samples.chatEventBus;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyDto {
+public class Dto {
 
 	public String color;
 
@@ -11,11 +11,10 @@ public class MyDto {
 
 	public List<String> options = new ArrayList<>();
 
-	public MyDto() { // empty constructor needed for serialization
-		options.add("lether chairs");
+	public Dto() { // empty constructor needed for serialization
 	}
 
-	public MyDto(String color) {
+	public Dto(String color) {
 		this.color = color;
 	}
 
