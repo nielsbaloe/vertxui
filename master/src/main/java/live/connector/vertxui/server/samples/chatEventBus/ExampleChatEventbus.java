@@ -8,7 +8,9 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.sockjs.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -40,6 +42,16 @@ public class ExampleChatEventbus extends AbstractVerticle {
 			// log.info("id=" + be.socket().writeHandlerID() + " type=" +
 			// be.type().name() + " message=" + be.getRawMessage());
 			// broadcasting to everyone is done automaticly
+
+			if (be.type() == BridgeEventType.RECEIVE || be.type() == BridgeEventType.PUBLISH) {
+				// BUG https://github.com/vert-x3/vertx-bus-bower/issues/8
+				JsonObject headers = be.getRawMessage().getJsonObject("headers");
+				if (headers == null) {
+					headers = new JsonObject();
+					be.getRawMessage().put("headers", headers);
+				}
+				headers.put("sender", be.socket().writeHandlerID());
+			}
 			be.complete(true);
 		}));
 		// to broadcast: vertx.eventBus().publish(Client.freeway,"Bla");
