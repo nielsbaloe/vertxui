@@ -7,8 +7,8 @@ import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.MessageEvent;
 import elemental.events.UIEvent;
-import live.connector.vertxui.client.SockJS;
 import live.connector.vertxui.client.fluent.Fluent;
+import live.connector.vertxui.client.transport.SockJS;
 
 /**
  * @author Niels Gorisse

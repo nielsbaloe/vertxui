@@ -4,6 +4,7 @@ Development:
 	Design: totals for all individuals, input fields (date, person, amount, notes), then a list of all entries.
 - fix FigWheely: name of compiled .js changes in GWT...
 - create http://todomvc.com
+- create MessageSocket?
 - split in vertxui-server vertxui-client and vertxui-examples
 - announce at vertx-awesome github list and GWT list and elsewhere
 

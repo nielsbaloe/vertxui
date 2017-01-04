@@ -10,8 +10,8 @@ import com.google.gwt.core.client.GWT;
 
 import elemental.events.UIEvent;
 import elemental.json.Json;
-import live.connector.vertxui.client.EventBus;
 import live.connector.vertxui.client.fluent.Fluent;
+import live.connector.vertxui.client.transport.EventBus;
 
 /**
  * @author Niels Gorisse
@@ -46,18 +46,12 @@ public class Client implements EntryPoint {
 				messages.li(in.get("body").asString());
 			});
 
-			// extra example: send example
-			eventBus.send(freeway, name + ": I want a reply", null, (error, message) -> {
-				console.log("server said: " + message.get("body"));
-			});
+			// extra example: object publish
+			eventBus.publish(serviceAddress, new Dto("blue by " + name), Json.parse("{\"action\":\"save\"}"),
+					dtoMapper);
 
-			// extra example: send&receive object with automatic serialisation
-			// Note: as an example we send and receive the same class, but you
-			// can send and receive whatever you like.
-			eventBus.send(serviceAddress, new Dto("blue"), Json.parse("{\"action\":\"save\"}"), dtoMapper, dtoMapper,
-					(Dto object) -> {
-						console.log("Server said: " + object.color);
-					});
+			// extra example: object consume
+			eventBus.consumer(serviceAddress, null, dtoMapper, a -> console.log("Received an object: " + a.color));
 		});
 
 		input.keydown(evt -> {
