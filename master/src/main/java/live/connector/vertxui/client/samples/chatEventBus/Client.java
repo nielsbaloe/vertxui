@@ -4,13 +4,12 @@ import static live.connector.vertxui.client.fluent.Fluent.body;
 import static live.connector.vertxui.client.fluent.Fluent.console;
 import static live.connector.vertxui.client.fluent.Fluent.window;
 
-import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 
 import elemental.events.UIEvent;
 import elemental.json.Json;
 import live.connector.vertxui.client.fluent.Fluent;
+import live.connector.vertxui.client.samples.AllExamples;
 import live.connector.vertxui.client.transport.EventBus;
 
 /**
@@ -25,13 +24,6 @@ public class Client implements EntryPoint {
 
 	// EventBus-address of myDto objects
 	public static final String serviceAddress = "serviceForDto";
-
-	// EventBus mapper interface for the myDto object, for json-object
-	public interface DtoMapper extends ObjectMapper<Dto> {
-	}
-
-	// EventBus mapper object for the Dto object, for json-object
-	private DtoMapper dtoMapper = GWT.create(DtoMapper.class);
 
 	public Client() {
 		String name = window.prompt("What is your name?", "");
@@ -48,10 +40,10 @@ public class Client implements EntryPoint {
 
 			// extra example: object publish
 			eventBus.publish(serviceAddress, new Dto("blue by " + name), Json.parse("{\"action\":\"save\"}"),
-					dtoMapper);
+					AllExamples.dto);
 
 			// extra example: object consume
-			eventBus.consumer(serviceAddress, null, dtoMapper, a -> console.log("Received an object: " + a.color));
+			eventBus.consumer(serviceAddress, null, AllExamples.dto, a -> console.log("Received pojo: " + a.color));
 		});
 
 		input.keydown(evt -> {

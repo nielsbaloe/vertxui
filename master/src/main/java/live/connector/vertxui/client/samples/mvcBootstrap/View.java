@@ -25,7 +25,6 @@ public class View implements EntryPoint {
 		body.divd(Fluent.h1("Bills")).classs("jumbotron text-center");
 
 		// Controller-SERVER
-		// EventBus eventBus = new EventBus("localhost:8100", null);
 		// input.keyUp(event -> {
 		// model.name = input.getValue();
 		// eventBus.publish(model);

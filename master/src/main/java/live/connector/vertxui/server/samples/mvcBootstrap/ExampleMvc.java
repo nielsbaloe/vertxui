@@ -4,15 +4,15 @@ import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
 import live.connector.vertxui.client.samples.chatEventBus.Dto;
 import live.connector.vertxui.client.samples.mvcBootstrap.View;
 import live.connector.vertxui.server.samples.AllExamplesServer;
-import live.connector.vertxui.server.transport.Binders;
+import live.connector.vertxui.server.transport.Pojofy;
 
 public class ExampleMvc extends AbstractVerticle {
 
@@ -28,13 +28,14 @@ public class ExampleMvc extends AbstractVerticle {
 		Router router = Router.router(vertx);
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
-		router.route("/save").handler(Binders.ajax(Dto.class, this::serviceDoSomething));
+		router.route("/save").handler(Pojofy.ajax(Dto.class, this::serviceDoSomething));
 
 		AllExamplesServer.startWarAndServer(View.class, router, server);
 	}
 
-	public Dto serviceDoSomething(MultiMap headers, Dto received) {
-		log.info("Extra example: received a dto with action=" + headers.get("action") + " and color=" + received.color);
+	public Dto serviceDoSomething(HttpServerRequest request, Dto received) {
+		log.info("Extra example: received a dto with action=" + request.getHeader("action") + " and color="
+				+ received.color);
 		return new Dto("red");
 	}
 }

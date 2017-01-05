@@ -4,10 +4,12 @@ import static live.connector.vertxui.client.fluent.Fluent.body;
 import static live.connector.vertxui.client.fluent.Fluent.console;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.xhr.client.XMLHttpRequest;
 
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Style;
+import live.connector.vertxui.client.samples.AllExamples;
+import live.connector.vertxui.client.samples.chatEventBus.Dto;
+import live.connector.vertxui.client.transport.Pojofy;
 
 public class Client implements EntryPoint {
 
@@ -28,23 +30,20 @@ public class Client implements EntryPoint {
 		button.disabled(true);
 		thinking.css(Style.display, "");
 
-		XMLHttpRequest xhr = XMLHttpRequest.create();
-		xhr.setOnReadyStateChange(a -> {
-			if (xhr.getReadyState() == 4 && xhr.getStatus() == 200) {
-				responsed(xhr.getResponseText());
-			}
-		});
-		xhr.open("POST", url);
-		xhr.send();
+		Pojofy.ajax("POST", url, null, null, null, (String a) -> responsed(a));
 	}
 
 	private void responsed(String text) {
-		console.log("received: " + text);
 		button.disabled(false);
 
 		response.div().inner(text);
 		thinking.css(Style.display, "none");
+
+		// extra: POJO example
+		Pojofy.ajax("POST", urlPojo, new Dto("white"), AllExamples.dto, AllExamples.dto, a -> console.log(a.color));
 	}
+
+	public final static String urlPojo = "/pojo";
 
 	@Override
 	public void onModuleLoad() {

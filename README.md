@@ -4,13 +4,13 @@ vertxui
 A [Vert.X](http://vertx.io/) pure-Java toolkit containing a Fluent HTML (with virtualDOM behind the scenes)), an Eventbus at server and clientside, and automatic browser reloading.
 
 VertxUI offers:
-* an EventBus at server and clients in the same language.
-* forget about URL's, just register and publish objects from and to the EventBus.
+* forget about URL's, just register and publish POJO's from and to websockets or the eventbus.
 * forget about HTML, just write fluent HTML.
 * forget about Javascript, you're familiar with Java.
 * forget about installing IDE tooling, the java to javascript translation happens at server-time.
 * during development: automatic browser reloading of generated javascript and other files (.css/.jpg) without browser refresh.
 * Fluent html has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
+* the VertX EventBus is available at server and browsers in the same language.
 
 Pure-Java clientside (using GWT-elemental) means:
 * strong-typed client-side Javascript
@@ -121,7 +121,7 @@ The model+view (browser):
 
 	}
 
-The controller (serverside) can be for example:
+The controller (serverside) can be for example (EventBus example):
 
 		VertxUI.bind("serviceAddress", Model.class, this::serviceDoSomething);
 		...

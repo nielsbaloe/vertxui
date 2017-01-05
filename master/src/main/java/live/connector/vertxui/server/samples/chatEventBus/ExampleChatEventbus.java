@@ -15,7 +15,7 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import live.connector.vertxui.client.samples.chatEventBus.Client;
 import live.connector.vertxui.client.samples.chatEventBus.Dto;
 import live.connector.vertxui.server.samples.AllExamplesServer;
-import live.connector.vertxui.server.transport.Binders;
+import live.connector.vertxui.server.transport.Pojofy;
 
 /**
  * Note that the chatbus has much more overhead than pure websockets or sockjs:
@@ -62,7 +62,7 @@ public class ExampleChatEventbus extends AbstractVerticle {
 		// broadcasting to everyone is done automaticly by .publish()
 
 		// extra example: receiving and replying with POJO's
-		Binders.eventbus(Client.serviceAddress, Dto.class, this::serviceDoSomething);
+		Pojofy.eventbus(Client.serviceAddress, Dto.class, this::serviceDoSomething);
 
 		AllExamplesServer.startWarAndServer(Client.class, router, server);
 	}
