@@ -1,7 +1,9 @@
 package live.connector.vertxui.client.transport;
 
 import com.github.nmorel.gwtjackson.client.ObjectMapper;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.xhr.client.XMLHttpRequest;
+import com.kfuntak.gwt.json.serialization.client.Serializer;
 
 import live.connector.vertxui.client.transport.EventBus.Handler;
 
@@ -30,4 +32,19 @@ public class Pojofy {
 		}
 	}
 
+	// TODO
+	public void socket() {
+	}
+
+	// TODO try:
+	public String toJsonString(Object object) {
+		Serializer serializer = (Serializer) GWT.create(Serializer.class);
+		return serializer.serializeToJson(object).toString();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T recreateClassViaJson(String json, String classname) {
+		Serializer serializer = (Serializer) GWT.create(Serializer.class);
+		return (T) serializer.deSerialize(json, classname);
+	}
 }

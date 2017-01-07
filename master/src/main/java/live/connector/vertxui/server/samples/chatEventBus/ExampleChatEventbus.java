@@ -61,13 +61,13 @@ public class ExampleChatEventbus extends AbstractVerticle {
 		// to receive: vertx.eventBus().consumer(Client.freeway, m -> ... );
 		// broadcasting to everyone is done automaticly by .publish()
 
-		// extra example: receiving and replying with POJO's
+		// extra: pojo example
 		Pojofy.eventbus(Client.serviceAddress, Dto.class, this::serviceDoSomething);
 
 		AllExamplesServer.startWarAndServer(Client.class, router, server);
 	}
 
-	public Dto serviceDoSomething(MultiMap headers, Dto received) {
+	public Dto serviceDoSomething(Dto received, MultiMap headers) {
 		log.info("Extra example: received a dto with action=" + headers.get("action") + " and color=" + received.color);
 		return new Dto("red");
 	}

@@ -7,8 +7,8 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.http.HttpServerRequest;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import live.connector.vertxui.client.samples.chatEventBus.Dto;
 import live.connector.vertxui.client.samples.mvcBootstrap.View;
 import live.connector.vertxui.server.samples.AllExamplesServer;
@@ -33,8 +33,8 @@ public class ExampleMvc extends AbstractVerticle {
 		AllExamplesServer.startWarAndServer(View.class, router, server);
 	}
 
-	public Dto serviceDoSomething(HttpServerRequest request, Dto received) {
-		log.info("Extra example: received a dto with action=" + request.getHeader("action") + " and color="
+	public Dto serviceDoSomething(Dto received, RoutingContext context) {
+		log.info("Extra example: received a dto with action=" + context.request().getHeader("action") + " and color="
 				+ received.color);
 		return new Dto("red");
 	}

@@ -37,6 +37,8 @@ public class Client implements EntryPoint {
 		});
 	}
 
+	public static String urlPojo = "/pojo";
+
 	@Override
 	public void onModuleLoad() {
 	}

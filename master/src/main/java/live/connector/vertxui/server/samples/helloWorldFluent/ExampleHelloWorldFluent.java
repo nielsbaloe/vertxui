@@ -10,8 +10,8 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import live.connector.vertxui.client.samples.chatEventBus.Dto;
 import live.connector.vertxui.client.samples.helloWorldFluentHtml.Client;
-import live.connector.vertxui.server.samples.AllExamplesServer;
 import live.connector.vertxui.server.transport.Pojofy;
+import live.connector.vertxui.server.samples.AllExamplesServer;
 
 public class ExampleHelloWorldFluent extends AbstractVerticle {
 
@@ -28,15 +28,17 @@ public class ExampleHelloWorldFluent extends AbstractVerticle {
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
 		// Hello world examples: wait and do some server stuff for AJAX
-		router.post(Client.url).handler(Pojofy.ajax(String.class, (r, m) -> {
-			// TODO use setTimeOut
-			// vertx.setTimer(1000, l -> {
-			return "Hello, " + r.getHeader("User-Agent");
-			// });
+		router.post(Client.url).handler(Pojofy.ajax(String.class, (m, c) -> {
+			// If you want to leave out the timer, you can also just say
+			// return "Hello,"..... because a string is just returned as is.
+			vertx.setTimer(1000, l -> {
+				c.response().end("Hello, " + c.request().getHeader("User-Agent"));
+			});
+			return null; // null means: we take care of the output ourselves
 		}));
 
-		// extra: pojo example
-		router.post(Client.urlPojo).handler(Pojofy.ajax(Dto.class, (r, m) -> {
+		// extra: pojo example. Here the Pojofy.ajax() makes more sense!
+		router.post(Client.urlPojo).handler(Pojofy.ajax(Dto.class, (m, c) -> {
 			log.info("received a pojo from the client: color=" + m.color);
 			return new Dto("purple");
 		}));

@@ -1,16 +1,16 @@
 vertxui
 ===
 
-A [Vert.X](http://vertx.io/) pure-Java toolkit containing a Fluent HTML (with virtualDOM behind the scenes)), an Eventbus at server and clientside, and automatic browser reloading.
+A 100% java 100% asynchronous toolkit using serverside [Vert.X](http://vertx.io/) and browserside GWT-elemental, with POJO codecs, Fluent HTML (with virtualDOM behind the scenes)), an Eventbus server and clientside, automatic browser reloading and more.
 
 VertxUI offers:
-* forget about URL's, just register and publish POJO's from and to websockets or the eventbus.
+* forget about URL's, just register and publish POJO's from and to websockets or sockjs or the eventbus.
 * forget about HTML, just write fluent HTML.
 * forget about Javascript, you're familiar with Java.
-* forget about installing IDE tooling, the java to javascript translation happens at server-time.
+* forget about installing IDE tooling, the java to javascript translation happens run-time.
 * during development: automatic browser reloading of generated javascript and other files (.css/.jpg) without browser refresh.
 * Fluent html has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
-* the VertX EventBus is available at server and browsers in the same language.
+* websockets, sockjs and the VertX EventBus are available at server and browsers in the same language.
 
 Pure-Java clientside (using GWT-elemental) means:
 * strong-typed client-side Javascript
@@ -24,7 +24,7 @@ Vert.X adds:
 * no need for anything else: no Apache and Tomcat.
 * the serverside EventBus, and a wonderful speedy async ecosystem.
 
-Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), webchats with: websockets SockJS plus EventBus, TodoMVC, Bootstrap, and more.
+Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, TodoMVC, Bootstrap, jQuery Mobile and more.
 
 ### Serverside
 

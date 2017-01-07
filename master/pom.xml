@@ -48,5 +48,10 @@
 			<artifactId>gwt-jackson</artifactId>
 			<version>0.14.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.atmosphere</groupId>
+			<artifactId>gwtprojsonserializer</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 </project>
