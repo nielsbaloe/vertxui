@@ -23,7 +23,7 @@ public class Client implements EntryPoint {
 	public static final String freeway = "freeWayAddress";
 
 	// EventBus-address of myDto objects
-	public static final String serviceAddress = "serviceForDto";
+	public static final String addressPojo = "serviceForDto";
 
 	public Client() {
 		String name = window.prompt("What is your name?", "");
@@ -38,18 +38,18 @@ public class Client implements EntryPoint {
 				messages.li(in.get("body").asString());
 			});
 
-			// extra example: object publish
-			eventBus.publish(serviceAddress, new Dto("blue by " + name), Json.parse("{\"action\":\"save\"}"),
-					AllExamples.dto);
-
-			// extra example: object consume
-			eventBus.consumer(serviceAddress, null, AllExamples.dto, a -> console.log("Received pojo: " + a.color));
+			// extra example: pojo consume
+			eventBus.registerHandler(addressPojo, null, AllExamples.dto, a -> console.log("Received pojo: " + a.color));
 		});
 
 		input.keydown(evt -> {
 			if (((UIEvent) evt).getKeyCode() == 13) {
 				eventBus.publish(freeway, name + ": " + input.value(), null);
 				input.value(""); // clear the inputfield
+
+				// extra example: object publish
+				eventBus.publish(addressPojo, new Dto("blue by " + name), Json.parse("{\"action\":\"save\"}"),
+						AllExamples.dto);
 			}
 		});
 	}

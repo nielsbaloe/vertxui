@@ -43,6 +43,7 @@ public class VertxUI {
 		librariesGwt = new ArrayList<>();
 		addLibrariesGwt("elemental.Elemental");
 		addLibrariesGwt("com.github.nmorel.gwtjackson.GwtJackson");
+		addLibrariesGwt("com.kfuntak.gwt.json.serialization.GWTProJsonSerializer");
 	}
 
 	/**
@@ -74,8 +75,9 @@ public class VertxUI {
 			if (!file.exists()) {
 				throw new IllegalArgumentException("please set FigWheely.buildDir, failed to load " + classFile);
 			}
-			// TODO: GWT: find out where the real .js is and reload that one
-			FigWheely.addVertX(file, url + "a/a.nocache.js", this);
+			FigWheely.addVertX(file, url + "a/a.nocache.js", this); // useless,
+																	// needs
+																	// refactoring
 		}
 
 		// do a first translation
@@ -128,7 +130,6 @@ public class VertxUI {
 		String className = classs.getName();
 		String xmlFile = "gwtTemp";
 		String path = "live/connector/vertxui/client";
-		// TODO dynamic (examples in other project)
 		File gwtXml = new File(sourceLocation + "/" + xmlFile + ".gwt.xml");
 		StringBuilder content = new StringBuilder("<module rename-to='a'>");
 		librariesGwt.forEach(l -> content.append("<inherits name='" + l + "'/>"));

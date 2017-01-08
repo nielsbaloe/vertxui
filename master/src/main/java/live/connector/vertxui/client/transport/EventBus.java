@@ -82,28 +82,27 @@ public class EventBus extends JavaScriptObject {
 	 * Warning: the thing you send can go to anyone connected to the eventbus,
 	 * including other browsers that are connected. So please handle with care!
 	 */
-	public final <T, R> void send(String address, T model, JsonObject headers, ObjectMapper<T> inMapper,
-			ObjectMapper<R> outMapper, Handler<R> replyHandler) {
-		send(address, inMapper.write(model), headers, (error, message) -> {
+	public final <I, O> void send(String address, I model, JsonObject headers, ObjectMapper<I> inMapper,
+			ObjectMapper<O> outMapper, Handler<O> handler) {
+		send(address, Pojofy.in(model, inMapper), headers, (error, m) -> {
 			if (error != null) {
 				throw new IllegalArgumentException(error.asString());
 			}
-			R result = outMapper.read(message.get("body"));
-			replyHandler.handle(result);
+			handler.handle(Pojofy.out(m.get("body"), outMapper));
 		});
 	}
 
-	public final <T> void publish(String address, T model, JsonObject headers, ObjectMapper<T> inMapper) {
-		publish(address, inMapper.write(model), headers);
+	public final <I> void publish(String address, I model, JsonObject headers, ObjectMapper<I> inMapper) {
+		publish(address, Pojofy.in(model, inMapper), headers);
 	}
 
-	public final <R> void consumer(String address, JsonObject headers, ObjectMapper<R> outMapper, Handler<R> handler) {
-		registerHandler(address, headers, (error, message) -> {
+	public final <O> void registerHandler(String address, JsonObject headers, ObjectMapper<O> outMapper,
+			Handler<O> handler) {
+		registerHandler(address, headers, (error, m) -> {
 			if (error != null) {
 				throw new IllegalArgumentException(error.asString());
 			}
-			R result = outMapper.read(message.get("body"));
-			handler.handle(result);
+			handler.handle(Pojofy.out(m.get("body"), outMapper));
 		});
 	}
 

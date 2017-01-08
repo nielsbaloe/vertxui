@@ -12,10 +12,6 @@ import io.vertx.ext.web.RoutingContext;
 
 public class Pojofy {
 
-	public static interface Reply<A, B> {
-		public Object reply(A pojo, B context);
-	}
-
 	/**
 	 * Create a web-handler which gets a pojo of type inputType.
 	 * 
@@ -27,74 +23,76 @@ public class Pojofy {
 	 *            yourself using the provided context.
 	 * @return a web-handler which can receive and send POJO's through ajax.
 	 */
-	@SuppressWarnings("unchecked")
 	public static <A> Handler<RoutingContext> ajax(Class<A> inputType, Reply<A, RoutingContext> handler) {
 		return context -> {
 			context.request().bodyHandler(body -> {
-				String in = body.toString();
-				A input = null;
-				// no input type or null? use string
-				if (in.isEmpty() || inputType.getClass().equals(String.class)) {
-					input = (A) in;
+				A input = in(inputType, body.toString());
+				String output = out(handler.reply(input, context));
+				if (output == null) {
+					// do nothing
 				} else {
-					input = (A) Json.decodeValue(in, inputType);
-				}
-
-				Object output = handler.reply(input, context);
-				if (output == null) { // do nothing
-				} else if (output instanceof java.lang.String) { // pass
-					context.response().end((String) output);
-				} else {
-					context.response().end(Json.encode(output));
+					context.response().end(output);
 				}
 			});
 		};
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <A> void eventbus(String urlOrAddress, Class<A> inputType, Reply<A, MultiMap> handler) {
 		Vertx.currentContext().owner().eventBus().consumer(urlOrAddress, message -> {
-
-			A input = null;
-			String in = (String) message.body();
-			// no input type or null? use string
-			if (in.isEmpty() || inputType.getClass().equals(String.class)) {
-				input = (A) in;
-			} else {
-				input = (A) Json.decodeValue(in, inputType);
-			}
-
-			Object output = handler.reply(input, message.headers());
-			if (output == null) { // do nothing
-			} else if (output instanceof java.lang.String) { // pass
+			A input = in(inputType, (String) message.body());
+			String output = out(handler.reply(input, message.headers()));
+			if (output != null && message.replyAddress() != null) {
 				message.reply(output);
-			} else {
-				message.reply(Json.encode(output));
 			}
 		});
 	}
 
-	// TODO test
-	public static <A, S extends ReadStream<Buffer> & WriteStream<Buffer>> void socket(String urlOrAddress, Buffer in,
-			S socket, Class<A> inputType, Reply<A, JsonObject> handler) {
-		if (!in.getString(0, urlOrAddress.length()).equals("{\"url\":\"" + urlOrAddress)) {
-			return;
+	// Note: replies at the same address!
+	public static <A, S extends ReadStream<Buffer> & WriteStream<Buffer>> boolean socket(S socket, String url,
+			Buffer in, Class<A> inputType, Reply<A, JsonObject> handler) {
+		String start = ("{\"url\":\"" + url);
+		if (in.length() < start.getBytes().length || !in.getString(0, start.length()).equals(start)) {
+			return false;
 		}
 
 		JsonObject json = in.toJsonObject();
-		JsonObject body = json.getJsonObject("body");
-		A input = null;
-		if (!body.isEmpty()) {
-			input = (A) Json.decodeValue(body.encode(), inputType);
-		}
+		A input = in(inputType, json.getString("body"));
 
-		Object output = handler.reply(input, json.getJsonObject("headers"));
+		String output = out(handler.reply(input, json.getJsonObject("headers")));
+		if (output == null) {
+			return false;
+		}
+		json.put("body", output);
+		json.remove("headers");
+		socket.write(Buffer.buffer(json.toString()));
+		return true;
+	}
+
+	public static interface Reply<A, B> {
+		public Object reply(A pojo, B context);
+	}
+
+	private static String out(Object output) {
+		String result = null;
 		if (output == null) { // do nothing
 		} else if (output instanceof java.lang.String) { // pass
-			socket.write(Buffer.buffer((String) output));
+			result = (String) output;
 		} else {
-			socket.write(Buffer.buffer(Json.encode(output)));
+			result = Json.encode(output);
 		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <I> I in(Class<I> inputType, String in) {
+		I result = null;
+		// no input type or null? use string
+		if (in.isEmpty() || inputType == null || inputType.getClass().equals(String.class)) {
+			result = (I) in;
+		} else {
+			result = (I) Json.decodeValue(in, inputType);
+		}
+		return result;
 	}
 
 }

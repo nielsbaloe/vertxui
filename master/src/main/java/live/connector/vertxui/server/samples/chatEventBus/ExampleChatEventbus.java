@@ -41,7 +41,7 @@ public class ExampleChatEventbus extends AbstractVerticle {
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
 		PermittedOptions freewayOK = new PermittedOptions().setAddress(Client.freeway);
-		PermittedOptions myDtoOK = new PermittedOptions().setAddress(Client.serviceAddress);
+		PermittedOptions myDtoOK = new PermittedOptions().setAddress(Client.addressPojo);
 		BridgeOptions firewall = new BridgeOptions().addInboundPermitted(freewayOK).addOutboundPermitted(freewayOK)
 				.addInboundPermitted(myDtoOK).addOutboundPermitted(myDtoOK);
 		router.route("/chatEventbus/*").handler(SockJSHandler.create(vertx).bridge(firewall
@@ -62,7 +62,7 @@ public class ExampleChatEventbus extends AbstractVerticle {
 		// broadcasting to everyone is done automaticly by .publish()
 
 		// extra: pojo example
-		Pojofy.eventbus(Client.serviceAddress, Dto.class, this::serviceDoSomething);
+		Pojofy.eventbus(Client.addressPojo, Dto.class, this::serviceDoSomething);
 
 		AllExamplesServer.startWarAndServer(Client.class, router, server);
 	}

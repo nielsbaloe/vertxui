@@ -24,8 +24,6 @@ public class ExampleChatWebsocket extends AbstractVerticle {
 		Vertx.vertx().deployVerticle(MethodHandles.lookup().lookupClass().getName());
 	}
 
-	public static String urlPojo = "urlPojo";
-
 	@Override
 	public void start() {
 		// Initialize the router and a webserver with HTTP-compression
@@ -45,12 +43,13 @@ public class ExampleChatWebsocket extends AbstractVerticle {
 				ids.remove(id); // leaving
 			});
 			socket.handler(buffer -> { // receiving
+				// extra: pojo example
+				if (Pojofy.socket(socket, Client.urlPojo, buffer, Dto.class, this::serviceDoSomething)) {
+					return;
+				}
 				String message = buffer.toString();
 				ids.forEach(i -> vertx.eventBus().send(i, message)); // broadcasting
 				// to reply to one: socket.writeFinalTextFrame(...);
-
-				// extra: pojo example
-				Pojofy.socket(urlPojo, buffer, socket, Dto.class, this::serviceDoSomething);
 			});
 		});
 

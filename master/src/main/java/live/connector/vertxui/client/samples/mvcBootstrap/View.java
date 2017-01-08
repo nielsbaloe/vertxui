@@ -12,7 +12,7 @@ public class View implements EntryPoint {
 
 	// private List<Bill> bills;
 
-	// TODO this is work-in-progress, get back in a few weeks!
+	// Note: THIS IS HEAVILY work-in-progress, get back in a few weeks!
 	public View() {
 		// Head
 		head.style("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css").scriptSync(
@@ -55,7 +55,7 @@ public class View implements EntryPoint {
 		// response.add(model, m -> {
 		// if (m.name != null) {
 		// return Fluent.Li(m.name);
-		// } else { // TODO support null case
+		// } else { // aghr support null case
 		// return Fluent.Li("no name yet.");
 		// }
 		// });

@@ -22,7 +22,7 @@ public class ExampleHelloWorld extends AbstractVerticle {
 		Router router = Router.router(vertx);
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
-		// Hello world examples: wait and do some server stuff for AJAX
+		// Wait and do some server stuff for AJAX
 		router.post(Client.url).handler(handle -> {
 			vertx.setTimer(1000, l -> {
 				handle.response().end("Hello, " + handle.request().getHeader("User-Agent"));

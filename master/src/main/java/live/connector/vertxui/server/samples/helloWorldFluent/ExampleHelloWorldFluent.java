@@ -27,10 +27,10 @@ public class ExampleHelloWorldFluent extends AbstractVerticle {
 		Router router = Router.router(vertx);
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
-		// Hello world examples: wait and do some server stuff for AJAX
+		// Wait and do some server stuff for AJAX
 		router.post(Client.url).handler(Pojofy.ajax(String.class, (m, c) -> {
-			// If you want to leave out the timer, you can also just say
-			// return "Hello,"..... because a string is just returned as is.
+			// Without timer, write 'return "Hello,".....' because strings are
+			// returned as is.
 			vertx.setTimer(1000, l -> {
 				c.response().end("Hello, " + c.request().getHeader("User-Agent"));
 			});
@@ -39,7 +39,7 @@ public class ExampleHelloWorldFluent extends AbstractVerticle {
 
 		// extra: pojo example. Here the Pojofy.ajax() makes more sense!
 		router.post(Client.urlPojo).handler(Pojofy.ajax(Dto.class, (m, c) -> {
-			log.info("received a pojo from the client: color=" + m.color);
+			log.info("Received a pojo from the client: color=" + m.color);
 			return new Dto("purple");
 		}));
 
