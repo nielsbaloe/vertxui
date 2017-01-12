@@ -1,10 +1,10 @@
 vertxui
 ===
 
-A 100% java 100% asynchronous toolkit using serverside [Vert.X](http://vertx.io/) and browserside GWT-elemental, with POJO codecs, Fluent HTML (with virtualDOM behind the scenes)), an Eventbus server and clientside, automatic browser reloading and more.
+A 100% Java 100% asynchronous toolkit (Vert.X and GWT elemental), with POJO serializers, Fluent HTML (with virtualDOM behind the scenes)), an Eventbus server and clientside, automatic browser reloading and more.
 
 VertxUI offers:
-* forget about URL's, just register and publish POJO's from and to websockets or sockjs or the eventbus.
+* forget about URL's, just register and publish POJO's with ajax websockets sockjs or the eventbus.
 * forget about HTML, just write fluent HTML.
 * forget about Javascript, you're familiar with Java.
 * forget about installing IDE tooling, the java to javascript translation happens run-time.
@@ -19,12 +19,12 @@ Pure-Java clientside (using GWT-elemental) means:
 * access to both the Java (threads etc) ánd the Javascript ecosystems
 * easy junit testing of client-side code, and other convenient Java tooling
  
-Vert.X adds:
+[Vert.X](http://vertx.io/) adds:
 * probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
 * no need for anything else: no Apache and Tomcat.
 * the serverside EventBus, and a wonderful speedy async ecosystem.
 
-Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, TodoMVC, Bootstrap, jQuery Mobile and more.
+Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, lots of POJO (de)serialization, TodoMVC, Bootstrap, jQuery Mobile and more.
 
 ### Serverside
 
@@ -70,14 +70,13 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 		...
 	}
 
-You can create state-aware FluentHTML objects. Fluent Html only updates the components that were changed: Work in progress!!
+You can create state-aware Fluent HTML objects. Fluent Html only updates the components that were changed: Work in progress!
 
 		response.add(model, m -> {
-				 return Fluent.Li(m.name);
+				 return Li("myClass").a(m.name, "/details?name=" + m.name);
 			}
 		});
-    ....
-    
+
 		input.keyup(event -> {
 			 model.name = input.value();
 			 response.sync(); // re-render
@@ -85,7 +84,7 @@ You can create state-aware FluentHTML objects. Fluent Html only updates the comp
 
 Use Java 8 lambda's and streams to write your user interface:
 
-	Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li(t)).forEach(ul::append);
+	Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li(t)).forEach(ul::add);
 
 ### EventBus at server and client in pure java gives beautiful MVC 
 
@@ -106,29 +105,19 @@ The model+view (browser):
 		response = body.div();
 		Input input = body.div().input("text", "aName");
 		
-		// Controller
-		EventBus eventBus = new EventBus("localhost/eventBus");
-		
+		// Controller		
 		input.keyUp(changed -> {
 			model.name = input.value();
-			eventBus.send("serviceAddress", model, null, new Handler<Output>() {
-				@Override
-				public void handle(Output o) {
-					console.log("Server said: " + o.betterName);
-				}
-			});
+			Pojofy.ajax("POST", "/ajax", model, modelMap, null, (String s) -> console.log(s));
 		});
 
 	}
 
-The controller (serverside) can be for example (EventBus example):
+The controller (serverside) can be for example (ajax example):
 
-		VertxUI.bind("serviceAddress", Model.class, this::serviceDoSomething);
-		...
-		public Output serviceDoSomething(Model received) {
-			...
-			}
-		
-		
+		router.post("/ajax").handler(Pojofy.ajax(Model.class, (m, c) -> {
+			log.info("Received a pojo from the client: color=" + m.color);
+			return "a string";
+		}));
 
 Niels Gorisse

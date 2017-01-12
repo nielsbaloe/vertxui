@@ -1,10 +1,10 @@
 Development:
-- pojo: try other gwt codec, already in pojofy
 !- continue mvcBootstrap+Bill/ virtualDOM   https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
 	http://www.w3schools.com/bootstrap/bootstrap_grid_basic.asp
 	Design: totals for all individuals, input fields (date, person, amount, notes), then a list of all entries.
+- check out vertx-jersey for the ajax traffic, try to get it working for sockets - vertx-socket-jersey?
 - create http://to do mvc.com
-- fix FigWheely: name of compiled .js changes in GWT... + go and look at sourcefolder instead of classes folder!
+- fix FigWheely: name of compiled .js changes in GWT... + look at sourcefolder + add model synchronizing
 - split in vertxui-server vertxui-client and vertxui-examples
 - ask vertx-awesome github list and GWT list and elsewhere
 - check open source app for android ios windows like siberiancms.com

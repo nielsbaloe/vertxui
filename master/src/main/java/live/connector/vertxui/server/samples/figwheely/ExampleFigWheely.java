@@ -9,7 +9,6 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import live.connector.vertxui.client.samples.figwheely.Client;
 import live.connector.vertxui.server.FigStaticHandler;
-import live.connector.vertxui.server.FigWheely;
 import live.connector.vertxui.server.samples.AllExamplesServer;
 
 public class ExampleFigWheely extends AbstractVerticle {
@@ -23,9 +22,6 @@ public class ExampleFigWheely extends AbstractVerticle {
 		// Initialize the router and a webserver with HTTP-compression
 		Router router = Router.router(vertx);
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
-
-		// Start figwheely and serve the javascript file
-		router.get(Client.figLocation).handler(FigWheely.create());
 
 		// Figwheely example: serve sources folder (if figwheely is off, it's
 		// just a normal statichandler)

@@ -20,17 +20,14 @@ public class Client implements EntryPoint {
 	private Fluent thinking;
 
 	public Client() {
-		button = body.div().button("Click me!").id("hello-button").click(evt -> clicked());
+		button = body.div().button("Click me!").id("hello-button").click(evt -> {
+			button.disabled(true);
+			thinking.css(Style.display, "");
+			Pojofy.ajax("POST", url, null, null, null, this::responsed);
+		});
 		response = body.div();
 		thinking = body.div().inner("The server waits as demonstration!").id("thinking-panel").css(Style.display,
 				"none");
-	}
-
-	private void clicked() {
-		button.disabled(true);
-		thinking.css(Style.display, "");
-
-		Pojofy.ajax("POST", url, null, null, null, (String a) -> responsed(a));
 	}
 
 	private void responsed(String text) {

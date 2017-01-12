@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.gwt.xhr.client.XMLHttpRequest;
 
@@ -23,11 +21,11 @@ import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
 
 /**
- * Fluent HTML. Use getDocument() getBody() and getHead() to start building your
- * interface. Adding childs is done by using the methods (like .li() ) or by
- * some constructors that can handle multiple arguments (like .div(li[]) ).
- * Attributes are set by attr(), styles by style(), and listeners by listen() or
- * their appropriate methods.
+ * Fluent HTML, child-based fluent-basednotation of html. Use getDocument()
+ * getBody() and getHead() to start building your interface. Adding childs is
+ * done by using the methods (like .li() ) or by some constructors that can
+ * handle multiple arguments (like .div(li[]) ). Attributes are set by attr(),
+ * styles by style(), and listeners by listen() or their appropriate methods.
  * 
  * @author ng
  *
@@ -53,6 +51,7 @@ public class Fluent {
 	 * must be synced).
 	 */
 	protected Element element;
+	private Fluent parent;
 
 	/**
 	 * Attached or detached: these are tag, attrs and children. If tag null, we
@@ -68,11 +67,24 @@ public class Fluent {
 	/**
 	 * API call for normal HTML elements. Without a parent: detached.
 	 */
-	protected Fluent(String tag, Fluent parent) {
+	private Fluent(String tag, Fluent parent) {
 		this.tag = tag;
-		if (tag != null && parent != null) {
+		this.parent = parent;
+
+		// Update parent
+		if (parent != null) {
+			if (parent.childs == null) {
+				parent.childs = new ArrayList<>();
+			}
+			parent.childs.add(this);
+		}
+
+		// Add to DOM if connected
+		if (tag != null && parent != null && parent.element != null) {
 			element = document.createElement(tag);
 			if (parent != null) {
+				// console.log("appending " + tag + " to parentTag: " +
+				// parent.tag);
 				parent.element.appendChild(element);
 			}
 		}
@@ -105,18 +117,11 @@ public class Fluent {
 	 * @return a fluent html object
 	 */
 
-	@SuppressWarnings("unchecked")
-	protected static <T extends Fluent> T dom(String id, Class<? extends Fluent> classs) {
-		Element found = document.getElementById("id");
-		// System.out.println(found.getTagName());
-		// if (!found.getTagName().equals(classs.getSimpleName().toLowerCase()))
-		// {
-		// throw new IllegalArgumentException("Requested non-existing dom with
-		// id=" + id + ": tagname="
-		// + found.getTagName() + " requesting tagname=" +
-		// classs.getSimpleName().toLowerCase());
-		// }
-		return (T) new Fluent(found);
+	protected static Fluent dom(String id) {
+		Element found = document.getElementById(id);
+		Fluent result = new Fluent(found);
+		result.tag = found.getTagName();
+		return result;
 	}
 
 	public Fluent inner(String innerHtml) {
@@ -309,57 +314,71 @@ public class Fluent {
 		return tag;
 	}
 
-	// Add
-
-	public Fluent add(List<? extends Fluent> items) {
+	private Fluent add(Fluent... items) {
 		for (Fluent item : items) {
-			add(item);
+
+			// add the most upper parent, not the item itsself (thanks to the
+			// fluent notation...)
+			while (item.parent != null) {
+				if (item.element != null) {
+					throw new IllegalArgumentException("Can not reconnect connected DOM elements");
+				}
+				item = item.parent;
+			}
+			console.log("adding " + item + " to " + this);
+			addWithoutSync(item);
 		}
+		sync();
 		return this;
 	}
 
-	public Fluent add(Fluent[] items) {
-		for (Fluent item : items) {
-			add(item);
-		}
-		return this;
-	}
-
-	public Fluent addd(Fluent... items) {
-		for (Fluent item : items) {
-			add(item);
-		}
-		return this;
-	}
-
-	public Fluent add(Stream<Fluent> streamy) {
-		add(streamy.collect(Collectors.toList()));
-		return this;
-	}
+	// public Fluent add(Stream<Fluent> stream) {
+	// stream.peek(f -> this.addWithoutSync(f));
+	// sync();
+	// return this;
+	// }
 
 	public <T> Fluent add(T model, ReactM<T> method) {
-		add(new ReactMC<T>(model, method));
+		addWithoutSync(new ReactMC<T>(model, method));
+		sync();
 		return this;
 	}
 
-	public Fluent add(Fluent add) {
+	private void addWithoutSync(Fluent add) {
 		if (childs == null) {
 			childs = new ArrayList<>();
 		}
 		childs.add(add);
-		sync(this, add);
-		return this;
 	}
 
-	public void sync() {
-		// TODO: hmm, how to sync ourselves? not necessary?
+	@Override
+	public String toString() {
+		String result = "Fluent{tag=";
+		if (tag == null) {
+			result += "null";
+		} else {
+			result += tag;
+		}
+		result += ",element=";
+		if (element == null) {
+			result += "null";
+		} else {
+			result += element.getNodeValue();
+		}
+		result += "}";
+		return result;
+	}
+
+	private void sync() {
 		for (Fluent child : childs) {
+			console.log("syncing: child:" + child);
 			sync(this, child);
 		}
 	}
 
-	private void sync(Fluent parent, Fluent add) {
-		if (element == null) { // not attached: no rendering
+	private static void sync(Fluent parent, Fluent add) {
+		console.log("add.tag=" + add.tag);
+		if (parent.element == null) { // not attached: no rendering
 			return;
 		}
 		while (add.tag == null) { // skip ReactC objects
@@ -374,7 +393,7 @@ public class Fluent {
 	}
 
 	private static void syncCreate(Fluent parent, Fluent add) {
-		console.log("creating " + add.tag);
+		console.log("syncCreate " + add.tag);
 		add.element = document.createElement(add.tag);
 		parent.element.appendChild(add.element);
 
@@ -402,8 +421,10 @@ public class Fluent {
 					child = ((ReactC) child).generate();
 				}
 				if (child.element == null) {
+					console.log("inner: creating child " + child);
 					syncCreate(add, child);
 				} else { // recycling of the old element!
+					console.log("inner: rerendering child " + child);
 					syncRender(add, child);
 				}
 			}
@@ -552,63 +573,61 @@ public class Fluent {
 	}
 
 	public Fluent button(String text) {
-		Fluent result = new Fluent("button", this);
+		Fluent result = new Fluent("BUTTON", this);
 		result.inner(text);
 		return result;
 	}
 
-	public Fluent li(String text) {
-		return li().inner(text);
-	}
-
-	private Fluent li() {
-		return new Fluent("li", this);
-	}
-
-	/**
-	 * Create an unattached li element
-	 */
-	public static Fluent Li(String text) {
-		return Li().inner(text);
+	public Fluent li(String classs, String text) {
+		return li(classs).inner(text);
 	}
 
 	public static Fluent Li() {
-		return new Fluent("li", null);
+		return new Fluent("LI", null);
+	}
+
+	public Fluent li() {
+		return new Fluent("LI", this);
+	}
+
+	public Fluent li(String classs) {
+		return li().classs(classs);
+	}
+
+	public static Fluent Li(String classs) {
+		return Li().classs(classs);
+	}
+
+	public static Fluent Li(String classs, String inner) {
+		return Li(classs).inner(inner);
 	}
 
 	public Fluent div() {
-		return new Fluent("div", this);
+		return new Fluent("DIV", this);
 	}
 
-	/**
-	 * Create an unattached div element
-	 */
 	public static Fluent Div() {
-		return new Fluent("div", null);
+		return new Fluent("DIV", null);
 	}
 
-	public Fluent div(List<? extends Fluent> list) {
+	public Fluent div(String classs) {
+		return div().classs(classs);
+	}
+
+	public static Fluent Div(String classs, Fluent... items) {
+		return Div().classs(classs).add(items);
+	}
+
+	public Fluent div(Fluent... list) {
 		return div().add(list);
 	}
 
-	public static Fluent Div(List<? extends Fluent> list) {
+	public static Fluent Div(Fluent... list) {
 		return Div().add(list);
 	}
 
-	public Fluent div(Fluent[] list) {
-		return div().add(list);
-	}
-
-	public static Fluent Div(Fluent[] list) {
-		return Div().add(list);
-	}
-
-	public Fluent divd(Fluent... list) {
-		return div().add(list);
-	}
-
-	public Fluent Divd(Fluent... list) {
-		return Div().add(list);
+	public static Fluent Div(String classs) {
+		return Div().classs(classs);
 	}
 
 	// REST
@@ -664,15 +683,19 @@ public class Fluent {
 	}
 
 	public Fluent wbr() {
-		return new Fluent("wbr", this);
+		return new Fluent("WBR", this);
 	}
 
-	public Fluent a(String href) {
-		return new Fluent("a", this).attr(Att.href, href);
+	public Fluent a(String inner, String href) {
+		return new Fluent("A", this).attr(Att.href, href).inner(inner);
+	}
+
+	public static Fluent A(String classs, String inner, String href) {
+		return new Fluent("A", null).attr(Att.href, href).classs(classs).inner(inner);
 	}
 
 	public Fluent abbr() {
-		return new Fluent("abbr", this);
+		return new Fluent("ABBR", this);
 	}
 
 	public Fluent address() {
@@ -819,16 +842,20 @@ public class Fluent {
 		return new Fluent("form", this);
 	}
 
-	public static Fluent h1(String text) {
-		return new Fluent("h1", null).inner(text);
+	public Fluent h1(String text) {
+		return new Fluent("H1", this).inner(text);
+	}
+
+	public static Fluent H1(String text) {
+		return new Fluent("H1", null).inner(text);
 	}
 
 	public Fluent h2(String text) {
-		return new Fluent("h2", this).inner(text);
+		return new Fluent("H2", this).inner(text);
 	}
 
 	public Fluent h3(String text) {
-		return new Fluent("h3", this).inner(text);
+		return new Fluent("H3", this).inner(text);
 	}
 
 	public Fluent h4(String text) {
@@ -901,6 +928,10 @@ public class Fluent {
 
 	public Fluent nav() {
 		return new Fluent("nav", this);
+	}
+
+	public Fluent nav(String classs) {
+		return nav().classs(classs);
 	}
 
 	public Fluent noscript() {
@@ -1138,7 +1169,19 @@ public class Fluent {
 	}
 
 	public Fluent ul() {
-		return new Fluent("ul", this);
+		return new Fluent("UL", this);
+	}
+
+	public static Fluent Ul() {
+		return new Fluent("UL", null);
+	}
+
+	public Fluent ul(String classs) {
+		return ul().classs(classs);
+	}
+
+	public Fluent ul(String classs, Fluent... items) {
+		return ul(classs).add(items);
 	}
 
 	public Fluent var() {

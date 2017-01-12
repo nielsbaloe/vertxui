@@ -35,7 +35,7 @@ public class Client implements EntryPoint {
 		eventBus.onopen(evt -> {
 			eventBus.publish(freeway, name + ": Ola, I'm " + name + ".", null);
 			eventBus.registerHandler(freeway, null, (error, in) -> { // onmessage
-				messages.li(in.get("body").asString());
+				messages.li(null, in.get("body").asString());
 			});
 
 			// extra example: pojo consume

@@ -31,7 +31,6 @@ public class VertxUI {
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	private Class<?> classs;
-	private boolean debug;
 
 	/**
 	 * Set the location of your source files if not /src, /src/main or
@@ -43,7 +42,6 @@ public class VertxUI {
 		librariesGwt = new ArrayList<>();
 		addLibrariesGwt("elemental.Elemental");
 		addLibrariesGwt("com.github.nmorel.gwtjackson.GwtJackson");
-		addLibrariesGwt("com.kfuntak.gwt.json.serialization.GWTProJsonSerializer");
 	}
 
 	/**
@@ -64,12 +62,10 @@ public class VertxUI {
 	 * If figwheely is started, debugging is always set to true.
 	 * 
 	 */
-	private VertxUI(Class<?> classs, boolean debug, String url) {
+	private VertxUI(Class<?> classs, String url) {
 		this.classs = classs;
-		this.debug = debug;
 
 		if (FigWheely.started) {
-			this.debug = true;
 			String classFile = FigWheely.buildDir + "/" + classs.getCanonicalName().replace(".", "/") + ".class";
 			File file = new File(classFile);
 			if (!file.exists()) {
@@ -93,7 +89,7 @@ public class VertxUI {
 		});
 	}
 
-	public static Handler<RoutingContext> with(Class<?> classs, boolean debug, String url) {
+	public static Handler<RoutingContext> with(Class<?> classs, String url) {
 
 		// If no sourceLocation, then we are in production so we don't do
 		// anything at all.
@@ -103,7 +99,7 @@ public class VertxUI {
 			}
 		});
 		if (sourceLocation != null) {
-			new VertxUI(classs, debug, url);
+			new VertxUI(classs, url);
 		}
 
 		return StaticHandler.create("war").setCachingEnabled(false);
@@ -113,8 +109,12 @@ public class VertxUI {
 		translate();
 	}
 
+	/**
+	 * Debug is false by default; enable Figwheely to set debug to true.
+	 */
 	public void translate() throws IOException, InterruptedException {
 		long start = System.currentTimeMillis();
+		boolean debug = FigWheely.started;
 
 		// Write index.html file which autoreloads
 		FileUtils.writeStringToFile(new File("war/index.html"),
@@ -138,11 +138,11 @@ public class VertxUI {
 
 		// Compile to javacript
 		try {
-			String options = "-strict -XnoclassMetadata -XdisableUpdateCheck";
+			String options = "-strict -XdisableUpdateCheck";
 			if (debug) {
-				options += " -draftCompile -optimize 0 -incremental";
+				options += " -draftCompile -optimize 0 -incremental -style DETAILED";
 			} else {
-				options += " -nodraftCompile -optimize 9 -noincremental";
+				options += " -XnoclassMetadata -nodraftCompile -optimize 9 -noincremental";
 			}
 			String classpath = System.getProperty("java.class.path") + ";" + sourceLocation;
 			String line = null;
@@ -155,14 +155,13 @@ public class VertxUI {
 				while (p.isAlive()) {
 					while ((line = bri.readLine()) != null) {
 						info.append(line + "\n");
+						System.out.print(".");
 						if (line.contains("[ERROR]")) {
-							System.out.println(line);
 							error = true;
 						}
 					}
 					while ((line = bre.readLine()) != null) {
 						info.append(line + "\n");
-						System.err.println(line);
 						error = true;
 					}
 				}
@@ -170,7 +169,7 @@ public class VertxUI {
 			if (error) {
 				throw new IOException("Compile error(s): " + info);
 			}
-			System.out.println("Compiling done in " + (System.currentTimeMillis() - start) + " ms.");
+			log.info("compiled in " + (System.currentTimeMillis() - start) + " ms.");
 		} finally {
 			gwtXml.delete();
 		}

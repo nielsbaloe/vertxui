@@ -37,7 +37,7 @@ public class Client implements EntryPoint {
 				return;
 			}
 
-			messages.li(((MessageEvent) e).getData().toString());
+			messages.li(null, ((MessageEvent) e).getData().toString());
 		});
 		input.keydown(evt -> {
 			if (((UIEvent) evt).getKeyCode() == 13) {

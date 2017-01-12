@@ -1,10 +1,11 @@
 package live.connector.vertxui.client.samples.mvcBootstrap;
 
-import static live.connector.vertxui.client.fluent.Fluent.body;
+import static live.connector.vertxui.client.fluent.Fluent.*;
 import static live.connector.vertxui.client.fluent.Fluent.head;
 
 import com.google.gwt.core.client.EntryPoint;
 
+import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 
@@ -21,17 +22,18 @@ public class View implements EntryPoint {
 		head.meta().attr(Att.charset, "utf-8");
 		head.meta().attr(Att.name_, "viewport").attr(Att.content, "width=device-width, initial-scale=1");
 
-		// Body
-		body.divd(Fluent.h1("Bills")).classs("jumbotron text-center");
+		// Header
+		body.div().h1("Bills").classs("jumbotron text-center");
 
-		// Controller-SERVER
-		// input.keyUp(event -> {
-		// model.name = input.getValue();
-		// eventBus.publish(model);
-		// });
-		// eventBus.consume(ModelReceiveDto.class, a -> {
-		// response.inner("Server says: " + a);
-		// });
+		// Menu
+		Fluent container = body.nav("navbar navbar-inverse").div("container-fluid");
+		container.div("navbar-header").a("Bills menu", "#").classs("navbar-brand");
+		container.ul("nav navbar-nav", Li("active").a("Home", "#").click(this::menuHome),
+				Li().a("Bills", "#").click(this::menuBills), Li().a("Grocery list", "#").click(this::menuGroceryList));
+
+		// EXAMPLES AND TESTS
+		// EXAMPLES AND TESTS
+		// EXAMPLES AND TESTS
 
 		// // Controller-GUI
 		// Div response = body.div();
@@ -65,6 +67,15 @@ public class View implements EntryPoint {
 		// console.log("model name: " + model.name);
 		// response.sync(); // re-render
 		// });
+	}
+
+	public void menuHome(Event evt) {
+	}
+
+	public void menuBills(Event evt) {
+	}
+
+	public void menuGroceryList(Event evt) {
 	}
 
 	@Override
