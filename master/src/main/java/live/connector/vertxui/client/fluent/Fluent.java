@@ -12,13 +12,14 @@ import elemental.dom.Document;
 import elemental.dom.Element;
 import elemental.dom.NamedNodeMap;
 import elemental.dom.Node;
-import elemental.dom.NodeList;
 import elemental.events.Event;
 import elemental.events.EventListener;
 import elemental.html.Console;
+import elemental.html.HTMLCollection;
 import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
+import live.connector.vertxui.client.fluent.State.Function;
 
 /**
  * Fluent HTML, child-based fluent-basednotation of html. Use getDocument()
@@ -30,7 +31,7 @@ import elemental.js.html.JsWindow;
  * @author ng
  *
  */
-public class Fluent {
+public class Fluent implements Viewy {
 
 	public final static Document document = getDocument();// Browser.getDocument();
 	public final static Window window = getWindow(); // Browser.getWindow();
@@ -61,14 +62,14 @@ public class Fluent {
 	private Map<Att, String> attrs;
 	private Map<Style, String> styles;
 	private Map<String, EventListener> listeners;
-	private List<Fluent> childs;
+	private List<Viewy> childs;
 	private String inner;
 
 	/**
 	 * API call for normal HTML elements. Without a parent: detached.
 	 */
 	private Fluent(String tag, Fluent parent) {
-		this.tag = tag;
+		this.tag = tag.toUpperCase();
 		this.parent = parent;
 
 		// Update parent
@@ -328,7 +329,7 @@ public class Fluent {
 			console.log("adding " + item + " to " + this);
 			addWithoutSync(item);
 		}
-		sync();
+		syncChildren(this);
 		return this;
 	}
 
@@ -338,13 +339,15 @@ public class Fluent {
 	// return this;
 	// }
 
-	public <T> Fluent add(T model, ReactM<T> method) {
-		addWithoutSync(new ReactMC<T>(model, method));
-		sync();
-		return this;
+	public <T> State<T> add(T initialState, Function<T, Fluent> method) {
+		State<T> result = new State<T>(initialState, method);
+		result.setParent(this);
+		addWithoutSync(result);
+		syncChild(this, result, null);
+		return result;
 	}
 
-	private void addWithoutSync(Fluent add) {
+	private void addWithoutSync(Viewy add) {
 		if (childs == null) {
 			childs = new ArrayList<>();
 		}
@@ -363,32 +366,61 @@ public class Fluent {
 		if (element == null) {
 			result += "null";
 		} else {
-			result += element.getNodeValue();
+			result += element.getNodeName();
 		}
 		result += "}";
 		return result;
 	}
 
-	private void sync() {
-		for (Fluent child : childs) {
-			console.log("syncing: child:" + child);
-			sync(this, child);
+	// Convert from ReactC to Fluent
+	private static Fluent toFluent(Viewy viewy) {
+		Fluent result = null;
+		if (viewy instanceof State) {
+			result = ((State<?>) viewy).generate();
+		} else {
+			result = (Fluent) viewy;
 		}
+		return result;
+
 	}
 
-	private static void sync(Fluent parent, Fluent add) {
-		console.log("add.tag=" + add.tag);
+	protected static void syncChildren(Fluent parent) {
 		if (parent.element == null) { // not attached: no rendering
 			return;
 		}
-		while (add.tag == null) { // skip ReactC objects
-			add = ((ReactC) add).generate();
+		HTMLCollection viewingChildren = parent.element.getChildren();
+		for (int x = 0; x < viewingChildren.getLength() || x < parent.childs.size(); x++) {
+			Node viewing = null;
+			if (x < viewingChildren.length()) {
+				viewing = viewingChildren.item(x);
+			}
+			Viewy child = null;
+			if (x < parent.childs.size()) {
+				child = parent.childs.get(x);
+			}
+			syncChild(parent, child, viewing);
 		}
-		if (add.element != null) { // add is already attached
-			console.log("already attached " + add.tag);
-			syncRender(parent, add);
+	}
+
+	protected static void syncChild(Fluent parent, Viewy add, Node currentView) {
+		console.log("Syncing child: parent=" + parent + " add=" + add + " currentView=" + currentView);
+
+		if (parent.element == null) { // not attached: no rendering
+			return;
+		}
+
+		// handle
+		if (add == null) {
+			if (currentView != null) {
+				parent.element.removeChild(currentView);
+			}
+			return;
+		}
+		Fluent result = toFluent(add);
+		if (currentView == null) {
+			syncCreate(parent, result);
 		} else {
-			syncCreate(parent, add);
+			syncRender(parent, result, currentView);
 		}
 	}
 
@@ -416,17 +448,8 @@ public class Fluent {
 			}
 		}
 		if (add.childs != null) {
-			for (Fluent child : add.childs) {
-				while (child.tag == null) { // skip ReactC objects
-					child = ((ReactC) child).generate();
-				}
-				if (child.element == null) {
-					console.log("inner: creating child " + child);
-					syncCreate(add, child);
-				} else { // recycling of the old element!
-					console.log("inner: rerendering child " + child);
-					syncRender(add, child);
-				}
+			for (Viewy child : add.childs) {
+				syncCreate(add, toFluent(child));
 			}
 		}
 	}
@@ -437,11 +460,16 @@ public class Fluent {
 
 	/**
 	 * Check whether the fluenthtml and its element are in sync
+	 * 
+	 * @param currentView
 	 */
 	// TODO bijhouden wat er veranderd is, zodat niet heel deze check hoeft te
-	// worden doorgevoerd
-	private static void syncRender(Fluent parent, Fluent add) {
+	// worden doorgevoerd: USE CURRENTVIEW!!!!!!!
+	private static void syncRender(Fluent parent, Fluent add, Node currentView) {
+		add.element = (Element) currentView;
 		if (!compare(add.tag, add.element.getTagName())) {
+			console.log("syncRender: leuk maar tagname anders");
+			parent.element.removeChild(currentView);
 			syncCreate(parent, add);
 			return;
 		}
@@ -493,34 +521,13 @@ public class Fluent {
 			}
 		}
 		// TODO remove all listeners!
-		// for (NameListen name : add.listeners.keySet()) { // add or adjust
-		// EventListener<?> value = add.listeners.get(name);
-		// .............?
+		// if (add.listeners!=null) {
+		// for (String listener : add.listeners.keySet()) {
+		// if (add.element.addEventListener(type, listener))
 		// }
-		NodeList existChildren = add.element.getChildNodes();
-		if (add.childs != null) {
-			for (int x = 0; x < add.childs.size(); x++) {
-				Fluent child = add.childs.get(x);
-				while (child.tag == null) { // skip ReactC objects
-					child = ((ReactC) child).generate();
-				}
-				child.element = (Element) existChildren.item(x);
-				if (child.element == null) {
-					syncCreate(parent, child);
-				} else {
-					syncRender(parent, child);
-				}
-			}
-		}
-
-		// Just remove remaining children
-		int size = 0;
-		if (add.childs != null) {
-			size = add.childs.size();
-		}
-		for (int x = size; x < existChildren.getLength(); x++) {
-			add.element.removeChild(existChildren.item(x));
-		}
+		// }
+		//
+		syncChildren(add);
 	}
 
 	public Fluent hidden(boolean b) {
@@ -1113,7 +1120,7 @@ public class Fluent {
 	}
 
 	public Fluent table() {
-		return new Fluent("table", this);
+		return new Fluent("TABLE", this);
 	}
 
 	public Fluent tbody() {
@@ -1121,19 +1128,19 @@ public class Fluent {
 	}
 
 	public Fluent td() {
-		return new Fluent("td", this);
+		return new Fluent("TD", this);
 	}
 
 	public Fluent td(String text) {
-		return new Fluent("td", this).inner(text);
+		return new Fluent("TD", this).inner(text);
 	}
 
 	public Fluent textarea() {
-		return new Fluent("textarea", this);
+		return new Fluent("TEXTAREA", this);
 	}
 
 	public Fluent tfoot() {
-		return new Fluent("tfoot", this);
+		return new Fluent("TFOOT", this);
 	}
 
 	public Fluent th() {
@@ -1165,7 +1172,7 @@ public class Fluent {
 	}
 
 	public Fluent u(String text) {
-		return new Fluent("u", this).inner(text);
+		return new Fluent("U", this).inner(text);
 	}
 
 	public Fluent ul() {
@@ -1174,6 +1181,10 @@ public class Fluent {
 
 	public static Fluent Ul() {
 		return new Fluent("UL", null);
+	}
+
+	public static Fluent Ul(String classs) {
+		return Ul().classs(classs);
 	}
 
 	public Fluent ul(String classs) {
@@ -1185,7 +1196,7 @@ public class Fluent {
 	}
 
 	public Fluent var() {
-		return new Fluent("var", this);
+		return new Fluent("VAR", this);
 	}
 
 	public Fluent video() {

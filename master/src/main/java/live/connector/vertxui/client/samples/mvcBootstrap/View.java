@@ -1,17 +1,19 @@
 package live.connector.vertxui.client.samples.mvcBootstrap;
 
 import static live.connector.vertxui.client.fluent.Fluent.*;
-import static live.connector.vertxui.client.fluent.Fluent.head;
 
 import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
+import live.connector.vertxui.client.fluent.State;
 
 public class View implements EntryPoint {
 
-	// private List<Bill> bills;
+	// private List<Model> bills;
+
+	private State<String> mvMenu;
 
 	// Note: THIS IS HEAVILY work-in-progress, get back in a few weeks!
 	public View() {
@@ -28,54 +30,35 @@ public class View implements EntryPoint {
 		// Menu
 		Fluent container = body.nav("navbar navbar-inverse").div("container-fluid");
 		container.div("navbar-header").a("Bills menu", "#").classs("navbar-brand");
-		container.ul("nav navbar-nav", Li("active").a("Home", "#").click(this::menuHome),
-				Li().a("Bills", "#").click(this::menuBills), Li().a("Grocery list", "#").click(this::menuGroceryList));
+
+		// http://www.w3schools.com/bootstrap/bootstrap_navbar.asp
+		mvMenu = container.div().add("home", s -> {
+			Fluent result = Ul("nav navbar-nav");
+			result.li(s.equals("home") ? "active" : null).a("Home", "#").click(this::menuHome);
+			result.li(s.equals("bills") ? "active" : null).a("Bills", "#").click(this::menuBills);
+			result.li(s.equals("grocery") ? "active" : null).a("Grocery", "#").click(this::menuGrocery);
+			return result;
+		});
 
 		// EXAMPLES AND TESTS
 		// EXAMPLES AND TESTS
 		// EXAMPLES AND TESTS
-
-		// // Controller-GUI
-		// Div response = body.div();
-		// // Append something
-		// response.add(body.li("bla"));
-		// // Append a stream of things
+		// TODO re-add the stream functionality
 		// response.add(Arrays.asList("aaa", "a").stream().filter(e ->
-		// e.length() > 1).map(t -> Fluent.Li(t)));
-		// // Create a custom class with a custom constructor that gets the
-		// model
-		// // (not here) and call sync() on your class when the model changes.
-		// response.add(new ReactC() {
-		// @Override
-		// public Fluent generate() {
-		// return Fluent.Li("no Model");
-		// }
-		// });
-		// // Or, give a model and a transfer function, and call sync on the
-		// parent
-		// // which is here 'response'!!
-		// response.add(model, m -> {
-		// if (m.name != null) {
-		// return Fluent.Li(m.name);
-		// } else { // aghr support null case
-		// return Fluent.Li("no name yet.");
-		// }
-		// });
-		//
-		// input.keyup(event -> {
-		// model.name = input.value();
-		// console.log("model name: " + model.name);
-		// response.sync(); // re-render
-		// });
+		// e.length() > 1).map(t -> Li(t)));
+
 	}
 
 	public void menuHome(Event evt) {
+		mvMenu.state("home");
 	}
 
 	public void menuBills(Event evt) {
+		mvMenu.state("bills");
 	}
 
-	public void menuGroceryList(Event evt) {
+	public void menuGrocery(Event evt) {
+		mvMenu.state("grocery");
 	}
 
 	@Override

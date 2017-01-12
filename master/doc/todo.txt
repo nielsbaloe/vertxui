@@ -4,8 +4,10 @@ Development:
 	Design: totals for all individuals, input fields (date, person, amount, notes), then a list of all entries.
 - check out vertx-jersey for the ajax traffic, try to get it working for sockets - vertx-socket-jersey?
 - create http://to do mvc.com
+- create just writing all javascript for an existing index.html website
+- create examples with webrtc
 - fix FigWheely: name of compiled .js changes in GWT... + look at sourcefolder + add model synchronizing
 - split in vertxui-server vertxui-client and vertxui-examples
-- ask vertx-awesome github list and GWT list and elsewhere
+- publish: ask vertx-awesome github list and GWT list and elsewhere
 - check open source app for android ios windows like siberiancms.com
 
