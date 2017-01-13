@@ -5,6 +5,6 @@ package live.connector.vertxui.client.fluent;
  * @author ng
  *
  */
-public interface Viewy {
+public interface Viewable {
 
 }

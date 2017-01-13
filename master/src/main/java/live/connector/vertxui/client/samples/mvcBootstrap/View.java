@@ -1,19 +1,21 @@
 package live.connector.vertxui.client.samples.mvcBootstrap;
 
-import static live.connector.vertxui.client.fluent.Fluent.*;
+import static live.connector.vertxui.client.fluent.Fluent.Ul;
+import static live.connector.vertxui.client.fluent.Fluent.body;
+import static live.connector.vertxui.client.fluent.Fluent.head;
 
 import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.fluent.State;
+import live.connector.vertxui.client.fluent.ViewOf;
 
 public class View implements EntryPoint {
 
 	// private List<Model> bills;
 
-	private State<String> mvMenu;
+	private ViewOf<String> mvMenu;
 
 	// Note: THIS IS HEAVILY work-in-progress, get back in a few weeks!
 	public View() {
@@ -40,12 +42,9 @@ public class View implements EntryPoint {
 			return result;
 		});
 
-		// EXAMPLES AND TESTS
-		// EXAMPLES AND TESTS
-		// EXAMPLES AND TESTS
-		// TODO re-add the stream functionality
-		// response.add(Arrays.asList("aaa", "a").stream().filter(e ->
-		// e.length() > 1).map(t -> Li(t)));
+		// Use example of stream 
+		// body.ul().add(Stream.of("aaa", "a").filter(e -> e.length() > 1).map(t
+		// -> Li(null, t)));
 
 	}
 

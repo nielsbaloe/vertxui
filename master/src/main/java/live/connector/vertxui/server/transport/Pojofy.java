@@ -13,7 +13,10 @@ import io.vertx.ext.web.RoutingContext;
 public class Pojofy {
 
 	/**
-	 * Create a web-handler which gets a pojo of type inputType.
+	 * Create a web-handler which gets a pojo of type inputType. Note: please
+	 * use vertx-jersey if you have a lot of ajax calls (if you don't use vert.x
+	 * as microservice), that is probably faster and better to use due to clean
+	 * code.
 	 * 
 	 * @param inputType
 	 *            a pojo type, or String.class for a string

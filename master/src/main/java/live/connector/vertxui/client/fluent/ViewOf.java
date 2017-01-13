@@ -1,15 +1,15 @@
 package live.connector.vertxui.client.fluent;
 
 /**
- * A view on a state.
+ * A view of a state.
  *
  */
-public class State<A> implements Viewy {
+public class ViewOf<A> implements Viewable {
 	private A state;
 	private Function<A, Fluent> m;
 	private Fluent parent;
 
-	public State(A state, Function<A, Fluent> m) {
+	public ViewOf(A state, Function<A, Fluent> m) {
 		this.state = state;
 		this.m = m;
 	}
@@ -31,16 +31,16 @@ public class State<A> implements Viewy {
 	}
 
 	/**
-	 * Set the current state and resync(). You can also keep the state yourself
+	 * Set the current state and sync(). You can also keep the state yourself
 	 * and call sync();
 	 */
-	public State<A> state(A state) {
+	public ViewOf<A> state(A state) {
 		this.state = state;
 		return sync();
 	}
 
-	public State<A> sync() {
-		Fluent.syncChildren(parent);
+	public ViewOf<A> sync() {
+		Renderer.syncChildren(parent);
 		// TODO if we know that there are 0 previous children:
 		// Fluent.syncChild(parent, this, null);
 		return this;
@@ -49,4 +49,5 @@ public class State<A> implements Viewy {
 	public static interface Function<I, O> {
 		public O handle(I i);
 	}
+	
 }

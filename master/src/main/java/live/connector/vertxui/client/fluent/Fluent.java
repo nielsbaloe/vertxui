@@ -4,22 +4,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import com.google.gwt.xhr.client.XMLHttpRequest;
 
-import elemental.css.CSSStyleDeclaration;
 import elemental.dom.Document;
 import elemental.dom.Element;
-import elemental.dom.NamedNodeMap;
 import elemental.dom.Node;
 import elemental.events.Event;
 import elemental.events.EventListener;
 import elemental.html.Console;
-import elemental.html.HTMLCollection;
 import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
-import live.connector.vertxui.client.fluent.State.Function;
+import live.connector.vertxui.client.fluent.ViewOf.Function;
 
 /**
  * Fluent HTML, child-based fluent-basednotation of html. Use getDocument()
@@ -31,7 +29,7 @@ import live.connector.vertxui.client.fluent.State.Function;
  * @author ng
  *
  */
-public class Fluent implements Viewy {
+public class Fluent implements Viewable {
 
 	public final static Document document = getDocument();// Browser.getDocument();
 	public final static Window window = getWindow(); // Browser.getWindow();
@@ -52,18 +50,18 @@ public class Fluent implements Viewy {
 	 * must be synced).
 	 */
 	protected Element element;
-	private Fluent parent;
+	protected Fluent parent;
 
 	/**
 	 * Attached or detached: these are tag, attrs and children. If tag null, we
 	 * are a non-API tag.
 	 */
-	private String tag;
-	private Map<Att, String> attrs;
-	private Map<Style, String> styles;
-	private Map<String, EventListener> listeners;
-	private List<Viewy> childs;
-	private String inner;
+	protected String tag;
+	protected Map<Att, String> attrs;
+	protected Map<Style, String> styles;
+	protected Map<String, EventListener> listeners;
+	protected List<Viewable> childs;
+	protected String inner;
 
 	/**
 	 * API call for normal HTML elements. Without a parent: detached.
@@ -315,219 +313,61 @@ public class Fluent implements Viewy {
 		return tag;
 	}
 
-	private Fluent add(Fluent... items) {
-		for (Fluent item : items) {
-
-			// add the most upper parent, not the item itsself (thanks to the
-			// fluent notation...)
-			while (item.parent != null) {
-				if (item.element != null) {
-					throw new IllegalArgumentException("Can not reconnect connected DOM elements");
-				}
-				item = item.parent;
-			}
-			console.log("adding " + item + " to " + this);
-			addWithoutSync(item);
-		}
-		syncChildren(this);
-		return this;
-	}
-
-	// public Fluent add(Stream<Fluent> stream) {
-	// stream.peek(f -> this.addWithoutSync(f));
-	// sync();
-	// return this;
-	// }
-
-	public <T> State<T> add(T initialState, Function<T, Fluent> method) {
-		State<T> result = new State<T>(initialState, method);
-		result.setParent(this);
-		addWithoutSync(result);
-		syncChild(this, result, null);
-		return result;
-	}
-
-	private void addWithoutSync(Viewy add) {
+	private void addNew(Viewable item) {
 		if (childs == null) {
 			childs = new ArrayList<>();
 		}
-		childs.add(add);
+		if (item instanceof Fluent) {
+			item = Renderer.getRootOfStaticFluent((Fluent) item);
+		}
+		childs.add(item);
+		Renderer.syncChild(this, item, null);
+	}
+
+	private Fluent add(Fluent... items) {
+		for (Fluent item : items) {
+			addNew(item);
+		}
+		return this;
+	}
+
+	public Fluent add(Stream<Fluent> stream) {
+		stream.forEach(item -> addNew(item));
+		return this;
+	}
+
+	public <T> ViewOf<T> add(T initialState, Function<T, Fluent> method) {
+		ViewOf<T> result = new ViewOf<T>(initialState, method);
+		result.setParent(this);
+		addNew(result);
+		return result;
 	}
 
 	@Override
 	public String toString() {
-		String result = "Fluent{tag=";
+		String result = "Fluent{<";
 		if (tag == null) {
 			result += "null";
 		} else {
 			result += tag;
 		}
-		result += ",element=";
+		if (attrs != null) {
+			for (Att attr : attrs.keySet()) {
+				result += " " + attr.nameValid() + "=" + attrs.get(attr);
+			}
+		}
+		result += " /> el=";
 		if (element == null) {
 			result += "null";
 		} else {
 			result += element.getNodeName();
 		}
+		result += ", parent.tag=";
+		if (parent != null) {
+			result += parent.tag;
+		}
 		result += "}";
 		return result;
-	}
-
-	// Convert from ReactC to Fluent
-	private static Fluent toFluent(Viewy viewy) {
-		Fluent result = null;
-		if (viewy instanceof State) {
-			result = ((State<?>) viewy).generate();
-		} else {
-			result = (Fluent) viewy;
-		}
-		return result;
-
-	}
-
-	protected static void syncChildren(Fluent parent) {
-		if (parent.element == null) { // not attached: no rendering
-			return;
-		}
-		HTMLCollection viewingChildren = parent.element.getChildren();
-		for (int x = 0; x < viewingChildren.getLength() || x < parent.childs.size(); x++) {
-			Node viewing = null;
-			if (x < viewingChildren.length()) {
-				viewing = viewingChildren.item(x);
-			}
-			Viewy child = null;
-			if (x < parent.childs.size()) {
-				child = parent.childs.get(x);
-			}
-			syncChild(parent, child, viewing);
-		}
-	}
-
-	protected static void syncChild(Fluent parent, Viewy add, Node currentView) {
-		console.log("Syncing child: parent=" + parent + " add=" + add + " currentView=" + currentView);
-
-		if (parent.element == null) { // not attached: no rendering
-			return;
-		}
-
-		// handle
-		if (add == null) {
-			if (currentView != null) {
-				parent.element.removeChild(currentView);
-			}
-			return;
-		}
-		Fluent result = toFluent(add);
-		if (currentView == null) {
-			syncCreate(parent, result);
-		} else {
-			syncRender(parent, result, currentView);
-		}
-	}
-
-	private static void syncCreate(Fluent parent, Fluent add) {
-		console.log("syncCreate " + add.tag);
-		add.element = document.createElement(add.tag);
-		parent.element.appendChild(add.element);
-
-		if (add.attrs != null) {
-			for (Att name : add.attrs.keySet()) {
-				add.element.setAttribute(name.nameValid(), add.attrs.get(name));
-			}
-		}
-		if (add.styles != null) {
-			for (Style name : add.styles.keySet()) {
-				add.element.getStyle().setProperty(name.nameValid(), add.styles.get(name));
-			}
-		}
-		if (add.inner != null) {
-			add.inner(add.inner);
-		}
-		if (add.listeners != null) {
-			for (String name : add.listeners.keySet()) {
-				((Node) add.element).addEventListener(name, add.listeners.get(name));
-			}
-		}
-		if (add.childs != null) {
-			for (Viewy child : add.childs) {
-				syncCreate(add, toFluent(child));
-			}
-		}
-	}
-
-	private static boolean compare(String str1, String str2) {
-		return (str1 == null ? str2 == null : str1.equalsIgnoreCase(str2));
-	}
-
-	/**
-	 * Check whether the fluenthtml and its element are in sync
-	 * 
-	 * @param currentView
-	 */
-	// TODO bijhouden wat er veranderd is, zodat niet heel deze check hoeft te
-	// worden doorgevoerd: USE CURRENTVIEW!!!!!!!
-	private static void syncRender(Fluent parent, Fluent add, Node currentView) {
-		add.element = (Element) currentView;
-		if (!compare(add.tag, add.element.getTagName())) {
-			console.log("syncRender: leuk maar tagname anders");
-			parent.element.removeChild(currentView);
-			syncCreate(parent, add);
-			return;
-		}
-		// innerHtml
-		if (!compare(add.inner, add.element.getInnerHTML())) {
-			add.element.setInnerHTML(add.inner);
-		}
-		// Attrs
-		NamedNodeMap elementAttrs = (NamedNodeMap) add.element.getAttributes();
-		if (add.attrs != null) {
-			for (Att name : add.attrs.keySet()) { // add or adjust
-				String value = add.attrs.get(name);
-
-				Node elementNow = elementAttrs.getNamedItem(name.nameValid());
-				if (elementNow == null) {
-					add.element.setAttribute(name.nameValid(), value);
-				} else if (!elementNow.getNodeValue().equals(value)) {
-					elementNow.setNodeValue(value);
-				}
-			}
-		}
-		for (int x = elementAttrs.getLength() - 1; x != -1; x--) { // remove
-			Node elementAttr = elementAttrs.item(x);
-			if (add.attrs == null || !add.attrs.containsKey(Att.valueOfValid(elementAttr.getNodeName()))) {
-				elementAttrs.removeNamedItem(elementAttr.getNodeName());
-			}
-		}
-		// Style
-		CSSStyleDeclaration elementStyles = add.element.getStyle();
-		if (add.styles != null) {
-			for (Style name : add.styles.keySet()) { // add or adjust
-				String nameValid = name.nameValid();
-				String value = add.styles.get(name);
-
-				String elementNow = elementStyles.getPropertyValue(nameValid);
-				if (elementNow == null) {
-					elementStyles.setProperty(nameValid, value);
-				} else if (!elementNow.equals(value)) {
-					elementStyles.removeProperty(nameValid);
-					// TODO is remove necessary?
-					elementStyles.setProperty(nameValid, value);
-				}
-			}
-		}
-		for (int x = elementStyles.getLength() - 1; x != -1; x--) { // remove
-			String elementStyle = elementStyles.item(x);
-			if (add.styles == null || !add.styles.containsKey(Style.valueOfValid(elementStyle))) {
-				elementStyles.removeProperty(elementStyle);
-			}
-		}
-		// TODO remove all listeners!
-		// if (add.listeners!=null) {
-		// for (String listener : add.listeners.keySet()) {
-		// if (add.element.addEventListener(type, listener))
-		// }
-		// }
-		//
-		syncChildren(add);
 	}
 
 	public Fluent hidden(boolean b) {
@@ -625,8 +465,20 @@ public class Fluent implements Viewy {
 		return Div().classs(classs).add(items);
 	}
 
+	public static Fluent Div(String classs, Stream<Fluent> stream) {
+		return Div(classs).add(stream);
+	}
+
 	public Fluent div(Fluent... list) {
 		return div().add(list);
+	}
+
+	public Fluent div(Stream<Fluent> stream) {
+		return div().add(stream);
+	}
+
+	public Fluent div(String classs, Stream<Fluent> stream) {
+		return div(classs).add(stream);
 	}
 
 	public static Fluent Div(Fluent... list) {
@@ -1048,6 +900,7 @@ public class Fluent implements Viewy {
 	 * @param jss
 	 * @return
 	 */
+	// TODO: write VertxUI.addScript()
 	public Fluent script(String... jss) {
 		for (String js : jss) {
 			new Fluent("script", this).attr(Att.type, "text/javascript").attr(Att.src, js);

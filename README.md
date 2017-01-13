@@ -1,14 +1,14 @@
 vertxui
 ===
 
-A 100% Java 100% asynchronous toolkit (Vert.X and GWT elemental), with POJO serializers, Fluent HTML (with virtualDOM behind the scenes)), an Eventbus server and clientside, automatic browser reloading and more.
+A 100% Java 100% asynchronous toolkit (Vert.X and GWT elemental), with POJO serializers, Fluent HTML (with virtualDOM behind the scenes), an Eventbus server and clientside, automatic browser reloading and more.
 
 VertxUI offers:
 * forget about URL's, just register and publish POJO's with ajax websockets sockjs or the eventbus.
-* forget about HTML, just write fluent HTML.
+* forget about HTML or learning a HTML-ish language like ReactJS, just write fluent HTML with lambda's and streams.
 * forget about Javascript, you're familiar with Java.
 * forget about installing IDE tooling, the java to javascript translation happens run-time.
-* during development: automatic browser reloading of generated javascript and other files (.css/.jpg) without browser refresh.
+* during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
 * Fluent html has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
 * websockets, sockjs and the VertX EventBus are available at server and browsers in the same language.
 
@@ -28,7 +28,7 @@ Examples are included for: hello world (vanilla js and Fluent HTML), automatic b
 
 ### Serverside
 
-The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary (single-lined) wrapping HTML, ready to be shown in the browser. So, not only forget about javascript, but forget about editing html files too. Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples).
+The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary (single-lined) wrapping HTML, ready to be shown in the browser. It compiles to javascript too (if there is a source folder), that doesn't happen by installing any IDE plugin. Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples).
 
 	router.route("/client").handler(new VertxUI(Client.class, true));
 
@@ -70,25 +70,31 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 		...
 	}
 
-You can create state-aware Fluent HTML objects. Fluent Html only updates the components that were changed: Work in progress!
+You can create state-aware Fluent HTML objects too. Fluent Html only updates the components that were changed: Work in progress!
 
-		response.add(model, m -> {
+		ViewOf<Model> view = response.add(model, m -> {
 				 return Li("myClass").a(m.name, "/details?name=" + m.name);
 			}
 		});
 
 		input.keyup(event -> {
 			 model.name = input.value();
-			 response.sync(); // re-render
+			 view.sync(); // re-render.
 		});
 
-Use Java 8 lambda's and streams to write your user interface:
+The ViewOf<> object also keeps the state. In case you don't keep a reference your models, you can also use it to set a new state. By setting the state it also calls .sync(). This is specificly usefull when your Model is just a String. For example, if Model has a constructor which takes the name:
 
-	Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li(t)).forEach(ul::add);
+		input.keyup(event -> {
+			view.state(new Model(input.value());
+		});
 
-### EventBus at server and client in pure java gives beautiful MVC 
+If necessary, use Java 8 streams to write your user interface:
 
-The eventbus is available in Java at both sides. This is just like in GWT, but then stretched out to _all_ browsers (a la socket.io) thanks to VertX. Just register the same DTO at clientside and serverside to be received or send. This is easier then also facilitating which service the DTO should go to, the server can work it out.
+	div(Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li(t)));
+
+### Pojo example
+
+Having your entity and DTO classes (models) in the same language has its advantages. All three chat examples (websockets, sockjs, eventBus) also have POJO examples in them. Here is an example:
 
 The model+view (browser):
 
