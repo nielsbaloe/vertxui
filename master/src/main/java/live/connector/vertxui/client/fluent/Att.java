@@ -1,6 +1,7 @@
 package live.connector.vertxui.client.fluent;
 
 public enum Att {
+
 	hidden, high, href, hreflang, icon, id, ismap, itemprop, //
 	keytype, kind, label, lang, language, list, loop, low, manifest, //
 	max, maxlength, media, method, min, multiple, novalidate, open, //
@@ -52,5 +53,4 @@ public enum Att {
 			return valueOf(name);
 		}
 	}
-
 };

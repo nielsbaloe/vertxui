@@ -16,6 +16,7 @@
 	</properties>
 
 	<dependencies>
+		<!-- server -->
 		<dependency>
 			<groupId>io.vertx</groupId>
 			<artifactId>vertx-web</artifactId>
@@ -27,12 +28,7 @@
 			<version>3.3.3</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
+		<!-- GWT -->
 		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-dev</artifactId>
@@ -43,10 +39,23 @@
 			<artifactId>gwt-elemental</artifactId>
 			<version>2.8.0</version>
 		</dependency>
+		<!-- GWT pojo -->
 		<dependency>
 			<groupId>com.github.nmorel.gwtjackson</groupId>
 			<artifactId>gwt-jackson</artifactId>
 			<version>0.14.1</version>
+		</dependency>
+		<!-- Test -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.machinepublishers</groupId>
+			<artifactId>jbrowserdriver</artifactId>
+			<version>0.17.3</version>
 		</dependency>
 	</dependencies>
 </project>

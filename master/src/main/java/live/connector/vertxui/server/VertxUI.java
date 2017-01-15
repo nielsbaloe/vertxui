@@ -89,6 +89,11 @@ public class VertxUI {
 		});
 	}
 
+	/**
+	 * Create a VertXUI statichandler at /war and compile the given class from
+	 * java to javascript. Give url:null for compiling only.
+	 * 
+	 */
 	public static Handler<RoutingContext> with(Class<?> classs, String url) {
 
 		// If no sourceLocation, then we are in production so we don't do
@@ -102,7 +107,11 @@ public class VertxUI {
 			new VertxUI(classs, url);
 		}
 
-		return StaticHandler.create("war").setCachingEnabled(false);
+		if (url != null) {
+			return StaticHandler.create("war").setCachingEnabled(false);
+		} else {
+			return null;
+		}
 	}
 
 	public void sychronousReTranslate() throws IOException, InterruptedException {

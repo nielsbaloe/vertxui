@@ -1,11 +1,11 @@
 vertxui
 ===
 
-A 100% Java 100% asynchronous toolkit (Vert.X and GWT elemental), with POJO serializers, Fluent HTML (with virtualDOM behind the scenes), an Eventbus server and clientside, automatic browser reloading and more.
+A 100% Java 100% asynchronous toolkit (Vert.X and GWT elemental), with POJO serializers, Fluent HTML (with virtualDOM behind the scenes), an Eventbus server- and clientside, automatic browser reloading, unit testing and more.
 
 VertxUI offers:
-* forget about URL's, just register and publish POJO's with ajax websockets sockjs or the eventbus.
-* forget about HTML or learning a HTML-ish language like ReactJS, just write fluent HTML with lambda's and streams.
+* communicate in POJO's on client and serverside with ajax websockets sockjs or the eventbus.
+* forget about HTML or learning a HTML-ish language like ReactJS, but declarate how your views on models look like by using Java lambdas and streams.
 * forget about Javascript, you're familiar with Java.
 * forget about installing IDE tooling, the java to javascript translation happens run-time.
 * during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
@@ -72,7 +72,7 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 
 You can create state-aware Fluent HTML objects too. Fluent Html only updates the components that were changed: Work in progress!
 
-		ViewOf<Model> view = response.add(model, m -> {
+		ViewOn<Model> view = response.add(model, m -> {
 				 return Li("myClass").a(m.name, "/details?name=" + m.name);
 			}
 		});
@@ -82,7 +82,7 @@ You can create state-aware Fluent HTML objects too. Fluent Html only updates the
 			 view.sync(); // re-render.
 		});
 
-The ViewOf<> object also keeps the state. In case you don't keep a reference your models, you can also use it to set a new state. By setting the state it also calls .sync(). This is specificly usefull when your Model is just a String. For example, if Model has a constructor which takes the name:
+The ViewOn<> object receives your model (or state) and a function how to translate this to a (Fluent HTML) view.. In case you don't keep a reference to your model, you can also use your ViewOn to set a new state. By setting the state it also calls .sync(). This is specificly usefull when your Model is just a String. For example, if Model has a constructor which takes the name:
 
 		input.keyup(event -> {
 			view.state(new Model(input.value());

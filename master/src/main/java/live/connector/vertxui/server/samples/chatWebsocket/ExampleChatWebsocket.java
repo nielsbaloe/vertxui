@@ -43,6 +43,7 @@ public class ExampleChatWebsocket extends AbstractVerticle {
 				ids.remove(id); // leaving
 			});
 			socket.handler(buffer -> { // receiving
+
 				// extra: pojo example
 				if (Pojofy.socket(socket, Client.urlPojo, buffer, Dto.class, this::serviceDoSomething)) {
 					return;

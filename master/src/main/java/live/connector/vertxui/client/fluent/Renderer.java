@@ -3,196 +3,218 @@ package live.connector.vertxui.client.fluent;
 import static live.connector.vertxui.client.fluent.Fluent.console;
 import static live.connector.vertxui.client.fluent.Fluent.document;
 
-import elemental.css.CSSStyleDeclaration;
+import java.util.TreeMap;
+
 import elemental.dom.Element;
-import elemental.dom.NamedNodeMap;
 import elemental.dom.Node;
-import elemental.dom.NodeList;
 
 public class Renderer {
 
-	protected static void syncChildren(Fluent parent) {
-		if (parent.element == null) { // not attached: no rendering
-			return;
-		}
-		NodeList views = parent.element.getChildNodes();
-		for (int x = 0; x < views.getLength() || x < parent.childs.size(); x++) {
-			Element view = null;
-			if (x < views.length()) {
-				view = (Element) views.item(x);
-			}
-			Viewable child = null;
-			if (x < parent.childs.size()) {
-				child = parent.childs.get(x);
-			}
-			console.log("Syncing child=" + child + " to parent=" + parent + " view=" + view + " views="
-					+ views.length() + " pChildren=" + parent.childs.size() + " or vsize="
-					+ parent.element.getChildNodes().length() + " or vcount=" + parent.element.getChildElementCount());
-			syncChild(parent, child, view);
-		}
-	}
+	protected static void syncChild(Fluent parent, Viewable newViewable, Fluent oldView) {
+		console.log("START new=" + newViewable + " old=" + oldView + " parent=" + parent);
 
-	protected static void syncChild(Fluent parent, Viewable add, Element currentView) {
-		console.log("Syncing child=" + add + " to parent=" + parent );
-		if (currentView!=null) {
-			console.log(" currentView=" + currentView.getInnerHTML());
-		}
-
-		if (parent.element == null) { // not attached: no rendering
+		// not attached: no rendering
+		if (parent.element == null) {
 			return;
 		}
 
-		// handle
-		if (add == null) {
-			if (currentView != null) {
-				parent.element.removeChild(currentView);
+		// Nothing new, just remove
+		if (newViewable == null) {
+			if (oldView.element != null) {
+				parent.element.removeChild(oldView.element);
 			}
 			return;
 		}
-		Fluent result = toFluent(add);
-		if (currentView == null) {
-			console.log("syncCreate because currentView is null for " + result);
-			syncCreate(parent, result);
+
+		// Convert
+		Fluent newView = null;
+		if (newViewable instanceof Fluent) {
+			newView = (Fluent) newViewable;
 		} else {
-			syncRender(parent, result, currentView);
+			newView = ((ViewOn<?>) newViewable).generate();
+			((ViewOn<?>) newViewable).setParent(parent);
+			((ViewOn<?>) newViewable).setPreviousView(newView);
+		}
+		newView.parent = parent;
+
+		if (oldView == null) {
+			console.log("syncCreate because old is null for newView=" + newView);
+			create(parent, newView);
+		} else {
+			compareAndFix(parent, newView, oldView);
 		}
 	}
 
-	private static void syncCreate(Fluent parent, Fluent add) {
-		console.log("syncCreate starting " + add.tag + " with parent=" + parent);
-		add.element = document.createElement(add.tag);
-		parent.element.appendChild(add.element);
-		add.parent = parent;
+	private static void create(Fluent parent, Fluent newView) {
+		console.log("syncCreate newView=" + newView.tag + " with parent=" + parent);
+		newView.parent = parent;
+		newView.element = document.createElement(newView.tag);
+		parent.element.appendChild(newView.element);
 
-		if (add.attrs != null) {
-			for (Att name : add.attrs.keySet()) {
-				add.element.setAttribute(name.nameValid(), add.attrs.get(name));
+		if (newView.attrs != null) {
+			for (Att name : newView.attrs.keySet()) {
+				newView.element.setAttribute(name.nameValid(), newView.attrs.get(name));
 			}
 		}
-		if (add.styles != null) {
-			for (Style name : add.styles.keySet()) {
-				add.element.getStyle().setProperty(name.nameValid(), add.styles.get(name));
+		if (newView.styles != null) {
+			for (Style name : newView.styles.keySet()) {
+				newView.element.getStyle().setProperty(name.nameValid(), newView.styles.get(name));
 			}
 		}
-		if (add.inner != null) {
-			add.inner(add.inner);
+		if (newView.inner != null) {
+			newView.inner(newView.inner);
 		}
-		if (add.listeners != null) {
-			for (String name : add.listeners.keySet()) {
-				((Node) add.element).addEventListener(name, add.listeners.get(name));
+		if (newView.listeners != null) {
+			for (String name : newView.listeners.keySet()) {
+				((Node) newView.element).addEventListener(name, newView.listeners.get(name));
 			}
 		}
-		if (add.childs != null) {
-			for (Viewable child : add.childs) {
-				syncCreate(add, toFluent(child));
+		if (newView.childs != null) {
+			for (Viewable child : newView.childs) {
+				syncChild(newView, child, null);
+			}
+		}
+	}
+
+	private static void compareAndFix(Fluent parent, Fluent newView, Fluent oldView) {
+		// if ("bladiebla" instanceof Object) {
+		// create(parent, newView);
+		// return;
+		// }
+
+		if (!compare(newView.tag, oldView.element.getTagName())) {
+			console.log("syncRender: leuk maar tagname anders");
+			parent.element.removeChild(oldView.element);
+			create(parent, newView);
+			return;
+		}
+		newView.parent = parent; // this is now our parent
+		newView.element = oldView.element;
+
+		// // innerHtml
+		if (!compare(newView.inner, oldView.inner)) {
+			newView.element.setInnerHTML(newView.inner);
+		}
+		compareAttributes(newView.element, newView.attrs, oldView.attrs);
+
+		// <---------------------------------------------------------------------
+		// TOT HIER GEBLEVEN
+		// <---------------------------------------------------------------------
+		// TOT HIER GEBLEVEN
+		// <---------------------------------------------------------------------
+
+		// // Style
+		// CSSStyleDeclaration elementStyles = newView.element.getStyle();
+		// if (newView.styles != null) {
+		// for (Style name : newView.styles.keySet()) { // add or adjust
+		// String nameValid = name.nameValid();
+		// String value = newView.styles.get(name);
+		//
+		// String elementNow = elementStyles.getPropertyValue(nameValid);
+		// if (elementNow == null) {
+		// elementStyles.setProperty(nameValid, value);
+		// } else if (!elementNow.equals(value)) {
+		// elementStyles.removeProperty(nameValid);
+		// // TODO is remove necessary?
+		// elementStyles.setProperty(nameValid, value);
+		// }
+		// }
+		// }
+		// for (int x = elementStyles.getLength() - 1; x != -1; x--) { // remove
+		// String elementStyle = elementStyles.item(x);
+		// if (newView.styles == null ||
+		// !newView.styles.containsKey(Style.valueOfValid(elementStyle))) {
+		// elementStyles.removeProperty(elementStyle);
+		// }
+		// }
+		// // TODO remove all listeners!
+		// // if (add.listeners!=null) {
+		// // for (String listener : add.listeners.keySet()) {
+		// // if (add.element.addEventListener(type, listener))
+		// // }
+		// // }
+		// //
+
+		// TODO do not assume same sequence but use hashing
+		int nChilds = (newView.childs == null) ? 0 : newView.childs.size();
+		int oChilds = (oldView.childs == null) ? 0 : oldView.childs.size();
+		int max = Math.max(nChilds, oChilds);
+		for (int x = 0; x < max; x++) {
+			Viewable newChild = null;
+			if (x < nChilds) {
+				newChild = newView.childs.get(x);
+			}
+			Viewable oldChild = null;
+			if (x < oChilds) {
+				oldChild = oldView.childs.get(x);
+			}
+			Fluent oldChildAsFluent = null;
+			if (oldChild instanceof Fluent) {
+				oldChildAsFluent = (Fluent) oldChild;
+			} else {
+				oldChildAsFluent = ((ViewOn<?>) oldChild).getPreviousView();
+			}
+			syncChild(newView, newChild, oldChildAsFluent);
+		}
+	}
+
+	private final static Att[] emptyAttributes = new Att[0];
+
+	// TODO perhaps keep an array of keys instead of creating it all the time when comparing
+	private static void compareAttributes(Element element, TreeMap<Att, String> mNew, TreeMap<Att, String> mOld) {
+		Att[] kNew = (mNew == null) ? emptyAttributes : mNew.keySet().toArray(emptyAttributes);
+		Att[] kOld = (mOld == null) ? emptyAttributes : mOld.keySet().toArray(emptyAttributes);
+
+		// console.log("---START compareAttributes() kNew=" + kNew.length + "
+		// kOld=" + kOld.length);
+		int n = 0, o = 0;
+		// avoiding creating new sets (guava, removeAll etc) and minimizing
+		// lookups (.get)
+		while (n < kNew.length || o < kOld.length) {
+			Att nAtt = null;
+			if (mNew != null && n < kNew.length) {
+				nAtt = kNew[n];
+				n++;
+			}
+			Att oAtt = null;
+			if (mOld != null && o < kOld.length) {
+				oAtt = kOld[o];
+				o++;
+			}
+			if (nAtt != null && oAtt == null) {
+				console.log("setting attribute: " + nAtt.nameValid() + "," + mNew.get(nAtt));
+				element.setAttribute(nAtt.nameValid(), mNew.get(nAtt));
+			} else if (nAtt == null && oAtt != null) {
+				console.log("removing attribute: " + oAtt.nameValid());
+				element.removeAttribute(oAtt.nameValid());
+				// } else if (nAtt == null && oAtt == null) {
+				// throw new IllegalArgumentException("both can not be null n="
+				// + n + " o=" + o);
+			} else { // both attributes must have a value here
+				int compare = nAtt.compareTo(oAtt); // comparing keys
+				if (compare == 0) { // same keys
+					String oldValue = mOld.get(oAtt);
+					String newValue = mNew.get(nAtt);
+					console.log(
+							"same keys, both " + nAtt.nameValid() + " oldValue=" + oldValue + " newValue=" + newValue);
+					if (!oldValue.equals(newValue)) {
+						console.log("    ... but value differs: was " + oldValue + " will be " + newValue);
+						element.removeAttribute(nAtt.nameValid());
+						element.setAttribute(nAtt.nameValid(), newValue);
+					}
+				} else if (compare < 0) {
+					console.log("putting back NEW while comparing " + nAtt.name() + " to " + oAtt.name());
+					n--; // TODO test
+				} else { // compare>0
+					console.log("putting back OLD while comparing " + nAtt.name() + " to " + oAtt.name());
+					o--;
+				}
 			}
 		}
 	}
 
 	private static boolean compare(String str1, String str2) {
 		return (str1 == null ? str2 == null : str1.equalsIgnoreCase(str2));
-	}
-
-	/**
-	 * Check whether the fluenthtml and its element are in sync
-	 * 
-	 * @param currentView
-	 */
-	// TODO bijhouden wat er veranderd is, zodat niet heel deze check hoeft te
-	// worden doorgevoerd: USE CURRENTVIEW!!!!!!!
-	private static void syncRender(Fluent parent, Fluent add, Element currentView) {
-		add.element = currentView;
-		if (!compare(add.tag, add.element.getTagName())) {
-			console.log("syncRender: leuk maar tagname anders");
-			parent.element.removeChild(currentView);
-			syncCreate(parent, add);
-			return;
-		}
-		add.parent = parent; // this is now our parent
-		
-		// innerHtml
-		if (!compare(add.inner, add.element.getInnerHTML())) {
-			add.element.setInnerHTML(add.inner);
-		}
-		// Attrs
-		NamedNodeMap elementAttrs = (NamedNodeMap) add.element.getAttributes();
-		if (add.attrs != null) {
-			for (Att name : add.attrs.keySet()) { // add or adjust
-				String value = add.attrs.get(name);
-
-				Node elementNow = elementAttrs.getNamedItem(name.nameValid());
-				if (elementNow == null) {
-					add.element.setAttribute(name.nameValid(), value);
-				} else if (!elementNow.getNodeValue().equals(value)) {
-					elementNow.setNodeValue(value);
-				}
-			}
-		}
-		for (int x = elementAttrs.getLength() - 1; x != -1; x--) { // remove
-			Node elementAttr = elementAttrs.item(x);
-			if (add.attrs == null || !add.attrs.containsKey(Att.valueOfValid(elementAttr.getNodeName()))) {
-				elementAttrs.removeNamedItem(elementAttr.getNodeName());
-			}
-		}
-		// Style
-		CSSStyleDeclaration elementStyles = add.element.getStyle();
-		if (add.styles != null) {
-			for (Style name : add.styles.keySet()) { // add or adjust
-				String nameValid = name.nameValid();
-				String value = add.styles.get(name);
-
-				String elementNow = elementStyles.getPropertyValue(nameValid);
-				if (elementNow == null) {
-					elementStyles.setProperty(nameValid, value);
-				} else if (!elementNow.equals(value)) {
-					elementStyles.removeProperty(nameValid);
-					// TODO is remove necessary?
-					elementStyles.setProperty(nameValid, value);
-				}
-			}
-		}
-		for (int x = elementStyles.getLength() - 1; x != -1; x--) { // remove
-			String elementStyle = elementStyles.item(x);
-			if (add.styles == null || !add.styles.containsKey(Style.valueOfValid(elementStyle))) {
-				elementStyles.removeProperty(elementStyle);
-			}
-		}
-		// TODO remove all listeners!
-		// if (add.listeners!=null) {
-		// for (String listener : add.listeners.keySet()) {
-		// if (add.element.addEventListener(type, listener))
-		// }
-		// }
-		//
-		syncChildren(add);
-	}
-
-	// Convert from ReactC to Fluent, and ensure that the root is taken from
-	// static created items.
-	private static Fluent toFluent(Viewable viewy) {
-		Fluent result = null;
-		if (viewy instanceof ViewOf) {
-			result = getRootOfStaticFluent(((ViewOf<?>) viewy).generate());
-		} else {
-			result = (Fluent) viewy;
-		}
-		return result;
-	}
-
-	protected static Fluent getRootOfStaticFluent(Fluent result) {
-		// When a Fluent craeted by a static function is given, we should get
-		// the most upper
-		// parent, not the last item of the fluent notated item.
-		while (result.parent != null) {
-
-			// Error when mixing staticly created items and non-staticly
-			// created items.
-			if (result.element != null) {
-				throw new IllegalArgumentException("Can not reconnect connected DOM elements");
-			}
-			result = result.parent;
-		}
-		return result;
 	}
 
 }

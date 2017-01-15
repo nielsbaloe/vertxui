@@ -34,7 +34,7 @@ public class ExampleHelloWorldFluent extends AbstractVerticle {
 			vertx.setTimer(1000, l -> {
 				c.response().end("Hello, " + c.request().getHeader("User-Agent"));
 			});
-			return null; // null means: we take care of the output ourselves
+			return null; // null means: we take care of the request() ourselves
 		}));
 
 		// extra: pojo example. Here the Pojofy.ajax() makes more sense!

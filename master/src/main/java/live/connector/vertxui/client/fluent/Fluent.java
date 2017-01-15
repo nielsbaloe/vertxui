@@ -1,9 +1,8 @@
 package live.connector.vertxui.client.fluent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import com.google.gwt.xhr.client.XMLHttpRequest;
@@ -17,7 +16,7 @@ import elemental.html.Console;
 import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
-import live.connector.vertxui.client.fluent.ViewOf.Function;
+import live.connector.vertxui.client.fluent.ViewOn.Function;
 
 /**
  * Fluent HTML, child-based fluent-basednotation of html. Use getDocument()
@@ -57,9 +56,9 @@ public class Fluent implements Viewable {
 	 * are a non-API tag.
 	 */
 	protected String tag;
-	protected Map<Att, String> attrs;
-	protected Map<Style, String> styles;
-	protected Map<String, EventListener> listeners;
+	protected TreeMap<Att, String> attrs;
+	protected TreeMap<Style, String> styles;
+	protected TreeMap<String, EventListener> listeners;
 	protected List<Viewable> childs;
 	protected String inner;
 
@@ -142,7 +141,7 @@ public class Fluent implements Viewable {
 
 	public Fluent listen(String name, EventListener value) {
 		if (listeners == null) {
-			listeners = new HashMap<>();
+			listeners = new TreeMap<>();
 		}
 		if (value != null) {
 			listeners.put(name, value);
@@ -235,7 +234,7 @@ public class Fluent implements Viewable {
 	 */
 	public Fluent css(Style name, String value) {
 		if (styles == null) {
-			styles = new HashMap<>();
+			styles = new TreeMap<>();
 		}
 		if (value == null) {
 			styles.remove(name);
@@ -268,7 +267,7 @@ public class Fluent implements Viewable {
 	 */
 	public Fluent attr(Att name, String value) {
 		if (attrs == null) {
-			attrs = new HashMap<>();
+			attrs = new TreeMap<>();
 		}
 
 		if (value == null) {
@@ -317,11 +316,21 @@ public class Fluent implements Viewable {
 		if (childs == null) {
 			childs = new ArrayList<>();
 		}
-		if (item instanceof Fluent) {
-			item = Renderer.getRootOfStaticFluent((Fluent) item);
+		if (item instanceof ViewOn) {
+			((ViewOn<?>) item).setParent(this);
+			((ViewOn<?>) item).sync(); // needs to render!
+		} else {
+			// When a Fluent craeted by a static function is given, we should
+			// get the most upper parent, not the last item of the fluent
+			// notated item.
+			while (((Fluent) item).parent != null) {
+				if (((Fluent) item).element != null) {
+					throw new IllegalArgumentException("Can not reconnect connected DOM elements");
+				}
+				item = ((Fluent) item).parent;
+			}
 		}
 		childs.add(item);
-		Renderer.syncChild(this, item, null);
 	}
 
 	private Fluent add(Fluent... items) {
@@ -336,8 +345,8 @@ public class Fluent implements Viewable {
 		return this;
 	}
 
-	public <T> ViewOf<T> add(T initialState, Function<T, Fluent> method) {
-		ViewOf<T> result = new ViewOf<T>(initialState, method);
+	public <T> ViewOn<T> add(T initialState, Function<T, Fluent> method) {
+		ViewOn<T> result = new ViewOn<T>(initialState, method);
 		result.setParent(this);
 		addNew(result);
 		return result;

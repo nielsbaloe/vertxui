@@ -1,12 +1,13 @@
 Development:
 - examples
-	!- mvcBootstrap+Bill/ virtualDOM   https://medium.com/@deathmood/how-to-write-your-own-virtual-dom-ee74acc13060#.wc4ze6sj1
+	!- mvcBootstrap+Bill/ virtualDOM
 		http://www.w3schools.com/bootstrap/bootstrap_grid_basic.asp
 		Design: totals for all individuals, input fields (date, person, amount, notes), then a list of all entries.
-	- http://to do mvc.com
-	- writing all javascript for an existing index.html website
+	- to do mvc.com
+	- for existing index.html site
 	- webrtc
 	- as app: check open source app for android ios windows like siberiancms.com
+- test: write a proper testcase method, and testcases for Pojofy and ViewOn
 - FigWheely: fix name of compiled .js changes in GWT... + look at sourcefolder not classes + add model synchronizing
 - prepare: split in vertxui-server vertxui-client and vertxui-examples
 - publish: ask vertx-awesome github list and GWT list and elsewhere
