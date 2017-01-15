@@ -9,7 +9,7 @@ import elemental.dom.Element;
 public class ViewOn<A> implements Viewable {
 	private A state;
 	private Function<A, Fluent> translate;
-	private Fluent previousView;
+	private Fluent view;
 	private Fluent parent;
 
 	public ViewOn(A state, Function<A, Fluent> translate) {
@@ -17,8 +17,11 @@ public class ViewOn<A> implements Viewable {
 		this.translate = translate;
 	}
 
-	protected Fluent generate() {
-		return translate.handle(state);
+	protected Fluent generate(Fluent parent) {
+		this.parent = parent;
+		Fluent result = translate.handle(state);
+		this.view = result;
+		return result;
 	}
 
 	/**
@@ -42,16 +45,12 @@ public class ViewOn<A> implements Viewable {
 		this.parent = parent;
 	}
 
-	protected void setPreviousView(Fluent previousView) {
-		this.previousView = previousView;
-	}
-
-	protected Fluent getPreviousView() {
-		return previousView;
+	protected Fluent getView() {
+		return view;
 	}
 
 	public ViewOn<A> sync() {
-		Renderer.syncChild(parent, this, previousView);
+		Renderer.syncChild(parent, this, view);
 		return this;
 	}
 
@@ -60,7 +59,7 @@ public class ViewOn<A> implements Viewable {
 	}
 
 	public final Element getTheCurrentViewForDebugPurposesOnly() {
-		return previousView.element;
+		return view.element;
 	}
 
 }

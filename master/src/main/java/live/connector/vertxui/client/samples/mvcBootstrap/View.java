@@ -2,13 +2,10 @@ package live.connector.vertxui.client.samples.mvcBootstrap;
 
 import static live.connector.vertxui.client.fluent.Fluent.Ul;
 import static live.connector.vertxui.client.fluent.Fluent.body;
-import static live.connector.vertxui.client.fluent.Fluent.console;
 import static live.connector.vertxui.client.fluent.Fluent.head;
 
 import com.google.gwt.core.client.EntryPoint;
 
-import elemental.dom.Element;
-import elemental.dom.NodeList;
 import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
@@ -30,7 +27,7 @@ public class View implements EntryPoint {
 		head.meta().attr(Att.name_, "viewport").attr(Att.content, "width=device-width, initial-scale=1");
 
 		// Header
-		body.div().h1("Bills").classs("jumbotron text-center");
+		body.div().h1("Bills").classs("jumbotron text-center").id("titlerForJunitTest");
 
 		// Menu
 		Fluent container = body.nav("navbar navbar-inverse").div("container-fluid");
@@ -57,19 +54,18 @@ public class View implements EntryPoint {
 
 	public void menuBills(Event evt) {
 		mvMenu.state("bills");
-
-		Element el = mvMenu.getTheCurrentViewForDebugPurposesOnly();
-		printStructure(el);
+		// Element el = mvMenu.getTheCurrentViewForDebugPurposesOnly();
+		// printStructure(el);
 	}
 
-	private void printStructure(Element element) {
-		console.log("<" + element.getNodeName() + "... >");
-		NodeList children = element.getChildNodes();
-		for (int x = 0; x < children.getLength(); x++) {
-			printStructure((Element) children.at(x));
-		}
-		console.log("</" + element.getNodeName() + ">");
-	}
+	// private void printStructure(Element element) {
+	// console.log("<" + element.getNodeName() + "... >");
+	// NodeList children = element.getChildNodes();
+	// for (int x = 0; x < children.getLength(); x++) {
+	// printStructure((Element) children.at(x));
+	// }
+	// console.log("</" + element.getNodeName() + ">");
+	// }
 
 	public void menuGrocery(Event evt) {
 		mvMenu.state("grocery");

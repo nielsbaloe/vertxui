@@ -15,6 +15,11 @@ public class Renderer {
 
 		// not attached: no rendering
 		if (parent.element == null) {
+
+			// setting the view, in case we run a junit test
+			if (newViewable instanceof ViewOn<?>) {
+				((ViewOn<?>) newViewable).generate(parent);
+			}
 			return;
 		}
 
@@ -30,12 +35,10 @@ public class Renderer {
 		Fluent newView = null;
 		if (newViewable instanceof Fluent) {
 			newView = (Fluent) newViewable;
+			newView.parent = parent;
 		} else {
-			newView = ((ViewOn<?>) newViewable).generate();
-			((ViewOn<?>) newViewable).setParent(parent);
-			((ViewOn<?>) newViewable).setPreviousView(newView);
+			newView = ((ViewOn<?>) newViewable).generate(parent);
 		}
-		newView.parent = parent;
 
 		if (oldView == null) {
 			console.log("syncCreate because old is null for newView=" + newView);
@@ -152,7 +155,7 @@ public class Renderer {
 			if (oldChild instanceof Fluent) {
 				oldChildAsFluent = (Fluent) oldChild;
 			} else {
-				oldChildAsFluent = ((ViewOn<?>) oldChild).getPreviousView();
+				oldChildAsFluent = ((ViewOn<?>) oldChild).getView();
 			}
 			syncChild(newView, newChild, oldChildAsFluent);
 		}
@@ -160,7 +163,8 @@ public class Renderer {
 
 	private final static Att[] emptyAttributes = new Att[0];
 
-	// TODO perhaps keep an array of keys instead of creating it all the time when comparing
+	// TODO perhaps keep an array of keys instead of creating it all the time
+	// when comparing
 	private static void compareAttributes(Element element, TreeMap<Att, String> mNew, TreeMap<Att, String> mOld) {
 		Att[] kNew = (mNew == null) ? emptyAttributes : mNew.keySet().toArray(emptyAttributes);
 		Att[] kOld = (mOld == null) ? emptyAttributes : mOld.keySet().toArray(emptyAttributes);

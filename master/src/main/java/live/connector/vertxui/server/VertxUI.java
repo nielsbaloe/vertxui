@@ -15,7 +15,6 @@ import org.apache.commons.io.FileUtils;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 
@@ -31,6 +30,7 @@ public class VertxUI {
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	private Class<?> classs;
+	private boolean debug = false;
 
 	/**
 	 * Set the location of your source files if not /src, /src/main or
@@ -59,11 +59,14 @@ public class VertxUI {
 	 * Serve the /war folder. Also, if a source folder is found, convert the
 	 * class to html+javascript .
 	 * 
-	 * If figwheely is started, debugging is always set to true.
+	 * If figwheely is started or if the URL is null, debugging is set to true.
 	 * 
 	 */
 	private VertxUI(Class<?> classs, String url) {
 		this.classs = classs;
+		if (FigWheely.started || url == null) {
+			debug = true;
+		}
 
 		if (FigWheely.started) {
 			String classFile = FigWheely.buildDir + "/" + classs.getCanonicalName().replace(".", "/") + ".class";
@@ -77,16 +80,25 @@ public class VertxUI {
 		}
 
 		// do a first translation
-		Vertx.currentContext().executeBlocking(future -> {
+		if (Vertx.currentContext() != null) {
+			Vertx.currentContext().executeBlocking(future -> {
+				try {
+					translate();
+					future.complete();
+				} catch (IOException | InterruptedException e) {
+					log.log(Level.SEVERE, e.getMessage(), e);
+					System.exit(0); // stop on startup errors
+				}
+			}, result -> {
+			});
+		} else { // only translating
 			try {
 				translate();
-				future.complete();
 			} catch (IOException | InterruptedException e) {
 				log.log(Level.SEVERE, e.getMessage(), e);
 				System.exit(0); // stop on startup errors
 			}
-		}, result -> {
-		});
+		}
 	}
 
 	/**
@@ -123,8 +135,6 @@ public class VertxUI {
 	 */
 	public void translate() throws IOException, InterruptedException {
 		long start = System.currentTimeMillis();
-		boolean debug = FigWheely.started;
-
 		// Write index.html file which autoreloads
 		FileUtils.writeStringToFile(new File("war/index.html"),
 				"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
@@ -186,12 +196,18 @@ public class VertxUI {
 		// Write the final index.html file
 		StringBuilder html = new StringBuilder("<!DOCTYPE html><head>");
 		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
-		Vertx.currentContext().owner().fileSystem().writeFile("war/index.html", Buffer.buffer(html.toString()), a -> {
-			if (a.failed()) {
-				throw new IllegalArgumentException("Could not create html file", a.cause());
-			}
-		});
+		// Not using vertx filesystem() because there is no speed gain and is
+		// called by tests outside vertx
+		FileUtils.writeStringToFile(new File("war/index.html"), html.toString());
+		// Vertx.currentContext().owner().fileSystem().writeFile(,
+		// Buffer.buffer(), a -> {
+		// if (a.failed()) {
+		// throw new IllegalArgumentException("Could not create html file",
+		// a.cause()); } });
 
+		// OLD ATTEMPT TO RUN GWT EMBEDDED
+		// OLD ATTEMPT TO RUN GWT EMBEDDED
+		// OLD ATTEMPT TO RUN GWT EMBEDDED
 		// List<File> list = new ArrayList<>();
 		// list.add(new File("src"));
 		// ModuleDef module = new ModuleDef(classs.getName());// ,

@@ -1,28 +1,29 @@
 vertxui
 ===
 
-A 100% Java 100% asynchronous toolkit (Vert.X and GWT elemental), with POJO serializers, Fluent HTML (with virtualDOM behind the scenes), an Eventbus server- and clientside, automatic browser reloading, unit testing and more.
+A 100% Java 100% asynchronous toolkit: Fluent HTML with a virtual DOM for speed and beautiful view-on-state ReactJS-ish notation, several POJO serializers, an Eventbus server- and clientside, automatic browser reloading, pure-java junit testing and more. This is how Java web programming should have looked like 15 years ago.
 
 VertxUI offers:
-* communicate in POJO's on client and serverside with ajax websockets sockjs or the eventbus.
-* forget about HTML or learning a HTML-ish language like ReactJS, but declarate how your views on models look like by using Java lambdas and streams.
 * forget about Javascript, you're familiar with Java.
+* communicate in 100% the same POJO's at client- and serverside through ajax/websockets/sockjs/eventbus.
+* forget about HTML or learning a HTML-ish language like ReactJS, but declarate how your views on models look like by using Java lambdas and streams.
 * forget about installing IDE tooling, the java to javascript translation happens run-time.
 * during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
 * Fluent html has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
-* websockets, sockjs and the VertX EventBus are available at server and browsers in the same language.
+* finally painless nodejs-less websockets and sockjs and the VertX EventBus available at server and browsers in the same language.
+* speeedy junit testing of Fluent HTML objects by testing against the internal virtual DOM instead of a browser.
 
-Pure-Java clientside (using GWT-elemental) means:
+Serverside [Vert.X](http://vertx.io/) adds:
+* probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
+* no need for anything else: no Apache and Tomcat.
+* the serverside EventBus, and a wonderful professional speedy async ecosystem.
+
+Pure-Java clientside (using down to the DOM-metal GWT elemental) means:
 * strong-typed client-side Javascript
 * use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML like React and others)
 * use the same DTO/entity classes and constants server-side and client-side.
 * access to both the Java (threads etc) ánd the Javascript ecosystems
 * easy junit testing of client-side code, and other convenient Java tooling
- 
-[Vert.X](http://vertx.io/) adds:
-* probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
-* no need for anything else: no Apache and Tomcat.
-* the serverside EventBus, and a wonderful speedy async ecosystem.
 
 Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, lots of POJO (de)serialization, TodoMVC, Bootstrap, jQuery Mobile and more.
 
@@ -91,6 +92,21 @@ The ViewOn<> object receives your model (or state) and a function how to transla
 If necessary, use Java 8 streams to write your user interface:
 
 	div(Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li(t)));
+
+
+### jUnit
+
+Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit testcases without firing up a browser. Now that is really fast.
+
+	@Test
+	public void test() {
+		View view = new View();
+
+		// Check the title (using 'id')
+		List<Fluent> a = VirtualDomSearch.getElementsById("titlerForJunitTest",Fluent.body);
+		assertEquals(a.size(), 1);
+		assertTrue(a.get(0).tag().equals("H1"));
+	}
 
 ### Pojo example
 

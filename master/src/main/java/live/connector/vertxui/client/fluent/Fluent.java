@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.xhr.client.XMLHttpRequest;
 
 import elemental.dom.Document;
@@ -17,6 +18,7 @@ import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
 import live.connector.vertxui.client.fluent.ViewOn.Function;
+import live.connector.vertxui.client.util.ConsoleTester;
 
 /**
  * Fluent HTML, child-based fluent-basednotation of html. Use getDocument()
@@ -30,11 +32,31 @@ import live.connector.vertxui.client.fluent.ViewOn.Function;
  */
 public class Fluent implements Viewable {
 
-	public final static Document document = getDocument();// Browser.getDocument();
-	public final static Window window = getWindow(); // Browser.getWindow();
-	public final static Console console = window.getConsole();
-	public final static Fluent body = new Fluent(document.getBody());
-	public final static Fluent head = new Fluent(document.getHead());
+	static {
+		if (!GWT.isClient()) {
+			document = null;
+			window = null;
+		} else {
+			document = getDocument();// Browser.getDocument();
+			window = getWindow(); // Browser.getWindow();
+		}
+	}
+	public static Document document;
+	public final static Window window;
+	public final static Console console;
+	public static Fluent body;
+	public final static Fluent head;
+	static {
+		if (!GWT.isClient()) {
+			console = new ConsoleTester();
+			body = new Fluent(null);
+			head = new Fluent(null);
+		} else {
+			console = window.getConsole();
+			body = new Fluent(document.getBody());
+			head = new Fluent(document.getHead());
+		}
+	}
 
 	private static native JsWindow getWindow() /*-{
 												return window;
@@ -343,6 +365,10 @@ public class Fluent implements Viewable {
 	public Fluent add(Stream<Fluent> stream) {
 		stream.forEach(item -> addNew(item));
 		return this;
+	}
+
+	public List<Viewable> getChildren() {
+		return childs;
 	}
 
 	public <T> ViewOn<T> add(T initialState, Function<T, Fluent> method) {
@@ -889,6 +915,9 @@ public class Fluent implements Viewable {
 	 * @return
 	 */
 	public Fluent scriptSync(String... jss) {
+		if (!GWT.isClient()) {
+			return this;
+		}
 		for (String js : jss) {
 			XMLHttpRequestSyc xhr = (XMLHttpRequestSyc) XMLHttpRequestSyc.create();
 			xhr.setOnReadyStateChange(a -> {
@@ -1062,7 +1091,22 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent video() {
-		return new Fluent("video", this);
+		return new Fluent("VIDEO", this);
+	}
+
+	// UNIT TESTING
+	// UNIT TESTING
+	// UNIT TESTING
+
+	/**
+	 * Clean the DOM manually before the next junit test.
+	 */
+	public static void cleanDOM() {
+		if (!GWT.isClient()) {
+			body = new Fluent(null);
+		} else {
+			throw new IllegalArgumentException("Calling cleanJunit has zero meaning inside your browser");
+		}
 	}
 
 }
