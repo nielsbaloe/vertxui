@@ -1,9 +1,8 @@
 Development:
 - examples
 	!- mvcBootstrap+Bill/ virtualDOM
-		other testcases for attributes
+		other testcases for attributes with RenderTests
 		also virtualdom rewrite for styles and listeners
-		add state publishing to the eventbus
 		http://www.w3schools.com/bootstrap/bootstrap_grid_basic.asp
 		application itsself: totals for all individuals, input fields (date, person, amount, notes), list of all entries.
 	- to do mvc.com

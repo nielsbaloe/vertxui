@@ -6,26 +6,15 @@ import static live.connector.vertxui.client.fluent.Fluent.document;
 import java.util.TreeMap;
 
 import elemental.dom.Element;
-import elemental.dom.Node;
 
 public class Renderer {
 
 	protected static void syncChild(Fluent parent, Viewable newViewable, Fluent oldView) {
 		console.log("START new=" + newViewable + " old=" + oldView + " parent=" + parent);
 
-		// not attached: no rendering
-		if (parent.element == null) {
-
-			// setting the view, in case we run a junit test
-			if (newViewable instanceof ViewOn<?>) {
-				((ViewOn<?>) newViewable).generate(parent);
-			}
-			return;
-		}
-
 		// Nothing new, just remove
 		if (newViewable == null) {
-			if (oldView.element != null) {
+			if (parent.element != null && oldView.element != null) {
 				parent.element.removeChild(oldView.element);
 			}
 			return;
@@ -49,29 +38,32 @@ public class Renderer {
 	}
 
 	private static void create(Fluent parent, Fluent newView) {
-		console.log("syncCreate newView=" + newView.tag + " with parent=" + parent);
+		console.log("create newView=" + newView.tag + " with parent=" + parent.tag);
 		newView.parent = parent;
-		newView.element = document.createElement(newView.tag);
-		parent.element.appendChild(newView.element);
+		if (parent.element != null) {
+			newView.element = document.createElement(newView.tag);
+			parent.element.appendChild(newView.element);
 
-		if (newView.attrs != null) {
-			for (Att name : newView.attrs.keySet()) {
-				newView.element.setAttribute(name.nameValid(), newView.attrs.get(name));
+			if (newView.attrs != null) {
+				for (Att name : newView.attrs.keySet()) {
+					newView.element.setAttribute(name.nameValid(), newView.attrs.get(name));
+				}
+			}
+			if (newView.styles != null) {
+				for (Style name : newView.styles.keySet()) {
+					newView.element.getStyle().setProperty(name.nameValid(), newView.styles.get(name));
+				}
+			}
+			if (newView.inner != null) {
+				newView.element.setInnerHTML(newView.inner);
+			}
+			if (newView.listeners != null) {
+				for (String name : newView.listeners.keySet()) {
+					newView.element.addEventListener(name, newView.listeners.get(name));
+				}
 			}
 		}
-		if (newView.styles != null) {
-			for (Style name : newView.styles.keySet()) {
-				newView.element.getStyle().setProperty(name.nameValid(), newView.styles.get(name));
-			}
-		}
-		if (newView.inner != null) {
-			newView.inner(newView.inner);
-		}
-		if (newView.listeners != null) {
-			for (String name : newView.listeners.keySet()) {
-				((Node) newView.element).addEventListener(name, newView.listeners.get(name));
-			}
-		}
+
 		if (newView.childs != null) {
 			for (Viewable child : newView.childs) {
 				syncChild(newView, child, null);
@@ -85,18 +77,26 @@ public class Renderer {
 		// return;
 		// }
 
-		if (!compare(newView.tag, oldView.element.getTagName())) {
+		if (!compare(newView.tag, oldView.tag)) {
 			console.log("syncRender: leuk maar tagname anders");
-			parent.element.removeChild(oldView.element);
+			if (parent.element != null) {
+				parent.element.removeChild(oldView.element);
+			}
 			create(parent, newView);
 			return;
 		}
-		newView.parent = parent; // this is now our parent
-		newView.element = oldView.element;
+		newView.parent = parent;
+
+		if (parent.element != null) {
+			newView.element = oldView.element;
+		}
 
 		// // innerHtml
 		if (!compare(newView.inner, oldView.inner)) {
-			newView.element.setInnerHTML(newView.inner);
+
+			if (parent.element != null) {
+				newView.inner(newView.inner);
+			}
 		}
 		compareAttributes(newView.element, newView.attrs, oldView.attrs);
 
@@ -187,10 +187,14 @@ public class Renderer {
 			}
 			if (nAtt != null && oAtt == null) {
 				console.log("setting attribute: " + nAtt.nameValid() + "," + mNew.get(nAtt));
-				element.setAttribute(nAtt.nameValid(), mNew.get(nAtt));
+				if (element != null) {
+					element.setAttribute(nAtt.nameValid(), mNew.get(nAtt));
+				}
 			} else if (nAtt == null && oAtt != null) {
 				console.log("removing attribute: " + oAtt.nameValid());
-				element.removeAttribute(oAtt.nameValid());
+				if (element != null) {
+					element.removeAttribute(oAtt.nameValid());
+				}
 				// } else if (nAtt == null && oAtt == null) {
 				// throw new IllegalArgumentException("both can not be null n="
 				// + n + " o=" + o);
@@ -203,8 +207,10 @@ public class Renderer {
 							"same keys, both " + nAtt.nameValid() + " oldValue=" + oldValue + " newValue=" + newValue);
 					if (!oldValue.equals(newValue)) {
 						console.log("    ... but value differs: was " + oldValue + " will be " + newValue);
-						element.removeAttribute(nAtt.nameValid());
-						element.setAttribute(nAtt.nameValid(), newValue);
+						if (element != null) {
+							element.removeAttribute(nAtt.nameValid());
+							element.setAttribute(nAtt.nameValid(), newValue);
+						}
 					}
 				} else if (compare < 0) {
 					console.log("putting back NEW while comparing " + nAtt.name() + " to " + oAtt.name());

@@ -288,10 +288,13 @@ public class Fluent implements Viewable {
 	 * @return
 	 */
 	public Fluent attr(Att name, String value) {
+		if (name == null) { // ignoring the call
+			return this;
+		}
+
 		if (attrs == null) {
 			attrs = new TreeMap<>();
 		}
-
 		if (value == null) {
 			attrs.remove(name);
 		} else {
@@ -1101,11 +1104,12 @@ public class Fluent implements Viewable {
 	/**
 	 * Clean the DOM manually before the next junit test.
 	 */
-	public static void clearDOM() {
+	public static void clearVirtualDOM() {
 		if (!GWT.isClient()) {
 			body = new Fluent(null);
 		} else {
-			throw new IllegalArgumentException("Calling cleanJunit has zero meaning inside your browser");
+			throw new IllegalArgumentException(
+					"Calling this method has zero meaning inside your browser, reload the page in your browser for a clean start.");
 		}
 	}
 
