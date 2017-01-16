@@ -1101,7 +1101,7 @@ public class Fluent implements Viewable {
 	/**
 	 * Clean the DOM manually before the next junit test.
 	 */
-	public static void cleanDOM() {
+	public static void clearDOM() {
 		if (!GWT.isClient()) {
 			body = new Fluent(null);
 		} else {

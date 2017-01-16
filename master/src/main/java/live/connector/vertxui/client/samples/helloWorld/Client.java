@@ -7,6 +7,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.xhr.client.XMLHttpRequest;
 
 import elemental.dom.Element;
+import elemental.events.Event;
 
 public class Client implements EntryPoint {
 
@@ -22,7 +23,7 @@ public class Client implements EntryPoint {
 		button = document.createElement("button");
 		button.setAttribute("id", "hello-button");
 		button.setInnerHTML("Click me");
-		button.setOnclick(evt -> clicked());
+		button.setOnclick(this::clicked);
 		body.appendChild(button);
 
 		response = document.createElement("div");
@@ -34,7 +35,9 @@ public class Client implements EntryPoint {
 		body.appendChild(thinking);
 	}
 
-	private void clicked() {
+	// It is advisable to write callbacks into methods, so you can easily write
+	// jUnit tests.
+	private void clicked(Event e) {
 		button.setAttribute("disabled", "");
 		thinking.getStyle().setProperty("display", "");
 

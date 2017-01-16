@@ -5,6 +5,7 @@ import static live.connector.vertxui.client.fluent.Fluent.console;
 
 import com.google.gwt.core.client.EntryPoint;
 
+import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Style;
 import live.connector.vertxui.client.samples.AllExamples;
@@ -20,16 +21,22 @@ public class Client implements EntryPoint {
 	private Fluent thinking;
 
 	public Client() {
-		button = body.div().button("Click me!").id("hello-button").click(evt -> {
-			button.disabled(true);
-			thinking.css(Style.display, "");
-			Pojofy.ajax("POST", url, null, null, null, this::responsed);
-		});
+		button = body.div().button("Click me!").id("hello-button").click(this::clicked);
 		response = body.div();
 		thinking = body.div().inner("The server waits as demonstration!").id("thinking-panel").css(Style.display,
 				"none");
 	}
 
+	// It is advisable to write callbacks into methods, so you can easily write
+	// jUnit tests.
+	private void clicked(Event e) {
+		button.disabled(true);
+		thinking.css(Style.display, "");
+		Pojofy.ajax("POST", url, null, null, null, this::responsed);
+	}
+
+	// It is advisable to write callbacks into methods, so you can easily write
+	// jUnit tests.
 	private void responsed(String text) {
 		button.disabled(false);
 

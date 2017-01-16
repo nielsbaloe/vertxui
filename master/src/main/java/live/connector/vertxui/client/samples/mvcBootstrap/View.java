@@ -15,6 +15,13 @@ public class View implements EntryPoint {
 
 	// private List<Model> bills;
 
+	// sharing of the state for other browsers
+	// public static String stateSharingAddress = "stateSharingAddress";
+
+	/**
+	 * A view on a string. Actually, an enum is cleaner, but just to demonstrate
+	 * that a ViewOn a primitive doesn't need much more than this.
+	 */
 	private ViewOn<String> mvMenu;
 
 	// Note: THIS IS HEAVILY work-in-progress, get back in a few weeks!
@@ -42,7 +49,8 @@ public class View implements EntryPoint {
 			return result;
 		});
 
-		// Use example of stream
+		// TODO rest of the app
+		// should include an example of a stream
 		// body.ul().add(Stream.of("aaa", "a").filter(e -> e.length() > 1).map(t
 		// -> Li(null, t)));
 

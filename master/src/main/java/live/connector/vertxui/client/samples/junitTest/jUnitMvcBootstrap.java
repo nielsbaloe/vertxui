@@ -15,11 +15,12 @@ import live.connector.vertxui.client.samples.mvcBootstrap.View;
  * purposes, it's put here. That's why there are no imports that GWt doesn't
  * like, and all the classpaths are inline (like "@org.junit.Test").
  * 
- * If you want to test VertxUI with a real DOM, you can write Fluent HTML and
- * perform your tests right inside the browser and not in your IDE (with
- * Fluent.DOM() you have access to the DOM object).
+ * If you want to test VertxUI with a real DOM (should not be necessary if there
+ * are no bugs in Fluent HTML), you can write Fluent HTML and perform your tests
+ * right inside the browser and not in your IDE (with Fluent.DOM() you have
+ * access to the DOM object).
  * 
- * If you want to call the whole from outside, just call
+ * If you want to call the whole from outside (integration tests), just call
  * 'Vertxui.with(yourClass,null)' to compile to javascript, and then fire up
  * Selenium (or JBrowserDriver, HTMLUnit,Rhino+env-js or whatever you want) to
  * take a browser-look at the /war/index.html . You will be writing plain
@@ -34,10 +35,11 @@ public class jUnitMvcBootstrap {
 
 	@org.junit.Test
 	public void titleById() {
-		Fluent.cleanDOM();
+
 		// There is zero extra code for junit inside Fluent, so you have to
-		// clean the DOM manually between testcases. For the first method you
-		// can leave it out.
+		// clean the DOM manually between testcases. For the first method in the
+		// class you can leave it out.
+		Fluent.clearDOM();
 
 		new View().onModuleLoad();
 		// note: you can leave .onModuleLoad() out, it's nicer when it's empty.
@@ -50,10 +52,11 @@ public class jUnitMvcBootstrap {
 
 	@org.junit.Test
 	public void stateChange() {
-		Fluent.cleanDOM();
+
 		// There is zero extra code for junit inside Fluent, so you have to
-		// clean the DOM manually between testcases. For the first method you
-		// can leave it out.
+		// clean the DOM manually between testcases. For the first method in the
+		// class you can leave it out.
+		Fluent.clearDOM();
 
 		View v = new View();
 		v.onModuleLoad();
