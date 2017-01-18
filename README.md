@@ -1,18 +1,17 @@
 vertxui
 ===
 
-A 100% Java 100% asynchronous toolkit: Fluent HTML with a virtual DOM for speed and beautiful view-on-state ReactJS-ish notation, several POJO serializers, an Eventbus server- and clientside, automatic browser reloading, pure-java junit testing and more. This is how Java web programming should have looked like 15 years ago.
+A 100% Java 100% asynchronous toolkit: Fluent HTML with a virtual DOM for speed and beautiful view-on-state ReactJS-ish notation, POJO serializers for ajax/websockets/sockJS/eventbus, an Eventbus server- and clientside, automatic browser reloading, fast pure-java jUnit GUI testing, and more. This is how Java web programming should have looked like 15 years ago.
 
 VertxUI offers:
 * forget about Javascript, you're familiar with Java.
 * communicate in 100% the same POJO's at client- and serverside through ajax/websockets/sockjs/eventbus.
-* forget about HTML or learning a HTML-ish language like ReactJS, but declarate how your views on models look like by using Java lambdas and streams.
+* forget about HTML or learning a HTML-ish language like ReactJS, but declarate view-on-state by using Java lambdas and streams.
 * no IDE tooling required, the java to javascript translation happens run-time.
 * during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
-* Fluent html has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
-* finally painless nodejs-less websockets and sockjs and the VertX EventBus available at server and browsers in the same language.
+* Fluent HTML has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
+* painless nodejs-less websockets/sockjs/eventbusavailable at server and browsers in the same language.
 * speeedy junit testing of Fluent HTML objects by testing against the virtual DOM, or headless browser testing.
-
 
 Serverside [Vert.X](http://vertx.io/) adds:
 * probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
@@ -23,7 +22,7 @@ Pure-Java clientside (using down to the DOM-metal GWT elemental) means:
 * strong-typed client-side Javascript
 * use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML like React and others)
 * use the same DTO/entity classes and constants server-side and client-side.
-* access to both the Java (threads etc) ánd the Javascript ecosystems
+* access to both the Java (threads etc) Ã¡nd the Javascript ecosystems
 * easy junit testing of client-side code, and other convenient Java tooling
 
 Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, lots of POJO (de)serialization, TodoMVC, Bootstrap, jQuery Mobile and more.
@@ -72,7 +71,9 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 		...
 	}
 
-You can create state-aware Fluent HTML objects too. Fluent Html only updates the components that were changed: Work in progress!
+## View-On-State
+
+You can create state-aware Fluent HTML objects with ViewOn. The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent Html only updates changed DOM-items.
 
 		ViewOn<Model> view = response.add(model, m -> {
 				 return Li("myClass").a(m.name, "/details?name=" + m.name);
@@ -84,10 +85,10 @@ You can create state-aware Fluent HTML objects too. Fluent Html only updates the
 			 view.sync(); // re-render.
 		});
 
-The ViewOn<> object receives your model (or state) and a function how to translate this to a (Fluent HTML) view.. In case you don't keep a reference to your model, you can also use your ViewOn to set a new state. By setting the state it also calls .sync(). This is specificly usefull when your Model is just a String. For example, if Model has a constructor which takes the name:
+The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your class. You can abuse this to set the state when your Model is just a primitive for example a string. The method .state(model) also calls sync:
 
 		input.keyup(event -> {
-			view.state(new Model(input.value());
+			view.state("newValue");
 		});
 
 If necessary, use Java 8 streams to write your user interface:
@@ -109,7 +110,7 @@ Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit test
 		assertTrue(a.get(0).tag().equals("H1"));
 	}
 
-If you really need the DOM (for whatever reason), that's possible too. Vertxui then compiles to javascript and runs a method which runs all your javascript tests right inside a headless browser. All inside junit. Add this method below to run junit with a dom. Also write in onModuleStart which methods should be run. Do not add a constructor, because that will be run in junit ánd in the browser ;) .
+If you really need the DOM (for whatever reason), that's possible too. Vertxui then compiles to javascript and runs a method which runs all your javascript tests right inside a headless browser. All inside jUnit. Add this method below to run junit with a dom. Also write in onModuleStart which methods should be run. Do not add a constructor, because that will be run in junit Ã¡nd in the browser ;) .
 
 	@GwtIncompatible
 	@Test
@@ -121,13 +122,14 @@ If you really need the DOM (for whatever reason), that's possible too. Vertxui t
 	public void onModuleLoad() {
 		Asserty.asserty(() -> {
 			// these tests will be done:
-			testInBrowser();
+			testThis();
+			testThat();
 			// ... other tests here too
 		});
 	}
  
 
-### Pojo example
+### Pojo
 
 Having your entity and DTO classes (models) in the same language has its advantages. All three chat examples (websockets, sockjs, eventBus) also have POJO examples in them. Here is an example:
 
