@@ -14,3 +14,4 @@ Development:
 - finish Vertxui: try again instead of scriptsync to add js to index.html
 - publish: push to maven central + spread: vertx-awesome, vertx, GWT list and elsewhere
 
+
