@@ -10,7 +10,7 @@ VertxUI offers:
 * no IDE tooling required, the java to javascript translation happens run-time.
 * during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
 * Fluent HTML has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
-* painless nodejs-less websockets/sockjs/eventbusavailable at server and browsers in the same language.
+* painless nodejs-less websockets/sockjs/eventbus at server and browsers in the same language.
 * speeedy junit testing of Fluent HTML objects by testing against the virtual DOM, or headless browser testing.
 
 Serverside [Vert.X](http://vertx.io/) adds:
