@@ -929,7 +929,10 @@ public class Asserty {
 		return className + "<" + valueString + ">";
 	}
 
-	// TODO string does not end up in jbrowserdriver...!!
+	/**
+	 * Give a method that runs all your testcases and throws an exception when
+	 * something goes wrong.
+	 */
 	public final native static String asserty(AssertyHandler handler)/*-{
 																		$wnd.asserty = function() {
 																		try{ @live.connector.vertxui.client.test.Asserty::doit(Llive/connector/vertxui/client/test/AssertyHandler;)

@@ -941,7 +941,6 @@ public class Fluent implements Viewable {
 	 * @param jss
 	 * @return
 	 */
-	// TODO: write VertxUI.addScript()
 	public Fluent script(String... jss) {
 		for (String js : jss) {
 			new Fluent("script", this).attr(Att.type, "text/javascript").attr(Att.src, js);

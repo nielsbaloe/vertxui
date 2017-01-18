@@ -171,8 +171,12 @@ public class VertxUI {
 				options += " -XnoclassMetadata -nodraftCompile -optimize 9 -noincremental";
 			}
 			String classpath = System.getProperty("java.class.path") + ";" + sourceLocation;
-			classpath = classpath.replace(" ", ""); // TODO fix when running
-													// junitWithDom
+
+			String separator = ";"; // windows
+			if (!classpath.contains(separator)) {
+				separator = ":"; // unix
+			}
+			classpath = Stream.of(classpath.split(separator)).map(c -> "\"" + c + "\";").reduce("", String::concat);
 
 			String line = null;
 			Process p = Runtime.getRuntime()

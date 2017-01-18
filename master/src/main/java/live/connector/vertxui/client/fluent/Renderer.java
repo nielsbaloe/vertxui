@@ -120,7 +120,6 @@ public class Renderer {
 		// elementStyles.setProperty(nameValid, value);
 		// } else if (!elementNow.equals(value)) {
 		// elementStyles.removeProperty(nameValid);
-		// // TODO is remove necessary?
 		// elementStyles.setProperty(nameValid, value);
 		// }
 		// }
@@ -132,11 +131,9 @@ public class Renderer {
 		// elementStyles.removeProperty(elementStyle);
 		// }
 		// }
-		// // TODO remove all listeners!
-		// // if (add.listeners!=null) {
-		// // for (String listener : add.listeners.keySet()) {
-		// // if (add.element.addEventListener(type, listener))
-		// // }
+		//
+		// Listeners
+		// // if (add.listeners!=null) { ...
 		// // }
 		// //
 
@@ -165,8 +162,6 @@ public class Renderer {
 
 	private final static Att[] emptyAttributes = new Att[0];
 
-	// TODO perhaps keep an array of keys instead of creating it all the time
-	// when comparing
 	private static void compareAttributes(Element element, TreeMap<Att, String> treeNew, TreeMap<Att, String> treeOld) {
 		Att[] keysNew = (treeNew == null) ? emptyAttributes : treeNew.keySet().toArray(emptyAttributes);
 		Att[] keysOld = (treeOld == null) ? emptyAttributes : treeOld.keySet().toArray(emptyAttributes);

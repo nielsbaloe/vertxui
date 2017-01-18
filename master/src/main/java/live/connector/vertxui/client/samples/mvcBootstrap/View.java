@@ -49,7 +49,6 @@ public class View implements EntryPoint {
 			return result;
 		});
 
-		// TODO rest of the app
 		// should include an example of a stream
 		// body.ul().add(Stream.of("aaa", "a").filter(e -> e.length() > 1).map(t
 		// -> Li(null, t)));

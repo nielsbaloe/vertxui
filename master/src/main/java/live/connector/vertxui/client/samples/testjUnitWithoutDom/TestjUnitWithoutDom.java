@@ -9,7 +9,8 @@ import live.connector.vertxui.client.samples.mvcBootstrap.View;
 import live.connector.vertxui.server.test.VirtualDomSearch;
 
 /**
- * Run this class in junit in your IDE.
+ * Run this class in junit in your IDE. Note that this is the preferred way of
+ * testing your view, you don't need the DOM is you are writing Fluent HTML.
  * 
  * If you prefer, you can place this class in your .server package too, doesn't
  * matter.
