@@ -1,43 +1,47 @@
 vertxui
 ===
 
-A 100% Java 100% asynchronous toolkit: Fluent HTML with a virtual DOM for speed and beautiful view-on-model ReactJS-ish notation, POJO serializers for ajax/websockets/sockJS/eventbus, an Eventbus server- and clientside, automatic browser reloading, fast pure-java jUnit GUI testing, and more. This is how Java web programming should have looked like 15 years ago.
+Suppose we had native Java access at the browser, backed by a no-nonsense Java asynchronous server. Then both browser and server would be using the same Java data entities/DTO's, and we would like to use these strong-typed POJO's for ajax/websocket/sockjs traffic. And an eventbus where server and browsers can share information.
+
+For the view, we would not want to write HTML, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view on an entity, similar to ReactJS but then nicely in Java with lambda's streams enums and other object oriented features.
+
+Regarding tooling, we would want to use trusted Java tooling like jUnit, and realtime debugging with automatic browser refreshing after a code change, but we would not want to install any IDE-specific tooling.  
+
+Welcome to vertxui. This is how Java web programming should have looked like 15 years ago.
 
 VertxUI offers:
-* forget about Javascript, you're familiar with Java.
+* 100% java, 100% asynchronous
 * communicate in 100% the same POJO's at client- and serverside through ajax/websockets/sockjs/eventbus.
-* forget about HTML or learning a HTML-ish language like ReactJS, but declarate view-on-model by using Java lambdas and streams.
+* forget about HTML or learning a HTML-ish language like ReactJS, but declarate view-on-models by using Java lambdas and streams.
 * no IDE tooling required, the java to javascript translation happens run-time.
 * during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
 * Fluent HTML has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
 * painless nodejs-less websockets/sockjs/eventbus at server and browsers in the same language.
-* speeedy junit testing of Fluent HTML objects by testing against the virtual DOM, or headless browser testing.
+* speeeeedy junit testing of Fluent HTML objects by testing against virtual DOM, and headless browser testing.
 
 Serverside [Vert.X](http://vertx.io/) adds:
 * probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
 * no need for anything else: no Apache and Tomcat.
 * the serverside EventBus, and a wonderful professional speedy async ecosystem.
 
-Pure-Java clientside (using down to the DOM-metal GWT elemental) means:
+Pure-Java clientside (using down-to-the-DOM wrapped-away GWT/elemental) means:
 * strong-typed client-side Javascript
-* use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML like React and others)
+* use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML like React)
 * use the same DTO/entity classes and constants server-side and client-side.
 * access to both the Java (threads etc) ánd the Javascript ecosystems
 * easy junit testing of client-side code, and other convenient Java tooling
 
-Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, lots of POJO (de)serialization, TodoMVC, Bootstrap, jQuery Mobile and more.
+Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, Bootstrap, jQuery Mobile and more.
 
 ### Serverside
 
-The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary (single-lined) wrapping HTML, ready to be shown in the browser. It compiles to javascript too (if there is a source folder), that doesn't happen by installing any IDE plugin. Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples).
+The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary (single-lined) wrapping HTML, ready to be shown in the browser. It compiles to javascript too (if there is a source folder), without installing an IDE plugin. Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples).
 
 	router.route("/client").handler(new VertxUI(Client.class, true));
 
 ### Automatic browser reloading
 
-Server-time translation does not mean you can not debug your code. To debug, just turn on FigWheely. 
-
-If you want to speed up your development and not loose the browserstate by pressing reload, use FigWheely which automaticly ensures browsers reload changed javascript or any other file (.css .jpg etc). You will never want to write .css or behavior javascript without FigWheely:
+Server-time translation does not mean you can not debug your code. To debug, just turn on FigWheely. If you want to speed up your development and not loose the browserstate by pressing reload, use FigWheely which automaticly ensures browsers reload changed javascript or any other file (.css .jpg etc). You will never want to write .css or behavior javascript without FigWheely:
 
 		router.get("/figWheely.js").handler(FigWheely.create());
   
@@ -110,7 +114,7 @@ Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit test
 		assertTrue(a.get(0).tag().equals("H1"));
 	}
 
-If you really need the DOM (for whatever reason), that's possible too. Vertxui then compiles to javascript and runs a method which runs all your javascript tests right inside a headless browser. All inside jUnit. Add this method below to run junit with a dom. Also write in onModuleStart which methods should be run. Do not add a constructor, because that will be run in junit ánd in the browser ;) .
+If you really need the DOM (for whatever reason), that's possible too. Vertxui then first compiles to javascript and runs a javascript function which runs all your javascript tests right inside a headless browser. All inside jUnit. Add the method below to run junit with a dom. Also write in onModuleStart which methods should be run. Do not add a constructor, because that will be run in junit and in the browser ;) .
 
 	@GwtIncompatible
 	@Test
