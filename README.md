@@ -1,12 +1,12 @@
 vertxui
 ===
 
-A 100% Java 100% asynchronous toolkit: Fluent HTML with a virtual DOM for speed and beautiful view-on-state ReactJS-ish notation, POJO serializers for ajax/websockets/sockJS/eventbus, an Eventbus server- and clientside, automatic browser reloading, fast pure-java jUnit GUI testing, and more. This is how Java web programming should have looked like 15 years ago.
+A 100% Java 100% asynchronous toolkit: Fluent HTML with a virtual DOM for speed and beautiful view-on-model ReactJS-ish notation, POJO serializers for ajax/websockets/sockJS/eventbus, an Eventbus server- and clientside, automatic browser reloading, fast pure-java jUnit GUI testing, and more. This is how Java web programming should have looked like 15 years ago.
 
 VertxUI offers:
 * forget about Javascript, you're familiar with Java.
 * communicate in 100% the same POJO's at client- and serverside through ajax/websockets/sockjs/eventbus.
-* forget about HTML or learning a HTML-ish language like ReactJS, but declarate view-on-state by using Java lambdas and streams.
+* forget about HTML or learning a HTML-ish language like ReactJS, but declarate view-on-model by using Java lambdas and streams.
 * no IDE tooling required, the java to javascript translation happens run-time.
 * during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
 * Fluent HTML has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
@@ -71,7 +71,7 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 		...
 	}
 
-## View-On-State
+## View-On-Model
 
 You can create state-aware Fluent HTML objects with ViewOn. The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent Html only updates changed DOM-items.
 
