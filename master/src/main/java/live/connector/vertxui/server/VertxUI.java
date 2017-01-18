@@ -152,7 +152,14 @@ public class VertxUI {
 		File gwtXml = new File(sourceLocation + "/" + xmlFile + ".gwt.xml");
 		StringBuilder content = new StringBuilder("<module rename-to='a'>");
 		librariesGwt.forEach(l -> content.append("<inherits name='" + l + "'/>"));
-		content.append("<entry-point class='" + className + "'/><source path='" + path + "'/></module>");
+		content.append("<entry-point class='" + className + "'/><source path='" + path + "'/>");
+		if (debug) {
+			content.append("<set-property name='compiler.stackMode' value='emulated' />");
+			content.append(
+					"<set-configuration-property name='compiler.emulatedStack.recordLineNumbers' value='true' />");
+			content.append("<set-configuration-property name='compiler.emulatedStack.recordFileNames' value='true'/>");
+		}
+		content.append("</module>");
 		FileUtils.writeStringToFile(gwtXml, content.toString());
 
 		// Compile to javacript
@@ -164,6 +171,9 @@ public class VertxUI {
 				options += " -XnoclassMetadata -nodraftCompile -optimize 9 -noincremental";
 			}
 			String classpath = System.getProperty("java.class.path") + ";" + sourceLocation;
+			classpath = classpath.replace(" ", ""); // TODO fix when running
+													// junitWithDom
+
 			String line = null;
 			Process p = Runtime.getRuntime()
 					.exec("java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile);

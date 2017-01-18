@@ -58,7 +58,11 @@ public class ViewOn<A> implements Viewable {
 		public O handle(I i);
 	}
 
-	public final Element getTheCurrentViewForDebugPurposesOnly() {
+	public Fluent getViewForDebugPurposesOnly() {
+		return view;
+	}
+
+	public Element getTheCurrentViewForDebugPurposesOnly() {
 		return view.element;
 	}
 

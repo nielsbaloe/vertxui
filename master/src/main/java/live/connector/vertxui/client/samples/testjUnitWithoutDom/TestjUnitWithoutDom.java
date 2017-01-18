@@ -1,37 +1,25 @@
-package live.connector.vertxui.client.samples.junitTest;
+package live.connector.vertxui.client.samples.testjUnitWithoutDom;
 
 import java.util.List;
 
 import com.google.gwt.core.shared.GwtIncompatible;
 
 import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.fluent.VirtualDomSearch;
 import live.connector.vertxui.client.samples.mvcBootstrap.View;
+import live.connector.vertxui.server.test.VirtualDomSearch;
 
 /**
- * Run this class inside your favourite IDE as junit test.
+ * Run this class in junit in your IDE.
  * 
- * This file belongs in your src/test folder. However, for demonstration
- * purposes, it's put here. That's why there are no imports that GWt doesn't
- * like, and all the classpaths are inline (like "@org.junit.Test").
- * 
- * If you want to test VertxUI with a real DOM (which should not be necessary if
- * there are no bugs in Fluent HTML), you can write Fluent HTML and perform your
- * tests right inside the browser by directly running them in your constructor
- * or in onModuleLoad().
- * 
- * If you want to call the whole from outside (integration tests), just call
- * 'Vertxui.with(yourClass,null)' to compile to javascript, and then fire up
- * Selenium (or JBrowserDriver, HTMLUnit,Rhino+env-js or another headless
- * browser) to take a browser-look at the /war/index.html . You will be writing
- * plain selenium tests which interact with the browser to interact with the
- * DOM. It works but it is the slowest option.
+ * If you prefer, you can place this class in your .server package too, doesn't
+ * matter.
  * 
  * @author ng
  *
  */
+
 @GwtIncompatible
-public class jUnitTest {
+public class TestjUnitWithoutDom {
 
 	@org.junit.Test
 	public void mvcBootStrapTitle() {
@@ -73,7 +61,6 @@ public class jUnitTest {
 	@org.junit.Test
 	public void nonBodyTest() {
 		Fluent root = Fluent.Div();
-
 		root.h1("blabla");
 		root.ul("aClass", Fluent.Li().inner("bladiebla"), Fluent.Li().inner("pooo"));
 

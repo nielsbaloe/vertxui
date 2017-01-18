@@ -18,7 +18,7 @@ import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
 import live.connector.vertxui.client.fluent.ViewOn.Function;
-import live.connector.vertxui.client.util.ConsoleTester;
+import live.connector.vertxui.client.test.ConsoleTester;
 
 /**
  * Fluent HTML, child-based fluent-basednotation of html. Use getDocument()

@@ -1,6 +1,5 @@
 package live.connector.vertxui.client.fluent;
 
-import static live.connector.vertxui.client.fluent.Fluent.console;
 import static live.connector.vertxui.client.fluent.Fluent.document;
 
 import java.util.TreeMap;
@@ -10,7 +9,8 @@ import elemental.dom.Element;
 public class Renderer {
 
 	protected static void syncChild(Fluent parent, Viewable newViewable, Fluent oldView) {
-		console.log("START new=" + newViewable + " old=" + oldView + " parent=" + parent);
+		// console.log("START new=" + newViewable + " old=" + oldView + "
+		// parent=" + parent);
 
 		// Nothing new, just remove
 		if (newViewable == null) {
@@ -30,7 +30,8 @@ public class Renderer {
 		}
 
 		if (oldView == null) {
-			console.log("syncCreate because old is null for newView=" + newView);
+			// console.log("syncCreate because old is null for newView=" +
+			// newView);
 			create(parent, newView);
 		} else {
 			compareAndFix(parent, newView, oldView);
@@ -38,7 +39,8 @@ public class Renderer {
 	}
 
 	private static void create(Fluent parent, Fluent newView) {
-		console.log("create newView=" + newView.tag + " with parent=" + parent.tag);
+		// console.log("create newView=" + newView.tag + " with parent=" +
+		// parent.tag);
 		newView.parent = parent;
 		if (parent.element != null) {
 			newView.element = document.createElement(newView.tag);
@@ -77,8 +79,8 @@ public class Renderer {
 		// return;
 		// }
 
-		if (!compare(newView.tag, oldView.tag)) {
-			console.log("syncRender: leuk maar tagname anders");
+		if (!compareIgnoreCase(newView.tag, oldView.tag)) {
+			// console.log("syncRender: leuk maar tagname anders");
 			if (parent.element != null) {
 				parent.element.removeChild(oldView.element);
 			}
@@ -165,66 +167,80 @@ public class Renderer {
 
 	// TODO perhaps keep an array of keys instead of creating it all the time
 	// when comparing
-	private static void compareAttributes(Element element, TreeMap<Att, String> mNew, TreeMap<Att, String> mOld) {
-		Att[] kNew = (mNew == null) ? emptyAttributes : mNew.keySet().toArray(emptyAttributes);
-		Att[] kOld = (mOld == null) ? emptyAttributes : mOld.keySet().toArray(emptyAttributes);
+	private static void compareAttributes(Element element, TreeMap<Att, String> treeNew, TreeMap<Att, String> treeOld) {
+		Att[] keysNew = (treeNew == null) ? emptyAttributes : treeNew.keySet().toArray(emptyAttributes);
+		Att[] keysOld = (treeOld == null) ? emptyAttributes : treeOld.keySet().toArray(emptyAttributes);
 
 		// console.log("---START compareAttributes() kNew=" + kNew.length + "
 		// kOld=" + kOld.length);
-		int n = 0, o = 0;
+		int countNew = 0, countOld = 0;
 		// avoiding creating new sets (guava, removeAll etc) and minimizing
 		// lookups (.get)
-		while (n < kNew.length || o < kOld.length) {
-			Att nAtt = null;
-			if (mNew != null && n < kNew.length) {
-				nAtt = kNew[n];
-				n++;
+		while (countNew < keysNew.length || countOld < keysOld.length) {
+			Att attNew = null;
+			if (treeNew != null && countNew < keysNew.length) {
+				attNew = keysNew[countNew];
+				countNew++;
 			}
-			Att oAtt = null;
-			if (mOld != null && o < kOld.length) {
-				oAtt = kOld[o];
-				o++;
+			Att attOld = null;
+			if (treeOld != null && countOld < keysOld.length) {
+				attOld = keysOld[countOld];
+				countOld++;
 			}
-			if (nAtt != null && oAtt == null) {
-				console.log("setting attribute: " + nAtt.nameValid() + "," + mNew.get(nAtt));
+			if (attNew != null && attOld == null) {
+				// console.log("setting attribute: " + attNew.nameValid() + ","
+				// + treeNew.get(attNew));
 				if (element != null) {
-					element.setAttribute(nAtt.nameValid(), mNew.get(nAtt));
+					element.setAttribute(attNew.nameValid(), treeNew.get(attNew));
 				}
-			} else if (nAtt == null && oAtt != null) {
-				console.log("removing attribute: " + oAtt.nameValid());
+			} else if (attNew == null && attOld != null) {
+				// console.log("removing attribute: " + attOld.nameValid());
 				if (element != null) {
-					element.removeAttribute(oAtt.nameValid());
+					element.removeAttribute(attOld.nameValid());
 				}
 				// } else if (nAtt == null && oAtt == null) {
 				// throw new IllegalArgumentException("both can not be null n="
 				// + n + " o=" + o);
 			} else { // both attributes must have a value here
-				int compare = nAtt.compareTo(oAtt); // comparing keys
+				int compare = attNew.compareTo(attOld); // comparing keys
+				// console.log("comparing "+attNew+" "+attOld);
 				if (compare == 0) { // same keys
-					String oldValue = mOld.get(oAtt);
-					String newValue = mNew.get(nAtt);
-					console.log(
-							"same keys, both " + nAtt.nameValid() + " oldValue=" + oldValue + " newValue=" + newValue);
+					String oldValue = treeOld.get(attOld);
+					String newValue = treeNew.get(attNew);
 					if (!oldValue.equals(newValue)) {
-						console.log("    ... but value differs: was " + oldValue + " will be " + newValue);
+						// console.log(
+						// "changing value for " + attNew.nameValid() + " old="
+						// + oldValue + " new=" + newValue);
 						if (element != null) {
-							element.removeAttribute(nAtt.nameValid());
-							element.setAttribute(nAtt.nameValid(), newValue);
+							element.removeAttribute(attNew.nameValid());
+							element.setAttribute(attNew.nameValid(), newValue);
 						}
+						// } else {
+						// console.log("no change " + attNew.nameValid() + "
+						// value=" + oldValue);
 					}
 				} else if (compare < 0) {
-					console.log("putting back NEW while comparing " + nAtt.name() + " to " + oAtt.name());
-					n--; // TODO test
+					if (element != null) {
+						element.setAttribute(attNew.nameValid(), treeNew.get(attNew));
+					}
+					// console.log(" setting " + attNew.nameValid());
+					countOld--;
 				} else { // compare>0
-					console.log("putting back OLD while comparing " + nAtt.name() + " to " + oAtt.name());
-					o--;
+					// console.log(" removing " + attOld.nameValid());
+					if (element != null) {
+						element.removeAttribute(attOld.nameValid());
+					}
+					countNew--;
 				}
 			}
 		}
 	}
 
 	private static boolean compare(String str1, String str2) {
-		return (str1 == null ? str2 == null : str1.equalsIgnoreCase(str2));
+		return (str1 == null ? str2 == null : str1.equals(str2));
 	}
 
+	private static boolean compareIgnoreCase(String str1, String str2) {
+		return (str1 == null ? str2 == null : str1.equalsIgnoreCase(str2));
+	}
 }

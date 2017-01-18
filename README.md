@@ -7,11 +7,12 @@ VertxUI offers:
 * forget about Javascript, you're familiar with Java.
 * communicate in 100% the same POJO's at client- and serverside through ajax/websockets/sockjs/eventbus.
 * forget about HTML or learning a HTML-ish language like ReactJS, but declarate how your views on models look like by using Java lambdas and streams.
-* forget about installing IDE tooling, the java to javascript translation happens run-time.
+* no IDE tooling required, the java to javascript translation happens run-time.
 * during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
 * Fluent html has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
 * finally painless nodejs-less websockets and sockjs and the VertX EventBus available at server and browsers in the same language.
-* speeedy junit testing of Fluent HTML objects by testing against the internal virtual DOM instead of a browser.
+* speeedy junit testing of Fluent HTML objects by testing against the virtual DOM, or headless browser testing.
+
 
 Serverside [Vert.X](http://vertx.io/) adds:
 * probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
@@ -107,6 +108,24 @@ Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit test
 		assertEquals(a.size(), 1);
 		assertTrue(a.get(0).tag().equals("H1"));
 	}
+
+If you really need the DOM (for whatever reason), that's possible too. Vertxui then compiles to javascript and runs a method which runs all your javascript tests right inside a headless browser. All inside junit. Add this method below to run junit with a dom. Also write in onModuleStart which methods should be run. Do not add a constructor, because that will be run in junit ánd in the browser ;) .
+
+	@GwtIncompatible
+	@Test
+	public void runWithjUnit() throws Exception {
+		TestWithDom.runwithJunit(this.getClass());
+	}
+
+	@Override
+	public void onModuleLoad() {
+		Asserty.asserty(() -> {
+			// these tests will be done:
+			testInBrowser();
+			// ... other tests here too
+		});
+	}
+ 
 
 ### Pojo example
 

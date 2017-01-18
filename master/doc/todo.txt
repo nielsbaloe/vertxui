@@ -1,7 +1,8 @@
 Development:
 - examples
 	!- mvcBootstrap+Bill/ virtualDOM
-		other testcases for attributes with RenderTests
+		TestBrowser
+		TestJunit: with Mockito for Pojofy.ajax
 		also virtualdom rewrite for styles and listeners
 		http://www.w3schools.com/bootstrap/bootstrap_grid_basic.asp
 		application itsself: totals for all individuals, input fields (date, person, amount, notes), list of all entries.

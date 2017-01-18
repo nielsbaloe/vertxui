@@ -1,4 +1,4 @@
-package live.connector.vertxui.client.util;
+package live.connector.vertxui.client.test;
 
 import elemental.html.Console;
 import elemental.html.MemoryInfo;
@@ -6,6 +6,8 @@ import elemental.util.Indexable;
 
 /**
  * A class which simulates console.log for plain-java outside-gwt junit testing.
+ * Should be in the /client package because Fluent.java needs access to this
+ * one.
  * 
  * @author ng
  *

@@ -22,13 +22,7 @@
 			<artifactId>vertx-web</artifactId>
 			<version>3.3.3</version>
 		</dependency>
-		<dependency>
-			<groupId>io.vertx</groupId>
-			<artifactId>vertx-unit</artifactId>
-			<version>3.3.3</version>
-			<scope>test</scope>
-		</dependency>
-		<!-- GWT -->
+		<!--client -->
 		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-dev</artifactId>
@@ -47,9 +41,21 @@
 		</dependency>
 		<!-- Test -->
 		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-unit</artifactId>
+			<version>3.3.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.machinepublishers</groupId>
+			<artifactId>jbrowserdriver</artifactId>
+			<version>0.17.3</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
