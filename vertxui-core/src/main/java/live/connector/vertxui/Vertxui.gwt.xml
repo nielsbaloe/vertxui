@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<inherits name="elemental.Elemental" />
+	<inherits name="com.github.nmorel.gwtjackson.GwtJackson" />
+	<source path="client" />
+</module>
+
