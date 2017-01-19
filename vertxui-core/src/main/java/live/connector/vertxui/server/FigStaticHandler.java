@@ -1,6 +1,8 @@
 package live.connector.vertxui.server;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
+import java.util.logging.Logger;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -18,7 +20,10 @@ import io.vertx.ext.web.handler.StaticHandler;
  */
 public class FigStaticHandler {
 
+	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+
 	public static Handler<RoutingContext> create(String root, String url) {
+		log.info("creating figwheely static handler, started=" + FigWheely.started);
 		if (FigWheely.started) {
 			registerFolder(Vertx.factory.context().owner().fileSystem(), root, url);
 		}
@@ -33,7 +38,7 @@ public class FigStaticHandler {
 			for (String item : items.result()) {
 				File file = new File(item);
 				if (file.isFile()) {
-					// log.info("adding " + url + " for file=" + file);
+					log.info("adding " + url + " for file=" + file);
 					FigWheely.addFile(file, url + file.getName());
 				} else {
 					registerFolder(fileSystem, item, url + file.getName() + "/");

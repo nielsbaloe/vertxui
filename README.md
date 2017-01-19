@@ -24,7 +24,7 @@ Serverside [Vert.X](http://vertx.io/) adds:
 * no need for anything else: no Apache and Tomcat.
 * the serverside EventBus, and a wonderful professional speedy async ecosystem.
 
-Pure-Java clientside (using down-to-the-DOM wrapped-away GWT/elemental) means:
+Pure-Java clientside (not locked-in currently using down-to-the-DOM wrapped-away GWT/elemental) means:
 * strong-typed client-side Javascript
 * use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML like React)
 * use the same DTO/entity classes and constants server-side and client-side.
@@ -166,5 +166,11 @@ The controller (serverside) can be for example (ajax example):
 			log.info("Received a pojo from the client: color=" + m.color);
 			return "a string";
 		}));
+
+### More
+
+Currently GWT is used, because it is by far the most efficiënt and full-featured Java 8 implementation out there.
+Polyglot is possible as long as the sourcecode is included in the jars.
+
 
 Niels Gorisse

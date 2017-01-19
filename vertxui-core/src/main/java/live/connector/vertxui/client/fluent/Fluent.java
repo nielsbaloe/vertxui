@@ -255,6 +255,7 @@ public class Fluent implements Viewable {
 	 * @return
 	 */
 	public Fluent css(Style name, String value) {
+
 		if (styles == null) {
 			styles = new TreeMap<>();
 		}

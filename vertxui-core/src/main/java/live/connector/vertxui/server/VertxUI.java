@@ -148,10 +148,10 @@ public class VertxUI {
 		String className = classs.getName();
 		String xmlFile = "gwtTemp";
 
-		// as path: one lower than the class (should be configurable?)
+		// as path: the "client" package in the name of the classpath of the
+		// given classname
 		String path = className.replace(".", "/");
-		path = path.substring(0, path.lastIndexOf("/"));
-		path = path.substring(0, path.lastIndexOf("/"));
+		path = path.substring(0, path.lastIndexOf("client") + 6);
 		File gwtXml = new File(sourceLocation + "/" + xmlFile + ".gwt.xml");
 		StringBuilder content = new StringBuilder("<module rename-to='a'>");
 		librariesGwt.forEach(l -> content.append("<inherits name='" + l + "'/>"));

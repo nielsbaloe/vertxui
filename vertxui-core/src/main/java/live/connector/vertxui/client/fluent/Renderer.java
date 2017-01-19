@@ -4,6 +4,7 @@ import static live.connector.vertxui.client.fluent.Fluent.document;
 
 import java.util.TreeMap;
 
+import elemental.css.CSSStyleDeclaration;
 import elemental.dom.Element;
 
 public class Renderer {
@@ -101,37 +102,14 @@ public class Renderer {
 			}
 		}
 		compareAttributes(newView.element, newView.attrs, oldView.attrs);
+		compareStyles(newView.element, newView.styles, oldView.styles);
 
 		// <---------------------------------------------------------------------
 		// TOT HIER GEBLEVEN
 		// <---------------------------------------------------------------------
 		// TOT HIER GEBLEVEN
 		// <---------------------------------------------------------------------
-
-		// // Style
-		// CSSStyleDeclaration elementStyles = newView.element.getStyle();
-		// if (newView.styles != null) {
-		// for (Style name : newView.styles.keySet()) { // add or adjust
-		// String nameValid = name.nameValid();
-		// String value = newView.styles.get(name);
-		//
-		// String elementNow = elementStyles.getPropertyValue(nameValid);
-		// if (elementNow == null) {
-		// elementStyles.setProperty(nameValid, value);
-		// } else if (!elementNow.equals(value)) {
-		// elementStyles.removeProperty(nameValid);
-		// elementStyles.setProperty(nameValid, value);
-		// }
-		// }
-		// }
-		// for (int x = elementStyles.getLength() - 1; x != -1; x--) { // remove
-		// String elementStyle = elementStyles.item(x);
-		// if (newView.styles == null ||
-		// !newView.styles.containsKey(Style.valueOfValid(elementStyle))) {
-		// elementStyles.removeProperty(elementStyle);
-		// }
-		// }
-		//
+		// TODO TODO TODO TODO
 		// Listeners
 		// // if (add.listeners!=null) { ...
 		// // }
@@ -157,6 +135,81 @@ public class Renderer {
 				oldChildAsFluent = ((ViewOn<?>) oldChild).getView();
 			}
 			syncChild(newView, newChild, oldChildAsFluent);
+		}
+	}
+
+	private final static Style[] emptyStyles = new Style[0];
+
+	private static void compareStyles(Element source, TreeMap<Style, String> treeNew, TreeMap<Style, String> treeOld) {
+		CSSStyleDeclaration style = null;
+		if (source != null) {
+			style = source.getStyle();
+		}
+		Style[] keysNew = (treeNew == null) ? emptyStyles : treeNew.keySet().toArray(emptyStyles);
+		Style[] keysOld = (treeOld == null) ? emptyStyles : treeOld.keySet().toArray(emptyStyles);
+
+		// console.log("---START compareAttributes() kNew=" + kNew.length + "
+		// kOld=" + kOld.length);
+		int countNew = 0, countOld = 0;
+		// avoiding creating new sets (guava, removeAll etc) and minimizing
+		// lookups (.get)
+		while (countNew < keysNew.length || countOld < keysOld.length) {
+			Style attNew = null;
+			if (treeNew != null && countNew < keysNew.length) {
+				attNew = keysNew[countNew];
+				countNew++;
+			}
+			Style attOld = null;
+			if (treeOld != null && countOld < keysOld.length) {
+				attOld = keysOld[countOld];
+				countOld++;
+			}
+			if (attNew != null && attOld == null) {
+				// console.log("setting attribute: " + attNew.nameValid() + ","
+				// + treeNew.get(attNew));
+				if (style != null) {
+					style.setProperty(attNew.nameValid(), treeNew.get(attNew));
+				}
+			} else if (attNew == null && attOld != null) {
+				// console.log("removing attribute: " + attOld.nameValid());
+				if (style != null) {
+					style.removeProperty(attOld.nameValid());
+				}
+				// } else if (nAtt == null && oAtt == null) {
+				// throw new IllegalArgumentException("both can not be null n="
+				// + n + " o=" + o);
+			} else { // both attributes must have a value here
+				int compare = attNew.compareTo(attOld); // comparing keys
+				// console.log("comparing "+attNew+" "+attOld);
+				if (compare == 0) { // same keys
+					String oldValue = treeOld.get(attOld);
+					String newValue = treeNew.get(attNew);
+					if (!oldValue.equals(newValue)) {
+						// console.log(
+						// "changing value for " + attNew.nameValid() + " old="
+						// + oldValue + " new=" + newValue);
+						if (style != null) {
+							style.removeProperty(attNew.nameValid());
+							style.setProperty(attNew.nameValid(), newValue);
+						}
+						// } else {
+						// console.log("no change " + attNew.nameValid() + "
+						// value=" + oldValue);
+					}
+				} else if (compare < 0) {
+					if (style != null) {
+						style.setProperty(attNew.nameValid(), treeNew.get(attNew));
+					}
+					// console.log(" setting " + attNew.nameValid());
+					countOld--;
+				} else { // compare>0
+					// console.log(" removing " + attOld.nameValid());
+					if (style != null) {
+						style.removeProperty(attOld.nameValid());
+					}
+					countNew--;
+				}
+			}
 		}
 	}
 

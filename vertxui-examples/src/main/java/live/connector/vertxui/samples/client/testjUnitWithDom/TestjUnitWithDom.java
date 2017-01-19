@@ -1,7 +1,6 @@
 package live.connector.vertxui.samples.client.testjUnitWithDom;
 
 import static live.connector.vertxui.client.fluent.Fluent.body;
-import static live.connector.vertxui.client.fluent.Fluent.console;
 import static live.connector.vertxui.client.fluent.Fluent.document;
 import static live.connector.vertxui.client.test.Asserty.assertEquals;
 import static live.connector.vertxui.client.test.Asserty.assertTrue;
@@ -15,11 +14,13 @@ import org.junit.Test;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.shared.GwtIncompatible;
 
+import elemental.css.CSSStyleDeclaration;
 import elemental.dom.Element;
 import elemental.dom.NamedNodeMap;
 import elemental.dom.NodeList;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
+import live.connector.vertxui.client.fluent.Style;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.client.test.Asserty;
 import live.connector.vertxui.samples.client.mvcBootstrap.View;
@@ -52,7 +53,7 @@ public class TestjUnitWithDom implements EntryPoint {
 		Asserty.asserty(() -> {
 			mvcBootstrapStateChange();
 			fluentAttributeRenderTests();
-			console.log("done");
+			fluentStylesTests();
 		});
 	}
 
@@ -61,7 +62,10 @@ public class TestjUnitWithDom implements EntryPoint {
 		// run clearVirtualDom if you test without the DOM.
 		// Fluent.clearVirtualDOM();
 
-		View v = new live.connector.vertxui.samples.client.mvcBootstrap.View(); // create the _whole_ view
+		View v = new live.connector.vertxui.samples.client.mvcBootstrap.View(); // create
+																				// the
+																				// _whole_
+																				// view
 		v.onModuleLoad();
 		// note: you can leave .onModuleLoad() out, it's nicer when it's empty.
 
@@ -173,6 +177,104 @@ public class TestjUnitWithDom implements EntryPoint {
 		}
 		Collections.sort(attributeNames);
 		return attributeNames;
+	}
+
+	public void fluentStylesTests() {
+		// tricky to test because the browser does whatever it wants. First of
+		// all, only valid values get through, the rest is ignored. And
+		// sometimes things are added extra (like when setting the background).
+
+		ViewOn<Integer> view = body.add(0, s -> {
+			Fluent result = Fluent.Div();
+			switch (s) {
+			case 0:
+				result.css(Style.color, "blue");
+				break;
+			case 1:
+				result.css(Style.color, "blue");
+				result.css(Style.fontSize, "50px");
+				break;
+			case 2:
+				result.css(Style.marginLeft, "0");
+				break;
+			case 3:
+				break;
+			case 4:
+				result.css(Style.color, "blue");
+				result.css(Style.fontSize, "50px");
+				result.css(Style.textAlign, "left");
+				break;
+			}
+			return result;
+		});
+
+		assertTrue(body.dom() != null);
+
+		List<String> styleNames = getAllNamesFromStyles(view);
+		assertEquals("length should be 1", styleNames.size(), 1);
+		assertTrue("1", styleNames.get(0).equals("color"));
+
+		view.state(1);
+		styleNames = getAllNamesFromStyles(view);
+		assertEquals("2", styleNames.size(), 2);
+		assertEquals(styleNames.get(0), "color");
+		assertEquals(styleNames.get(1), Style.fontSize.nameValid());
+
+		view.state(0);
+		styleNames = getAllNamesFromStyles(view);
+		assertEquals("length should be 1", styleNames.size(), 1);
+		assertTrue(styleNames.get(0).equals("color"));
+
+		view.state(1);
+		styleNames = getAllNamesFromStyles(view);
+		assertEquals("3", styleNames.size(), 2);
+		assertEquals(styleNames.get(0), "color");
+		assertEquals(styleNames.get(1), Style.fontSize.nameValid());
+
+		view.state(2);
+		styleNames = getAllNamesFromStyles(view);
+		assertEquals("4", styleNames.size(), 1);
+		assertEquals(styleNames.get(0), "margin-left");
+
+		view.state(1);
+		styleNames = getAllNamesFromStyles(view);
+		assertEquals("5", styleNames.size(), 2);
+		assertEquals(styleNames.get(0), "color");
+		assertEquals(styleNames.get(1), Style.fontSize.nameValid());
+
+		view.state(3);
+		styleNames = getAllNamesFromStyles(view);
+		assertEquals("6", styleNames.size(), 0);
+
+		view.state(1);
+		styleNames = getAllNamesFromStyles(view);
+		assertEquals("7", styleNames.size(), 2);
+		assertEquals(styleNames.get(0), "color");
+		assertEquals(styleNames.get(1), Style.fontSize.nameValid());
+
+		view.state(4);
+		styleNames = getAllNamesFromStyles(view);
+		assertEquals("8", styleNames.size(), 3);
+		assertEquals(styleNames.get(0), "color");
+		assertEquals(styleNames.get(1), "font-size");
+		assertEquals(styleNames.get(2), "text-align");
+
+		view.state(1);
+		styleNames = getAllNamesFromStyles(view);
+		assertEquals("9", styleNames.size(), 2);
+		assertEquals(styleNames.get(0), "color");
+		assertEquals(styleNames.get(1), "font-size");
+
+	}
+
+	private List<String> getAllNamesFromStyles(ViewOn<Integer> view) {
+		CSSStyleDeclaration styles = view.getViewForDebugPurposesOnly().dom().getStyle();
+		List<String> result = new ArrayList<>();
+		for (int x = 0; x < styles.getLength(); x++) {
+			result.add(styles.item(x));
+		}
+		Collections.sort(result);
+		return result;
 	}
 
 }

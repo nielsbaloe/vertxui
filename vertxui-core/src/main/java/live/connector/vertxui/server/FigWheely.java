@@ -129,11 +129,10 @@ public class FigWheely extends AbstractVerticle {
 			+ "       parent.appendChild(script);   	                 \n" + "  }  } };                           ";
 
 	public static Handler<RoutingContext> create() {
-		if (started) {
-			throw new IllegalArgumentException("Can only start once");
+		if (!started) {
+			started = true;
+			Vertx.currentContext().owner().deployVerticle(FigWheely.class.getName());
 		}
-		started = true;
-		Vertx.currentContext().owner().deployVerticle(FigWheely.class.getName());
 		return a -> {
 			a.response().end(FigWheely.script);
 		};

@@ -1,13 +1,33 @@
 package live.connector.vertxui.client.test;
 
 /**
- * A small junit port, without external dependencies, and with a javascript
- * callable (window.asserty()).
+ * A small junit port, without external dependencies, inlining methods (to
+ * reduce the stacktrace), and with a javascript callable (window.asserty()).
  * 
  * @author ng
  *
  */
 public class Asserty {
+
+	/**
+	 * Give a method that runs all your testcases and throws an exception when
+	 * something goes wrong.
+	 */
+	public final native static String asserty(AssertyHandler handler)/*-{
+																		$wnd.asserty = function() {
+																		try{ @live.connector.vertxui.client.test.Asserty::doit(Llive/connector/vertxui/client/test/AssertyHandler;)
+																		(handler); 
+																		} catch(e) { 
+																		// console.log(e.message+"\n"+e.stack);
+																		return e.message+"\n"+e.stack;
+																		};
+																		return null;
+																		}
+																		}-*/;
+
+	private static void doit(AssertyHandler handler) throws Exception {
+		handler.test();
+	}
 
 	/**
 	 * Asserts that a condition is true. If it isn't it throws an
@@ -21,7 +41,10 @@ public class Asserty {
 	 */
 	static public void assertTrue(String message, boolean condition) {
 		if (!condition) {
-			fail(message);
+			if (message == null) {
+				throw new AssertionError();
+			}
+			throw new AssertionError(message);
 		}
 	}
 
@@ -69,18 +92,12 @@ public class Asserty {
 	 *            (<code>null</code> okay)
 	 * @see AssertionError
 	 */
-	static public void fail(String message) {
-		if (message == null) {
-			throw new AssertionError();
-		}
-		throw new AssertionError(message);
-	}
 
 	/**
 	 * Fails a test with no message.
 	 */
 	static public void fail() {
-		fail("Fail!");
+		throw new AssertionError("fails");
 	}
 
 	/**
@@ -105,7 +122,7 @@ public class Asserty {
 			String cleanMessage = message == null ? "" : message;
 			throw new AssertionError(cleanMessage + " expected=" + (String) expected + " actual=" + (String) actual);
 		} else {
-			failNotEquals(message, expected, actual);
+			throw new AssertionError(format(message, expected, actual));
 		}
 	}
 
@@ -134,7 +151,14 @@ public class Asserty {
 	 * @throws Exception
 	 */
 	static public void assertEquals(Object expected, Object actual) {
-		assertEquals(null, expected, actual);
+		if (equalsRegardingNull(expected, actual)) {
+			return;
+		} else if (expected instanceof String && actual instanceof String) {
+			String cleanMessage = "";
+			throw new AssertionError(cleanMessage + " expected=" + (String) expected + " actual=" + (String) actual);
+		} else {
+			throw new AssertionError(format("", expected, actual));
+		}
 	}
 
 	/**
@@ -177,9 +201,8 @@ public class Asserty {
 		if (message != null) {
 			formatted = message + ". ";
 		}
-
 		formatted += "Actual: " + actual;
-		fail(formatted);
+		throw new AssertionError(formatted);
 	}
 
 	/**
@@ -630,7 +653,7 @@ public class Asserty {
 	 */
 	static public void assertEquals(String message, double expected, double actual, double delta) {
 		if (doubleIsDifferent(expected, actual, delta)) {
-			failNotEquals(message, Double.valueOf(expected), Double.valueOf(actual));
+			throw new AssertionError(format(message, Double.valueOf(expected), Double.valueOf(actual)));
 		}
 	}
 
@@ -655,7 +678,7 @@ public class Asserty {
 	 */
 	static public void assertEquals(String message, float expected, float actual, float delta) {
 		if (floatIsDifferent(expected, actual, delta)) {
-			failNotEquals(message, Float.valueOf(expected), Float.valueOf(actual));
+			throw new AssertionError(format(message, Float.valueOf(expected), Float.valueOf(actual)));
 		}
 	}
 
@@ -720,7 +743,7 @@ public class Asserty {
 	 */
 	static public void assertEquals(String message, long expected, long actual) {
 		if (expected != actual) {
-			failNotEquals(message, Long.valueOf(expected), Long.valueOf(actual));
+			throw new AssertionError(format(message, Long.valueOf(expected), Long.valueOf(actual)));
 		}
 	}
 
@@ -821,7 +844,7 @@ public class Asserty {
 		if (message != null) {
 			formatted = message + " ";
 		}
-		fail(formatted + "expected null, but was:<" + actual + ">");
+		throw new AssertionError(formatted + "expected null, but was:<" + actual + ">");
 	}
 
 	/**
@@ -894,7 +917,7 @@ public class Asserty {
 		if (message != null) {
 			formatted = message + " ";
 		}
-		fail(formatted + "expected not same");
+		throw new AssertionError(formatted + "expected not same");
 	}
 
 	static private void failNotSame(String message, Object expected, Object actual) {
@@ -902,11 +925,7 @@ public class Asserty {
 		if (message != null) {
 			formatted = message + " ";
 		}
-		fail(formatted + "expected same:<" + expected + "> was not:<" + actual + ">");
-	}
-
-	static private void failNotEquals(String message, Object expected, Object actual) {
-		fail(format(message, expected, actual));
+		throw new AssertionError(formatted + "expected same:<" + expected + "> was not:<" + actual + ">");
 	}
 
 	static String format(String message, Object expected, Object actual) {
@@ -927,26 +946,6 @@ public class Asserty {
 	private static String formatClassAndValue(Object value, String valueString) {
 		String className = value == null ? "null" : value.getClass().getName();
 		return className + "<" + valueString + ">";
-	}
-
-	/**
-	 * Give a method that runs all your testcases and throws an exception when
-	 * something goes wrong.
-	 */
-	public final native static String asserty(AssertyHandler handler)/*-{
-																		$wnd.asserty = function() {
-																		try{ @live.connector.vertxui.client.test.Asserty::doit(Llive/connector/vertxui/client/test/AssertyHandler;)
-																		(handler); 
-																		} catch(e) { 
-																		// console.log(e.message+"\n"+e.stack);
-																		return e.message+"\n"+e.stack;
-																		};
-																		return null;
-																		}
-																		}-*/;
-
-	private static void doit(AssertyHandler handler) throws Exception {
-		handler.test();
 	}
 
 	/**

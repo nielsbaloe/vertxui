@@ -10,6 +10,7 @@ import io.vertx.ext.web.Router;
 import live.connector.vertxui.samples.client.figwheely.Client;
 import live.connector.vertxui.samples.server.AllExamplesServer;
 import live.connector.vertxui.server.FigStaticHandler;
+import live.connector.vertxui.server.FigWheely;
 
 public class ExampleFigWheely extends AbstractVerticle {
 
@@ -23,9 +24,13 @@ public class ExampleFigWheely extends AbstractVerticle {
 		Router router = Router.router(vertx);
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
-		// Figwheely example: serve sources folder (if figwheely is off, it's
-		// just a normal statichandler)
-		router.get("/sourcez/*").handler(FigStaticHandler.create("sources", "/sourcez/"));
+		// Start figwheely
+		router.get(Client.figLocation).handler(FigWheely.create());
+
+		// Serve folder assets-figwheely, and notify
+		// clients of changes if figwheely is started (otherwise it is just a
+		// normal StaticHandler).
+		router.get("/sourcez/*").handler(FigStaticHandler.create("assets-figwheely", "/sourcez/"));
 
 		AllExamplesServer.startWarAndServer(Client.class, router, server);
 	}
