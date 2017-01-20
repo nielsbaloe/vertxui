@@ -73,8 +73,8 @@ public class TestjUnitWithDom implements EntryPoint {
 		// active, the name of the A-link.
 		v.menuBills(null);
 		NodeList b = document.getElementsByClassName("active");
-		assertEquals(b.length(), 1);
-		assertTrue(((Element) b.item(0).getChildNodes().at(0)).getInnerHTML().equals("Bills"));
+		assertEquals("length of actives", b.length(), 1);
+		assertTrue("selected item title", ((Element) b.item(0).getChildNodes().at(0)).getInnerHTML().equals("Bills"));
 	}
 
 	public void fluentAttributeRenderTests() {
@@ -110,62 +110,62 @@ public class TestjUnitWithDom implements EntryPoint {
 		// Should add accept
 		view.state(1);
 		attributeNames = getAllNamesFromAttributes(view);
-		assertEquals(attributeNames.size(), 2);
-		assertEquals(attributeNames.get(0), "accept");
-		assertEquals(attributeNames.get(1), "id");
+		assertEquals("2", attributeNames.size(), 2);
+		assertEquals("2.1", attributeNames.get(0), "accept");
+		assertEquals("2.2", attributeNames.get(1), "id");
 
 		// Should remove accept
 		view.state(0);
 		attributeNames = getAllNamesFromAttributes(view);
-		assertEquals(attributeNames.size(), 1);
-		assertEquals(attributeNames.get(0), "id");
+		assertEquals("3", attributeNames.size(), 1);
+		assertEquals("3.1", attributeNames.get(0), "id");
 
 		// Should add accept
 		view.state(1);
 		attributeNames = getAllNamesFromAttributes(view);
-		assertEquals(attributeNames.size(), 2);
-		assertEquals(attributeNames.get(0), "accept");
-		assertEquals(attributeNames.get(1), "id");
+		assertEquals("4", attributeNames.size(), 2);
+		assertEquals("4.1", attributeNames.get(0), "accept");
+		assertEquals("4.2", attributeNames.get(1), "id");
 
 		// Should remove id accept, and add alt
 		view.state(2);
 		attributeNames = getAllNamesFromAttributes(view);
-		assertEquals(attributeNames.size(), 1);
-		assertEquals(attributeNames.get(0), "alt");
+		assertEquals("5", attributeNames.size(), 1);
+		assertEquals("5.1", attributeNames.get(0), "alt");
 
 		// Should add id and accept, remove alt
 		view.state(1);
 		attributeNames = getAllNamesFromAttributes(view);
-		assertEquals(attributeNames.size(), 2);
-		assertEquals(attributeNames.get(0), "accept");
-		assertEquals(attributeNames.get(1), "id");
+		assertEquals("6", attributeNames.size(), 2);
+		assertEquals("6.1", attributeNames.get(0), "accept");
+		assertEquals("6.2", attributeNames.get(1), "id");
 
 		// Should remove id and accept
 		view.state(3);
 		attributeNames = getAllNamesFromAttributes(view);
-		assertEquals(attributeNames.size(), 0);
+		assertEquals("6.3", attributeNames.size(), 0);
 
 		// Should add id accept
 		view.state(1);
 		attributeNames = getAllNamesFromAttributes(view);
-		assertEquals(attributeNames.size(), 2);
-		assertEquals(attributeNames.get(0), "accept");
-		assertEquals(attributeNames.get(1), "id");
+		assertEquals("7", attributeNames.size(), 2);
+		assertEquals("7.1", attributeNames.get(0), "accept");
+		assertEquals("7.2", attributeNames.get(1), "id");
 
 		// Should add checked
 		view.state(4);
 		attributeNames = getAllNamesFromAttributes(view);
-		assertEquals(attributeNames.size(), 3);
-		assertEquals(attributeNames.get(0), "accept");
-		assertEquals(attributeNames.get(1), "checked");
-		assertEquals(attributeNames.get(2), "id");
+		assertEquals("8", attributeNames.size(), 3);
+		assertEquals("8.1", attributeNames.get(0), "accept");
+		assertEquals("8.2", attributeNames.get(1), "checked");
+		assertEquals("8.3", attributeNames.get(2), "id");
 
 		// Should remove checked
 		view.state(1);
 		attributeNames = getAllNamesFromAttributes(view);
-		assertEquals(attributeNames.size(), 2);
-		assertEquals(attributeNames.get(0), "accept");
-		assertEquals(attributeNames.get(1), "id");
+		assertEquals("9", attributeNames.size(), 2);
+		assertEquals("9.1", attributeNames.get(0), "accept");
+		assertEquals("9.2", attributeNames.get(1), "id");
 
 	}
 
@@ -208,7 +208,7 @@ public class TestjUnitWithDom implements EntryPoint {
 			return result;
 		});
 
-		assertTrue(body.dom() != null);
+		assertTrue("is this the real dom or just fantasy?", body.dom() != null);
 
 		List<String> styleNames = getAllNamesFromStyles(view);
 		assertEquals("length should be 1", styleNames.size(), 1);
@@ -217,30 +217,30 @@ public class TestjUnitWithDom implements EntryPoint {
 		view.state(1);
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("2", styleNames.size(), 2);
-		assertEquals(styleNames.get(0), "color");
-		assertEquals(styleNames.get(1), Style.fontSize.nameValid());
+		assertEquals("2.1", styleNames.get(0), "color");
+		assertEquals("2.2", styleNames.get(1), Style.fontSize.nameValid());
 
 		view.state(0);
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("length should be 1", styleNames.size(), 1);
-		assertTrue(styleNames.get(0).equals("color"));
+		assertTrue("and the first item color", styleNames.get(0).equals("color"));
 
 		view.state(1);
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("3", styleNames.size(), 2);
-		assertEquals(styleNames.get(0), "color");
-		assertEquals(styleNames.get(1), Style.fontSize.nameValid());
+		assertEquals("3.1", styleNames.get(0), "color");
+		assertEquals("3.2", styleNames.get(1), Style.fontSize.nameValid());
 
 		view.state(2);
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("4", styleNames.size(), 1);
-		assertEquals(styleNames.get(0), "margin-left");
+		assertEquals("4.1", styleNames.get(0), "margin-left");
 
 		view.state(1);
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("5", styleNames.size(), 2);
-		assertEquals(styleNames.get(0), "color");
-		assertEquals(styleNames.get(1), Style.fontSize.nameValid());
+		assertEquals("5.1", styleNames.get(0), "color");
+		assertEquals("5.2", styleNames.get(1), Style.fontSize.nameValid());
 
 		view.state(3);
 		styleNames = getAllNamesFromStyles(view);
@@ -249,22 +249,21 @@ public class TestjUnitWithDom implements EntryPoint {
 		view.state(1);
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("7", styleNames.size(), 2);
-		assertEquals(styleNames.get(0), "color");
-		assertEquals(styleNames.get(1), Style.fontSize.nameValid());
+		assertEquals("7.1", styleNames.get(0), "color");
+		assertEquals("7.2", styleNames.get(1), Style.fontSize.nameValid());
 
 		view.state(4);
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("8", styleNames.size(), 3);
-		assertEquals(styleNames.get(0), "color");
-		assertEquals(styleNames.get(1), "font-size");
-		assertEquals(styleNames.get(2), "text-align");
+		assertEquals("8.1", styleNames.get(0), "color");
+		assertEquals("8.2", styleNames.get(1), "font-size");
+		assertEquals("8.3", styleNames.get(2), "text-align");
 
 		view.state(1);
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("9", styleNames.size(), 2);
-		assertEquals(styleNames.get(0), "color");
-		assertEquals(styleNames.get(1), "font-size");
-
+		assertEquals("9.1", styleNames.get(0), "color");
+		assertEquals("9.2", styleNames.get(1), "font-size");
 	}
 
 	private List<String> getAllNamesFromStyles(ViewOn<Integer> view) {

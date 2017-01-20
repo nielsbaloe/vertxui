@@ -165,13 +165,14 @@ public class Renderer {
 				countOld++;
 			}
 			if (attNew != null && attOld == null) {
-				// console.log("setting attribute: " + attNew.nameValid() + ","
+				// Fluent.console.log("setting style: " + attNew.nameValid() +
+				// ","
 				// + treeNew.get(attNew));
 				if (style != null) {
 					style.setProperty(attNew.nameValid(), treeNew.get(attNew));
 				}
 			} else if (attNew == null && attOld != null) {
-				// console.log("removing attribute: " + attOld.nameValid());
+				// Fluent.console.log("removing style: " + attOld.nameValid());
 				if (style != null) {
 					style.removeProperty(attOld.nameValid());
 				}
@@ -180,12 +181,11 @@ public class Renderer {
 				// + n + " o=" + o);
 			} else { // both attributes must have a value here
 				int compare = attNew.compareTo(attOld); // comparing keys
-				// console.log("comparing "+attNew+" "+attOld);
 				if (compare == 0) { // same keys
 					String oldValue = treeOld.get(attOld);
 					String newValue = treeNew.get(attNew);
 					if (!oldValue.equals(newValue)) {
-						// console.log(
+						// Fluent.console.log(
 						// "changing value for " + attNew.nameValid() + " old="
 						// + oldValue + " new=" + newValue);
 						if (style != null) {
@@ -200,10 +200,10 @@ public class Renderer {
 					if (style != null) {
 						style.setProperty(attNew.nameValid(), treeNew.get(attNew));
 					}
-					// console.log(" setting " + attNew.nameValid());
+					// Fluent.console.log(" setting " + attNew.nameValid());
 					countOld--;
 				} else { // compare>0
-					// console.log(" removing " + attOld.nameValid());
+					// Fluent.console.log(" removing " + attOld.nameValid());
 					if (style != null) {
 						style.removeProperty(attOld.nameValid());
 					}

@@ -7,8 +7,7 @@ Development:
 		application itsself: totals for all individuals, input fields (date, person, amount, notes), list of all entries.
 	- to do mvc.com
 	- for existing index.html site
-	- webrtc
-	- as app: check open source app for android ios windows like siberiancms.com
+	- final target callap: webrtc + open source app for android ios windows like siberiancms.com
 - finish FigWheely: fix name of compiled .js changes in GWT... + look at sourcefolder not classes
 - finish Vertxui: relocate war->/build/war, try again instead of scriptsync to add js to index.html
 - publish: push to maven central + spread: vertx-awesome, vertx, GWT list and elsewhere

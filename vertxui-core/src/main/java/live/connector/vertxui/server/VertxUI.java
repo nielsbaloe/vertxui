@@ -133,7 +133,6 @@ public class VertxUI {
 	 * Debug is false by default; enable Figwheely to set debug to true.
 	 */
 	public void translate() throws IOException, InterruptedException {
-		long start = System.currentTimeMillis();
 		// Write index.html file which autoreloads
 		FileUtils.writeStringToFile(new File("war/index.html"),
 				"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
@@ -191,13 +190,16 @@ public class VertxUI {
 				while (p.isAlive()) {
 					while ((line = bri.readLine()) != null) {
 						info.append(line + "\n");
-						System.out.print(".");
 						if (line.contains("[ERROR]")) {
+							System.err.print(".");
 							error = true;
+						} else {
+							System.out.print(".");
 						}
 					}
 					while ((line = bre.readLine()) != null) {
 						info.append(line + "\n");
+						System.err.print(".");
 						error = true;
 					}
 				}
@@ -205,17 +207,19 @@ public class VertxUI {
 			if (error) {
 				throw new IOException("Compile error(s): " + info);
 			}
-			log.info("compiled in " + (System.currentTimeMillis() - start) + " ms.");
+			System.out.println("*");
+			// log.info("compiled in " + (System.currentTimeMillis() - start) +
+			// " ms.");
 		} finally {
 			gwtXml.delete();
 		}
 
 		// Write the final index.html file
-		StringBuilder html = new StringBuilder("<!DOCTYPE html><head></head>");
-		html.append("<body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
+		String html = "<!DOCTYPE html><head></head><body><script src='a/a.nocache.js?time=" + Math.random()
+				+ "'></script></body></html>";
 		// Not using vertx filesystem() because there is no speed gain and is
 		// called by tests outside vertx
-		FileUtils.writeStringToFile(new File("war/index.html"), html.toString());
+		FileUtils.writeStringToFile(new File("war/index.html"), html);
 		// Vertx.currentContext().owner().fileSystem().writeFile(,
 		// Buffer.buffer(), a -> {
 		// if (a.failed()) {

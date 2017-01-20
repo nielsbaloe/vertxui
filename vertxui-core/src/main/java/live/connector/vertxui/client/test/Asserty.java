@@ -1,8 +1,11 @@
 package live.connector.vertxui.client.test;
 
 /**
- * A small junit port, without external dependencies, inlining methods (to
- * reduce the stacktrace), and with a javascript callable (window.asserty()).
+ * A small junit port, leaving about a handfull or assertions which need
+ * external dependencies, inlining some methods to reduce the length of the
+ * stacktrace, not allowing testing without a first argument which describes the
+ * test (because GWT does not show _which_ assertion went wrong), and with a
+ * javascript callable (window.asserty()).
  * 
  * @author ng
  *
@@ -18,7 +21,6 @@ public class Asserty {
 																		try{ @live.connector.vertxui.client.test.Asserty::doit(Llive/connector/vertxui/client/test/AssertyHandler;)
 																		(handler); 
 																		} catch(e) { 
-																		// console.log(e.message+"\n"+e.stack);
 																		return e.message+"\n"+e.stack;
 																		};
 																		return null;
@@ -27,6 +29,11 @@ public class Asserty {
 
 	private static void doit(AssertyHandler handler) throws Exception {
 		handler.test();
+	}
+
+	public static void failNoMessage() {
+		throw new AssertionError(
+				"Please extend this method with a message as first argument, otherwise you will not see in the stacktrace where it went wrong");
 	}
 
 	/**
@@ -42,7 +49,7 @@ public class Asserty {
 	static public void assertTrue(String message, boolean condition) {
 		if (!condition) {
 			if (message == null) {
-				throw new AssertionError();
+				failNoMessage();
 			}
 			throw new AssertionError(message);
 		}
@@ -56,7 +63,7 @@ public class Asserty {
 	 *            condition to be checked
 	 */
 	static public void assertTrue(boolean condition) {
-		assertTrue(null, condition);
+		failNoMessage();
 	}
 
 	/**
@@ -81,7 +88,7 @@ public class Asserty {
 	 *            condition to be checked
 	 */
 	static public void assertFalse(boolean condition) {
-		assertFalse(null, condition);
+		failNoMessage();
 	}
 
 	/**
@@ -116,11 +123,13 @@ public class Asserty {
 	 * @throws Exception
 	 */
 	static public void assertEquals(String message, Object expected, Object actual) {
+		if (message == null) {
+			failNoMessage();
+		}
 		if (equalsRegardingNull(expected, actual)) {
 			return;
 		} else if (expected instanceof String && actual instanceof String) {
-			String cleanMessage = message == null ? "" : message;
-			throw new AssertionError(cleanMessage + " expected=" + (String) expected + " actual=" + (String) actual);
+			throw new AssertionError(message + ": expected=" + (String) expected + " actual=" + (String) actual);
 		} else {
 			throw new AssertionError(format(message, expected, actual));
 		}
@@ -130,7 +139,6 @@ public class Asserty {
 		if (expected == null) {
 			return actual == null;
 		}
-
 		return isEquals(expected, actual);
 	}
 
@@ -151,14 +159,7 @@ public class Asserty {
 	 * @throws Exception
 	 */
 	static public void assertEquals(Object expected, Object actual) {
-		if (equalsRegardingNull(expected, actual)) {
-			return;
-		} else if (expected instanceof String && actual instanceof String) {
-			String cleanMessage = "";
-			throw new AssertionError(cleanMessage + " expected=" + (String) expected + " actual=" + (String) actual);
-		} else {
-			throw new AssertionError(format("", expected, actual));
-		}
+		failNoMessage();
 	}
 
 	/**
@@ -193,10 +194,13 @@ public class Asserty {
 	 *            the value to check against <code>unexpected</code>
 	 */
 	static public void assertNotEquals(Object unexpected, Object actual) {
-		assertNotEquals(null, unexpected, actual);
+		failNoMessage();
 	}
 
 	private static void failEquals(String message, Object actual) {
+		if (message == null) {
+			failNoMessage();
+		}
 		String formatted = "Values should be different. ";
 		if (message != null) {
 			formatted = message + ". ";
@@ -233,7 +237,7 @@ public class Asserty {
 	 *            the value to check against <code>unexpected</code>
 	 */
 	static public void assertNotEquals(long unexpected, long actual) {
-		assertNotEquals(null, unexpected, actual);
+		failNoMessage();
 	}
 
 	/**
@@ -277,7 +281,7 @@ public class Asserty {
 	 *            considered equal.
 	 */
 	static public void assertNotEquals(double unexpected, double actual, double delta) {
-		assertNotEquals(null, unexpected, actual, delta);
+		failNoMessage();
 	}
 
 	/**
@@ -296,7 +300,7 @@ public class Asserty {
 	 *            considered equal.
 	 */
 	static public void assertNotEquals(float unexpected, float actual, float delta) {
-		assertNotEquals(null, unexpected, actual, delta);
+		failNoMessage();
 	}
 
 	/**
@@ -333,7 +337,7 @@ public class Asserty {
 	 * @throws Exception
 	 */
 	public static void assertArrayEquals(Object[] expecteds, Object[] actuals) {
-		assertArrayEquals(null, expecteds, actuals);
+		failNoMessage();
 	}
 
 	/**
@@ -366,7 +370,7 @@ public class Asserty {
 	 * @throws Exception
 	 */
 	public static void assertArrayEquals(boolean[] expecteds, boolean[] actuals) {
-		assertArrayEquals(null, expecteds, actuals);
+		failNoMessage();
 	}
 
 	/**
@@ -396,7 +400,7 @@ public class Asserty {
 	 * @throws Exception
 	 */
 	public static void assertArrayEquals(byte[] expecteds, byte[] actuals) {
-		assertArrayEquals(null, expecteds, actuals);
+		failNoMessage();
 	}
 
 	/**
@@ -426,7 +430,7 @@ public class Asserty {
 	 * @throws Exception
 	 */
 	public static void assertArrayEquals(char[] expecteds, char[] actuals) {
-		assertArrayEquals(null, expecteds, actuals);
+		failNoMessage();
 	}
 
 	/**
@@ -456,7 +460,7 @@ public class Asserty {
 	 * @throws Exception
 	 */
 	public static void assertArrayEquals(short[] expecteds, short[] actuals) {
-		assertArrayEquals(null, expecteds, actuals);
+		failNoMessage();
 	}
 
 	/**
@@ -486,7 +490,7 @@ public class Asserty {
 	 * @throws Exception
 	 */
 	public static void assertArrayEquals(int[] expecteds, int[] actuals) {
-		assertArrayEquals(null, expecteds, actuals);
+		failNoMessage();
 	}
 
 	/**
@@ -516,7 +520,7 @@ public class Asserty {
 	 * @throws Exception
 	 */
 	public static void assertArrayEquals(long[] expecteds, long[] actuals) {
-		assertArrayEquals(null, expecteds, actuals);
+		failNoMessage();
 	}
 
 	/**
@@ -624,11 +628,8 @@ public class Asserty {
 	 *            actual values
 	 */
 	private static void internalArrayEquals(String message, Object expecteds, Object actuals) {
-		// TODO fix
-		try {
-			assertEquals(expecteds, actuals);
-		} catch (Exception e) {
-			throw new AssertionError(message, e);
+		if (!equalsRegardingNull(expecteds, actuals)) {
+			throw new AssertionError(format(message, expecteds, actuals));
 		}
 	}
 
@@ -763,7 +764,7 @@ public class Asserty {
 	 *            considered equal.
 	 */
 	static public void assertEquals(double expected, double actual, double delta) {
-		assertEquals(null, expected, actual, delta);
+		failNoMessage();
 	}
 
 	/**
@@ -783,7 +784,7 @@ public class Asserty {
 	 */
 
 	static public void assertEquals(float expected, float actual, float delta) {
-		assertEquals(null, expected, actual, delta);
+		failNoMessage();
 	}
 
 	/**
@@ -808,7 +809,7 @@ public class Asserty {
 	 *            Object to check or <code>null</code>
 	 */
 	static public void assertNotNull(Object object) {
-		assertNotNull(null, object);
+		failNoMessage();
 	}
 
 	/**
@@ -836,7 +837,7 @@ public class Asserty {
 	 *            Object to check or <code>null</code>
 	 */
 	static public void assertNull(Object object) {
-		assertNull(null, object);
+		failNoMessage();
 	}
 
 	static private void failNotNull(String message, Object actual) {
@@ -876,7 +877,7 @@ public class Asserty {
 	 *            the object to compare to <code>expected</code>
 	 */
 	static public void assertSame(Object expected, Object actual) {
-		assertSame(null, expected, actual);
+		failNoMessage();
 	}
 
 	/**
@@ -913,22 +914,23 @@ public class Asserty {
 	}
 
 	static private void failSame(String message) {
-		String formatted = "";
-		if (message != null) {
-			formatted = message + " ";
+		if (message == null) {
+			failNoMessage();
 		}
-		throw new AssertionError(formatted + "expected not same");
+		throw new AssertionError(message + ": expected not same");
 	}
 
 	static private void failNotSame(String message, Object expected, Object actual) {
-		String formatted = "";
-		if (message != null) {
-			formatted = message + " ";
+		if (message == null) {
+			failNoMessage();
 		}
-		throw new AssertionError(formatted + "expected same:<" + expected + "> was not:<" + actual + ">");
+		throw new AssertionError(message + ": expected same:<" + expected + "> was not:<" + actual + ">");
 	}
 
 	static String format(String message, Object expected, Object actual) {
+		if (message == null) {
+			failNoMessage();
+		}
 		String formatted = "";
 		if (message != null && !message.equals("")) {
 			formatted = message + " ";
