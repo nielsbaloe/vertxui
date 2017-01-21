@@ -1,4 +1,4 @@
-package live.connector.vertxui.server.test;
+package live.connector.vertxui.client.test;
 
 import java.io.File;
 import java.io.FileReader;
@@ -8,24 +8,60 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.Test;
 
+import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.shared.GwtIncompatible;
 import com.machinepublishers.jbrowserdriver.JBrowserDriver;
 import com.machinepublishers.jbrowserdriver.Settings;
 
 import live.connector.vertxui.server.VertxUI;
 
-public class TestWithDom {
+/**
+ * A junit testrunner which starts as a normal java junit test, but underneath
+ * converts the class to a javascript page, fires up a headless browser, and
+ * then calls test() in which you can call your javascript tests. You must
+ * implement tests(), you can override before() and after() if necessary.
+ * 
+ * @author ng
+ *
+ */
+public abstract class TestDOM implements EntryPoint {
 
-	public static void runwithJunit(Class<?> classs) throws Exception {
-		VertxUI.with(classs, null); // Convert to javascript
+	public void before() throws Exception {
+	}
+
+	public abstract void tests() throws Exception;
+
+	public void after() throws Exception {
+	}
+
+	@Override
+	public void onModuleLoad() {
+		Asserty.asserty(() -> {
+			before();
+			tests();
+			after();
+		});
+	}
+
+	@GwtIncompatible
+	@Test
+	public void testsInJavascript() throws Exception {
 
 		JBrowserDriver jBrowser = new JBrowserDriver(Settings.builder().logJavascript(true).build());
-		try { // headless run
+
+		// Convert to javascript
+		VertxUI.with(this.getClass(), null);
+
+		// headless run
+		try {
 			jBrowser.get("file:///" + new File("war/index.html").getAbsolutePath());
 			String error = (String) jBrowser.executeScript("return window.asserty();");
 			if (error == null) {
 
-				// TODOhmm how to find console errors when loading files fails
+				// TODO hmm how to find console errors when loading .js files
+				// fails
 				// List<String> lastTest = JBrowserDriver.test();
 				// System.out.println(Arrays.toString(lastTest.toArray()));
 				return; // OK
@@ -71,6 +107,8 @@ public class TestWithDom {
 			exception.setStackTrace(stacks.toArray(new StackTraceElement[0]));
 			throw exception;
 		} finally {
+			// unfortunately jBrowser doesn't react on a runtime shutdown hook,
+			// otherwise we could just recycle the jBrowser....
 			jBrowser.quit();
 		}
 	}

@@ -10,8 +10,8 @@ import org.junit.Test;
 import com.google.gwt.core.shared.GwtIncompatible;
 
 import live.connector.vertxui.client.fluent.Fluent;
+import live.connector.vertxui.client.test.VirtualDomSearch;
 import live.connector.vertxui.samples.client.mvcBootstrap.View;
-import live.connector.vertxui.server.test.VirtualDomSearch;
 
 /**
  * Run this class in junit in your IDE. Note that this is the preferred way of
@@ -39,9 +39,9 @@ public class TestjUnitWithoutDom {
 		// note: you can leave .onModuleLoad() out, it's nicer when it's empty.
 
 		// Check the title (using 'id')
-		List<Fluent> a = VirtualDomSearch.getElementsById("titlerForJunitTest", Fluent.body);
-		assertEquals(a.size(), 1);
-		assertTrue(a.get(0).tag().equals("H1"));
+		Fluent a = VirtualDomSearch.getElementById("titlerForJunitTest", Fluent.body);
+		assertTrue(a != null);
+		assertTrue(a.tag().equals("H1"));
 	}
 
 	@Test

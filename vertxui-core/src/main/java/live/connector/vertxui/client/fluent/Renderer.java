@@ -4,8 +4,9 @@ import static live.connector.vertxui.client.fluent.Fluent.document;
 
 import java.util.TreeMap;
 
-import elemental.css.CSSStyleDeclaration;
 import elemental.dom.Element;
+import elemental.dom.Node;
+import elemental.events.EventListener;
 
 public class Renderer {
 
@@ -35,7 +36,7 @@ public class Renderer {
 			// newView);
 			create(parent, newView);
 		} else {
-			compareAndFix(parent, newView, oldView);
+			renderChanges(parent, newView, oldView);
 		}
 	}
 
@@ -74,13 +75,13 @@ public class Renderer {
 		}
 	}
 
-	private static void compareAndFix(Fluent parent, Fluent newView, Fluent oldView) {
+	private static void renderChanges(Fluent parent, Fluent newView, Fluent oldView) {
 		// if ("bladiebla" instanceof Object) {
 		// create(parent, newView);
 		// return;
 		// }
 
-		if (!compareIgnoreCase(newView.tag, oldView.tag)) {
+		if (!compareStringIgnoreCase(newView.tag, oldView.tag)) {
 			// console.log("syncRender: leuk maar tagname anders");
 			if (parent.element != null) {
 				parent.element.removeChild(oldView.element);
@@ -95,14 +96,15 @@ public class Renderer {
 		}
 
 		// // innerHtml
-		if (!compare(newView.inner, oldView.inner)) {
+		if (!compareString(newView.inner, oldView.inner)) {
 
 			if (parent.element != null) {
 				newView.inner(newView.inner);
 			}
 		}
-		compareAttributes(newView.element, newView.attrs, oldView.attrs);
-		compareStyles(newView.element, newView.styles, oldView.styles);
+		compareApply(newView.element, newView.attrs, oldView.attrs, emptyAttributes);
+		compareApply(newView.element, newView.styles, oldView.styles, emptyStyles);
+		compareApply(newView.element, newView.listeners, oldView.listeners, emptyListeners);
 
 		// <---------------------------------------------------------------------
 		// TOT HIER GEBLEVEN
@@ -139,85 +141,14 @@ public class Renderer {
 	}
 
 	private final static Style[] emptyStyles = new Style[0];
-
-	private static void compareStyles(Element source, TreeMap<Style, String> treeNew, TreeMap<Style, String> treeOld) {
-		CSSStyleDeclaration style = null;
-		if (source != null) {
-			style = source.getStyle();
-		}
-		Style[] keysNew = (treeNew == null) ? emptyStyles : treeNew.keySet().toArray(emptyStyles);
-		Style[] keysOld = (treeOld == null) ? emptyStyles : treeOld.keySet().toArray(emptyStyles);
-
-		// console.log("---START compareAttributes() kNew=" + kNew.length + "
-		// kOld=" + kOld.length);
-		int countNew = 0, countOld = 0;
-		// avoiding creating new sets (guava, removeAll etc) and minimizing
-		// lookups (.get)
-		while (countNew < keysNew.length || countOld < keysOld.length) {
-			Style attNew = null;
-			if (treeNew != null && countNew < keysNew.length) {
-				attNew = keysNew[countNew];
-				countNew++;
-			}
-			Style attOld = null;
-			if (treeOld != null && countOld < keysOld.length) {
-				attOld = keysOld[countOld];
-				countOld++;
-			}
-			if (attNew != null && attOld == null) {
-				// Fluent.console.log("setting style: " + attNew.nameValid() +
-				// ","
-				// + treeNew.get(attNew));
-				if (style != null) {
-					style.setProperty(attNew.nameValid(), treeNew.get(attNew));
-				}
-			} else if (attNew == null && attOld != null) {
-				// Fluent.console.log("removing style: " + attOld.nameValid());
-				if (style != null) {
-					style.removeProperty(attOld.nameValid());
-				}
-				// } else if (nAtt == null && oAtt == null) {
-				// throw new IllegalArgumentException("both can not be null n="
-				// + n + " o=" + o);
-			} else { // both attributes must have a value here
-				int compare = attNew.compareTo(attOld); // comparing keys
-				if (compare == 0) { // same keys
-					String oldValue = treeOld.get(attOld);
-					String newValue = treeNew.get(attNew);
-					if (!oldValue.equals(newValue)) {
-						// Fluent.console.log(
-						// "changing value for " + attNew.nameValid() + " old="
-						// + oldValue + " new=" + newValue);
-						if (style != null) {
-							style.removeProperty(attNew.nameValid());
-							style.setProperty(attNew.nameValid(), newValue);
-						}
-						// } else {
-						// console.log("no change " + attNew.nameValid() + "
-						// value=" + oldValue);
-					}
-				} else if (compare < 0) {
-					if (style != null) {
-						style.setProperty(attNew.nameValid(), treeNew.get(attNew));
-					}
-					// Fluent.console.log(" setting " + attNew.nameValid());
-					countOld--;
-				} else { // compare>0
-					// Fluent.console.log(" removing " + attOld.nameValid());
-					if (style != null) {
-						style.removeProperty(attOld.nameValid());
-					}
-					countNew--;
-				}
-			}
-		}
-	}
-
+	private final static String[] emptyListeners = new String[0];
 	private final static Att[] emptyAttributes = new Att[0];
 
-	private static void compareAttributes(Element element, TreeMap<Att, String> treeNew, TreeMap<Att, String> treeOld) {
-		Att[] keysNew = (treeNew == null) ? emptyAttributes : treeNew.keySet().toArray(emptyAttributes);
-		Att[] keysOld = (treeOld == null) ? emptyAttributes : treeOld.keySet().toArray(emptyAttributes);
+	private static <K extends Comparable<K>, V> void compareApply(Element element, TreeMap<K, V> treeNew,
+			TreeMap<K, V> treeOld, K[] empty) {
+
+		K[] keysNew = (treeNew == null) ? empty : treeNew.keySet().toArray(empty);
+		K[] keysOld = (treeOld == null) ? empty : treeOld.keySet().toArray(empty);
 
 		// console.log("---START compareAttributes() kNew=" + kNew.length + "
 		// kOld=" + kOld.length);
@@ -225,43 +156,43 @@ public class Renderer {
 		// avoiding creating new sets (guava, removeAll etc) and minimizing
 		// lookups (.get)
 		while (countNew < keysNew.length || countOld < keysOld.length) {
-			Att attNew = null;
+			K keyNew = null;
 			if (treeNew != null && countNew < keysNew.length) {
-				attNew = keysNew[countNew];
+				keyNew = keysNew[countNew];
 				countNew++;
 			}
-			Att attOld = null;
+			K attOld = null;
 			if (treeOld != null && countOld < keysOld.length) {
 				attOld = keysOld[countOld];
 				countOld++;
 			}
-			if (attNew != null && attOld == null) {
+			if (keyNew != null && attOld == null) {
 				// console.log("setting attribute: " + attNew.nameValid() + ","
 				// + treeNew.get(attNew));
 				if (element != null) {
-					element.setAttribute(attNew.nameValid(), treeNew.get(attNew));
+					compareApplySet(element, keyNew, treeNew.get(keyNew));
 				}
-			} else if (attNew == null && attOld != null) {
+			} else if (keyNew == null && attOld != null) {
 				// console.log("removing attribute: " + attOld.nameValid());
 				if (element != null) {
-					element.removeAttribute(attOld.nameValid());
+					compareApplyRemove(element, attOld, treeOld.get(attOld));
 				}
 				// } else if (nAtt == null && oAtt == null) {
 				// throw new IllegalArgumentException("both can not be null n="
 				// + n + " o=" + o);
 			} else { // both attributes must have a value here
-				int compare = attNew.compareTo(attOld); // comparing keys
+				int compare = keyNew.compareTo(attOld); // comparing keys
 				// console.log("comparing "+attNew+" "+attOld);
 				if (compare == 0) { // same keys
-					String oldValue = treeOld.get(attOld);
-					String newValue = treeNew.get(attNew);
-					if (!oldValue.equals(newValue)) {
+					V oldValue = treeOld.get(attOld);
+					V newValue = treeNew.get(keyNew);
+					if (!oldValue.equals(newValue)) { // key same, other value
 						// console.log(
 						// "changing value for " + attNew.nameValid() + " old="
 						// + oldValue + " new=" + newValue);
 						if (element != null) {
-							element.removeAttribute(attNew.nameValid());
-							element.setAttribute(attNew.nameValid(), newValue);
+							compareApplyRemove(element, keyNew, oldValue);
+							compareApplySet(element, keyNew, newValue);
 						}
 						// } else {
 						// console.log("no change " + attNew.nameValid() + "
@@ -269,14 +200,14 @@ public class Renderer {
 					}
 				} else if (compare < 0) {
 					if (element != null) {
-						element.setAttribute(attNew.nameValid(), treeNew.get(attNew));
+						compareApplySet(element, keyNew, treeNew.get(keyNew));
 					}
 					// console.log(" setting " + attNew.nameValid());
 					countOld--;
 				} else { // compare>0
 					// console.log(" removing " + attOld.nameValid());
 					if (element != null) {
-						element.removeAttribute(attOld.nameValid());
+						compareApplyRemove(element, attOld, treeOld.get(attOld));
 					}
 					countNew--;
 				}
@@ -284,11 +215,31 @@ public class Renderer {
 		}
 	}
 
-	private static boolean compare(String str1, String str2) {
+	private static <T, V> void compareApplyRemove(Element element, T name, V value) {
+		if (name instanceof Att) {
+			element.removeAttribute(((Att) name).nameValid());
+		} else if (name instanceof Style) {
+			element.getStyle().removeProperty(((Style) name).nameValid());
+		} else {
+			((Node) element).removeEventListener((String) name, (EventListener) value);
+		}
+	}
+
+	private static <T, V> void compareApplySet(Element element, T name, V value) {
+		if (name instanceof Att) {
+			element.setAttribute(((Att) name).nameValid(), (String) value);
+		} else if (name instanceof Style) {
+			element.getStyle().setProperty(((Style) name).nameValid(), (String) value);
+		} else {
+			((Node) element).addEventListener((String) name, (EventListener) value);
+		}
+	}
+
+	private static boolean compareString(String str1, String str2) {
 		return (str1 == null ? str2 == null : str1.equals(str2));
 	}
 
-	private static boolean compareIgnoreCase(String str1, String str2) {
+	private static boolean compareStringIgnoreCase(String str1, String str2) {
 		return (str1 == null ? str2 == null : str1.equalsIgnoreCase(str2));
 	}
 }

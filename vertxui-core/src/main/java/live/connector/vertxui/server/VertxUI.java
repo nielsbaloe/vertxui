@@ -36,7 +36,7 @@ public class VertxUI {
 	 * Set the location of your source files if not /src, /src/main or
 	 * /src/main/java .
 	 */
-	public static String sourceLocation = null;
+	public static String folderSourceMain = null;
 
 	static {
 		librariesGwt = new ArrayList<>();
@@ -109,15 +109,17 @@ public class VertxUI {
 
 		// If no sourceLocation, then we are in production so we don't do
 		// anything at all.
-		Stream.of("src", "src/main", "src/main/java", sourceLocation).forEach(location -> {
-			if (location != null && new File(location).exists()) {
-				sourceLocation = location;
-			}
-		});
-		if (sourceLocation != null) {
-			new VertxUI(classs, url);
+		String sourceFilePath = classs.getName().replace(".", "/") + ".java";
+		Stream.of("src", "src/main", "src/main/java", "src/test", "src/test/java", folderSourceMain)
+				.forEach(location -> {
+					if (location != null && new File(location + "/" + sourceFilePath).exists()) {
+						folderSourceMain = location;
+					}
+				});
+		if (folderSourceMain == null) {
+			throw new IllegalArgumentException("Please define your sourcefolder location at Vertxui.folderSourceMain");
 		}
-
+		new VertxUI(classs, url);
 		if (url != null) {
 			return StaticHandler.create("war").setCachingEnabled(false);
 		} else {
@@ -151,7 +153,7 @@ public class VertxUI {
 		// given classname
 		String path = className.replace(".", "/");
 		path = path.substring(0, path.lastIndexOf("client") + 6);
-		File gwtXml = new File(sourceLocation + "/" + xmlFile + ".gwt.xml");
+		File gwtXml = new File(folderSourceMain + "/" + xmlFile + ".gwt.xml");
 		StringBuilder content = new StringBuilder("<module rename-to='a'>");
 		librariesGwt.forEach(l -> content.append("<inherits name='" + l + "'/>"));
 		content.append("<entry-point class='" + className + "'/><source path='" + path + "'/>");
@@ -172,7 +174,7 @@ public class VertxUI {
 			} else {
 				options += " -XnoclassMetadata -nodraftCompile -optimize 9 -noincremental";
 			}
-			String classpath = System.getProperty("java.class.path") + ";" + sourceLocation;
+			String classpath = System.getProperty("java.class.path") + ";" + folderSourceMain;
 
 			String separator = ";"; // windows
 			if (!classpath.contains(separator)) {

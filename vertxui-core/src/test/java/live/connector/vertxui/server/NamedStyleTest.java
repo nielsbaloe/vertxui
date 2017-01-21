@@ -1,4 +1,4 @@
-package live.connector.vertxui.fluentHtml;
+package live.connector.vertxui.server;
 
 import static org.junit.Assert.assertEquals;
 

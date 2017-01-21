@@ -109,27 +109,22 @@ Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit test
 		View view = new View();
 
 		// Check the title (using 'id')
-		List<Fluent> a = VirtualDomSearch.getElementsById("titlerForJunitTest",Fluent.body);
-		assertEquals(a.size(), 1);
-		assertTrue(a.get(0).tag().equals("H1"));
+		Fluent a = VirtualDomSearch.getElementById("titlerForJunitTest",Fluent.body);
+		assertTrue(a.tag().equals("H1"));
 	}
 
-If you really need the DOM (for whatever reason), that's possible too. Vertxui then first compiles to javascript and runs a javascript function which runs all your javascript tests right inside a headless browser. All inside jUnit. Add the method below to run junit with a dom. Also write in onModuleStart which methods should be run. Do not add a constructor, because that will be run in junit and in the browser ;) .
+If you really need the DOM (for whatever reason), that's possible too (but not advisable because it's slower). Vertxui then first compiles to javascript and then runs one javascript function tests() right inside a real representative headless 100%-java browser. All inside jUnit, freely combinable with other pure-java tests. Thanks to GWT, the stacktrace is accurate too. Do not add a constructor, because that will be run in junit and in the browser ;) .
 
-	@GwtIncompatible
-	@Test
-	public void runWithjUnit() throws Exception {
-		TestWithDom.runwithJunit(this.getClass());
-	}
+	public class FluentRenderTests extends TestDOM {
+	
+		@Override
+		public void tests() {
+			fluentAttributeRenderTests();
+			fluentStylesTests();
+		}
 
-	@Override
-	public void onModuleLoad() {
-		Asserty.asserty(() -> {
-			// these tests will be done:
-			testThis();
-			testThat();
-			// ... other tests here too
-		});
+	...
+	
 	}
  
 
@@ -169,7 +164,8 @@ The controller (serverside) can be for example (ajax example):
 
 ### More
 
-Currently GWT is used, because it is by far the most efficiënt and full-featured Java 8 implementation out there.
+Currently GWT is used, because it is by far the most efficiënt and full-featured Java 8 implementation out there. In the first month, TeaVM is used, which is 1000% faster in compiling but does not correctly support all lambda notations. The same goes for jsweet, Vertxui was ported into jsweet in about half an hour, but jsweet does not support all Java constructions (not even enums properly).
+
 Polyglot is possible as long as the sourcecode is included in the jars.
 
 
