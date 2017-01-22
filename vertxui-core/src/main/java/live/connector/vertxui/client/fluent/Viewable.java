@@ -1,7 +1,8 @@
 package live.connector.vertxui.client.fluent;
 
 /**
- * A base interface for all view elements. Currently Fluent and Staty.
+ * A base for all view elements, urrently Fluent and ViewOn.
+ * 
  * @author ng
  *
  */

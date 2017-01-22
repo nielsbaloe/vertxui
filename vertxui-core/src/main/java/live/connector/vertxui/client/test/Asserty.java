@@ -16,9 +16,9 @@ public class Asserty {
 	 * Give a method that runs all your testcases and throws an exception when
 	 * something goes wrong.
 	 */
-	public final native static String asserty(AssertyHandler handler)/*-{
+	public final native static String asserty(Runnable handler)/*-{
 																		$wnd.asserty = function() {
-																		try{ @live.connector.vertxui.client.test.Asserty::doit(Llive/connector/vertxui/client/test/AssertyHandler;)
+																		try{ @live.connector.vertxui.client.test.Asserty::doit(Ljava/lang/Runnable;)
 																		(handler); 
 																		} catch(e) { 
 																		return e.message+"\n"+e.stack;
@@ -27,8 +27,8 @@ public class Asserty {
 																		}
 																		}-*/;
 
-	private static void doit(AssertyHandler handler) throws Exception {
-		handler.test();
+	private static void doit(Runnable handler) throws Exception {
+		handler.run();
 	}
 
 	public static void failNoMessage() {

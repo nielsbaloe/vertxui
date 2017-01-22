@@ -1,5 +1,8 @@
 package live.connector.vertxui.client.transport;
 
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
 import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.JavaScriptObject;
 
@@ -38,33 +41,35 @@ public class EventBus extends JavaScriptObject {
 	 * Warning: the thing you send can go to anyone connected to the eventbus,
 	 * including other browsers that are connected. So please handle with care!
 	 */
-	public final native void send(String address, String message, JsonObject headers, EventBusHandler receiver)/*-{
-																													this.send(address,message,headers, 
-																														function(a,b) 
-																													{ @live.connector.vertxui.client.transport.EventBus::doit(Llive/connector/vertxui/client/transport/EventBusHandler;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
-																													(receiver,a,b); }
-																													);
-																													}-*/;
+	public final native void send(String address, String message, JsonObject headers,
+			BiConsumer<JsonObject, JsonObject> receiver)/*-{
+														this.send(address,message,headers, 
+														function(a,b) 
+														{ @live.connector.vertxui.client.transport.EventBus::doit(Ljava/util/function/BiConsumer;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
+														(receiver,a,b); }
+														);
+														}-*/;
 
-	public final native void registerHandler(String address, JsonObject headers, EventBusHandler receiver)/*-{
-																												this.registerHandler(address,headers, 
-																													function(a,b) 
-																												{ @live.connector.vertxui.client.transport.EventBus::doit(Llive/connector/vertxui/client/transport/EventBusHandler;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
-																												(receiver,a,b); }
-																												   );
-																												}-*/;
+	public final native void registerHandler(String address, JsonObject headers,
+			BiConsumer<JsonObject, JsonObject> receiver)/*-{
+														this.registerHandler(address,headers, 
+														function(a,b) 
+														{ @live.connector.vertxui.client.transport.EventBus::doit(Ljava/util/function/BiConsumer;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
+														(receiver,a,b); }
+														);
+														}-*/;
 
-	private static void doit(EventBusHandler handler, JsonObject error, JsonObject message) {
-		handler.handle(error, message);
+	private static void doit(BiConsumer<JsonObject, JsonObject> handler, JsonObject error, JsonObject message) {
+		handler.accept(error, message);
 	}
 
 	public final native void unregisterHandler(String address, JsonObject headers,
-			EventBusHandler receiver)/*-{
-												this.unregisterHandler(address,headers, function(a,b) 
-												{ @live.connector.vertxui.client.transport.EventBus::doit(Llive/connector/vertxui/client/transport/EventBusHandler;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
-												(receiver,a,b); }
-												);
-												}-*/;
+			BiConsumer<JsonObject, JsonObject> receiver)/*-{
+														this.unregisterHandler(address,headers, function(a,b) 
+														{ @live.connector.vertxui.client.transport.EventBus::doit(Ljava/util/function/BiConsumer;Lelemental/json/JsonObject;Lelemental/json/JsonObject;)
+														(receiver,a,b); }
+														);
+														}-*/;
 
 	public final native void publish(String address, String message, JsonObject headers)/*-{
 																						this.publish(address,message,headers);
@@ -83,12 +88,12 @@ public class EventBus extends JavaScriptObject {
 	 * including other browsers that are connected. So please handle with care!
 	 */
 	public final <I, O> void send(String address, I model, JsonObject headers, ObjectMapper<I> inMapper,
-			ObjectMapper<O> outMapper, Handler<O> handler) {
+			ObjectMapper<O> outMapper, Consumer<O> handler) {
 		send(address, Pojofy.in(model, inMapper), headers, (error, m) -> {
 			if (error != null) {
 				throw new IllegalArgumentException(error.asString());
 			}
-			handler.handle(Pojofy.out(m.get("body"), outMapper));
+			handler.accept(Pojofy.out(m.get("body"), outMapper));
 		});
 	}
 
@@ -97,17 +102,13 @@ public class EventBus extends JavaScriptObject {
 	}
 
 	public final <O> void registerHandler(String address, JsonObject headers, ObjectMapper<O> outMapper,
-			Handler<O> handler) {
+			Consumer<O> handler) {
 		registerHandler(address, headers, (error, m) -> {
 			if (error != null) {
 				throw new IllegalArgumentException(error.asString());
 			}
-			handler.handle(Pojofy.out(m.get("body"), outMapper));
+			handler.accept(Pojofy.out(m.get("body"), outMapper));
 		});
-	}
-
-	public static interface Handler<T> {
-		void handle(T object);
 	}
 
 }

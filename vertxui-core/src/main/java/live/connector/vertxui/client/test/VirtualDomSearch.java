@@ -1,7 +1,10 @@
 package live.connector.vertxui.client.test;
 
+import static live.connector.vertxui.client.fluent.Fluent.console;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.google.gwt.core.client.GWT;
 
@@ -9,16 +12,10 @@ import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.client.fluent.Viewable;
 
-import static live.connector.vertxui.client.fluent.Fluent.*;
-
 public class VirtualDomSearch {
 
-	public static interface Filter {
-		public boolean matched(Fluent f);
-	}
-
-	private static void filter(Fluent target, Filter filter, List<Fluent> result) {
-		if (filter.matched(target)) {
+	private static void filter(Fluent target, Predicate<Fluent> filter, List<Fluent> result) {
+		if (filter.test(target)) {
 			result.add(target);
 		}
 		if (target.getChildren() != null) {
@@ -32,7 +29,7 @@ public class VirtualDomSearch {
 		}
 	}
 
-	public static List<Fluent> getElementsBy(Filter filter, Fluent target) {
+	public static List<Fluent> getElementsBy(Predicate<Fluent> filter, Fluent target) {
 		List<Fluent> result = new ArrayList<>();
 		if (GWT.isClient()) {
 			console.warn(

@@ -17,5 +17,4 @@ public class SockJS extends JsWebSocket {
 
 	public final native static SockJS create(String url) /*-{ return new SockJS(url); }-*/;
 
-
 }

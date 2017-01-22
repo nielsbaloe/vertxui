@@ -1,12 +1,12 @@
-/23	- virtualdom: testcase for listeners
 /24	- TestJunit: with Mockito for Pojofy.ajax
 		http://www.w3schools.com/bootstrap/bootstrap_grid_basic.asp
 /31	- application mvcbootstrap: totals for all individuals, input fields (date, person, amount, notes), list of all entries.
 /4febr	- to do mvc.com
 /8febr	- for existing index.html site
-/20febr	- final target callap: webrtc + open source app for android ios windows like siberiancms.com
+/20febr	- final target: webrtc + open source app for android ios windows like siberiancms.com
 /21febr- finish FigWheely: fix name of compiled .js changes in GWT... + look at sourcefolder not classes
 /22febr- finish Vertxui: relocate war->/build/war, try again instead of scriptsync to add js to index.html
+/25febr- finish cleanup: todo's, more test coverage
 /30febr- publish: push to maven central + spread: info@nljug.org, vertx-awesome, vertx, GWT list and elsewhere
 
 

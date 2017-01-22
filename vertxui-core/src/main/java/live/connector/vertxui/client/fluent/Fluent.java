@@ -3,6 +3,7 @@ package live.connector.vertxui.client.fluent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.google.gwt.core.client.GWT;
@@ -17,15 +18,14 @@ import elemental.html.Console;
 import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
-import live.connector.vertxui.client.fluent.ViewOn.Function;
 import live.connector.vertxui.client.test.ConsoleTester;
 
 /**
  * Fluent HTML, child-based fluent-basednotation of html. Use getDocument()
- * getBody() and getHead() to start building your interface. Adding childs is
- * done by using the methods (like .li() ) or by some constructors that can
- * handle multiple arguments (like .div(li[]) ). Attributes are set by attr(),
- * styles by style(), and listeners by listen() or their appropriate methods.
+ * getBody() and getHead() to start building your GUI. Adding childs is done by
+ * using the methods (like .li() ) or by some constructors that can handle
+ * multiple arguments (like .div(li[]) ). Attributes are set by attr(), styles
+ * by style(), and listeners by listen() or their appropriate methods.
  * 
  * @author ng
  *

@@ -69,7 +69,8 @@ public class ExampleChatEventbus extends AbstractVerticle {
 
 	public Dto serviceDoSomething(Dto received, MultiMap headers) {
 		log.info("Extra example: received a dto with action=" + headers.get("action") + " and color=" + received.color);
-		return new Dto("red");
+		return new Dto("red"); // gives an error when publish() is used and not
+								// send()
 	}
 
 }

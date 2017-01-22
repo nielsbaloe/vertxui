@@ -1,6 +1,6 @@
 package live.connector.vertxui.client;
 
-import static live.connector.vertxui.client.fluent.Fluent.body;
+import static live.connector.vertxui.client.fluent.Fluent.*;
 import static live.connector.vertxui.client.test.Asserty.assertEquals;
 import static live.connector.vertxui.client.test.Asserty.assertTrue;
 
@@ -10,6 +10,7 @@ import java.util.List;
 
 import elemental.css.CSSStyleDeclaration;
 import elemental.dom.NamedNodeMap;
+import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Style;
@@ -22,6 +23,56 @@ public class FluentRenderer extends TestDOM {
 	public void tests() {
 		attributes();
 		styles();
+		listeners();
+	}
+
+	public void a(Event e) {
+	}
+
+	public void b(Event e) {
+	}
+
+	public void c(Event e) {
+	}
+
+	private void listeners() {
+		// unable to test, this is a manual test
+		ViewOn<Integer> view = body.add(0, s -> {
+			Fluent result = Fluent.Div();
+			switch (s) {
+			case 0:
+				result.click(this::a);
+				break;
+			case 1:
+				result.click(this::b);
+				break;
+			case 2:
+				result.click(this::b);
+				result.focus(this::c);
+				break;
+			case 3:
+				break;
+			case 4:
+				result.click(this::a);
+				result.focus(this::c);
+				result.dblclick(this::b);
+				break;
+			}
+			return result;
+		});
+
+		// console.log("should replace click");
+		view.state(1);
+		// console.log("should add focus");
+		view.state(2);
+		// console.log("should remove click and focus");
+		view.state(3);
+		// console.log("should add click focus and dblclick");
+		view.state(4);
+		// console.log("should remove focus and dblclick");
+		view.state(0);
+		// console.log("should add focus and dblclick");
+		view.state(4);
 	}
 
 	private void attributes() {

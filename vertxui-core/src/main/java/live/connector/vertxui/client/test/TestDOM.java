@@ -28,12 +28,12 @@ import live.connector.vertxui.server.VertxUI;
  */
 public abstract class TestDOM implements EntryPoint {
 
-	public void before() throws Exception {
+	public void before() {
 	}
 
-	public abstract void tests() throws Exception;
+	public abstract void tests();
 
-	public void after() throws Exception {
+	public void after() {
 	}
 
 	@Override

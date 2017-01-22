@@ -106,17 +106,6 @@ public class Renderer {
 		compareApply(newView.element, newView.styles, oldView.styles, emptyStyles);
 		compareApply(newView.element, newView.listeners, oldView.listeners, emptyListeners);
 
-		// <---------------------------------------------------------------------
-		// TOT HIER GEBLEVEN
-		// <---------------------------------------------------------------------
-		// TOT HIER GEBLEVEN
-		// <---------------------------------------------------------------------
-		// TODO TODO TODO TODO
-		// Listeners
-		// // if (add.listeners!=null) { ...
-		// // }
-		// //
-
 		// TODO do not assume same sequence but use hashing
 		int nChilds = (newView.childs == null) ? 0 : newView.childs.size();
 		int oChilds = (oldView.childs == null) ? 0 : oldView.childs.size();
@@ -161,32 +150,35 @@ public class Renderer {
 				keyNew = keysNew[countNew];
 				countNew++;
 			}
-			K attOld = null;
+			K keyOld = null;
 			if (treeOld != null && countOld < keysOld.length) {
-				attOld = keysOld[countOld];
+				keyOld = keysOld[countOld];
 				countOld++;
 			}
-			if (keyNew != null && attOld == null) {
+			if (keyNew != null && keyOld == null) {
 				// console.log("setting attribute: " + attNew.nameValid() + ","
 				// + treeNew.get(attNew));
 				if (element != null) {
 					compareApplySet(element, keyNew, treeNew.get(keyNew));
 				}
-			} else if (keyNew == null && attOld != null) {
+			} else if (keyNew == null && keyOld != null) {
 				// console.log("removing attribute: " + attOld.nameValid());
 				if (element != null) {
-					compareApplyRemove(element, attOld, treeOld.get(attOld));
+					compareApplyRemove(element, keyOld, treeOld.get(keyOld));
 				}
 				// } else if (nAtt == null && oAtt == null) {
 				// throw new IllegalArgumentException("both can not be null n="
 				// + n + " o=" + o);
 			} else { // both attributes must have a value here
-				int compare = keyNew.compareTo(attOld); // comparing keys
+				int compare = keyNew.compareTo(keyOld);
 				// console.log("comparing "+attNew+" "+attOld);
 				if (compare == 0) { // same keys
-					V oldValue = treeOld.get(attOld);
+					V oldValue = treeOld.get(keyOld);
 					V newValue = treeNew.get(keyNew);
-					if (!oldValue.equals(newValue)) { // key same, other value
+					if (!compareApplyValueEquals(oldValue, newValue)) { // key
+																		// same,
+																		// other
+																		// value
 						// console.log(
 						// "changing value for " + attNew.nameValid() + " old="
 						// + oldValue + " new=" + newValue);
@@ -207,11 +199,42 @@ public class Renderer {
 				} else { // compare>0
 					// console.log(" removing " + attOld.nameValid());
 					if (element != null) {
-						compareApplyRemove(element, attOld, treeOld.get(attOld));
+						compareApplyRemove(element, keyOld, treeOld.get(keyOld));
 					}
 					countNew--;
 				}
 			}
+		}
+	}
+
+	private static <V> boolean compareApplyValueEquals(V oldValue, V newValue) {
+		if (oldValue instanceof EventListener) { // listeners
+			// GWT: same method refs should not be replaced
+
+			// live.connector.vertxui.client.FluentRenderer$1methodref$b$Type@1
+			// live.connector.vertxui.client.FluentRenderer$2methodref$b$Type@2
+			String sNew = newValue.toString();
+			String sOld = oldValue.toString();
+			int dNew = sNew.indexOf("$");
+			int dOld = sOld.indexOf("$");
+			// if class (untill the first dollar) mathes)
+			if (dNew != -1 && dOld == dNew && sNew.substring(0, dNew).equals(sOld.substring(0, dOld))) {
+				int aNew = sNew.indexOf("methodref$");
+				int aOld = sOld.indexOf("methodref$");
+				// if they both contain 'methodref$'
+				if (aNew != -1 && aNew == aOld) {
+					int bNew = sNew.indexOf("$", aNew + 10);
+					int bOld = sOld.indexOf("$", aOld + 10);
+					// if dollar after 'methodref$' exists and equals
+					if (bNew != -1 && bNew == bOld && sNew.substring(aNew, bNew).equals(sOld.substring(aOld, bOld))) {
+						// Fluent.console.log("** same for "+sNew+" "+sOld);
+						return true;
+					}
+				}
+			}
+			return sNew.equals(sOld);
+		} else {
+			return oldValue.equals(newValue);
 		}
 	}
 
@@ -221,6 +244,7 @@ public class Renderer {
 		} else if (name instanceof Style) {
 			element.getStyle().removeProperty(((Style) name).nameValid());
 		} else {
+//			Fluent.console.log("removing " + name);
 			((Node) element).removeEventListener((String) name, (EventListener) value);
 		}
 	}
@@ -231,6 +255,7 @@ public class Renderer {
 		} else if (name instanceof Style) {
 			element.getStyle().setProperty(((Style) name).nameValid(), (String) value);
 		} else {
+			// Fluent.console.log("setting " + name + " with " + value);
 			((Node) element).addEventListener((String) name, (EventListener) value);
 		}
 	}

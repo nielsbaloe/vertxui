@@ -1,5 +1,9 @@
 package live.connector.vertxui.server.transport;
 
+import java.lang.invoke.MethodHandles;
+import java.util.function.BiFunction;
+import java.util.logging.Logger;
+
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -10,6 +14,8 @@ import io.vertx.core.streams.WriteStream;
 import io.vertx.ext.web.RoutingContext;
 
 public class Pojofy {
+
+	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	/**
 	 * Create a web-handler which gets a pojo of type inputType. Note: please
@@ -25,11 +31,11 @@ public class Pojofy {
 	 *            yourself using the provided context.
 	 * @return a web-handler which can receive and send POJO's through ajax.
 	 */
-	public static <A> Handler<RoutingContext> ajax(Class<A> inputType, Reply<A, RoutingContext> handler) {
+	public static <A> Handler<RoutingContext> ajax(Class<A> inputType, BiFunction<A, RoutingContext, Object> handler) {
 		return context -> {
 			context.request().bodyHandler(body -> {
 				A input = in(inputType, body.toString());
-				String output = out(handler.reply(input, context));
+				String output = out(handler.apply(input, context));
 				if (output == null) {
 					// do nothing
 				} else {
@@ -39,19 +45,23 @@ public class Pojofy {
 		};
 	}
 
-	public static <A> void eventbus(String urlOrAddress, Class<A> inputType, Reply<A, MultiMap> handler) {
+	public static <A> void eventbus(String urlOrAddress, Class<A> inputType, BiFunction<A, MultiMap, Object> handler) {
 		Vertx.currentContext().owner().eventBus().consumer(urlOrAddress, message -> {
 			A input = in(inputType, (String) message.body());
-			String output = out(handler.reply(input, message.headers()));
-			if (output != null && message.replyAddress() != null) {
-				message.reply(output);
+			String output = out(handler.apply(input, message.headers()));
+			if (output != null) {
+				if (message.replyAddress() != null) {
+					message.reply(output);
+				} else {
+					log.warning("reply not send, the client is not using send() but publish(), lost output=" + output);
+				}
 			}
 		});
 	}
 
 	// Note: replies at the same address!
 	public static <A, S extends WriteStream<Buffer>> boolean socket(S socket, String url, Buffer in, Class<A> inputType,
-			Reply<A, JsonObject> handler) {
+			BiFunction<A, JsonObject, Object> handler) {
 		String start = ("{\"url\":\"" + url);
 		if (in.length() < start.getBytes().length || !in.getString(0, start.length()).equals(start)) {
 			return false;
@@ -60,7 +70,7 @@ public class Pojofy {
 		JsonObject json = in.toJsonObject();
 		A input = in(inputType, json.getString("body"));
 
-		String output = out(handler.reply(input, json.getJsonObject("headers")));
+		String output = out(handler.apply(input, json.getJsonObject("headers")));
 		if (output == null) {
 			return false;
 		}
@@ -68,10 +78,6 @@ public class Pojofy {
 		json.remove("headers");
 		socket.write(Buffer.buffer(json.toString()));
 		return true;
-	}
-
-	public static interface Reply<A, B> {
-		public Object reply(A pojo, B context);
 	}
 
 	private static String out(Object output) {

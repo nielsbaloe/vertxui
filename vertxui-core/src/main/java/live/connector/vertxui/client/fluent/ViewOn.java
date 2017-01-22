@@ -1,5 +1,7 @@
 package live.connector.vertxui.client.fluent;
 
+import java.util.function.Function;
+
 import elemental.dom.Element;
 
 /**
@@ -19,7 +21,7 @@ public class ViewOn<A> implements Viewable {
 
 	protected Fluent generate(Fluent parent) {
 		this.parent = parent;
-		Fluent result = translate.handle(state);
+		Fluent result = translate.apply(state);
 		this.view = result;
 		return result;
 	}
@@ -52,10 +54,6 @@ public class ViewOn<A> implements Viewable {
 	public ViewOn<A> sync() {
 		Renderer.syncChild(parent, this, view);
 		return this;
-	}
-
-	public static interface Function<I, O> {
-		public O handle(I i);
 	}
 
 	public Fluent getViewForDebugPurposesOnly() {
