@@ -76,31 +76,33 @@ public class Pojofy {
 		}
 		json.put("body", output);
 		json.remove("headers");
+
+		// TODO
+		// ((WebSocket)socket).writeFinalTextFrame("");
+		// ((SockJSSocket)socket).writeFinalTextFrame("");
+
 		socket.write(Buffer.buffer(json.toString()));
 		return true;
 	}
 
 	private static String out(Object output) {
-		String result = null;
-		if (output == null) { // do nothing
+		if (output == null) {
+			return null;
 		} else if (output instanceof java.lang.String) { // pass
-			result = (String) output;
+			return (String) output;
 		} else {
-			result = Json.encode(output);
+			return Json.encode(output);
 		}
-		return result;
 	}
 
 	@SuppressWarnings("unchecked")
 	private static <I> I in(Class<I> inputType, String in) {
-		I result = null;
 		// no input type or null? use string
-		if (in.isEmpty() || inputType == null || inputType.getClass().equals(String.class)) {
-			result = (I) in;
+		if (in == null || in.isEmpty() || inputType == null || inputType.getClass().equals(String.class)) {
+			return (I) in;
 		} else {
-			result = (I) Json.decodeValue(in, inputType);
+			return (I) Json.decodeValue(in, inputType);
 		}
-		return result;
 	}
 
 }

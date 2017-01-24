@@ -39,11 +39,16 @@ public class AllExamplesServer {
 		// All examples: in debug mode, so with figwheely: serve the javascript
 		router.get(Client.figLocation).handler(FigWheely.create());
 
-		// All examples: the main compiled js and html at /war with a fancy 404.
-		router.get("/*").handler(VertxUI.with(classs, "/")).failureHandler(fail -> {
-			fail.response().end(
-					"<html style='width:100%;height:100%'><iframe src=//codepen.io/waddington/full/cdzuB style='width:100%;height:100%'></html>");
-		});
+		// All examples: the main compiled js
+		router.get("/*").handler(VertxUI.with(classs, "/"));
+
+		// A fancy 404
+		// .failureHandler(fail -> {
+		// fail.response().end(
+		// "<html style='width:100%;height:100%'><iframe
+		// src=//codepen.io/waddington/full/cdzuB
+		// style='width:100%;height:100%'></html>");
+		// });
 
 		// Start the server
 		server.requestHandler(router::accept).listen(80, listenHandler -> {

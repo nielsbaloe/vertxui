@@ -12,7 +12,7 @@ import elemental.json.Json;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.client.transport.SockJS;
-import live.connector.vertxui.samples.client.AllExamples;
+import live.connector.vertxui.samples.client.AllExamplesClient;
 import live.connector.vertxui.samples.client.chatEventBus.Dto;
 
 /**
@@ -33,7 +33,7 @@ public class Client implements EntryPoint {
 		});
 		socket.setOnmessage(e -> {
 			// extra: pojo example
-			if (Pojofy.socketReceive(urlPojo, e, AllExamples.dto, d -> console.log("Received pojo color=" + d.color))) {
+			if (Pojofy.socketReceive(urlPojo, e, AllExamplesClient.dto, d -> console.log("Received pojo color=" + d.color))) {
 				return;
 			}
 
@@ -45,7 +45,7 @@ public class Client implements EntryPoint {
 				input.value(""); // clear the inputfield
 
 				// extra: pojo example
-				Pojofy.socketSend(socket, urlPojo, new Dto("violet"), AllExamples.dto,
+				Pojofy.socketSend(socket, urlPojo, new Dto("violet"), AllExamplesClient.dto,
 						Json.parse("{\"action\":\"save\"}"));
 			}
 		});

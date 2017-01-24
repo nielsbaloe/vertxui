@@ -2,8 +2,6 @@ package live.connector.vertxui.client.fluent;
 
 import java.util.function.Function;
 
-import elemental.dom.Element;
-
 /**
  * A view of a state.
  *
@@ -19,9 +17,28 @@ public class ViewOn<A> implements Viewable {
 		this.translate = translate;
 	}
 
+	/**
+	 * Set the display parameter of the view (if any) to none.
+	 */
+	public void hide() {
+		if (view != null) {
+			view.css(Style.display, "none");
+		}
+	}
+
+	/**
+	 * Set the display parameter of the view (if any) to null.
+	 * 
+	 */
+	public void unhide() {
+		if (view != null) {
+			view.css(Style.display, null);
+		}
+	}
+
 	protected Fluent generate(Fluent parent) {
 		this.parent = parent;
-		Fluent result = translate.apply(state);
+		Fluent result = Fluent.getRootOf(translate.apply(state));
 		this.view = result;
 		return result;
 	}
@@ -56,12 +73,8 @@ public class ViewOn<A> implements Viewable {
 		return this;
 	}
 
-	public Fluent getViewForDebugPurposesOnly() {
+	public Fluent getCurrentViewForDebugPurposesOnly() {
 		return view;
-	}
-
-	public Element getTheCurrentViewForDebugPurposesOnly() {
-		return view.element;
 	}
 
 }

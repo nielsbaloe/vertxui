@@ -35,6 +35,8 @@ public class FluentRenderer extends TestDOM {
 	public void c(Event e) {
 	}
 
+	// TODO test deze listeners en de naam-omzetting ook in niet-debug, wellicht
+	// toch niet-debug en niet-html inbouwen...
 	private void listeners() {
 		// unable to test, this is a manual test
 		ViewOn<Integer> view = body.add(0, s -> {
@@ -167,7 +169,7 @@ public class FluentRenderer extends TestDOM {
 	}
 
 	private List<String> getAllNamesFromAttributes(ViewOn<Integer> view) {
-		NamedNodeMap attributes = view.getViewForDebugPurposesOnly().dom().getAttributes();
+		NamedNodeMap attributes = view.getCurrentViewForDebugPurposesOnly().dom().getAttributes();
 		List<String> attributeNames = new ArrayList<>();
 		for (int x = 0; x < attributes.length(); x++) {
 			attributeNames.add(attributes.item(x).getNodeName());
@@ -264,7 +266,7 @@ public class FluentRenderer extends TestDOM {
 	}
 
 	private List<String> getAllNamesFromStyles(ViewOn<Integer> view) {
-		CSSStyleDeclaration styles = view.getViewForDebugPurposesOnly().dom().getStyle();
+		CSSStyleDeclaration styles = view.getCurrentViewForDebugPurposesOnly().dom().getStyle();
 		List<String> result = new ArrayList<>();
 		for (int x = 0; x < styles.getLength(); x++) {
 			result.add(styles.item(x));

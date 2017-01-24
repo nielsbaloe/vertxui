@@ -23,7 +23,7 @@ public class VirtualDomSearch {
 				if (child instanceof Fluent) {
 					filter((Fluent) child, filter, result);
 				} else {
-					filter(((ViewOn<?>) child).getViewForDebugPurposesOnly(), filter, result);
+					filter(((ViewOn<?>) child).getCurrentViewForDebugPurposesOnly(), filter, result);
 				}
 			}
 		}

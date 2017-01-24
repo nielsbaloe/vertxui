@@ -1,5 +1,6 @@
 package live.connector.vertxui.client.transport;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.github.nmorel.gwtjackson.client.ObjectMapper;
@@ -15,12 +16,17 @@ import elemental.json.JsonObject;
 public class Pojofy {
 
 	public static <I, O> void ajax(String protocol, String url, I model, ObjectMapper<I> inMapper,
-			ObjectMapper<O> outMapper, Consumer<O> handler) {
+			ObjectMapper<O> outMapper, BiConsumer<Integer, O> handler) {
 		XMLHttpRequest xhr = XMLHttpRequest.create();
 		xhr.setOnReadyStateChange(a -> {
-			if (xhr.getReadyState() == 4 && xhr.getStatus() == 200) {
-				handler.accept(out(xhr.getResponseText(), outMapper));
+			if (xhr.getReadyState() != 4) {
+				return;
 			}
+			O result = null;
+			if (xhr.getStatus() == 200) {
+				result = out(xhr.getResponseText(), outMapper);
+			}
+			handler.accept(xhr.getStatus(), result);
 		});
 		xhr.open(protocol, url);
 		xhr.send(in(model, inMapper));
@@ -56,7 +62,9 @@ public class Pojofy {
 
 	@SuppressWarnings("unchecked")
 	protected static <O> O out(String message, ObjectMapper<O> outMapper) {
-		if (message == null || outMapper == null) { // outMapper null: string
+		if (message == null) {
+			return null;
+		} else if (outMapper == null) { // outMapper null: string
 			return (O) message;
 		} else {
 			return outMapper.read(message);

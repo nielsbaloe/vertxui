@@ -9,7 +9,7 @@ import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Style;
 import live.connector.vertxui.client.transport.Pojofy;
-import live.connector.vertxui.samples.client.AllExamples;
+import live.connector.vertxui.samples.client.AllExamplesClient;
 import live.connector.vertxui.samples.client.chatEventBus.Dto;
 
 public class Client implements EntryPoint {
@@ -21,7 +21,7 @@ public class Client implements EntryPoint {
 	private Fluent thinking;
 
 	public Client() {
-		button = body.div().button("Click me!").id("hello-button").click(this::clicked);
+		button = body.div().button(null, "Click me!").id("hello-button").click(this::clicked);
 		response = body.div();
 		thinking = body.div().inner("The server waits as demonstration!").id("thinking-panel").css(Style.display,
 				"none");
@@ -37,14 +37,15 @@ public class Client implements EntryPoint {
 
 	// It is advisable to write callbacks into methods, so you can easily write
 	// jUnit tests.
-	private void responsed(String text) {
+	private void responsed(int responseCode, String text) {
 		button.disabled(false);
 
 		response.div().inner(text);
 		thinking.css(Style.display, "none");
 
 		// extra: POJO example
-		Pojofy.ajax("POST", urlPojo, new Dto("white"), AllExamples.dto, AllExamples.dto, a -> console.log(a.color));
+		Pojofy.ajax("POST", urlPojo, new Dto("white"), AllExamplesClient.dto, AllExamplesClient.dto,
+				(i, a) -> console.log(a.color));
 	}
 
 	public final static String urlPojo = "/pojo";

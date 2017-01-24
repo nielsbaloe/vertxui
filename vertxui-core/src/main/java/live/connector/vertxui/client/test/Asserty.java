@@ -539,7 +539,7 @@ public class Asserty {
 	 *            <code>actuals[i]</code> for which both numbers are still
 	 *            considered equal.
 	 */
-	// TODO implement
+	// not implemented
 	// public static void assertArrayEquals(String message, double[] expecteds,
 	// double[] actuals, double delta)
 	// {
@@ -561,7 +561,7 @@ public class Asserty {
 	 *            considered equal.
 	 * @throws Exception
 	 */
-	// TODO implement
+	// not implemented
 	// public static void assertArrayEquals(double[] expecteds, double[]
 	// actuals, double delta) {
 	// assertArrayEquals(null, expecteds, actuals, delta);
@@ -583,7 +583,7 @@ public class Asserty {
 	 *            <code>actuals[i]</code> for which both numbers are still
 	 *            considered equal.
 	 */
-	// TODO implement
+	// not implemented
 	// public static void assertArrayEquals(String message, float[] expecteds,
 	// float[] actuals, float delta)
 	// {
@@ -605,7 +605,7 @@ public class Asserty {
 	 *            considered equal.
 	 * @throws Exception
 	 */
-	// TODO implement
+	// not implemented
 	// public static void assertArrayEquals(float[] expecteds, float[] actuals,
 	// float delta) {
 	// assertArrayEquals(null, expecteds, actuals, delta);
@@ -979,7 +979,7 @@ public class Asserty {
 	 * @see org.hamcrest.CoreMatchers
 	 * @see org.hamcrest.MatcherAssert
 	 */
-	// TODO implement
+	// not implemented
 	// public static <T> void assertThat(T actual, Matcher<? super T> matcher) {
 	// assertThat("", actual, matcher);
 	// }
@@ -1016,7 +1016,7 @@ public class Asserty {
 	 * @see org.hamcrest.CoreMatchers
 	 * @see org.hamcrest.MatcherAssert
 	 */
-	// TODO implement?
+	// not implemented
 	// public static <T> void assertThat(String reason, T actual, Matcher<?
 	// super T> matcher) {
 	// MatcherAssert.assertThat(reason, actual, matcher);

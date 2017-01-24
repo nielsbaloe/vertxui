@@ -67,7 +67,7 @@ public class TestjUnitWithoutDom {
 	@Test
 	public void nonBodyTest() {
 		Fluent root = Fluent.Div();
-		root.h1("blabla");
+		root.h1(null, "blabla");
 		root.ul("aClass", Fluent.Li().inner("bladiebla"), Fluent.Li().inner("pooo"));
 
 		assertEquals(1, VirtualDomSearch.getElementsByClassName("aClass", root).size());

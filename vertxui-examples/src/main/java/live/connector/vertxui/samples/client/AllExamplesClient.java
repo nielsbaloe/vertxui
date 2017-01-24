@@ -5,7 +5,7 @@ import com.google.gwt.core.client.GWT;
 
 import live.connector.vertxui.samples.client.chatEventBus.Dto;
 
-public class AllExamples {
+public class AllExamplesClient {
 
 	// Mapper for json-object
 	public interface DtoMap extends ObjectMapper<Dto> {

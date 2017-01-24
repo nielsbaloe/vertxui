@@ -32,8 +32,6 @@ public class Renderer {
 		}
 
 		if (oldView == null) {
-			// console.log("syncCreate because old is null for newView=" +
-			// newView);
 			create(parent, newView);
 		} else {
 			renderChanges(parent, newView, oldView);
@@ -41,12 +39,15 @@ public class Renderer {
 	}
 
 	private static void create(Fluent parent, Fluent newView) {
+		if (newView == null) {
+			return; // nothing to do
+		}
 		// console.log("create newView=" + newView.tag + " with parent=" +
 		// parent.tag);
 		newView.parent = parent;
 		if (parent.element != null) {
 			newView.element = document.createElement(newView.tag);
-			parent.element.appendChild(newView.element);
+			// NOT APPENDCHILD, WE DO THAT AS LATE AS POSSIBLE
 
 			if (newView.attrs != null) {
 				for (Att name : newView.attrs.keySet()) {
@@ -73,15 +74,24 @@ public class Renderer {
 				syncChild(newView, child, null);
 			}
 		}
+
+		// DEFERRED BINDING OF THE ELEMENT
+		if (parent.element != null) {
+			parent.element.appendChild(newView.element);
+		}
+
 	}
 
 	private static void renderChanges(Fluent parent, Fluent newView, Fluent oldView) {
-		// if ("bladiebla" instanceof Object) {
-		// create(parent, newView);
-		// return;
-		// }
 
-		if (!compareStringIgnoreCase(newView.tag, oldView.tag)) {
+		if (newView == null) {
+			if (parent.element != null) {
+				parent.element.removeChild(oldView.element);
+			}
+			return; // nothing to do
+		}
+
+		if (!equalsStringIgnoreCase(newView.tag, oldView.tag)) {
 			// console.log("syncRender: leuk maar tagname anders");
 			if (parent.element != null) {
 				parent.element.removeChild(oldView.element);
@@ -95,11 +105,12 @@ public class Renderer {
 			newView.element = oldView.element;
 		}
 
-		// // innerHtml
-		if (!compareString(newView.inner, oldView.inner)) {
+		// TODO testcare around this!
+		// innerHtml
+		if (!equalsString(newView.inner, oldView.inner)) {
 
 			if (parent.element != null) {
-				newView.inner(newView.inner);
+				newView.element.setInnerHTML(newView.inner);
 			}
 		}
 		compareApply(newView.element, newView.attrs, oldView.attrs, emptyAttributes);
@@ -244,7 +255,7 @@ public class Renderer {
 		} else if (name instanceof Style) {
 			element.getStyle().removeProperty(((Style) name).nameValid());
 		} else {
-//			Fluent.console.log("removing " + name);
+			// Fluent.console.log("removing " + name);
 			((Node) element).removeEventListener((String) name, (EventListener) value);
 		}
 	}
@@ -260,11 +271,11 @@ public class Renderer {
 		}
 	}
 
-	private static boolean compareString(String str1, String str2) {
+	public static boolean equalsString(String str1, String str2) {
 		return (str1 == null ? str2 == null : str1.equals(str2));
 	}
 
-	private static boolean compareStringIgnoreCase(String str1, String str2) {
+	private static boolean equalsStringIgnoreCase(String str1, String str2) {
 		return (str1 == null ? str2 == null : str1.equalsIgnoreCase(str2));
 	}
 }

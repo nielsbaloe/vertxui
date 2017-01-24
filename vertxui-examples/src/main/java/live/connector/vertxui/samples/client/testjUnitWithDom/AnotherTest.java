@@ -1,11 +1,13 @@
 package live.connector.vertxui.samples.client.testjUnitWithDom;
 
 import static live.connector.vertxui.client.fluent.Fluent.body;
+import static live.connector.vertxui.client.fluent.Fluent.console;
 import static live.connector.vertxui.client.fluent.Fluent.document;
 import static live.connector.vertxui.client.test.Asserty.assertEquals;
 import static live.connector.vertxui.client.test.Asserty.assertTrue;
 
 import elemental.dom.Element;
+import elemental.dom.NodeList;
 import live.connector.vertxui.client.test.TestDOM;
 
 public class AnotherTest extends TestDOM {
@@ -15,11 +17,26 @@ public class AnotherTest extends TestDOM {
 
 		String id = "id" + Math.random();
 		String inner = "bladiebla" + Math.random();
-		body.div().inner(inner).id(id);
+		body.div().inner(inner).id(id).classs("bladiebla");
+		printStructure((Element) body.dom());
 
 		Element found = document.getElementById(id);
 		assertTrue("should exist", found != null);
 		assertEquals("inner text", found.getInnerHTML(), inner);
+	}
+
+	private void printStructure(Element element) {
+		console.log("<" + element.getNodeName() + "");
+		// TODO show attributes
+		console.log(">");
+		if (element.getInnerHTML() != null) {
+			console.log(element.getInnerHTML());
+		}
+		NodeList children = element.getChildNodes();
+		for (int x = 0; x < children.getLength(); x++) {
+			printStructure((Element) children.at(x));
+		}
+		console.log("</" + element.getNodeName() + ">");
 	}
 
 }

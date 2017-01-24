@@ -88,7 +88,7 @@ public class Fluent implements Viewable {
 	 * API call for normal HTML elements. Without a parent: detached.
 	 */
 	private Fluent(String tag, Fluent parent) {
-		this.tag = tag.toUpperCase();
+		this.tag = tag.toUpperCase(); // TODO uppercase methods
 		this.parent = parent;
 
 		// Update parent
@@ -129,29 +129,27 @@ public class Fluent implements Viewable {
 	}
 
 	/**
-	 * Get an existing object from the dom by 'id'. Please don't use this, it's
-	 * slow.
-	 * 
-	 * @param id
-	 *            the id
-	 * @return a fluent html object
+	 * Set the inner text (HTML) for this element. Set to null (or empty string)
+	 * to clear.
 	 */
-
-	protected static Fluent dom(String id) {
-		Element found = document.getElementById(id);
-		Fluent result = new Fluent(found);
-		result.tag = found.getTagName();
-		return result;
-	}
-
+	// TODO move from innerHtml to innerText
 	public Fluent inner(String innerHtml) {
+		if (Renderer.equalsString(this.inner, innerHtml)) {
+			// console.log("Skipping, still " + innerHtml);
+			return this;
+		}
 		this.inner = innerHtml;
 		if (element != null) {
+			// console.log("setting innerHtml to "+innerHtml);
 			element.setInnerHTML(innerHtml);
 		}
 		return this;
 	}
 
+	/**
+	 * Gives the inner html that has been set; note that the real DOM inner HTML
+	 * is "" if you set it to null or when no value is given anymore.
+	 */
 	public String inner() {
 		return this.inner;
 	}
@@ -346,17 +344,25 @@ public class Fluent implements Viewable {
 			((ViewOn<?>) item).setParent(this);
 			((ViewOn<?>) item).sync(); // needs to render!
 		} else {
-			// When a Fluent craeted by a static function is given, we should
-			// get the most upper parent, not the last item of the fluent
-			// notated item.
-			while (((Fluent) item).parent != null) {
-				if (((Fluent) item).element != null) {
-					throw new IllegalArgumentException("Can not reconnect connected DOM elements");
-				}
-				item = ((Fluent) item).parent;
-			}
+			item = getRootOf((Fluent) item);
 		}
 		childs.add(item);
+	}
+
+	protected static Fluent getRootOf(Fluent item) {
+		// When a Fluent created by a static function is given, we should
+		// get the most upper parent, not the last item of the fluent
+		// notated item.
+		if (item == null) {
+			return null;
+		}
+		while (item.parent != null) {
+			if (item.element != null) {
+				throw new IllegalArgumentException("Can not reconnect connected DOM elements");
+			}
+			item = item.parent;
+		}
+		return item;
 	}
 
 	private Fluent add(Fluent... items) {
@@ -458,10 +464,12 @@ public class Fluent implements Viewable {
 		return result;
 	}
 
-	public Fluent button(String text) {
-		Fluent result = new Fluent("BUTTON", this);
-		result.inner(text);
-		return result;
+	public Fluent button() {
+		return new Fluent("BUTTON", this);
+	}
+
+	public Fluent button(String classs, String text) {
+		return button().classs(classs).inner(text);
 	}
 
 	public Fluent li(String classs, String text) {
@@ -609,31 +617,23 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent audio() {
-		return new Fluent("audio", this);
+		return new Fluent("AUDIO", this);
 	}
 
-	public Fluent b(String text) {
-		return new Fluent("b", this).inner(text);
+	public Fluent b() {
+		return new Fluent("B", this);
 	}
 
-	public Fluent bdi(String text) {
-		return new Fluent("bdi", this).inner(text);
+	public Fluent bdi() {
+		return new Fluent("BDI", this);
 	}
 
 	public Fluent bdo() {
 		return new Fluent("bdo", this);
 	}
 
-	public Fluent bdo(String text) {
-		return new Fluent("bdo", this).inner(text);
-	}
-
 	public Fluent blockquote() {
 		return new Fluent("blockquote", this);
-	}
-
-	public Fluent blockquote(String text) {
-		return new Fluent("blockquote", this).inner(text);
 	}
 
 	public Fluent body() {
@@ -648,16 +648,8 @@ public class Fluent implements Viewable {
 		return new Fluent("caption", this);
 	}
 
-	public Fluent caption(String text) {
-		return new Fluent("caption", this).inner(text);
-	}
-
 	public Fluent cite() {
 		return new Fluent("cite", this);
-	}
-
-	public Fluent cite(String text) {
-		return new Fluent("cite", this).inner(text);
 	}
 
 	public Fluent code() {
@@ -672,48 +664,36 @@ public class Fluent implements Viewable {
 		return new Fluent("datalist", this);
 	}
 
-	public Fluent dd(String text) {
-		return new Fluent("dd", this).inner(text);
+	public Fluent dd() {
+		return new Fluent("dd", this);
 	}
 
-	public Fluent del(String text) {
-		return new Fluent("del", this).inner(text);
+	public Fluent del() {
+		return new Fluent("DEL", this);
 	}
 
 	public Fluent details() {
-		return new Fluent("details", this);
+		return new Fluent("DETAILS", this);
 	}
 
-	public Fluent dfn(String text) {
-		return new Fluent("dfn", this).inner(text);
+	public Fluent dfn() {
+		return new Fluent("DFN", this);
 	}
 
 	public Fluent dialog() {
-		return new Fluent("dialog", this);
-	}
-
-	public Fluent dialog(String text) {
-		return new Fluent("dialog", this).inner(text);
+		return new Fluent("DIALOG", this);
 	}
 
 	public Fluent dl() {
-		return new Fluent("dl", this);
+		return new Fluent("DL", this);
 	}
 
 	public Fluent dt() {
-		return new Fluent("dt", this);
-	}
-
-	public Fluent dt(String text) {
-		return new Fluent("dt", this).inner(text);
+		return new Fluent("DT", this);
 	}
 
 	public Fluent em() {
 		return new Fluent("em", this);
-	}
-
-	public Fluent em(String text) {
-		return new Fluent("em", this).inner(text);
 	}
 
 	public Fluent fieldset() {
@@ -722,10 +702,6 @@ public class Fluent implements Viewable {
 
 	public Fluent figcaption() {
 		return new Fluent("figcaption", this);
-	}
-
-	public Fluent figcaption(String text) {
-		return new Fluent("figcaption", this).inner(text);
 	}
 
 	public Fluent figure() {
@@ -740,32 +716,36 @@ public class Fluent implements Viewable {
 		return new Fluent("form", this);
 	}
 
-	public Fluent h1(String text) {
-		return new Fluent("H1", this).inner(text);
+	public Fluent h1() {
+		return new Fluent("H1", this);
 	}
 
-	public static Fluent H1(String text) {
-		return new Fluent("H1", null).inner(text);
+	public Fluent h1(String classs, String text) {
+		return h1().classs(classs).inner(text);
 	}
 
-	public Fluent h2(String text) {
-		return new Fluent("H2", this).inner(text);
+	public static Fluent H1(String classs, String text) {
+		return new Fluent("H1", null).classs(classs).inner(text);
 	}
 
-	public Fluent h3(String text) {
-		return new Fluent("H3", this).inner(text);
+	public Fluent h2() {
+		return new Fluent("H2", this);
 	}
 
-	public Fluent h4(String text) {
-		return new Fluent("h4", this).inner(text);
+	public Fluent h3() {
+		return new Fluent("H3", this);
 	}
 
-	public Fluent h5(String text) {
-		return new Fluent("h5", this).inner(text);
+	public Fluent h4() {
+		return new Fluent("h4", this);
 	}
 
-	public Fluent h6(String text) {
-		return new Fluent("h6", this).inner(text);
+	public Fluent h5() {
+		return new Fluent("h5", this);
+	}
+
+	public Fluent h6() {
+		return new Fluent("h6", this);
 	}
 
 	public Fluent header() {
@@ -776,28 +756,24 @@ public class Fluent implements Viewable {
 		return new Fluent("i", this);
 	}
 
-	public Fluent i(String text) {
-		return new Fluent("i", this).inner(text);
-	}
-
 	public Fluent iframe() {
 		return new Fluent("iframe", this);
 	}
 
-	public Fluent ins(String text) {
-		return new Fluent("ins", this).inner(text);
+	public Fluent ins() {
+		return new Fluent("ins", this);
 	}
 
 	public Fluent kbd() {
 		return new Fluent("kbd", this);
 	}
 
-	public Fluent label(String text) {
-		return new Fluent("label", this).inner(text);
+	public Fluent label() {
+		return new Fluent("LABEL", this);
 	}
 
-	public Fluent legend(String text) {
-		return new Fluent("legend", this).inner(text);
+	public Fluent legend() {
+		return new Fluent("LEGEND", this);
 	}
 
 	public Fluent main() {
@@ -848,8 +824,8 @@ public class Fluent implements Viewable {
 		return new Fluent("optgroup", this);
 	}
 
-	public Fluent option(String text) {
-		return new Fluent("option", this).inner(text);
+	public Fluent option() {
+		return new Fluent("option", this);
 	}
 
 	public Fluent output() {
@@ -860,20 +836,20 @@ public class Fluent implements Viewable {
 		return new Fluent("p", this);
 	}
 
-	public Fluent p(String text) {
-		return new Fluent("p", this).inner(text);
+	public Fluent p(String classs, String text) {
+		return p().classs(classs).inner(text);
 	}
 
-	public Fluent pre(String text) {
-		return new Fluent("pre", this).inner(text);
+	public Fluent pre(String classs, String text) {
+		return new Fluent("PRE", this).classs(classs).inner(text);
 	}
 
 	public Fluent progress() {
 		return new Fluent("progress", this);
 	}
 
-	public Fluent q(String text) {
-		return new Fluent("q", this).inner(text);
+	public Fluent q() {
+		return new Fluent("Q", this);
 	}
 
 	public Fluent rp() {
@@ -888,8 +864,8 @@ public class Fluent implements Viewable {
 		return new Fluent("ruby", this);
 	}
 
-	public Fluent s(String text) {
-		return new Fluent("s", this).inner(text);
+	public Fluent s() {
+		return new Fluent("s", this);
 	}
 
 	public Fluent samp() {
@@ -974,59 +950,59 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent section() {
-		return new Fluent("section", this);
+		return new Fluent("SECTION", this);
 	}
 
 	public Fluent select() {
-		return new Fluent("select", this);
+		return new Fluent("SELECT", this);
 	}
 
 	public Fluent small() {
-		return new Fluent("small", this);
-	}
-
-	public Fluent small(String text) {
-		return new Fluent("small", this).inner(text);
+		return new Fluent("SMALL", this);
 	}
 
 	public Fluent span() {
-		return new Fluent("span", this);
+		return new Fluent("SPAN", this);
 	}
 
-	public Fluent span(String text) {
-		return new Fluent("span", this).inner(text);
+	public Fluent span(String classs) {
+		return span().classs(classs);
 	}
 
-	public Fluent strong(String text) {
-		return new Fluent("strong", this).inner(text);
+	public Fluent span(String classs, String inner) {
+		return span().classs(classs).inner(inner);
 	}
 
-	public Fluent sub(String text) {
-		return new Fluent("sub", this).inner(text);
+	public Fluent strong() {
+		return new Fluent("STRONG", this);
 	}
 
-	public Fluent summary(String text) {
-		return new Fluent("summary", this).inner(text);
+	public Fluent sub() {
+		return new Fluent("SUB", this);
 	}
 
-	public Fluent sup(String text) {
-		return new Fluent("sup", this).inner(text);
+	public Fluent summary() {
+		return new Fluent("SUMMARY", this);
+	}
+
+	public Fluent sup() {
+		return new Fluent("SUP", this);
 	}
 
 	public Fluent table() {
 		return new Fluent("TABLE", this);
 	}
 
+	public Fluent table(String classs) {
+		return table().classs(classs);
+	}
+
 	public Fluent tbody() {
-		return new Fluent("tbody", this);
+		return new Fluent("TBODY", this);
 	}
 
 	public Fluent td() {
 		return new Fluent("TD", this);
-	}
-
-	public Fluent td(String text) {
-		return new Fluent("TD", this).inner(text);
 	}
 
 	public Fluent textarea() {
@@ -1041,10 +1017,6 @@ public class Fluent implements Viewable {
 		return new Fluent("th", this);
 	}
 
-	public Fluent th(String text) {
-		return new Fluent("th", this).inner(text);
-	}
-
 	public Fluent thead() {
 		return new Fluent("thead", this);
 	}
@@ -1053,8 +1025,8 @@ public class Fluent implements Viewable {
 		return new Fluent("time", this);
 	}
 
-	public Fluent title(String text) {
-		return new Fluent("title", this).inner(text);
+	public Fluent title(String inner) {
+		return new Fluent("TITLE", this).inner(inner);
 	}
 
 	public Fluent tr() {
@@ -1063,10 +1035,6 @@ public class Fluent implements Viewable {
 
 	public Fluent u() {
 		return new Fluent("u", this);
-	}
-
-	public Fluent u(String text) {
-		return new Fluent("U", this).inner(text);
 	}
 
 	public Fluent ul() {

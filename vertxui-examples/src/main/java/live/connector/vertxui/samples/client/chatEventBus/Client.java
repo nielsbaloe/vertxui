@@ -10,7 +10,7 @@ import elemental.events.UIEvent;
 import elemental.json.Json;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.EventBus;
-import live.connector.vertxui.samples.client.AllExamples;
+import live.connector.vertxui.samples.client.AllExamplesClient;
 
 /**
  * @author Niels Gorisse
@@ -39,7 +39,7 @@ public class Client implements EntryPoint {
 			});
 
 			// extra example: pojo consume
-			eventBus.registerHandler(addressPojo, null, AllExamples.dto, a -> console.log("Received pojo: " + a.color));
+			eventBus.registerHandler(addressPojo, null, AllExamplesClient.dto, a -> console.log("Received pojo: " + a.color));
 		});
 
 		input.keydown(evt -> {
@@ -49,7 +49,7 @@ public class Client implements EntryPoint {
 
 				// extra example: object publish
 				eventBus.publish(addressPojo, new Dto("blue by " + name), Json.parse("{\"action\":\"save\"}"),
-						AllExamples.dto);
+						AllExamplesClient.dto);
 			}
 		});
 	}

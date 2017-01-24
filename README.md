@@ -1,9 +1,9 @@
 vertxui
 ===
 
-Suppose we had native Java access at the browser, backed by a no-nonsense Java asynchronous server. Then both browser and server would be using the same Java data entities/DTO's, and we would like to use these strong-typed POJO's for ajax/websocket/sockjs traffic. And an eventbus where server and browsers can share information.
+Suppose we had native asynchronous Java access at the browser, backed by a no-nonsense Java asynchronous server. Then both browser and server would be using the same Java data entities/DTO's, and we would like to use these strong-typed POJO's for ajax/websocket/sockjs traffic. And an eventbus where server and browsers can share information.
 
-For the view, we would not want to write HTML, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view on an entity, similar to ReactJS but then nicely in Java with lambda's streams enums and other object oriented features.
+For the view, we would not want to write HTML or a javascript-lookalike new language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view on an entity, similar to ReactJS but then nicely in Java with lambda's streams enums and other object oriented features.
 
 Regarding tooling, we would want to use trusted Java tooling like jUnit, and realtime debugging with automatic browser refreshing after a code change, but we would not want to install any IDE-specific tooling.  
 
@@ -32,6 +32,8 @@ Pure-Java clientside (not locked-in currently using down-to-the-DOM wrapped-away
 * easy junit testing of client-side code, and other convenient Java tooling
 
 Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, Bootstrap, jQuery Mobile and more.
+
+VertxUI is _not_ a javascript framework. Instead of using a smoother for browser differences like jquery, VertxUI lends on the trend that javascript is standardised, and HTML+CSS is more than enough to write your GUI. VertxUI is just the glue you were looking for, instead of writing errorprone javascript.
 
 ### Serverside
 
