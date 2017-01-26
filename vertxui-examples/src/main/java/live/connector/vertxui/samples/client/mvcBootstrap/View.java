@@ -1,7 +1,9 @@
 package live.connector.vertxui.samples.client.mvcBootstrap;
 
 import static live.connector.vertxui.client.fluent.Fluent.Div;
-import static live.connector.vertxui.client.fluent.Fluent.Ul;
+import static live.connector.vertxui.client.fluent.Fluent.Li;
+import static live.connector.vertxui.client.fluent.Fluent.Td;
+import static live.connector.vertxui.client.fluent.Fluent.*;
 import static live.connector.vertxui.client.fluent.Fluent.body;
 import static live.connector.vertxui.client.fluent.Fluent.head;
 
@@ -12,23 +14,22 @@ import com.google.gwt.core.client.GWT;
 import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
+import live.connector.vertxui.client.fluent.Style;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills;
+import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Bill;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Name;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Grocery;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Totals;
 
 public class View implements EntryPoint {
 
-	/**
-	 * A view on a string. Actually, an enum is cleaner, but just to demonstrate
-	 * that a ViewOn a primitive doesn't need much more than this.
-	 */
-	private ViewOn<String> menuView;
-	private ViewOn<Totals> totalsView;
-	private ViewOn<Bills> billsView;
-	private ViewOn<Grocery> groceryView;
+	private ViewOn<String> menu;
+	private ViewOn<Totals> totals;
+	private ViewOn<Bills> bills;
+	private ViewOn<Boolean> billsForm;
+	private ViewOn<Grocery> grocery;
 
 	public static String totalsUrl = "/totals";
 	public static String billsUrl = "/bills";
@@ -43,114 +44,125 @@ public class View implements EntryPoint {
 		head.meta().attr(Att.name_, "viewport").attr(Att.content, "width=device-width, initial-scale=1");
 
 		// Header
+		body.css(Style.maxWidth, "600px", Style.margin, "0 auto 0 auto");
 		body.h1(null, "Bills").classs("jumbotron text-center").id("titlerForJunitTest");
 
 		// Menu
 		Fluent container = body.nav("navbar navbar-inverse").div("container-fluid");
-		menuView = container.div().add("home", s -> {
+		menu = container.add("home", selected -> {
 			Fluent result = Ul("nav navbar-nav");
-			result.li(s.equals("home") ? "active" : null).a("Home", "#").click(this::menuHome);
-			result.li(s.equals("bills") ? "active" : null).a("Bills", "#").click(this::menuBills);
-			result.li(s.equals("grocery") ? "active" : null).a("Grocery", "#").click(this::menuGrocery);
+			result.li(selected.equals("home") ? "active" : null).a("Home", "#").click(this::menuHome);
+			result.li(selected.equals("bills") ? "active" : null).a("Bills", "#").click(this::menuBills);
+			result.li(selected.equals("grocery") ? "active" : null).a("Grocery", "#").click(this::menuGrocery);
 			return result;
 		});
 
-		// Home
-		totalsView = body.add(null, t -> {
-			if (t == null) {
+		// Content
+		Fluent content = body.div("center-block").css(Style.maxWidth, "500px");
+		totals = content.add(null, totals -> {
+			if (totals == null) {
 				return null;
 			}
-			Fluent result = Div("row");
-			result.div("col-sm-5"); // left spacing
-
-			// Middle column size 2, with a table in it.
-			Fluent tbody = result.div("col-sm-2").table("table table-condensed").tbody();
-
-			// two td's in one tr
-			Fluent tr = null;
-			for (Name key : t.totals.keySet()) {
-				if (tr == null) {
-					tr = tbody.tr();
-					tr.td().inner(key.name() + " ").span("badge", t.totals.get(key) + "");
-				} else {
-					tr.td().inner(key.name() + " ").span("badge", t.totals.get(key) + "");
-					tr = null;
-				}
-			}
-			result.div("col-sm-5"); // right spacing
+			Fluent result = Div("row", Div("col-sm-3"));
+			result.div("col-sm-3", Name.Niels.name() + " ").span("badge", totals.totals.get(Name.Niels) + "");
+			result.div("col-sm-3", Name.Linda.name() + " ").span("badge", totals.totals.get(Name.Linda) + "");
+			result.div("col-sm-3");
 			return result;
 		});
 
-		billsView = body.add(null, t -> {
-			if (t == null) {
+		// a detached view on a bills form
+		billsForm = new ViewOn<Boolean>(false, opened -> {
+			if (opened == false) {
+				return Button("btn btn-success", "Add").attr(Att.type, "button").click(e -> {
+					billsForm.state(true);
+				});
+			}
+			Fluent result = Form("form-inline");
+
+			Fluent name = Input("form-control", null, "text", "n");
+			Fluent amount = Input("form-control", null, "text", "a");
+			Fluent when = Input("form-control", null, "text", "w");
+
+			result.div("form-group", Label(null, "Name ").attr(Att.for_, "n"), name);
+			result.div("form-group", Label(null, "Amount ").attr(Att.for_, "a"), amount);
+			result.div("form-group", Label(null, "When ").attr(Att.for_, "w"), when);
+
+			result.button("btn btn-success", "OK").attr(Att.type, "button").click(e -> {
+				setNewBill(name.value(), amount.value(), when.value());
+				billsForm.state(false);
+			});
+			return result;
+		});
+
+		bills = content.add(null, bills -> {
+			if (bills == null) {
 				return null;
 			}
 			Fluent result = Div();
-
+			result.add(billsForm);
+			Fluent table = result.table("table table-condensed table-striped").tbody();
+			for (Bill bill : bills.bills) {
+				table.tr(Td(null, bill.who.name()), Td(null, bill.amount + ""), Td(null, bill.notes),
+						Td(null, bill.date.toString()));
+			}
 			return result;
 		});
-
-		groceryView = body.add(null, t -> {
-			if (t == null) {
+		grocery = content.add(null, grocery -> {
+			if (grocery == null) {
 				return null;
 			}
-			Fluent result = Div();
-
-			return result;
+			return Ul().add(grocery.things.stream().map(s -> Li(null, s)));
 		});
 
 		// Init
 		menuHome(null);
+	}
 
-		// TODO
-		// bills: input fields (date, person, amount, notes), list of all
-		// entries.
-		// grocery: list of items to buy, removable too
-		// layout: http://www.w3schools.com/bootstrap
-
-		// should include an example of a stream
-		// body.ul().add(Stream.of("aaa", "a").filter(e -> e.length() > 1).map(t
-		// -> Li(null, t)));
-
+	public void setNewBill(String name, String amount, String when) {
+		console.log("TODO");
 	}
 
 	public void menuHome(Event evt) {
-		menuView.state("home");
-		totalsView.unhide();
-		billsView.hide();
-		groceryView.hide();
+		menu.state("home");
+		totals.unhide();
+		bills.hide();
+		grocery.hide();
 
 		Pojofy.ajax("GET", totalsUrl, null, null, totalsMap, this::setTotals);
 	}
 
 	public void menuBills(Event evt) {
-		menuView.state("bills");
-		totalsView.hide();
-		billsView.unhide();
-		groceryView.hide();
+		menu.state("bills");
+		totals.hide();
+		bills.unhide();
+		grocery.hide();
+
+		// Note that old available data is already shown to the client
 
 		Pojofy.ajax("GET", billsUrl, null, null, billsMap, this::setBills);
 	}
 
 	public void menuGrocery(Event evt) {
-		menuView.state("grocery");
-		totalsView.hide();
-		billsView.hide();
-		groceryView.unhide();
+		menu.state("grocery");
+		totals.hide();
+		bills.hide();
+		grocery.unhide();
+
+		// Note that old available data is already shown to the client
 
 		Pojofy.ajax("GET", groceryUrl, null, null, groceryMap, this::setGrocery);
 	}
 
 	public void setTotals(int responseCode, Totals pojo) {
-		totalsView.state(pojo);
+		totals.state(pojo);
 	}
 
 	public void setBills(int responseCode, Bills pojo) {
-		billsView.state(pojo);
+		bills.state(pojo);
 	}
 
 	public void setGrocery(int responseCode, Grocery pojo) {
-		groceryView.state(pojo);
+		grocery.state(pojo);
 	}
 
 	// POJO MAPPERS

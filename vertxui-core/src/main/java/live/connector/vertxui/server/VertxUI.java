@@ -170,7 +170,7 @@ public class VertxUI {
 		try {
 			String options = "-strict -XdisableUpdateCheck";
 			if (debug) {
-				options += " -draftCompile -optimize 0 -incremental -style DETAILED";
+				options += " -draftCompile -optimize 0 -style DETAILED"; // -incremental 
 			} else {
 				options += " -XnoclassMetadata -nodraftCompile -optimize 9 -noincremental";
 			}

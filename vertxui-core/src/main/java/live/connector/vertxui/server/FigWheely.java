@@ -97,6 +97,7 @@ public class FigWheely extends AbstractVerticle {
 								vertx.eventBus().send((String) obj, "reload: " + watchable.url);
 							}
 						} catch (IOException | InterruptedException e) {
+							e.printStackTrace();
 							for (Object obj : vertx.sharedData().getLocalMap(browserIds).keySet()) {
 								vertx.eventBus().send((String) obj, "error: " + e.getMessage());
 							}

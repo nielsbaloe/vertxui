@@ -28,7 +28,7 @@ public class Client implements EntryPoint {
 	public Client() {
 		String name = window.prompt("What is your name?", "");
 
-		Fluent input = body.input("text", "_");
+		Fluent input = body.input(null, null, "text", null);
 		Fluent messages = body.div();
 
 		EventBus eventBus = EventBus.create("http://localhost/chatEventbus", null);
@@ -39,7 +39,8 @@ public class Client implements EntryPoint {
 			});
 
 			// extra example: pojo consume
-			eventBus.registerHandler(addressPojo, null, AllExamplesClient.dto, a -> console.log("Received pojo: " + a.color));
+			eventBus.registerHandler(addressPojo, null, AllExamplesClient.dto,
+					a -> console.log("Received pojo: " + a.color));
 		});
 
 		input.keydown(evt -> {

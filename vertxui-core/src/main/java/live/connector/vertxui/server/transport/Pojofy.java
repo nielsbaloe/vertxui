@@ -85,7 +85,7 @@ public class Pojofy {
 		return true;
 	}
 
-	private static String out(Object output) {
+	public static String out(Object output) {
 		if (output == null) {
 			return null;
 		} else if (output instanceof java.lang.String) { // pass

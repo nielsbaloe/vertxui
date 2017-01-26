@@ -77,4 +77,14 @@ public class ViewOn<A> implements Viewable {
 		return view;
 	}
 
+	@Override
+	public String toString() {
+		String result = "ViewOn{";
+		if (view != null) {
+			result += view.tag;
+		}
+		result += "}";
+		return result;
+	}
+
 }

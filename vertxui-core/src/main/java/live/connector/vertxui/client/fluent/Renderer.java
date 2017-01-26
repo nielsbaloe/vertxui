@@ -11,7 +11,7 @@ import elemental.events.EventListener;
 public class Renderer {
 
 	protected static void syncChild(Fluent parent, Viewable newViewable, Fluent oldView) {
-		// console.log("START new=" + newViewable + " old=" + oldView + "
+		// Fluent.console.log("START new=" + newViewable + " old=" + oldView + "
 		// parent=" + parent);
 
 		// Nothing new, just remove
@@ -29,23 +29,30 @@ public class Renderer {
 			newView.parent = parent;
 		} else {
 			newView = ((ViewOn<?>) newViewable).generate(parent);
+			// Fluent.console.log("Just generated for newView=" + newView);
 		}
 
 		if (oldView == null) {
-			create(parent, newView);
+			create(parent, newView, null);
 		} else {
 			renderChanges(parent, newView, oldView);
 		}
 	}
 
-	private static void create(Fluent parent, Fluent newView) {
+	/**
+	 * Generate a new element. If oldView is given, replace it with a new
+	 * element (when the tagname is different).
+	 */
+	private static void create(Fluent parent, Fluent newView, Fluent oldView) {
 		if (newView == null) {
 			return; // nothing to do
 		}
-		// console.log("create newView=" + newView.tag + " with parent=" +
-		// parent.tag);
+		// Fluent.console.log(
+		// "create newView=" + newView.tag + " with parent=" + parent.tag + "
+		// dom=" + (parent.element != null));
 		newView.parent = parent;
-		if (parent.element != null) {
+
+		if (parent.element != null) { // if dom-attached
 			newView.element = document.createElement(newView.tag);
 			// NOT APPENDCHILD, WE DO THAT AS LATE AS POSSIBLE
 
@@ -77,13 +84,21 @@ public class Renderer {
 
 		// DEFERRED BINDING OF THE ELEMENT
 		if (parent.element != null) {
-			parent.element.appendChild(newView.element);
+
+			if (oldView == null) { // default
+				parent.element.appendChild(newView.element);
+			} else {
+
+				Fluent.console.log("Replacing for new=" + newView.element.getTagName());
+				Fluent.console.log("and old=" + oldView.element);
+
+				parent.element.replaceChild(newView.element, oldView.element);
+			}
 		}
 
 	}
 
 	private static void renderChanges(Fluent parent, Fluent newView, Fluent oldView) {
-
 		if (newView == null) {
 			if (parent.element != null) {
 				parent.element.removeChild(oldView.element);
@@ -92,30 +107,23 @@ public class Renderer {
 		}
 
 		if (!equalsStringIgnoreCase(newView.tag, oldView.tag)) {
-			// console.log("syncRender: leuk maar tagname anders");
-			if (parent.element != null) {
-				parent.element.removeChild(oldView.element);
-			}
-			create(parent, newView);
+			Fluent.console.log("!!tags differ! new=" + newView.tag + " old=" + oldView.tag);
+			create(parent, newView, oldView);
 			return;
 		}
 		newView.parent = parent;
 
-		if (parent.element != null) {
+		if (parent.element != null) { // if we are dom-attached
 			newView.element = oldView.element;
-		}
 
-		// TODO testcare around this!
-		// innerHtml
-		if (!equalsString(newView.inner, oldView.inner)) {
-
-			if (parent.element != null) {
+			// TODO testcare around this! and use innerText
+			if (!equalsString(newView.inner, oldView.inner)) {
 				newView.element.setInnerHTML(newView.inner);
 			}
+			compareApply(newView.element, newView.attrs, oldView.attrs, emptyAttributes);
+			compareApply(newView.element, newView.styles, oldView.styles, emptyStyles);
+			compareApply(newView.element, newView.listeners, oldView.listeners, emptyListeners);
 		}
-		compareApply(newView.element, newView.attrs, oldView.attrs, emptyAttributes);
-		compareApply(newView.element, newView.styles, oldView.styles, emptyStyles);
-		compareApply(newView.element, newView.listeners, oldView.listeners, emptyListeners);
 
 		// TODO do not assume same sequence but use hashing
 		int nChilds = (newView.childs == null) ? 0 : newView.childs.size();

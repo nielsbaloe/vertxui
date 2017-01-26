@@ -24,7 +24,7 @@ public class Client implements EntryPoint {
 	public Client() {
 		String name = window.prompt("What is your name?", "");
 
-		Fluent input = body.input("text", "_");
+		Fluent input = body.input(null, null, "text", null);
 		Fluent messages = body.div();
 
 		SockJS socket = SockJS.create("http://localhost/chatSockjs");
@@ -33,7 +33,8 @@ public class Client implements EntryPoint {
 		});
 		socket.setOnmessage(e -> {
 			// extra: pojo example
-			if (Pojofy.socketReceive(urlPojo, e, AllExamplesClient.dto, d -> console.log("Received pojo color=" + d.color))) {
+			if (Pojofy.socketReceive(urlPojo, e, AllExamplesClient.dto,
+					d -> console.log("Received pojo color=" + d.color))) {
 				return;
 			}
 

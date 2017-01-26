@@ -1,6 +1,8 @@
 package live.connector.vertxui.samples.server.mvcBootstrap;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import io.vertx.core.AbstractVerticle;
@@ -11,6 +13,8 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import live.connector.vertxui.samples.client.mvcBootstrap.View;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills;
+import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Bill;
+import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Name;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Grocery;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Totals;
 import live.connector.vertxui.samples.server.AllExamplesServer;
@@ -48,13 +52,22 @@ public class Controller extends AbstractVerticle {
 
 	public Grocery getGrocery(String empty, RoutingContext context) {
 		Grocery result = new Grocery();
-
+		result.things = new ArrayList<>();
+		result.things.add("Chocolate milk");
+		result.things.add("Banana's");
 		return result;
 	}
 
 	public Bills getBills(String empty, RoutingContext context) {
 		Bills result = new Bills();
-
+		result.bills = new ArrayList<>();
+		for (int x = 0; x < 10; x++) {
+			Bill bill = new Bill();
+			bill.who = Name.Niels;
+			bill.amount = 2000;
+			bill.date = new Date();
+			result.bills.add(bill);
+		}
 		return result;
 	}
 

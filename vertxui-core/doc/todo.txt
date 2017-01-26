@@ -1,4 +1,4 @@
-/27		- application mvcbootstrap
+/27		- application mvcbootstrap: bills addable and grocery edible, http://www.w3schools.com/bootstrap
 /31 	- TestJunit: add example with Mockito for Pojofy.ajax, may no TestDOM for duallanguage-tests
 /4febr	- application to do mvc.com
 /8febr	- application for existing index.html site
