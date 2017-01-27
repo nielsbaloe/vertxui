@@ -88,7 +88,7 @@ public class Fluent implements Viewable {
 	 * API call for normal HTML elements. Without a parent: detached.
 	 */
 	private Fluent(String tag, Fluent parent) {
-		this.tag = tag.toUpperCase(); // TODO uppercase methods
+		this.tag = tag.toUpperCase(); // TODO uppercase all tags
 		this.parent = parent;
 
 		// Update parent
@@ -468,13 +468,20 @@ public class Fluent implements Viewable {
 	// Constructor-tags:
 	// Constructor-tags:
 
-	public Fluent input(String classs, String inner, String type, String id) {
-		return new Fluent("INPUT", this).classs(classs).inner(inner).attr(Att.type, type).id(id);
+	public Fluent input() {
+		return new Fluent("INPUT", this);
 	}
-	// TODO alles ook static uitvoeren, en tags in hoofdletters
+
+	public Fluent input(String classs, String inner, String type, String id) {
+		return input().classs(classs).inner(inner).attr(Att.type, type).id(id);
+	}
+
+	public static Fluent Input() {
+		return new Fluent("INPUT", null);
+	}
 
 	public static Fluent Input(String classs, String inner, String type, String id) {
-		return new Fluent("INPUT", null).classs(classs).inner(inner).attr(Att.type, type).id(id);
+		return Input().classs(classs).inner(inner).attr(Att.type, type).id(id);
 	}
 
 	public Fluent button() {
@@ -501,20 +508,20 @@ public class Fluent implements Viewable {
 		return Button().classs(classs).inner(text);
 	}
 
-	public Fluent li(String classs, String text) {
-		return li(classs).inner(text);
-	}
-
-	public static Fluent Li() {
-		return new Fluent("LI", null);
-	}
-
 	public Fluent li() {
 		return new Fluent("LI", this);
 	}
 
 	public Fluent li(String classs) {
 		return li().classs(classs);
+	}
+
+	public Fluent li(String classs, String text) {
+		return li(classs).inner(text);
+	}
+
+	public static Fluent Li() {
+		return new Fluent("LI", null);
 	}
 
 	public static Fluent Li(String classs) {
@@ -529,24 +536,12 @@ public class Fluent implements Viewable {
 		return new Fluent("DIV", this);
 	}
 
-	public static Fluent Div() {
-		return new Fluent("DIV", null);
-	}
-
 	public Fluent div(String classs) {
 		return div().classs(classs);
 	}
 
-	public static Fluent Div(String classs, String inner) {
-		return Div().classs(classs).inner(inner);
-	}
-
-	public static Fluent Div(String classs, Fluent... items) {
-		return Div().classs(classs).add(items);
-	}
-
-	public static Fluent Div(String classs, Stream<Fluent> stream) {
-		return Div(classs).add(stream);
+	public Fluent div(String classs, String inner) {
+		return div(classs).inner(inner);
 	}
 
 	public Fluent div(Fluent... list) {
@@ -555,10 +550,6 @@ public class Fluent implements Viewable {
 
 	public Fluent div(Stream<Fluent> stream) {
 		return div().add(stream);
-	}
-
-	public Fluent div(String classs, String inner) {
-		return div(classs).inner(inner);
 	}
 
 	public Fluent div(String classs, String inner, Fluent... adds) {
@@ -573,12 +564,28 @@ public class Fluent implements Viewable {
 		return div(classs).add(adds);
 	}
 
-	public static Fluent Div(Fluent... list) {
-		return Div().add(list);
+	public static Fluent Div() {
+		return new Fluent("DIV", null);
 	}
 
 	public static Fluent Div(String classs) {
 		return Div().classs(classs);
+	}
+
+	public static Fluent Div(String classs, String inner) {
+		return Div().classs(classs).inner(inner);
+	}
+
+	public static Fluent Div(Fluent... list) {
+		return Div().add(list);
+	}
+
+	public static Fluent Div(String classs, Fluent... items) {
+		return Div().classs(classs).add(items);
+	}
+
+	public static Fluent Div(String classs, Stream<Fluent> stream) {
+		return Div(classs).add(stream);
 	}
 
 	// REST
@@ -588,11 +595,11 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent base() {
-		return new Fluent("base", this);
+		return new Fluent("BASE", this);
 	}
 
 	public Fluent br() {
-		return new Fluent("br", this);
+		return new Fluent("BR", this);
 	}
 
 	public Fluent col() {
@@ -1050,6 +1057,18 @@ public class Fluent implements Viewable {
 		return span().classs(classs).inner(inner);
 	}
 
+	public static Fluent Span() {
+		return new Fluent("SPAN", null);
+	}
+
+	public static Fluent Span(String classs) {
+		return Span().classs(classs);
+	}
+
+	public static Fluent Span(String classs, String inner) {
+		return Span().classs(classs).inner(inner);
+	}
+
 	public Fluent strong() {
 		return new Fluent("STRONG", this);
 	}
@@ -1122,8 +1141,8 @@ public class Fluent implements Viewable {
 		return new Fluent("time", this);
 	}
 
-	public Fluent title(String inner) {
-		return new Fluent("TITLE", this).inner(inner);
+	public Fluent title(String classs, String inner) {
+		return new Fluent("TITLE", this).classs(classs).inner(inner);
 	}
 
 	public Fluent tr() {
@@ -1135,11 +1154,19 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent u() {
-		return new Fluent("u", this);
+		return new Fluent("U", this);
 	}
 
 	public Fluent ul() {
 		return new Fluent("UL", this);
+	}
+
+	public Fluent ul(String classs) {
+		return ul().classs(classs);
+	}
+
+	public Fluent ul(String classs, Fluent... items) {
+		return ul(classs).add(items);
 	}
 
 	public static Fluent Ul() {
@@ -1150,12 +1177,8 @@ public class Fluent implements Viewable {
 		return Ul().classs(classs);
 	}
 
-	public Fluent ul(String classs) {
-		return ul().classs(classs);
-	}
-
-	public Fluent ul(String classs, Fluent... items) {
-		return ul(classs).add(items);
+	public static Fluent Ul(String classs, Fluent... items) {
+		return Ul(classs).add(items);
 	}
 
 	public Fluent var() {

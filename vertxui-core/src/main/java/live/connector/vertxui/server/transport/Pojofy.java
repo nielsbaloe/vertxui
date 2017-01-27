@@ -8,6 +8,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.WebSocket;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.WriteStream;
@@ -77,11 +78,12 @@ public class Pojofy {
 		json.put("body", output);
 		json.remove("headers");
 
-		// TODO
-		// ((WebSocket)socket).writeFinalTextFrame("");
-		// ((SockJSSocket)socket).writeFinalTextFrame("");
-
-		socket.write(Buffer.buffer(json.toString()));
+		if (socket instanceof WebSocket) {
+			// prevents blobs at the javascript end, so is faster
+			((WebSocket) socket).writeFinalTextFrame(json.toString());
+		} else {
+			socket.write(Buffer.buffer(json.toString()));
+		}
 		return true;
 	}
 

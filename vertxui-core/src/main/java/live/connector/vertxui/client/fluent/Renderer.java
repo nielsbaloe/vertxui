@@ -29,7 +29,8 @@ public class Renderer {
 			newView.parent = parent;
 		} else {
 			newView = ((ViewOn<?>) newViewable).generate(parent);
-			// Fluent.console.log("Just generated for newView=" + newView);
+			// Fluent.console.log("Just generated for newView=" + newView + "
+			// with dom=" + (parent.element != null));
 		}
 
 		if (oldView == null) {
@@ -88,10 +89,10 @@ public class Renderer {
 			if (oldView == null) { // default
 				parent.element.appendChild(newView.element);
 			} else {
-
-				Fluent.console.log("Replacing for new=" + newView.element.getTagName());
-				Fluent.console.log("and old=" + oldView.element);
-
+				// Fluent.console.log("Replacing for new=" +
+				// newView.element.getTagName());
+				// Fluent.console.log("and can not be null old=" +
+				// oldView.element);
 				parent.element.replaceChild(newView.element, oldView.element);
 			}
 		}
@@ -107,7 +108,8 @@ public class Renderer {
 		}
 
 		if (!equalsStringIgnoreCase(newView.tag, oldView.tag)) {
-			Fluent.console.log("!!tags differ! new=" + newView.tag + " old=" + oldView.tag);
+			// Fluent.console.log("tags differ new=" + newView.tag + " old="
+			// + oldView.tag);
 			create(parent, newView, oldView);
 			return;
 		}
@@ -116,7 +118,8 @@ public class Renderer {
 		if (parent.element != null) { // if we are dom-attached
 			newView.element = oldView.element;
 
-			// TODO testcare around this! and use innerText
+			// TODO: idea: why not put everything in Fluent, and then
+			// oldView.attr(newView.attr()); etc
 			if (!equalsString(newView.inner, oldView.inner)) {
 				newView.element.setInnerHTML(newView.inner);
 			}
@@ -125,7 +128,7 @@ public class Renderer {
 			compareApply(newView.element, newView.listeners, oldView.listeners, emptyListeners);
 		}
 
-		// TODO do not assume same sequence but use hashing
+		// TODO do not assume same sequence but use hashes
 		int nChilds = (newView.childs == null) ? 0 : newView.childs.size();
 		int oChilds = (oldView.childs == null) ? 0 : oldView.childs.size();
 		int max = Math.max(nChilds, oChilds);

@@ -7,6 +7,8 @@ import static live.connector.vertxui.client.test.Asserty.assertEquals;
 import static live.connector.vertxui.client.test.Asserty.assertTrue;
 
 import elemental.dom.Element;
+import elemental.dom.NamedNodeMap;
+import elemental.dom.Node;
 import elemental.dom.NodeList;
 import live.connector.vertxui.client.test.TestDOM;
 
@@ -26,8 +28,14 @@ public class AnotherTest extends TestDOM {
 	}
 
 	private void printStructure(Element element) {
-		console.log("<" + element.getNodeName() + "");
-		// TODO show attributes
+		console.log("<" + element.getNodeName());
+		NamedNodeMap attributes = element.getAttributes();
+		if (attributes != null) {
+			for (int x = 0; x < attributes.length(); x++) {
+				Node attr = attributes.item(x);
+				console.log(" " + attr.getNodeName() + "=" + attr.getNodeValue());
+			}
+		}
 		console.log(">");
 		if (element.getInnerHTML() != null) {
 			console.log(element.getInnerHTML());

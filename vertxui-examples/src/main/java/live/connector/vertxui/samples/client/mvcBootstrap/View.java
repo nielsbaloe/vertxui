@@ -96,6 +96,9 @@ public class View implements EntryPoint {
 
 		bills = content.add(null, bills -> {
 			if (bills == null) {
+				// Note that returning null means inefficient rendering of items
+				// in a list, because the order is lost if an element in the
+				// middle is suddenly gone.
 				return null;
 			}
 			Fluent result = Div();
@@ -119,7 +122,6 @@ public class View implements EntryPoint {
 	}
 
 	public void setNewBill(String name, String amount, String when) {
-		console.log("TODO");
 	}
 
 	public void menuHome(Event evt) {
@@ -128,6 +130,7 @@ public class View implements EntryPoint {
 		bills.hide();
 		grocery.hide();
 
+		// Note that old available data is already shown before any answer
 		Pojofy.ajax("GET", totalsUrl, null, null, totalsMap, this::setTotals);
 	}
 
@@ -137,8 +140,7 @@ public class View implements EntryPoint {
 		bills.unhide();
 		grocery.hide();
 
-		// Note that old available data is already shown to the client
-
+		// Note that old available data is already shown before any answer
 		Pojofy.ajax("GET", billsUrl, null, null, billsMap, this::setBills);
 	}
 
@@ -148,8 +150,7 @@ public class View implements EntryPoint {
 		bills.hide();
 		grocery.unhide();
 
-		// Note that old available data is already shown to the client
-
+		// Note that old available data is already shown before any answer
 		Pojofy.ajax("GET", groceryUrl, null, null, groceryMap, this::setGrocery);
 	}
 

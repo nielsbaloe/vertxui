@@ -69,7 +69,13 @@ public class ViewOn<A> implements Viewable {
 	}
 
 	public ViewOn<A> sync() {
-		Renderer.syncChild(parent, this, view);
+		// the 'if' below prevents throwing away inner viewOn's with a outer
+		// state. Because, if sync is called fromout fluent when adding inside a
+		// viewon, the attached dom is thrown away, which is not supposed to
+		// happen.
+		if (parent.element != null) {
+			Renderer.syncChild(parent, this, view);
+		}
 		return this;
 	}
 
