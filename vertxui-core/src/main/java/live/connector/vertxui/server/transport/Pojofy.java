@@ -1,6 +1,7 @@
 package live.connector.vertxui.server.transport;
 
 import java.lang.invoke.MethodHandles;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.logging.Logger;
 
@@ -42,6 +43,18 @@ public class Pojofy {
 				} else {
 					context.response().end(output);
 				}
+			});
+		};
+	}
+
+	/**
+	 * An ajax call handler for a void method.
+	 */
+	public static <A> Handler<RoutingContext> ajax(Class<A> inputType, BiConsumer<A, RoutingContext> handler) {
+		return context -> {
+			context.request().bodyHandler(body -> {
+				context.response().end();
+				handler.accept(in(inputType, body.toString()), context);
 			});
 		};
 	}
@@ -90,7 +103,7 @@ public class Pojofy {
 	public static String out(Object output) {
 		if (output == null) {
 			return null;
-		} else if (output instanceof java.lang.String) { // pass
+		} else if (output instanceof String) {
 			return (String) output;
 		} else {
 			return Json.encode(output);

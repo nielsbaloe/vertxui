@@ -15,6 +15,7 @@ import elemental.dom.Node;
 import elemental.events.Event;
 import elemental.events.EventListener;
 import elemental.html.Console;
+import elemental.html.InputElement;
 import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
@@ -59,12 +60,19 @@ public class Fluent implements Viewable {
 	}
 
 	private static native JsWindow getWindow() /*-{
-												return window;
+												return window.top;
 												}-*/;
 
 	private static native JsDocument getDocument() /*-{
-													return window.parent.document;
+													return window.top.document;
 														}-*/;
+
+	/**
+	 * In case of trouble, run native javascript
+	 */
+	public static native void natively(String text) /*-{
+													window.top.eval(text);
+													}-*/;
 
 	/**
 	 * If we are attached, this element exists, otherwise this is null (or we
@@ -285,6 +293,14 @@ public class Fluent implements Viewable {
 		return styles.get(name);
 	}
 
+	public Fluent att(Att name, String value, Att name2, String value2) {
+		return att(name, value).att(name2, value2);
+	}
+
+	public Fluent att(Att name, String value, Att name2, String value2, Att name3, String value3) {
+		return att(name, value).att(name2, value2).att(name3, value3);
+	}
+
 	/**
 	 * Set or remove (by value null) an attribute.
 	 * 
@@ -292,7 +308,7 @@ public class Fluent implements Viewable {
 	 * @param value
 	 * @return
 	 */
-	public Fluent attr(Att name, String value) {
+	public Fluent att(Att name, String value) {
 		if (name == null) { // ignoring the call
 			return this;
 		}
@@ -327,7 +343,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent id(String string) {
-		return attr(Att.id, string);
+		return att(Att.id, string);
 	}
 
 	public String classs() {
@@ -335,7 +351,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent classs(String string) {
-		return attr(Att.class_, string);
+		return att(Att.class_, string);
 	}
 
 	public String tag() {
@@ -438,28 +454,25 @@ public class Fluent implements Viewable {
 
 	public void disabled(boolean disabled) {
 		if (disabled) {
-			attr(Att.disable, "");
+			att(Att.disable, "");
 		} else {
-			attr(Att.disable, null);
+			att(Att.disable, null);
 		}
 	}
 
+	/**
+	 * Get the value of an input field.
+	 */
 	public String value() {
-		return valueGetter(element);
+		return ((InputElement) element).getValue();
 	}
 
+	/**
+	 * Set the value of an input field.
+	 */
 	public Fluent value(String value) {
-		valueSetter(element, value);
-		return this;
+		return att(Att.value, value);
 	}
-
-	private final native String valueGetter(Element element) /*-{
-																return element.value;
-																}-*/;
-
-	private final native void valueSetter(Element element, String value) /*-{
-																			element.value=value;
-																			}-*/;
 
 	// Constructor-tags:
 	// Constructor-tags:
@@ -473,15 +486,19 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent input(String classs, String inner, String type, String id) {
-		return input().classs(classs).inner(inner).attr(Att.type, type).id(id);
+		return input().classs(classs).inner(inner).att(Att.type, type).id(id);
 	}
 
 	public static Fluent Input() {
 		return new Fluent("INPUT", null);
 	}
 
+	public static Fluent Input(String classs, String inner, String type) {
+		return Input().classs(classs).inner(inner).att(Att.type, type);
+	}
+
 	public static Fluent Input(String classs, String inner, String type, String id) {
-		return Input().classs(classs).inner(inner).attr(Att.type, type).id(id);
+		return Input().classs(classs).inner(inner).att(Att.type, type).id(id);
 	}
 
 	public Fluent button() {
@@ -616,7 +633,7 @@ public class Fluent implements Viewable {
 
 	public Fluent img(String src) {
 		Fluent result = new Fluent("img", this);
-		result.attr(Att.src, src);
+		result.att(Att.src, src);
 		return result;
 	}
 
@@ -645,11 +662,11 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent a(String inner, String href) {
-		return new Fluent("A", this).attr(Att.href, href).inner(inner);
+		return new Fluent("A", this).att(Att.href, href).inner(inner);
 	}
 
 	public static Fluent A(String classs, String inner, String href) {
-		return new Fluent("A", null).attr(Att.href, href).classs(classs).inner(inner);
+		return new Fluent("A", null).att(Att.href, href).classs(classs).inner(inner);
 	}
 
 	public Fluent abbr() {
@@ -909,7 +926,15 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent option() {
-		return new Fluent("option", this);
+		return new Fluent("OPTION", this);
+	}
+
+	public static Fluent Option() {
+		return new Fluent("OPTION", null);
+	}
+
+	public static Fluent Option(String classs, String inner) {
+		return Option().classs(classs).inner(inner);
 	}
 
 	public Fluent output() {
@@ -978,6 +1003,7 @@ public class Fluent implements Viewable {
 	 * 
 	 * @return
 	 */
+	@Deprecated // use script[] inside your vertxui class
 	public Fluent scriptSync(String... jss) {
 		if (!GWT.isClient()) {
 			return this;
@@ -1004,7 +1030,7 @@ public class Fluent implements Viewable {
 	 */
 	public Fluent script(String... jss) {
 		for (String js : jss) {
-			new Fluent("script", this).attr(Att.type, "text/javascript").attr(Att.src, js);
+			new Fluent("script", this).att(Att.type, "text/javascript").att(Att.src, js);
 
 			// This works too, is async
 			// XMLHttpRequestSyc xhr = (XMLHttpRequestSyc)
@@ -1028,7 +1054,7 @@ public class Fluent implements Viewable {
 
 	public Fluent style(String... csss) {
 		for (String css : csss) {
-			new Fluent("link", this).attr(Att.rel, "stylesheet").attr(Att.href, css);
+			new Fluent("link", this).att(Att.rel, "stylesheet").att(Att.href, css);
 		}
 		return this;
 	}
@@ -1039,6 +1065,18 @@ public class Fluent implements Viewable {
 
 	public Fluent select() {
 		return new Fluent("SELECT", this);
+	}
+
+	public static Fluent Select() {
+		return new Fluent("SELECT", null);
+	}
+
+	public static Fluent Select(String classs) {
+		return Select().classs(classs);
+	}
+
+	public static Fluent Select(String classs, Fluent... fluents) {
+		return Select().classs(classs).add(fluents);
 	}
 
 	public Fluent small() {

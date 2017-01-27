@@ -19,7 +19,7 @@ public class Pojofy {
 			ObjectMapper<O> outMapper, BiConsumer<Integer, O> handler) {
 		XMLHttpRequest xhr = XMLHttpRequest.create();
 		xhr.setOnReadyStateChange(a -> {
-			if (xhr.getReadyState() != 4) {
+			if (xhr.getReadyState() != 4 || outMapper == null) {
 				return;
 			}
 			O result = null;
@@ -53,7 +53,7 @@ public class Pojofy {
 	protected static <I> String in(I model, ObjectMapper<I> inMapper) {
 		if (model == null) {
 			return null;
-		} else if (model instanceof String) {
+		} else if (model instanceof String || inMapper == null) {
 			return (String) model;
 		} else {
 			return inMapper.write(model);

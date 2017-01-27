@@ -142,7 +142,8 @@ public class Renderer {
 				oldChild = oldView.childs.get(x);
 			}
 			Fluent oldChildAsFluent = null;
-			if (oldChild instanceof Fluent) {
+			if (oldChild == null) {
+			} else if (oldChild instanceof Fluent) {
 				oldChildAsFluent = (Fluent) oldChild;
 			} else {
 				oldChildAsFluent = ((ViewOn<?>) oldChild).getView();

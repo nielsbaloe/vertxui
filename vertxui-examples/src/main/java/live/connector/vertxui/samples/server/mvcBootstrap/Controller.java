@@ -29,46 +29,59 @@ public class Controller extends AbstractVerticle {
 		Vertx.vertx().deployVerticle(MethodHandles.lookup().lookupClass().getName());
 	}
 
+	// Fake data
+	private Bills bills = new Bills();
+	private Grocery grocery = new Grocery();
+
 	@Override
 	public void start() {
 		// Initialize the router and a webserver with HTTP-compression
 		Router router = Router.router(vertx);
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
-		router.route(View.totalsUrl).handler(Pojofy.ajax(null, this::getTotals));
-		router.route(View.groceryUrl).handler(Pojofy.ajax(null, this::getGrocery));
-		router.route(View.billsUrl).handler(Pojofy.ajax(null, this::getBills));
+		router.get(View.totalsUrl).handler(Pojofy.ajax(null, this::getTotals));
+		router.get(View.groceryUrl).handler(Pojofy.ajax(null, this::getGrocery));
+		router.put(View.groceryUrl).handler(Pojofy.ajax(null, this::addGrocery));
+		router.get(View.billsUrl).handler(Pojofy.ajax(null, this::getBills));
+		router.put(View.billsUrl).handler(Pojofy.ajax(Bill.class, this::addBill));
 
 		AllExamplesServer.startWarAndServer(View.class, router, server);
+
+		// Fake data
+		bills.bills = new ArrayList<>();
+		for (int x = 0; x < 10; x++) {
+			Bill bill = new Bill(Name.Niels, 2300, new Date());
+			bills.bills.add(bill);
+		}
+		grocery.things = new ArrayList<>();
+		grocery.things.add("Chocolate milk");
+		grocery.things.add("Banana's");
 	}
 
-	public Totals getTotals(String empty, RoutingContext context) {
+	public Totals getTotals(String __, RoutingContext context) {
 		Totals result = new Totals();
 		result.totals = new HashMap<>();
-		result.totals.put(Bills.Name.Linda, 0.0);
-		result.totals.put(Bills.Name.Niels, 0.0);
+		result.totals.put(Name.Niels,
+				bills.bills.stream().mapToDouble(t -> t.who == Name.Niels ? t.amount : 0.0).sum());
+		result.totals.put(Name.Linda,
+				bills.bills.stream().mapToDouble(t -> t.who == Name.Linda ? t.amount : 0.0).sum());
 		return result;
 	}
 
-	public Grocery getGrocery(String empty, RoutingContext context) {
-		Grocery result = new Grocery();
-		result.things = new ArrayList<>();
-		result.things.add("Chocolate milk");
-		result.things.add("Banana's");
-		return result;
+	public Grocery getGrocery(String __, RoutingContext context) {
+		return grocery;
+	}
+
+	public void addGrocery(String text, RoutingContext context) {
+		grocery.things.add(text);
 	}
 
 	public Bills getBills(String empty, RoutingContext context) {
-		Bills result = new Bills();
-		result.bills = new ArrayList<>();
-		for (int x = 0; x < 10; x++) {
-			Bill bill = new Bill();
-			bill.who = Name.Niels;
-			bill.amount = 2000;
-			bill.date = new Date();
-			result.bills.add(bill);
-		}
-		return result;
+		return bills;
+	}
+
+	public void addBill(Bill bill, RoutingContext context) {
+		bills.bills.add(bill);
 	}
 
 }

@@ -1,7 +1,8 @@
-/27		- application mvcbootstrap: bills addable and grocery edible, http://www.w3schools.com/bootstrap
+/29		- application mvcbootstrap: bills addable and grocery edible, http://www.w3schools.com/bootstrap
 /31 	- TestJunit: add example with Mockito for Pojofy.ajax, may no TestDOM for duallanguage-tests
-/4febr	- application to do mvc.com
+/4febr	- application to do mvc.com - check elemento https://github.com/hal/elemento
 /8febr	- application for existing html-page
+/12 febr- application with http://purecss.io/start/
 /20febr	- application final target: webrtc + open source app for android ios windows like siberiancms.com
 /21febr	- finish FigWheely: fix name of compiled .js changes in GWT... + look at sourcefolder not classes
 /22febr	- finish Vertxui: relocate war->/build/war, try again instead of scriptsync to add js to index.html

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -170,7 +171,7 @@ public class VertxUI {
 		try {
 			String options = "-strict -XdisableUpdateCheck";
 			if (debug) {
-				options += " -draftCompile -optimize 0 -style DETAILED"; // -incremental 
+				options += " -draftCompile -optimize 0 -style DETAILED"; // -incremental
 			} else {
 				options += " -XnoclassMetadata -nodraftCompile -optimize 9 -noincremental";
 			}
@@ -217,11 +218,27 @@ public class VertxUI {
 		}
 
 		// Write the final index.html file
-		String html = "<!DOCTYPE html><head></head><body><script src='a/a.nocache.js?time=" + Math.random()
-				+ "'></script></body></html>";
+		StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head>");
+		Field scripts;
+		try {
+			scripts = classs.getDeclaredField("scripts");
+			if (scripts != null) {
+				for (String script : (String[]) scripts.get(null)) {
+					html.append("<script src='");
+					html.append(script);
+					html.append("'></script>");
+				}
+			}
+		} catch (NoSuchFieldException e) {
+			// is OK, does not exist
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not access static field scripts[]", e);
+		}
+		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
+
 		// Not using vertx filesystem() because there is no speed gain and is
 		// called by tests outside vertx
-		FileUtils.writeStringToFile(new File("war/index.html"), html);
+		FileUtils.writeStringToFile(new File("war/index.html"), html.toString());
 		// Vertx.currentContext().owner().fileSystem().writeFile(,
 		// Buffer.buffer(), a -> {
 		// if (a.failed()) {

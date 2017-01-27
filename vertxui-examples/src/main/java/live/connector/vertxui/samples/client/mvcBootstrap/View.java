@@ -1,17 +1,29 @@
 package live.connector.vertxui.samples.client.mvcBootstrap;
 
+import static live.connector.vertxui.client.fluent.Fluent.Button;
 import static live.connector.vertxui.client.fluent.Fluent.Div;
+import static live.connector.vertxui.client.fluent.Fluent.Form;
+import static live.connector.vertxui.client.fluent.Fluent.Input;
+import static live.connector.vertxui.client.fluent.Fluent.Label;
 import static live.connector.vertxui.client.fluent.Fluent.Li;
+import static live.connector.vertxui.client.fluent.Fluent.Option;
+import static live.connector.vertxui.client.fluent.Fluent.Select;
+import static live.connector.vertxui.client.fluent.Fluent.Span;
 import static live.connector.vertxui.client.fluent.Fluent.Td;
-import static live.connector.vertxui.client.fluent.Fluent.*;
+import static live.connector.vertxui.client.fluent.Fluent.Ul;
 import static live.connector.vertxui.client.fluent.Fluent.body;
 import static live.connector.vertxui.client.fluent.Fluent.head;
+
+import java.util.Date;
 
 import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.shared.DateTimeFormat;
 
 import elemental.events.Event;
+import elemental.events.UIEvent;
+import elemental.html.InputElement;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Style;
@@ -35,13 +47,16 @@ public class View implements EntryPoint {
 	public static String billsUrl = "/bills";
 	public static String groceryUrl = "/grocery";
 
+	public static String[] scripts = new String[] { "https://code.jquery.com/jquery-1.12.4.js",
+			"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js",
+			"https://code.jquery.com/ui/1.12.1/jquery-ui.js" };
+
 	public View() {
 		// Head
-		head.style("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css").scriptSync(
-				"https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js",
-				"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js");
-		head.meta().attr(Att.charset, "utf-8");
-		head.meta().attr(Att.name_, "viewport").attr(Att.content, "width=device-width, initial-scale=1");
+		head.style("https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css",
+				"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css");
+		head.meta().att(Att.charset, "utf-8");
+		head.meta().att(Att.name_, "viewport", Att.content, "width=device-width, initial-scale=1");
 
 		// Header
 		body.css(Style.maxWidth, "600px", Style.margin, "0 auto 0 auto");
@@ -73,22 +88,28 @@ public class View implements EntryPoint {
 		// a detached view on a bills form
 		billsForm = new ViewOn<Boolean>(false, opened -> {
 			if (opened == false) {
-				return Button("btn btn-success", "Add").attr(Att.type, "button").click(e -> {
+				return Button("btn btn-success", "Add").att(Att.type, "button").click(e -> {
 					billsForm.state(true);
+					Fluent.natively("$('#datepicker').datepicker();");
 				});
 			}
-			Fluent result = Form("form-inline");
+			Fluent result = Form();
 
-			Fluent name = Input("form-control", null, "text", "n");
-			Fluent amount = Input("form-control", null, "text", "a");
-			Fluent when = Input("form-control", null, "text", "w");
+			Fluent name = Select("form-control", Option(null, Name.Niels.name()), Option(null, Name.Linda.name()));
+			Fluent amount = Input("form-control", null, "number").att(Att.min, "0", Att.max, "2000", Att.value, "0");
+			Fluent when = Input("form-control", null, "text").id("datepicker");
 
-			result.div("form-group", Label(null, "Name ").attr(Att.for_, "n"), name);
-			result.div("form-group", Label(null, "Amount ").attr(Att.for_, "a"), amount);
-			result.div("form-group", Label(null, "When ").attr(Att.for_, "w"), when);
+			result.div("input-group", Span("input-group-addon", "Name"), name);
+			result.div("input-group", Span("input-group-addon", "Amount"), amount);
+			result.div("input-group date", Span("input-group-addon", "When"), when);
 
-			result.button("btn btn-success", "OK").attr(Att.type, "button").click(e -> {
-				setNewBill(name.value(), amount.value(), when.value());
+			result.button("btn btn-success", "OK").att(Att.type, "button").click(event -> {
+				try {
+					addBill(name.value(), amount.value(), when.value());
+				} catch (IllegalArgumentException e) {
+					Fluent.window.alert(e.getMessage());
+					return;
+				}
 				billsForm.state(false);
 			});
 			return result;
@@ -96,32 +117,64 @@ public class View implements EntryPoint {
 
 		bills = content.add(null, bills -> {
 			if (bills == null) {
-				// Note that returning null means inefficient rendering of items
-				// in a list, because the order is lost if an element in the
-				// middle is suddenly gone.
 				return null;
 			}
 			Fluent result = Div();
 			result.add(billsForm);
 			Fluent table = result.table("table table-condensed table-striped").tbody();
 			for (Bill bill : bills.bills) {
-				table.tr(Td(null, bill.who.name()), Td(null, bill.amount + ""), Td(null, bill.notes),
-						Td(null, bill.date.toString()));
+				table.tr(Td(null, bill.who.name()), Td(null, bill.amount + ""), Td(null, bill.date.toString()));
 			}
 			return result;
 		});
+
 		grocery = content.add(null, grocery -> {
 			if (grocery == null) {
 				return null;
 			}
-			return Ul().add(grocery.things.stream().map(s -> Li(null, s)));
+			Fluent result = Div();
+			result.form("form-inline").div("form-group", Label(null, "Name ").att(Att.for_, "n"),
+					Input("form-control", null, "text", "n").css(Style.width, "50%").keyup(event -> {
+						if (((UIEvent) event).getKeyCode() == 13) {
+							InputElement element = (InputElement) event.getTarget();
+							addGrocery(element.getValue());
+							element.setValue("");
+						}
+					}));
+
+			return result.ul().add(grocery.things.stream().map(s -> Li(null, s)));
 		});
 
 		// Init
 		menuHome(null);
 	}
 
-	public void setNewBill(String name, String amount, String when) {
+	// No DOM specific elements in callbacks from the GUI means easy junit
+	// testing
+	public void addGrocery(String text) {
+		grocery.state().things.add(text);
+		grocery.sync();
+
+		Pojofy.ajax("PUT", groceryUrl, text, null, null, null);
+	}
+
+	// No DOM specific elements in callbacks from the GUI means easy junit
+	// testing
+	public void addBill(String name, String amount, String when) {
+		Date date = null;
+		try {
+			date = DateTimeFormat.getFormat("MM/dd/yyyy").parse(when);
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException("This is not a valid date.", e);
+		}
+		// Create a new bill
+		Bill bill = new Bills.Bill(Name.valueOf(name), Integer.parseInt(amount), date);
+		// get the state, and add the bill
+		bills.state().bills.add(bill);
+		// ask the GUI to resync
+		bills.sync();
+
+		Pojofy.ajax("PUT", billsUrl, bill, billMap, null, null);
 	}
 
 	public void menuHome(Event evt) {
@@ -176,16 +229,21 @@ public class View implements EntryPoint {
 	public interface BillsMap extends ObjectMapper<Bills> {
 	}
 
+	public interface BillMap extends ObjectMapper<Bills.Bill> {
+	}
+
 	public static TotalsMap totalsMap = null;
 	public static GroceryMap groceryMap = null;
 	public static BillsMap billsMap = null;
+	public static BillMap billMap = null;
 
 	static {
-		// thanks to this construction, we can read the URL's in the View
+		// thanks to this construction, we can read the URL's in the servercode
 		if (GWT.isClient()) {
 			totalsMap = GWT.create(TotalsMap.class);
 			groceryMap = GWT.create(GroceryMap.class);
 			billsMap = GWT.create(BillsMap.class);
+			billMap = GWT.create(BillMap.class);
 		}
 	}
 

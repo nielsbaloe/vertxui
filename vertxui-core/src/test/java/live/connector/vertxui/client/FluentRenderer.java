@@ -82,21 +82,21 @@ public class FluentRenderer extends TestDOM {
 			Fluent result = Fluent.Div();
 			switch (s) {
 			case 0:
-				result.attr(Att.id, "id");
+				result.att(Att.id, "id");
 				break;
 			case 1:
-				result.attr(Att.id, "id");
-				result.attr(Att.accept, "accept");
+				result.att(Att.id, "id");
+				result.att(Att.accept, "accept");
 				break;
 			case 2:
-				result.attr(Att.alt, "alt");
+				result.att(Att.alt, "alt");
 				break;
 			case 3:
 				break;
 			case 4:
-				result.attr(Att.id, "id");
-				result.attr(Att.checked, "checked");
-				result.attr(Att.accept, "accept");
+				result.att(Att.id, "id");
+				result.att(Att.checked, "checked");
+				result.att(Att.accept, "accept");
 				break;
 			}
 			return result;

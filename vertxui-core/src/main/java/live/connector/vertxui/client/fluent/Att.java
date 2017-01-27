@@ -14,7 +14,7 @@ public enum Att {
 	dirnme, disable, download, draggable, dropzone, enctype, form, formaction, //
 	headers, height, accept, accesskey, action, align, alt, async, //
 	autocomplete, autofocus, autoplay, autosave, //
-	name_, for_, default_, class_, http_equiv, accept_charset, text;
+	name_, for_, default_, class_, http_equiv, accept_charset, text, dataProvide, dataRole;
 
 	public String nameValid() {
 		switch (this) {
@@ -30,6 +30,10 @@ public enum Att {
 			return "class";
 		case name_:// javascript: reserved keyword
 			return "name";
+		case dataProvide:
+			return "data-provide";
+		case dataRole:
+			return "data-role";
 		default:
 			return name();
 		}
@@ -49,6 +53,10 @@ public enum Att {
 			return class_;
 		case "name":// javascript: reserved keyword
 			return name_;
+		case "data-provide":
+			return dataProvide;
+		case "data-role":
+			return dataRole;
 		default:
 			return valueOf(name);
 		}
