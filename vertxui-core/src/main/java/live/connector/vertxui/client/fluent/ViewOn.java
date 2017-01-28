@@ -9,6 +9,7 @@ import java.util.function.Function;
 public class ViewOn<A> implements Viewable {
 	private A state;
 	private Function<A, Fluent> translate;
+
 	private Fluent view;
 	private Fluent parent;
 
@@ -91,6 +92,13 @@ public class ViewOn<A> implements Viewable {
 		}
 		result += "}";
 		return result;
+	}
+
+	public ViewOn<A> clone() {
+		if (view != null) {
+			throw new IllegalArgumentException("Can not clone if it is DOM-attached");
+		}
+		return new ViewOn<A>(state, translate);
 	}
 
 }

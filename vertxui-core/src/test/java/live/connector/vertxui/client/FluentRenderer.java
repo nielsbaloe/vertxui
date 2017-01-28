@@ -35,8 +35,6 @@ public class FluentRenderer extends TestDOM {
 	public void c(Event e) {
 	}
 
-	// TODO test deze listeners en de naam-omzetting ook in niet-debug, wellicht
-	// toch niet-debug en niet-html inbouwen...
 	private void listeners() {
 		// unable to test, this is a manual test
 		ViewOn<Integer> view = body.add(0, s -> {

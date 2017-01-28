@@ -118,8 +118,6 @@ public class Renderer {
 		if (parent.element != null) { // if we are dom-attached
 			newView.element = oldView.element;
 
-			// TODO: idea: why not put everything in Fluent, and then
-			// oldView.attr(newView.attr()); etc
 			if (!equalsString(newView.inner, oldView.inner)) {
 				newView.element.setInnerHTML(newView.inner);
 			}
@@ -128,7 +126,6 @@ public class Renderer {
 			compareApply(newView.element, newView.listeners, oldView.listeners, emptyListeners);
 		}
 
-		// TODO do not assume same sequence but use hashes
 		int nChilds = (newView.childs == null) ? 0 : newView.childs.size();
 		int oChilds = (oldView.childs == null) ? 0 : oldView.childs.size();
 		int max = Math.max(nChilds, oChilds);

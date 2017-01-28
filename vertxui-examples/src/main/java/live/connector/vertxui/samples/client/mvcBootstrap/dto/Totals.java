@@ -4,6 +4,6 @@ import java.util.Map;
 
 public class Totals {
 
-	public Map<Bills.Name, Double> totals;
+	public Map<Bills.Name, Double> all;
 
 }

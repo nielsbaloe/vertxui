@@ -59,11 +59,6 @@ public abstract class TestDOM implements EntryPoint {
 			jBrowser.get("file:///" + new File("war/index.html").getAbsolutePath());
 			String error = (String) jBrowser.executeScript("return window.asserty();");
 			if (error == null) {
-
-				// TODO hmm how to find console errors when loading .js files
-				// fails
-				// List<String> lastTest = JBrowserDriver.test();
-				// System.out.println(Arrays.toString(lastTest.toArray()));
 				return; // OK
 			}
 

@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -219,20 +218,16 @@ public class VertxUI {
 
 		// Write the final index.html file
 		StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head>");
-		Field scripts;
 		try {
-			scripts = classs.getDeclaredField("scripts");
-			if (scripts != null) {
-				for (String script : (String[]) scripts.get(null)) {
-					html.append("<script src='");
-					html.append(script);
-					html.append("'></script>");
-				}
+			for (String script : (String[]) classs.getDeclaredField("scripts").get(null)) {
+				html.append("<script src='");
+				html.append(script);
+				html.append("'></script>");
 			}
 		} catch (NoSuchFieldException e) {
 			// is OK, does not exist
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not access static field scripts[]", e);
+			throw new IllegalArgumentException("Could not access public static String scripts[]", e);
 		}
 		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
 

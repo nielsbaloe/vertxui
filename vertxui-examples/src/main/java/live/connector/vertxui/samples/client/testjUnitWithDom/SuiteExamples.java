@@ -8,5 +8,5 @@ import com.google.gwt.core.shared.GwtIncompatible;
 @GwtIncompatible
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ TestjUnitWithDom.class, AnotherTest.class })
-public class ExamplesSuite {
+public class SuiteExamples {
 }

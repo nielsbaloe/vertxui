@@ -5,9 +5,13 @@ import java.util.List;
 
 public class Bills {
 
-	public List<Bill> bills;
+	public List<Bill> all;
 
-	public static class Bill {
+	public static class Bill implements Comparable<Bill> {
+
+		public Name who;
+		public double amount;
+		public Date date;
 
 		public Bill() { // empty constructor for serialization
 		}
@@ -18,9 +22,11 @@ public class Bills {
 			this.date = date;
 		}
 
-		public Name who;
-		public double amount;
-		public Date date;
+		@Override
+		public int compareTo(Bill o) {
+			return o.date.compareTo(date);
+		}
+
 	}
 
 	public enum Name {

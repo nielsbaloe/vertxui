@@ -2,6 +2,7 @@ package live.connector.vertxui.samples.server.mvcBootstrap;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -48,10 +49,10 @@ public class Controller extends AbstractVerticle {
 		AllExamplesServer.startWarAndServer(View.class, router, server);
 
 		// Fake data
-		bills.bills = new ArrayList<>();
+		bills.all = new ArrayList<>();
 		for (int x = 0; x < 10; x++) {
 			Bill bill = new Bill(Name.Niels, 2300, new Date());
-			bills.bills.add(bill);
+			bills.all.add(bill);
 		}
 		grocery.things = new ArrayList<>();
 		grocery.things.add("Chocolate milk");
@@ -60,11 +61,9 @@ public class Controller extends AbstractVerticle {
 
 	public Totals getTotals(String __, RoutingContext context) {
 		Totals result = new Totals();
-		result.totals = new HashMap<>();
-		result.totals.put(Name.Niels,
-				bills.bills.stream().mapToDouble(t -> t.who == Name.Niels ? t.amount : 0.0).sum());
-		result.totals.put(Name.Linda,
-				bills.bills.stream().mapToDouble(t -> t.who == Name.Linda ? t.amount : 0.0).sum());
+		result.all = new HashMap<>();
+		result.all.put(Name.Niels, bills.all.stream().mapToDouble(t -> t.who == Name.Niels ? t.amount : 0.0).sum());
+		result.all.put(Name.Linda, bills.all.stream().mapToDouble(t -> t.who == Name.Linda ? t.amount : 0.0).sum());
 		return result;
 	}
 
@@ -77,11 +76,12 @@ public class Controller extends AbstractVerticle {
 	}
 
 	public Bills getBills(String empty, RoutingContext context) {
+		Collections.sort(bills.all);
 		return bills;
 	}
 
 	public void addBill(Bill bill, RoutingContext context) {
-		bills.bills.add(bill);
+		bills.all.add(bill);
 	}
 
 }

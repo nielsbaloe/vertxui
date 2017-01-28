@@ -1,12 +1,18 @@
-/29		- application mvcbootstrap: bills addable and grocery edible, http://www.w3schools.com/bootstrap
-/31 	- TestJunit: add example with Mockito for Pojofy.ajax, may no TestDOM for duallanguage-tests
-/4febr	- application to do mvc.com - check elemento https://github.com/hal/elemento
-/8febr	- application for existing html-page
-/12 febr- application with http://purecss.io/start/
-/20febr	- application final target: webrtc + open source app for android ios windows like siberiancms.com
-/21febr	- finish FigWheely: fix name of compiled .js changes in GWT... + look at sourcefolder not classes
-/22febr	- finish Vertxui: relocate war->/build/war, try again instead of scriptsync to add js to index.html
-/25febr	- finish cleanup: to do's, more test coverage
-/30febr	- publish: push to maven central + spread: info@nljug.org, vertx-awesome, vertx, GWT list and elsewhere
+- /29 mvcbootstrap: grocery deletable
+- /04 to do mvc.com - check elemento https://github.com/hal/elemento
+- /08 for existing html-page
+- /12 something with http://purecss.io/start/
+- /15 webrtc example with 'open source app for android ios windows' like siberiancms.com
+- /30: publish: push to maven + spread: info@nljug.org, vertx-awesome, vertx, GWT list, etc.
 
+OTHER TO DO's:
+!!!- test of stack-omzetting ook werkt niet niet-debug!
+!!!- FluentInnerRendering: write for all types, and also built for all a check whether the new value is different, otherwise don't take the new value.
+- change innerHtml to innerText
+- why not put Renderer in Fluent, and then oldView.attr(newView.attr()); etc
+- Renderer::renderChanges()::children : do not assume same sequence but use hashes
+- junit: add example with Mockito for Pojofy.ajax, maybe not a class TestDOM for easy duallanguage-tests
+- FigWheely: fix name of compiled .js changes in GWT... + look at sourcefolder not classes
+- relocate war->/build/war
+- more test coverage
 

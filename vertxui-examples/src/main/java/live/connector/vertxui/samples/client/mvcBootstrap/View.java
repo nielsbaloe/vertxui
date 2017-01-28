@@ -14,6 +14,7 @@ import static live.connector.vertxui.client.fluent.Fluent.Ul;
 import static live.connector.vertxui.client.fluent.Fluent.body;
 import static live.connector.vertxui.client.fluent.Fluent.head;
 
+import java.util.Collections;
 import java.util.Date;
 
 import com.github.nmorel.gwtjackson.client.ObjectMapper;
@@ -22,6 +23,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.shared.DateTimeFormat;
 
 import elemental.events.Event;
+import elemental.events.TextEvent;
 import elemental.events.UIEvent;
 import elemental.html.InputElement;
 import live.connector.vertxui.client.fluent.Att;
@@ -51,6 +53,8 @@ public class View implements EntryPoint {
 			"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js",
 			"https://code.jquery.com/ui/1.12.1/jquery-ui.js" };
 
+	private DateTimeFormat dater = DateTimeFormat.getFormat("dd/MM/yyyy");
+
 	public View() {
 		// Head
 		head.style("https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css",
@@ -79,8 +83,8 @@ public class View implements EntryPoint {
 				return null;
 			}
 			Fluent result = Div("row", Div("col-sm-3"));
-			result.div("col-sm-3", Name.Niels.name() + " ").span("badge", totals.totals.get(Name.Niels) + "");
-			result.div("col-sm-3", Name.Linda.name() + " ").span("badge", totals.totals.get(Name.Linda) + "");
+			result.div("col-sm-3", Name.Niels.name() + " ").span("badge", totals.all.get(Name.Niels) + "");
+			result.div("col-sm-3", Name.Linda.name() + " ").span("badge", totals.all.get(Name.Linda) + "");
 			result.div("col-sm-3");
 			return result;
 		});
@@ -90,18 +94,28 @@ public class View implements EntryPoint {
 			if (opened == false) {
 				return Button("btn btn-success", "Add").att(Att.type, "button").click(e -> {
 					billsForm.state(true);
-					Fluent.natively("$('#datepicker').datepicker();");
+					Fluent.eval("$('#datepicker').datepicker({ dateFormat:'dd/mm/yy'});");
 				});
 			}
 			Fluent result = Form();
 
 			Fluent name = Select("form-control", Option(null, Name.Niels.name()), Option(null, Name.Linda.name()));
-			Fluent amount = Input("form-control", null, "number").att(Att.min, "0", Att.max, "2000", Att.value, "0");
+			Fluent amount = Input("form-control", null, "number").att(Att.min, "0", Att.max, "2000", Att.value, "0")
+					.keypress(event -> {
+						event.stopPropagation();
+						int charCode = ((TextEvent) event).getCharCode();
+						if ((charCode >= 48 && charCode <= 57) || charCode == 0) {
+							return; // numeric or a not-a-character is OK
+						}
+						event.preventDefault();
+					});
 			Fluent when = Input("form-control", null, "text").id("datepicker");
 
-			result.div("input-group", Span("input-group-addon", "Name"), name);
-			result.div("input-group", Span("input-group-addon", "Amount"), amount);
-			result.div("input-group date", Span("input-group-addon", "When"), when);
+			Fluent span = Span("input-group-addon").css(Style.width, "100px");
+
+			result.div("input-group", span.clone().inner("Name"), name).css(Style.width, "80%");
+			result.div("input-group", span.clone().inner("Amount"), amount).css(Style.width, "80%");
+			result.div("input-group", span.clone().inner("When"), when).css(Style.width, "80%");
 
 			result.button("btn btn-success", "OK").att(Att.type, "button").click(event -> {
 				try {
@@ -122,8 +136,8 @@ public class View implements EntryPoint {
 			Fluent result = Div();
 			result.add(billsForm);
 			Fluent table = result.table("table table-condensed table-striped").tbody();
-			for (Bill bill : bills.bills) {
-				table.tr(Td(null, bill.who.name()), Td(null, bill.amount + ""), Td(null, bill.date.toString()));
+			for (Bill bill : bills.all) {
+				table.tr(Td(null, bill.who.name()), Td(null, bill.amount + ""), Td(null, dater.format(bill.date)));
 			}
 			return result;
 		});
@@ -163,16 +177,20 @@ public class View implements EntryPoint {
 	public void addBill(String name, String amount, String when) {
 		Date date = null;
 		try {
-			date = DateTimeFormat.getFormat("MM/dd/yyyy").parse(when);
+			date = dater.parse(when);
 		} catch (IllegalArgumentException e) {
 			throw new IllegalArgumentException("This is not a valid date.", e);
 		}
 		// Create a new bill
 		Bill bill = new Bills.Bill(Name.valueOf(name), Integer.parseInt(amount), date);
-		// get the state, and add the bill
-		bills.state().bills.add(bill);
-		// ask the GUI to resync
-		bills.sync();
+
+		// Get the state, add the bill, and sort
+		Bills dto = bills.state();
+		dto.all.add(bill);
+		Collections.sort(dto.all);
+
+		// set the new state (which resyncs too)
+		bills.state(dto);
 
 		Pojofy.ajax("PUT", billsUrl, bill, billMap, null, null);
 	}

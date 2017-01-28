@@ -10,9 +10,6 @@ public class FluentInnerRendering extends TestDOM {
 	@Override
 	public void tests() {
 		inner();
-
-		// TODO finish for all types, and also built a check whether the new
-		// value is different, otherwise don't take the new value.
 	}
 
 	private void inner() {

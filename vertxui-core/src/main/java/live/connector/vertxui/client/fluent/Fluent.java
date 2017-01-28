@@ -68,13 +68,6 @@ public class Fluent implements Viewable {
 														}-*/;
 
 	/**
-	 * In case of trouble, run native javascript
-	 */
-	public static native void natively(String text) /*-{
-													window.top.eval(text);
-													}-*/;
-
-	/**
 	 * If we are attached, this element exists, otherwise this is null (or we
 	 * must be synced).
 	 */
@@ -96,7 +89,7 @@ public class Fluent implements Viewable {
 	 * API call for normal HTML elements. Without a parent: detached.
 	 */
 	private Fluent(String tag, Fluent parent) {
-		this.tag = tag.toUpperCase(); // TODO uppercase all tags
+		this.tag = tag;
 		this.parent = parent;
 
 		// Update parent
@@ -140,7 +133,6 @@ public class Fluent implements Viewable {
 	 * Set the inner text (HTML) for this element. Set to null (or empty string)
 	 * to clear.
 	 */
-	// TODO move from innerHtml to innerText
 	public Fluent inner(String innerHtml) {
 		if (Renderer.equalsString(this.inner, innerHtml)) {
 			// console.log("Skipping, still " + innerHtml);
@@ -202,7 +194,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent load(EventListener listener) {
-		return listen("load", listener);
+		return listen("LOAD", listener);
 	}
 
 	public Fluent focus(EventListener listener) {
@@ -620,41 +612,41 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent col() {
-		return new Fluent("col", this);
+		return new Fluent("COL", this);
 	}
 
 	public Fluent embed() {
-		return new Fluent("embed", this);
+		return new Fluent("EMBED", this);
 	}
 
 	public Fluent hr() {
-		return new Fluent("hr", this);
+		return new Fluent("HR", this);
 	}
 
 	public Fluent img(String src) {
-		Fluent result = new Fluent("img", this);
+		Fluent result = new Fluent("IMG", this);
 		result.att(Att.src, src);
 		return result;
 	}
 
 	public Fluent keygen() {
-		return new Fluent("keygen", this);
+		return new Fluent("KEYGEN", this);
 	}
 
 	public Fluent meta() {
-		return new Fluent("meta", this);
+		return new Fluent("META", this);
 	}
 
 	public Fluent param() {
-		return new Fluent("param", this);
+		return new Fluent("PARAM", this);
 	}
 
 	public Fluent source() {
-		return new Fluent("source", this);
+		return new Fluent("SOURCE", this);
 	}
 
 	public Fluent track() {
-		return new Fluent("track", this);
+		return new Fluent("TRACK", this);
 	}
 
 	public Fluent wbr() {
@@ -674,15 +666,15 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent address() {
-		return new Fluent("address", this);
+		return new Fluent("ADDRESS", this);
 	}
 
 	public Fluent article() {
-		return new Fluent("article", this);
+		return new Fluent("ARTICLE", this);
 	}
 
 	public Fluent aside() {
-		return new Fluent("aside", this);
+		return new Fluent("ASIDE", this);
 	}
 
 	public Fluent audio() {
@@ -698,43 +690,43 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent bdo() {
-		return new Fluent("bdo", this);
+		return new Fluent("BDO", this);
 	}
 
 	public Fluent blockquote() {
-		return new Fluent("blockquote", this);
+		return new Fluent("BLOCKQUOTE", this);
 	}
 
 	public Fluent body() {
-		return new Fluent("body", this);
+		return new Fluent("BODY", this);
 	}
 
 	public Fluent canvas() {
-		return new Fluent("canvas", this);
+		return new Fluent("CANVAS", this);
 	}
 
 	public Fluent caption() {
-		return new Fluent("caption", this);
+		return new Fluent("CAPTION", this);
 	}
 
 	public Fluent cite() {
-		return new Fluent("cite", this);
+		return new Fluent("CITE", this);
 	}
 
 	public Fluent code() {
-		return new Fluent("code", this);
+		return new Fluent("CODE", this);
 	}
 
 	public Fluent colgroup() {
-		return new Fluent("colgroup", this);
+		return new Fluent("COLGROUP", this);
 	}
 
 	public Fluent datalist() {
-		return new Fluent("datalist", this);
+		return new Fluent("DATALIST", this);
 	}
 
 	public Fluent dd() {
-		return new Fluent("dd", this);
+		return new Fluent("DD", this);
 	}
 
 	public Fluent del() {
@@ -762,19 +754,19 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent em() {
-		return new Fluent("em", this);
+		return new Fluent("EM", this);
 	}
 
 	public Fluent fieldset() {
-		return new Fluent("fieldset", this);
+		return new Fluent("FIELDSET", this);
 	}
 
 	public Fluent figcaption() {
-		return new Fluent("figcaption", this);
+		return new Fluent("FIGCAPTION", this);
 	}
 
 	public Fluent figure() {
-		return new Fluent("figure", this);
+		return new Fluent("FIGURE", this);
 	}
 
 	public Fluent footer() {
@@ -818,35 +810,35 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent h4() {
-		return new Fluent("h4", this);
+		return new Fluent("H4", this);
 	}
 
 	public Fluent h5() {
-		return new Fluent("h5", this);
+		return new Fluent("H5", this);
 	}
 
 	public Fluent h6() {
-		return new Fluent("h6", this);
+		return new Fluent("H6", this);
 	}
 
 	public Fluent header() {
-		return new Fluent("header", this);
+		return new Fluent("HEADER", this);
 	}
 
 	public Fluent i() {
-		return new Fluent("i", this);
+		return new Fluent("I", this);
 	}
 
 	public Fluent iframe() {
-		return new Fluent("iframe", this);
+		return new Fluent("IFRAME", this);
 	}
 
 	public Fluent ins() {
-		return new Fluent("ins", this);
+		return new Fluent("INS", this);
 	}
 
 	public Fluent kbd() {
-		return new Fluent("kbd", this);
+		return new Fluent("KBD", this);
 	}
 
 	public Fluent label() {
@@ -878,31 +870,31 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent main() {
-		return new Fluent("main", this);
+		return new Fluent("MAIN", this);
 	}
 
 	public Fluent map() {
-		return new Fluent("map", this);
+		return new Fluent("MAP", this);
 	}
 
 	public Fluent mark() {
-		return new Fluent("mark", this);
+		return new Fluent("MARK", this);
 	}
 
 	public Fluent menu() {
-		return new Fluent("menu", this);
+		return new Fluent("MENU", this);
 	}
 
 	public Fluent menuitem() {
-		return new Fluent("menuitem", this);
+		return new Fluent("MENUITEM", this);
 	}
 
 	public Fluent meter() {
-		return new Fluent("meter", this);
+		return new Fluent("METER", this);
 	}
 
 	public Fluent nav() {
-		return new Fluent("nav", this);
+		return new Fluent("NAV", this);
 	}
 
 	public Fluent nav(String classs) {
@@ -910,19 +902,19 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent noscript() {
-		return new Fluent("noscript", this);
+		return new Fluent("NOSCRIPT", this);
 	}
 
 	public Fluent object() {
-		return new Fluent("object", this);
+		return new Fluent("OBJECT", this);
 	}
 
 	public Fluent ol() {
-		return new Fluent("ol", this);
+		return new Fluent("OL", this);
 	}
 
 	public Fluent optgroup() {
-		return new Fluent("optgroup", this);
+		return new Fluent("OPTGROUP", this);
 	}
 
 	public Fluent option() {
@@ -938,11 +930,11 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent output() {
-		return new Fluent("output", this);
+		return new Fluent("OUTPUT", this);
 	}
 
 	public Fluent p() {
-		return new Fluent("p", this);
+		return new Fluent("P", this);
 	}
 
 	public Fluent p(String classs, String text) {
@@ -954,7 +946,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent progress() {
-		return new Fluent("progress", this);
+		return new Fluent("PROGRESS", this);
 	}
 
 	public Fluent q() {
@@ -962,23 +954,23 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent rp() {
-		return new Fluent("rp", this);
+		return new Fluent("RP", this);
 	}
 
 	public Fluent rt() {
-		return new Fluent("rt", this);
+		return new Fluent("RT", this);
 	}
 
 	public Fluent ruby() {
-		return new Fluent("ruby", this);
+		return new Fluent("RUBY", this);
 	}
 
 	public Fluent s() {
-		return new Fluent("s", this);
+		return new Fluent("S", this);
 	}
 
 	public Fluent samp() {
-		return new Fluent("samp", this);
+		return new Fluent("SAMP", this);
 	}
 
 	private static class XMLHttpRequestSyc extends XMLHttpRequest {
@@ -990,7 +982,7 @@ public class Fluent implements Viewable {
 																						}-*/;
 	}
 
-	private native static void eval(String code) /*-{
+	public native static void eval(String code) /*-{
 													eval(code);
 													}-*/;
 
@@ -1003,7 +995,6 @@ public class Fluent implements Viewable {
 	 * 
 	 * @return
 	 */
-	@Deprecated // use script[] inside your vertxui class
 	public Fluent scriptSync(String... jss) {
 		if (!GWT.isClient()) {
 			return this;
@@ -1168,15 +1159,15 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent th() {
-		return new Fluent("th", this);
+		return new Fluent("TH", this);
 	}
 
 	public Fluent thead() {
-		return new Fluent("thead", this);
+		return new Fluent("THEAD", this);
 	}
 
 	public Fluent time() {
-		return new Fluent("time", this);
+		return new Fluent("TIME", this);
 	}
 
 	public Fluent title(String classs, String inner) {
@@ -1184,7 +1175,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent tr() {
-		return new Fluent("tr", this);
+		return new Fluent("TR", this);
 	}
 
 	public Fluent tr(Fluent... tds) {
@@ -1241,6 +1232,42 @@ public class Fluent implements Viewable {
 			throw new IllegalArgumentException(
 					"Calling this method has zero meaning inside your browser, reload the page in your browser for a clean start.");
 		}
+	}
+
+	public Fluent clone() {
+		if (parent != null || element != null) {
+			throw new IllegalArgumentException(
+					"You can only clone objects created with a static method (which start with a capital letter like Div or Span) and which are not DOM-connected yet.");
+		}
+		Fluent result = new Fluent(tag, null);
+		if (inner != null) {
+			result.inner(inner);
+		}
+		if (attrs != null) {
+			for (Att att : attrs.keySet()) {
+				result.att(att, attrs.get(att));
+			}
+		}
+		if (styles != null) {
+			for (Style name : styles.keySet()) {
+				result.css(name, styles.get(name));
+			}
+		}
+		if (listeners != null) {
+			for (String name : listeners.keySet()) {
+				result.listen(name, listeners.get(name));
+			}
+		}
+		if (childs != null) {
+			for (Viewable child : childs) {
+				if (child instanceof Fluent) {
+					result.add(((Fluent) child).clone());
+				} else {
+					result.add(((ViewOn<?>) child).clone());
+				}
+			}
+		}
+		return result;
 	}
 
 }

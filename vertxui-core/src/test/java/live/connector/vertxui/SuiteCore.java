@@ -9,5 +9,5 @@ import live.connector.vertxui.server.NamedStyleTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ FluentRenderer.class, NamedStyleTest.class, FluentInnerRendering.class })
-public class CoreSuite {
+public class SuiteCore {
 }
