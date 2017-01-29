@@ -23,8 +23,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.shared.DateTimeFormat;
 
 import elemental.events.Event;
-import elemental.events.TextEvent;
-import elemental.events.UIEvent;
+import elemental.events.KeyboardEvent;
 import elemental.html.InputElement;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
@@ -94,7 +93,7 @@ public class View implements EntryPoint {
 			if (opened == false) {
 				return Button("btn btn-success", "Add").att(Att.type, "button").click(e -> {
 					billsForm.state(true);
-					Fluent.eval("$('#datepicker').datepicker({ dateFormat:'dd/mm/yy'});");
+					Fluent.eval("window.top.$('#datepicker').datepicker({ dateFormat:'dd/mm/yy'});");
 				});
 			}
 			Fluent result = Form();
@@ -102,20 +101,19 @@ public class View implements EntryPoint {
 			Fluent name = Select("form-control", Option(null, Name.Niels.name()), Option(null, Name.Linda.name()));
 			Fluent amount = Input("form-control", null, "number").att(Att.min, "0", Att.max, "2000", Att.value, "0")
 					.keypress(event -> {
-						event.stopPropagation();
-						int charCode = ((TextEvent) event).getCharCode();
-						if ((charCode >= 48 && charCode <= 57) || charCode == 0) {
+						int code = event.getCharCode();
+						if ((code >= 48 && code <= 57) || code == 0) {
 							return; // numeric or a not-a-character is OK
 						}
 						event.preventDefault();
 					});
 			Fluent when = Input("form-control", null, "text").id("datepicker");
 
-			Fluent span = Span("input-group-addon").css(Style.width, "100px");
+			Fluent text = Span("input-group-addon").css(Style.width, "100px");
 
-			result.div("input-group", span.clone().inner("Name"), name).css(Style.width, "80%");
-			result.div("input-group", span.clone().inner("Amount"), amount).css(Style.width, "80%");
-			result.div("input-group", span.clone().inner("When"), when).css(Style.width, "80%");
+			result.div("input-group", text.clone().in("Name"), name).css(Style.width, "80%");
+			result.div("input-group", text.clone().in("Amount"), amount).css(Style.width, "80%");
+			result.div("input-group", text.clone().in("When"), when).css(Style.width, "80%");
 
 			result.button("btn btn-success", "OK").att(Att.type, "button").click(event -> {
 				try {
@@ -142,21 +140,20 @@ public class View implements EntryPoint {
 			return result;
 		});
 
-		grocery = content.add(null, grocery -> {
-			if (grocery == null) {
+		grocery = content.add(null, dto -> {
+			if (dto == null) {
 				return null;
 			}
 			Fluent result = Div();
 			result.form("form-inline").div("form-group", Label(null, "Name ").att(Att.for_, "n"),
 					Input("form-control", null, "text", "n").css(Style.width, "50%").keyup(event -> {
-						if (((UIEvent) event).getKeyCode() == 13) {
+						if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
 							InputElement element = (InputElement) event.getTarget();
 							addGrocery(element.getValue());
 							element.setValue("");
 						}
 					}));
-
-			return result.ul().add(grocery.things.stream().map(s -> Li(null, s)));
+			return result.ul(dto.all.stream().map(s -> Li(null, s)));
 		});
 
 		// Init
@@ -166,7 +163,7 @@ public class View implements EntryPoint {
 	// No DOM specific elements in callbacks from the GUI means easy junit
 	// testing
 	public void addGrocery(String text) {
-		grocery.state().things.add(text);
+		grocery.state().all.add(text);
 		grocery.sync();
 
 		Pojofy.ajax("PUT", groceryUrl, text, null, null, null);

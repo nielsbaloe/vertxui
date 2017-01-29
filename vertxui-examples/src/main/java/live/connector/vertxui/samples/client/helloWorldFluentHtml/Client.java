@@ -23,8 +23,7 @@ public class Client implements EntryPoint {
 	public Client() {
 		button = body.div().button(null, "Click me!").id("hello-button").click(this::clicked);
 		response = body.div();
-		thinking = body.div().inner("The server waits as demonstration!").id("thinking-panel").css(Style.display,
-				"none");
+		thinking = body.div().in("The server waits as demonstration!").id("thinking-panel").css(Style.display, "none");
 	}
 
 	// It is advisable to write callbacks into methods, so you can easily write
@@ -34,13 +33,13 @@ public class Client implements EntryPoint {
 		thinking.css(Style.display, "");
 		Pojofy.ajax("POST", url, null, null, null, this::responsed);
 	}
-
+	
 	// It is advisable to write callbacks into methods, so you can easily write
 	// jUnit tests.
 	private void responsed(int responseCode, String text) {
 		button.disabled(false);
 
-		response.div().inner(text);
+		response.div().in(text);
 		thinking.css(Style.display, "none");
 
 		// extra: POJO example

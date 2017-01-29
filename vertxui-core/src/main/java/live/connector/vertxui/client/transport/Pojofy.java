@@ -19,7 +19,7 @@ public class Pojofy {
 			ObjectMapper<O> outMapper, BiConsumer<Integer, O> handler) {
 		XMLHttpRequest xhr = XMLHttpRequest.create();
 		xhr.setOnReadyStateChange(a -> {
-			if (xhr.getReadyState() != 4 || outMapper == null) {
+			if (handler == null || xhr.getReadyState() != 4) {
 				return;
 			}
 			O result = null;

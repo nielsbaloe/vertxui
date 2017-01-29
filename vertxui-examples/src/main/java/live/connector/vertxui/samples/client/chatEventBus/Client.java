@@ -6,7 +6,7 @@ import static live.connector.vertxui.client.fluent.Fluent.window;
 
 import com.google.gwt.core.client.EntryPoint;
 
-import elemental.events.UIEvent;
+import elemental.events.KeyboardEvent;
 import elemental.json.Json;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.EventBus;
@@ -43,8 +43,8 @@ public class Client implements EntryPoint {
 					a -> console.log("Received pojo: " + a.color));
 		});
 
-		input.keydown(evt -> {
-			if (((UIEvent) evt).getKeyCode() == 13) {
+		input.keydown(event -> {
+			if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
 				eventBus.publish(freeway, name + ": " + input.value(), null);
 				input.value(""); // clear the inputfield
 
@@ -55,6 +55,7 @@ public class Client implements EntryPoint {
 		});
 	}
 
+	
 	@Override
 	public void onModuleLoad() {
 	}

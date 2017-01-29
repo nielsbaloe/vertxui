@@ -40,7 +40,7 @@ public class AllExamplesServer {
 		router.get(Client.figLocation).handler(FigWheely.create());
 
 		// All examples: the main compiled js
-		router.get("/*").handler(VertxUI.with(classs, "/"));
+		router.get("/*").handler(VertxUI.with(classs, "/", true));
 
 		// A fancy 404
 		// .failureHandler(fail -> {

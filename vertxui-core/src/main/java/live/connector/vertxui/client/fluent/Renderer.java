@@ -228,34 +228,39 @@ public class Renderer {
 	}
 
 	private static <V> boolean compareApplyValueEquals(V oldValue, V newValue) {
-		if (oldValue instanceof EventListener) { // listeners
-			// GWT: same method refs should not be replaced
-
-			// live.connector.vertxui.client.FluentRenderer$1methodref$b$Type@1
-			// live.connector.vertxui.client.FluentRenderer$2methodref$b$Type@2
-			String sNew = newValue.toString();
-			String sOld = oldValue.toString();
-			int dNew = sNew.indexOf("$");
-			int dOld = sOld.indexOf("$");
-			// if class (untill the first dollar) mathes)
-			if (dNew != -1 && dOld == dNew && sNew.substring(0, dNew).equals(sOld.substring(0, dOld))) {
-				int aNew = sNew.indexOf("methodref$");
-				int aOld = sOld.indexOf("methodref$");
-				// if they both contain 'methodref$'
-				if (aNew != -1 && aNew == aOld) {
-					int bNew = sNew.indexOf("$", aNew + 10);
-					int bOld = sOld.indexOf("$", aOld + 10);
-					// if dollar after 'methodref$' exists and equals
-					if (bNew != -1 && bNew == bOld && sNew.substring(aNew, bNew).equals(sOld.substring(aOld, bOld))) {
-						// Fluent.console.log("** same for "+sNew+" "+sOld);
-						return true;
-					}
-				}
-			}
-			return sNew.equals(sOld);
-		} else {
-			return oldValue.equals(newValue);
-		}
+		// if (oldValue instanceof EventListener) { // listeners
+		// // This makes sure that references to the same static Class+Method
+		// // should not be replaced. However, we can not detect that because
+		// // it GWT is release, the functionnames get erased, so this code
+		// // only works in debug mode...
+		//
+		// // live.connector.vertxui.client.FluentRenderer$1methodref$b$Type@1
+		// // live.connector.vertxui.client.FluentRenderer$2methodref$b$Type@2
+		// String sNew = newValue.toString();
+		// String sOld = oldValue.toString();
+		// int dNew = sNew.indexOf("$");
+		// int dOld = sOld.indexOf("$");
+		// // if class (untill the first dollar) mathes)
+		// if (dNew != -1 && dOld == dNew && sNew.substring(0,
+		// dNew).equals(sOld.substring(0, dOld))) {
+		// int aNew = sNew.indexOf("methodref$");
+		// int aOld = sOld.indexOf("methodref$");
+		// // if they both contain 'methodref$'
+		// if (aNew != -1 && aNew == aOld) {
+		// int bNew = sNew.indexOf("$", aNew + 10);
+		// int bOld = sOld.indexOf("$", aOld + 10);
+		// // if dollar after 'methodref$' exists and equals
+		// if (bNew != -1 && bNew == bOld && sNew.substring(aNew,
+		// bNew).equals(sOld.substring(aOld, bOld))) {
+		// // Fluent.console.log("** same for "+sNew+" "+sOld);
+		// return true;
+		// }
+		// }
+		// }
+		// return sNew.equals(sOld);
+		// } else {
+		return oldValue.equals(newValue);
+		// }
 	}
 
 	private static <T, V> void compareApplyRemove(Element element, T name, V value) {

@@ -54,9 +54,9 @@ public class Controller extends AbstractVerticle {
 			Bill bill = new Bill(Name.Niels, 2300, new Date());
 			bills.all.add(bill);
 		}
-		grocery.things = new ArrayList<>();
-		grocery.things.add("Chocolate milk");
-		grocery.things.add("Banana's");
+		grocery.all = new ArrayList<>();
+		grocery.all.add("Chocolate milk");
+		grocery.all.add("Banana's");
 	}
 
 	public Totals getTotals(String __, RoutingContext context) {
@@ -72,7 +72,7 @@ public class Controller extends AbstractVerticle {
 	}
 
 	public void addGrocery(String text, RoutingContext context) {
-		grocery.things.add(text);
+		grocery.all.add(text);
 	}
 
 	public Bills getBills(String empty, RoutingContext context) {

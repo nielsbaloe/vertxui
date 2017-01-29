@@ -61,14 +61,14 @@ public class TestjUnitWithoutDom {
 		v.menuBills(null);
 		List<Fluent> b = VirtualDomSearch.getElementsByClassName("active", Fluent.body);
 		assertEquals(b.size(), 1);
-		assertTrue(((Fluent) b.get(0).getChildren().get(0)).inner().equals("Bills"));
+		assertTrue(((Fluent) b.get(0).getChildren().get(0)).in().equals("Bills"));
 	}
 
 	@Test
 	public void nonBodyTest() {
 		Fluent root = Fluent.Div();
 		root.h1(null, "blabla");
-		root.ul("aClass", Fluent.Li().inner("bladiebla"), Fluent.Li().inner("pooo"));
+		root.ul("aClass", Fluent.Li().in("bladiebla"), Fluent.Li().in("pooo"));
 
 		assertEquals(1, VirtualDomSearch.getElementsByClassName("aClass", root).size());
 		assertEquals(2, VirtualDomSearch.getElementsByTagName("LI", root).size());

@@ -3,6 +3,7 @@ package live.connector.vertxui.client.fluent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -14,6 +15,9 @@ import elemental.dom.Element;
 import elemental.dom.Node;
 import elemental.events.Event;
 import elemental.events.EventListener;
+import elemental.events.KeyboardEvent;
+import elemental.events.MouseEvent;
+import elemental.events.UIEvent;
 import elemental.html.Console;
 import elemental.html.InputElement;
 import elemental.html.Window;
@@ -133,7 +137,7 @@ public class Fluent implements Viewable {
 	 * Set the inner text (HTML) for this element. Set to null (or empty string)
 	 * to clear.
 	 */
-	public Fluent inner(String innerHtml) {
+	public Fluent in(String innerHtml) {
 		if (Renderer.equalsString(this.inner, innerHtml)) {
 			// console.log("Skipping, still " + innerHtml);
 			return this;
@@ -150,7 +154,7 @@ public class Fluent implements Viewable {
 	 * Gives the inner html that has been set; note that the real DOM inner HTML
 	 * is "" if you set it to null or when no value is given anymore.
 	 */
-	public String inner() {
+	public String in() {
 		return this.inner;
 	}
 
@@ -185,12 +189,18 @@ public class Fluent implements Viewable {
 		return listeners.get(event);
 	}
 
-	public Fluent keyup(EventListener listener) {
-		return listen(Event.KEYUP, listener);
+	public Fluent keyup(Consumer<KeyboardEvent> listener) {
+		return listen(Event.KEYUP, evt -> {
+			evt.stopPropagation();
+			listener.accept((KeyboardEvent) evt);
+		});
 	}
 
-	public Fluent click(EventListener listener) {
-		return listen(Event.CLICK, listener);
+	public Fluent click(Consumer<MouseEvent> listener) {
+		return listen(Event.CLICK, evt -> {
+			evt.stopPropagation();
+			listener.accept((MouseEvent) evt);
+		});
 	}
 
 	public Fluent load(EventListener listener) {
@@ -201,48 +211,81 @@ public class Fluent implements Viewable {
 		return listen(Event.FOCUS, listener);
 	}
 
-	public Fluent blur(EventListener listener) {
-		return listen(Event.BLUR, listener);
+	public Fluent blur(Consumer<UIEvent> listener) {
+		return listen(Event.BLUR, evt -> {
+			evt.stopPropagation();
+			listener.accept((UIEvent) evt);
+		});
 	}
 
-	public Fluent keydown(EventListener listener) {
-		return listen(Event.KEYDOWN, listener);
+	public Fluent keydown(Consumer<KeyboardEvent> listener) {
+		return listen(Event.KEYDOWN, evt -> {
+			evt.stopPropagation();
+			listener.accept((KeyboardEvent) evt);
+		});
 	}
 
-	public Fluent keypress(EventListener listener) {
-		return listen(Event.KEYPRESS, listener);
+	public Fluent keypress(Consumer<KeyboardEvent> listener) {
+		return listen(Event.KEYPRESS, evt -> {
+			evt.stopPropagation();
+			listener.accept((KeyboardEvent) evt);
+		});
 	}
 
-	public Fluent dblclick(EventListener listener) {
-		return listen(Event.DBLCLICK, listener);
+	public Fluent dblclick(Consumer<MouseEvent> listener) {
+		return listen(Event.DBLCLICK, evt -> {
+			evt.stopPropagation();
+			listener.accept((MouseEvent) evt);
+		});
 	}
 
-	public Fluent mousedown(EventListener listener) {
-		return listen(Event.MOUSEDOWN, listener);
+	public Fluent mousedown(Consumer<MouseEvent> listener) {
+		return listen(Event.MOUSEDOWN, evt -> {
+			evt.stopPropagation();
+			listener.accept((MouseEvent) evt);
+		});
 	}
 
-	public Fluent mouseup(EventListener listener) {
-		return listen(Event.MOUSEUP, listener);
+	public Fluent mouseup(Consumer<MouseEvent> listener) {
+		return listen(Event.MOUSEUP, evt -> {
+			evt.stopPropagation();
+			listener.accept((MouseEvent) evt);
+		});
 	}
 
-	public Fluent mouseover(EventListener listener) {
-		return listen(Event.MOUSEOVER, listener);
+	public Fluent mouseover(Consumer<MouseEvent> listener) {
+		return listen(Event.MOUSEOVER, evt -> {
+			evt.stopPropagation();
+			listener.accept((MouseEvent) evt);
+		});
 	}
 
-	public Fluent mouseenter(EventListener listener) {
-		return listen("mouseenter", listener);
+	public Fluent mouseenter(Consumer<MouseEvent> listener) {
+		return listen("mouseenter", evt -> {
+			evt.stopPropagation();
+			listener.accept((MouseEvent) evt);
+		});
 	}
 
-	public Fluent mouseleave(EventListener listener) {
-		return listen("mouseleave", listener);
+	public Fluent mouseleave(Consumer<MouseEvent> listener) {
+		return listen("mouseleave", evt -> {
+			evt.stopPropagation();
+			listener.accept((MouseEvent) evt);
+		});
 	}
 
-	public Fluent mousemove(EventListener listener) {
-		return listen(Event.MOUSEMOVE, listener);
+	public Fluent mousemove(Consumer<MouseEvent> listener) {
+		return listen(Event.MOUSEMOVE, evt -> {
+			evt.stopPropagation();
+			listener.accept((MouseEvent) evt);
+		});
 	}
 
-	public Fluent mouseout(EventListener listener) {
-		return listen(Event.MOUSEOUT, listener);
+	public Fluent mouseout(Consumer<MouseEvent> listener) {
+		return listen(Event.MOUSEOUT, evt -> {
+			evt.stopPropagation();
+			listener.accept((MouseEvent) evt);
+		});
 	}
 
 	public Fluent css(Style name, String value, Style name2, String value2) {
@@ -463,7 +506,8 @@ public class Fluent implements Viewable {
 	 * Set the value of an input field.
 	 */
 	public Fluent value(String value) {
-		return att(Att.value, value);
+		((InputElement) element).setValue("");
+		return this;
 	}
 
 	// Constructor-tags:
@@ -478,7 +522,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent input(String classs, String inner, String type, String id) {
-		return input().classs(classs).inner(inner).att(Att.type, type).id(id);
+		return input().classs(classs).in(inner).att(Att.type, type).id(id);
 	}
 
 	public static Fluent Input() {
@@ -486,11 +530,11 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Input(String classs, String inner, String type) {
-		return Input().classs(classs).inner(inner).att(Att.type, type);
+		return Input().classs(classs).in(inner).att(Att.type, type);
 	}
 
 	public static Fluent Input(String classs, String inner, String type, String id) {
-		return Input().classs(classs).inner(inner).att(Att.type, type).id(id);
+		return Input().classs(classs).in(inner).att(Att.type, type).id(id);
 	}
 
 	public Fluent button() {
@@ -502,7 +546,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent button(String classs, String text) {
-		return button().classs(classs).inner(text);
+		return button().classs(classs).in(text);
 	}
 
 	public static Fluent Button() {
@@ -514,7 +558,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Button(String classs, String text) {
-		return Button().classs(classs).inner(text);
+		return Button().classs(classs).in(text);
 	}
 
 	public Fluent li() {
@@ -526,7 +570,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent li(String classs, String text) {
-		return li(classs).inner(text);
+		return li(classs).in(text);
 	}
 
 	public static Fluent Li() {
@@ -538,7 +582,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Li(String classs, String inner) {
-		return Li(classs).inner(inner);
+		return Li(classs).in(inner);
 	}
 
 	public Fluent div() {
@@ -550,7 +594,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent div(String classs, String inner) {
-		return div(classs).inner(inner);
+		return div(classs).in(inner);
 	}
 
 	public Fluent div(Fluent... list) {
@@ -562,7 +606,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent div(String classs, String inner, Fluent... adds) {
-		return div(classs).inner(inner).add(adds);
+		return div(classs).in(inner).add(adds);
 	}
 
 	public Fluent div(String classs, Stream<Fluent> stream) {
@@ -582,7 +626,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Div(String classs, String inner) {
-		return Div().classs(classs).inner(inner);
+		return Div().classs(classs).in(inner);
 	}
 
 	public static Fluent Div(Fluent... list) {
@@ -654,11 +698,11 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent a(String inner, String href) {
-		return new Fluent("A", this).att(Att.href, href).inner(inner);
+		return new Fluent("A", this).att(Att.href, href).in(inner);
 	}
 
 	public static Fluent A(String classs, String inner, String href) {
-		return new Fluent("A", null).att(Att.href, href).classs(classs).inner(inner);
+		return new Fluent("A", null).att(Att.href, href).classs(classs).in(inner);
 	}
 
 	public Fluent abbr() {
@@ -794,11 +838,11 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent h1(String classs, String text) {
-		return h1().classs(classs).inner(text);
+		return h1().classs(classs).in(text);
 	}
 
 	public static Fluent H1(String classs, String text) {
-		return new Fluent("H1", null).classs(classs).inner(text);
+		return new Fluent("H1", null).classs(classs).in(text);
 	}
 
 	public Fluent h2() {
@@ -850,7 +894,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent label(String classs, String inner) {
-		return label().classs(classs).inner(inner);
+		return label().classs(classs).in(inner);
 	}
 
 	public static Fluent Label() {
@@ -862,7 +906,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Label(String classs, String inner) {
-		return Label().classs(classs).inner(inner);
+		return Label().classs(classs).in(inner);
 	}
 
 	public Fluent legend() {
@@ -926,7 +970,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Option(String classs, String inner) {
-		return Option().classs(classs).inner(inner);
+		return Option().classs(classs).in(inner);
 	}
 
 	public Fluent output() {
@@ -938,11 +982,11 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent p(String classs, String text) {
-		return p().classs(classs).inner(text);
+		return p().classs(classs).in(text);
 	}
 
 	public Fluent pre(String classs, String text) {
-		return new Fluent("PRE", this).classs(classs).inner(text);
+		return new Fluent("PRE", this).classs(classs).in(text);
 	}
 
 	public Fluent progress() {
@@ -1083,7 +1127,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent span(String classs, String inner) {
-		return span().classs(classs).inner(inner);
+		return span().classs(classs).in(inner);
 	}
 
 	public static Fluent Span() {
@@ -1095,7 +1139,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Span(String classs, String inner) {
-		return Span().classs(classs).inner(inner);
+		return Span().classs(classs).in(inner);
 	}
 
 	public Fluent strong() {
@@ -1139,7 +1183,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent td(String classs, String inner) {
-		return td().classs(classs).inner(inner);
+		return td().classs(classs).in(inner);
 	}
 
 	public static Fluent Td() {
@@ -1147,7 +1191,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Td(String classs, String inner) {
-		return Td().classs(classs).inner(inner);
+		return Td().classs(classs).in(inner);
 	}
 
 	public Fluent textarea() {
@@ -1171,7 +1215,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent title(String classs, String inner) {
-		return new Fluent("TITLE", this).classs(classs).inner(inner);
+		return new Fluent("TITLE", this).classs(classs).in(inner);
 	}
 
 	public Fluent tr() {
@@ -1196,6 +1240,14 @@ public class Fluent implements Viewable {
 
 	public Fluent ul(String classs, Fluent... items) {
 		return ul(classs).add(items);
+	}
+
+	public Fluent ul(Fluent... items) {
+		return ul().add(items);
+	}
+
+	public Fluent ul(Stream<Fluent> stream) {
+		return ul().add(stream);
 	}
 
 	public static Fluent Ul() {
@@ -1241,7 +1293,7 @@ public class Fluent implements Viewable {
 		}
 		Fluent result = new Fluent(tag, null);
 		if (inner != null) {
-			result.inner(inner);
+			result.in(inner);
 		}
 		if (attrs != null) {
 			for (Att att : attrs.keySet()) {

@@ -63,9 +63,9 @@ public class FluentRenderer extends TestDOM {
 
 		// console.log("should replace click");
 		view.state(1);
-		// console.log("should add focus");
+		// console.log("2. should add focus and keep click");
 		view.state(2);
-		// console.log("should remove click and focus");
+		// console.log("3. should remove click and focus");
 		view.state(3);
 		// console.log("should add click focus and dblclick");
 		view.state(4);

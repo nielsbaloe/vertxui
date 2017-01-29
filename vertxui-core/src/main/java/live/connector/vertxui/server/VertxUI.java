@@ -61,10 +61,11 @@ public class VertxUI {
 	 * If figwheely is started or if the URL is null, debugging is set to true.
 	 * 
 	 */
-	private VertxUI(Class<?> classs, String url) {
+	private VertxUI(Class<?> classs, String url, boolean debug) {
 		this.classs = classs;
-		if (FigWheely.started || url == null) {
-			debug = true;
+		this.debug = debug;
+		if (FigWheely.started) {
+			this.debug = true;
 		}
 
 		if (FigWheely.started) {
@@ -105,7 +106,7 @@ public class VertxUI {
 	 * java to javascript. Give url:null for compiling only.
 	 * 
 	 */
-	public static Handler<RoutingContext> with(Class<?> classs, String url) {
+	public static Handler<RoutingContext> with(Class<?> classs, String url, boolean debug) {
 
 		// If no sourceLocation, then we are in production so we don't do
 		// anything at all.
@@ -119,7 +120,7 @@ public class VertxUI {
 		if (folderSourceMain == null) {
 			throw new IllegalArgumentException("Please define your sourcefolder location at Vertxui.folderSourceMain");
 		}
-		new VertxUI(classs, url);
+		new VertxUI(classs, url, debug);
 		if (url != null) {
 			return StaticHandler.create("war").setCachingEnabled(false);
 		} else {

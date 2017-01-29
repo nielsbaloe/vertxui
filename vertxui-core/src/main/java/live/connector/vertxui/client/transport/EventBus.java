@@ -107,7 +107,8 @@ public class EventBus extends JavaScriptObject {
 			if (error != null) {
 				throw new IllegalArgumentException(error.asString());
 			}
-			handler.accept(Pojofy.out(m.get("body"), outMapper));
+			O output = Pojofy.out(m.get("body"), outMapper);
+			handler.accept(output);
 		});
 	}
 

@@ -4,6 +4,6 @@ import java.util.List;
 
 public class Grocery {
 
-	public List<String> things;
+	public List<String> all;
 
 }

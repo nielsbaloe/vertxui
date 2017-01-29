@@ -19,7 +19,7 @@ public class AnotherTest extends TestDOM {
 
 		String id = "id" + Math.random();
 		String inner = "bladiebla" + Math.random();
-		body.div().inner(inner).id(id).classs("bladiebla");
+		body.div().in(inner).id(id).classs("bladiebla");
 		printStructure((Element) body.dom());
 
 		Element found = document.getElementById(id);

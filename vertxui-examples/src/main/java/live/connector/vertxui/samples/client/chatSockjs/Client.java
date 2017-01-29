@@ -6,8 +6,8 @@ import static live.connector.vertxui.client.fluent.Fluent.window;
 
 import com.google.gwt.core.client.EntryPoint;
 
+import elemental.events.KeyboardEvent;
 import elemental.events.MessageEvent;
-import elemental.events.UIEvent;
 import elemental.json.Json;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.Pojofy;
@@ -40,8 +40,8 @@ public class Client implements EntryPoint {
 
 			messages.li(null, ((MessageEvent) e).getData().toString());
 		});
-		input.keydown(evt -> {
-			if (((UIEvent) evt).getKeyCode() == 13) {
+		input.keydown(event -> {
+			if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
 				socket.send(name + ": " + input.value());
 				input.value(""); // clear the inputfield
 
