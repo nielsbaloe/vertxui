@@ -7,7 +7,7 @@ import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.fluent.Style;
+import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.AllExamplesClient;
 import live.connector.vertxui.samples.client.chatEventBus.Dto;
@@ -23,14 +23,14 @@ public class Client implements EntryPoint {
 	public Client() {
 		button = body.div().button(null, "Click me!").id("hello-button").click(this::clicked);
 		response = body.div();
-		thinking = body.div().in("The server waits as demonstration!").id("thinking-panel").css(Style.display, "none");
+		thinking = body.div().in("The server waits as demonstration!").id("thinking-panel").css(Css.display, "none");
 	}
 
 	// It is advisable to write callbacks into methods, so you can easily write
 	// jUnit tests.
 	private void clicked(Event e) {
 		button.disabled(true);
-		thinking.css(Style.display, "");
+		thinking.css(Css.display, "");
 		Pojofy.ajax("POST", url, null, null, null, this::responsed);
 	}
 	
@@ -40,7 +40,7 @@ public class Client implements EntryPoint {
 		button.disabled(false);
 
 		response.div().in(text);
-		thinking.css(Style.display, "none");
+		thinking.css(Css.display, "none");
 
 		// extra: POJO example
 		Pojofy.ajax("POST", urlPojo, new Dto("white"), AllExamplesClient.dto, AllExamplesClient.dto,

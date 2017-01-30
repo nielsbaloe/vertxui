@@ -63,7 +63,7 @@ public class Renderer {
 				}
 			}
 			if (newView.styles != null) {
-				for (Style name : newView.styles.keySet()) {
+				for (Css name : newView.styles.keySet()) {
 					newView.element.getStyle().setProperty(name.nameValid(), newView.styles.get(name));
 				}
 			}
@@ -145,11 +145,39 @@ public class Renderer {
 			} else {
 				oldChildAsFluent = ((ViewOn<?>) oldChild).getView();
 			}
+
+			// middle-child removal optimalisation
+			// if number of childs/ differ, and if there is an old child
+//			if (nChilds != oChilds && oldChild != null) {
+//				long newRef = newView.getCrc();
+//				// and if the current child is different
+//				if (newRef != oldChildAsFluent.getCrc()) {
+//					// then look forward whether there is a next one similar
+//					for (; x < oChilds; x++) {
+//						Viewable test = oldView.childs.get(x);
+//						Fluent found = null;
+//						if (test == null) {
+//							continue;
+//						} else if (test instanceof Fluent) {
+//							found = (Fluent) test;
+//						} else {
+//							found = ((ViewOn<?>) test).getView();
+//						}
+//						if (found.getCrc() == newRef) {
+//							parent.element.replaceChild(oldChildAsFluent.element, found.element);
+//							Element intermediate = found.element;
+//							found.element = oldChildAsFluent.element;
+//							oldChildAsFluent.element = intermediate;
+//						}
+//					}
+//				}
+//			}
+
 			syncChild(newView, newChild, oldChildAsFluent);
 		}
 	}
 
-	private final static Style[] emptyStyles = new Style[0];
+	private final static Css[] emptyStyles = new Css[0];
 	private final static String[] emptyListeners = new String[0];
 	private final static Att[] emptyAttributes = new Att[0];
 
@@ -266,8 +294,8 @@ public class Renderer {
 	private static <T, V> void compareApplyRemove(Element element, T name, V value) {
 		if (name instanceof Att) {
 			element.removeAttribute(((Att) name).nameValid());
-		} else if (name instanceof Style) {
-			element.getStyle().removeProperty(((Style) name).nameValid());
+		} else if (name instanceof Css) {
+			element.getStyle().removeProperty(((Css) name).nameValid());
 		} else {
 			// Fluent.console.log("removing " + name);
 			((Node) element).removeEventListener((String) name, (EventListener) value);
@@ -277,8 +305,8 @@ public class Renderer {
 	private static <T, V> void compareApplySet(Element element, T name, V value) {
 		if (name instanceof Att) {
 			element.setAttribute(((Att) name).nameValid(), (String) value);
-		} else if (name instanceof Style) {
-			element.getStyle().setProperty(((Style) name).nameValid(), (String) value);
+		} else if (name instanceof Css) {
+			element.getStyle().setProperty(((Css) name).nameValid(), (String) value);
 		} else {
 			// Fluent.console.log("setting " + name + " with " + value);
 			((Node) element).addEventListener((String) name, (EventListener) value);

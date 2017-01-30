@@ -22,12 +22,14 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.shared.DateTimeFormat;
 
+import elemental.dom.Element;
 import elemental.events.Event;
 import elemental.events.KeyboardEvent;
+import elemental.events.MouseEvent;
 import elemental.html.InputElement;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.fluent.Style;
+import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills;
@@ -62,12 +64,11 @@ public class View implements EntryPoint {
 		head.meta().att(Att.name_, "viewport", Att.content, "width=device-width, initial-scale=1");
 
 		// Header
-		body.css(Style.maxWidth, "600px", Style.margin, "0 auto 0 auto");
-		body.h1(null, "Bills").classs("jumbotron text-center").id("titlerForJunitTest");
+		Fluent container = body.div("container");
+		container.h1(null, "Bills").classs("jumbotron text-center").id("titlerForJunitTest");
 
 		// Menu
-		Fluent container = body.nav("navbar navbar-inverse").div("container-fluid");
-		menu = container.add("home", selected -> {
+		menu = container.nav("navbar navbar-inverse").add("home", selected -> {
 			Fluent result = Ul("nav navbar-nav");
 			result.li(selected.equals("home") ? "active" : null).a("Home", "#").click(this::menuHome);
 			result.li(selected.equals("bills") ? "active" : null).a("Bills", "#").click(this::menuBills);
@@ -75,9 +76,8 @@ public class View implements EntryPoint {
 			return result;
 		});
 
-		// Content
-		Fluent content = body.div("center-block").css(Style.maxWidth, "500px");
-		totals = content.add(null, totals -> {
+		// Three pages
+		totals = container.add(null, totals -> {
 			if (totals == null) {
 				return null;
 			}
@@ -109,11 +109,11 @@ public class View implements EntryPoint {
 					});
 			Fluent when = Input("form-control", null, "text").id("datepicker");
 
-			Fluent text = Span("input-group-addon").css(Style.width, "100px");
+			Fluent text = Span("input-group-addon").css(Css.width, "100px");
 
-			result.div("input-group", text.clone().in("Name"), name).css(Style.width, "80%");
-			result.div("input-group", text.clone().in("Amount"), amount).css(Style.width, "80%");
-			result.div("input-group", text.clone().in("When"), when).css(Style.width, "80%");
+			result.div("input-group", text.clone().in("Name"), name).css(Css.width, "80%");
+			result.div("input-group", text.clone().in("Amount"), amount).css(Css.width, "80%");
+			result.div("input-group", text.clone().in("When"), when).css(Css.width, "80%");
 
 			result.button("btn btn-success", "OK").att(Att.type, "button").click(event -> {
 				try {
@@ -127,7 +127,7 @@ public class View implements EntryPoint {
 			return result;
 		});
 
-		bills = content.add(null, bills -> {
+		bills = container.add(null, bills -> {
 			if (bills == null) {
 				return null;
 			}
@@ -140,33 +140,48 @@ public class View implements EntryPoint {
 			return result;
 		});
 
-		grocery = content.add(null, dto -> {
+		grocery = container.add(null, dto -> {
 			if (dto == null) {
 				return null;
 			}
-			Fluent result = Div();
-			result.form("form-inline").div("form-group", Label(null, "Name ").att(Att.for_, "n"),
-					Input("form-control", null, "text", "n").css(Style.width, "50%").keyup(event -> {
+			Fluent form = Div().form("form");
+
+			form.div("form-group", Label(null, "Name ").att(Att.for_, "n"),
+					Input("form-control", null, "text", "n").css(Css.maxWidth, "200px").keyup(event -> {
 						if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
 							InputElement element = (InputElement) event.getTarget();
-							addGrocery(element.getValue());
-							element.setValue("");
+							if (!element.getValue().isEmpty()) {
+								addGrocery(element.getValue());
+								element.setValue("");
+							}
 						}
 					}));
-			return result.ul(dto.all.stream().map(s -> Li(null, s)));
+
+			form.ul(dto.all.stream().map(s -> Div("checkbox",
+					Li(Input().att(Att.type, "checkbox", Att.value, s).click(this::delGrocery), Label(null, s)))));
+
+			return form; // Fluent winds it back to the origin.
 		});
 
 		// Init
 		menuHome(null);
 	}
 
-	// No DOM specific elements in callbacks from the GUI means easy junit
-	// testing
 	public void addGrocery(String text) {
 		grocery.state().all.add(text);
 		grocery.sync();
 
 		Pojofy.ajax("PUT", groceryUrl, text, null, null, null);
+	}
+
+	public void delGrocery(MouseEvent evt) {
+		Element element = ((Element) evt.getTarget());
+		String text = element.getAttribute("value");
+		((InputElement) element).setChecked(false);
+		grocery.state().all.remove(text);
+		grocery.sync();
+
+		Pojofy.ajax("DELETE", groceryUrl, text, null, null, null);
 	}
 
 	// No DOM specific elements in callbacks from the GUI means easy junit

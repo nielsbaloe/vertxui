@@ -7,6 +7,7 @@ import java.util.function.Function;
  *
  */
 public class ViewOn<A> implements Viewable {
+
 	private A state;
 	private Function<A, Fluent> translate;
 
@@ -23,7 +24,7 @@ public class ViewOn<A> implements Viewable {
 	 */
 	public void hide() {
 		if (view != null) {
-			view.css(Style.display, "none");
+			view.css(Css.display, "none");
 		}
 	}
 
@@ -33,7 +34,7 @@ public class ViewOn<A> implements Viewable {
 	 */
 	public void unhide() {
 		if (view != null) {
-			view.css(Style.display, null);
+			view.css(Css.display, null);
 		}
 	}
 
@@ -99,6 +100,15 @@ public class ViewOn<A> implements Viewable {
 			throw new IllegalArgumentException("Can not clone if it is DOM-attached");
 		}
 		return new ViewOn<A>(state, translate);
+	}
+
+	@Override
+	public long getCrc() {
+		if (view != null) {
+			return view.getCrc();
+		} else {
+			return 0;
+		}
 	}
 
 }

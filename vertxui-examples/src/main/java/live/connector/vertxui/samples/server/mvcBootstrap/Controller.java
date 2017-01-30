@@ -41,14 +41,17 @@ public class Controller extends AbstractVerticle {
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
 		router.get(View.totalsUrl).handler(Pojofy.ajax(null, this::getTotals));
-		router.get(View.groceryUrl).handler(Pojofy.ajax(null, this::getGrocery));
-		router.put(View.groceryUrl).handler(Pojofy.ajax(null, this::addGrocery));
+
 		router.get(View.billsUrl).handler(Pojofy.ajax(null, this::getBills));
 		router.put(View.billsUrl).handler(Pojofy.ajax(Bill.class, this::addBill));
 
+		router.get(View.groceryUrl).handler(Pojofy.ajax(null, this::getGrocery));
+		router.put(View.groceryUrl).handler(Pojofy.ajax(null, this::addGrocery));
+		router.delete(View.groceryUrl).handler(Pojofy.ajax(null, this::delGrocery));
+
 		AllExamplesServer.startWarAndServer(View.class, router, server);
 
-		// Fake data
+		// Fake initial data
 		bills.all = new ArrayList<>();
 		for (int x = 0; x < 10; x++) {
 			Bill bill = new Bill(Name.Niels, 2300, new Date());
@@ -73,6 +76,10 @@ public class Controller extends AbstractVerticle {
 
 	public void addGrocery(String text, RoutingContext context) {
 		grocery.all.add(text);
+	}
+
+	public void delGrocery(String text, RoutingContext context) {
+		grocery.all.remove(text);
 	}
 
 	public Bills getBills(String empty, RoutingContext context) {

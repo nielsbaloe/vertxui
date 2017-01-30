@@ -1,6 +1,6 @@
 package live.connector.vertxui.client.fluent;
 
-public enum Style {
+public enum Css {
 
 	alignContent, alignItems, alignSelf, animation, animationDelay, animationDirection, //
 	animationDuration, animationFillMode, animationIterationCount, animationName, //
@@ -43,7 +43,7 @@ public enum Style {
 		return result.toString().toLowerCase();
 	}
 
-	public static Style valueOfValid(String linestyle) {
+	public static Css valueOfValid(String linestyle) {
 		String x = null;
 		for (String y : linestyle.split("-")) {
 			if (x == null) {

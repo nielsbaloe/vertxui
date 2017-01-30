@@ -23,6 +23,7 @@ import elemental.html.InputElement;
 import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
+import live.connector.vertxui.client.CRC32;
 import live.connector.vertxui.client.test.ConsoleTester;
 
 /**
@@ -84,7 +85,7 @@ public class Fluent implements Viewable {
 	 */
 	protected String tag;
 	protected TreeMap<Att, String> attrs;
-	protected TreeMap<Style, String> styles;
+	protected TreeMap<Css, String> styles;
 	protected TreeMap<String, EventListener> listeners;
 	protected List<Viewable> childs;
 	protected String inner;
@@ -288,7 +289,7 @@ public class Fluent implements Viewable {
 		});
 	}
 
-	public Fluent css(Style name, String value, Style name2, String value2) {
+	public Fluent css(Css name, String value, Css name2, String value2) {
 		css(name, value);
 		css(name2, value2);
 		return this;
@@ -301,7 +302,7 @@ public class Fluent implements Viewable {
 	 * @param value
 	 * @return
 	 */
-	public Fluent css(Style name, String value) {
+	public Fluent css(Css name, String value) {
 
 		if (styles == null) {
 			styles = new TreeMap<>();
@@ -321,7 +322,7 @@ public class Fluent implements Viewable {
 		return this;
 	}
 
-	public String css(Style name) {
+	public String css(Css name) {
 		if (styles == null) {
 			return null;
 		}
@@ -347,19 +348,19 @@ public class Fluent implements Viewable {
 		if (name == null) { // ignoring the call
 			return this;
 		}
-
 		if (attrs == null) {
 			attrs = new TreeMap<>();
 		}
 		if (value == null) {
-			attrs.remove(name);
+			if (attrs.containsKey(name)) {
+				attrs.remove(name);
+				if (element != null) {
+					element.removeAttribute(name.nameValid());
+				}
+			}
 		} else {
 			attrs.put(name, value);
-		}
-		if (element != null) {
-			if (value == null) {
-				element.removeAttribute(name.nameValid());
-			} else {
+			if (element != null) {
 				element.setAttribute(name.nameValid(), value);
 			}
 		}
@@ -573,6 +574,10 @@ public class Fluent implements Viewable {
 		return li(classs).in(text);
 	}
 
+	public Fluent li(Fluent... fluents) {
+		return li().add(fluents);
+	}
+
 	public static Fluent Li() {
 		return new Fluent("LI", null);
 	}
@@ -583,6 +588,10 @@ public class Fluent implements Viewable {
 
 	public static Fluent Li(String classs, String inner) {
 		return Li(classs).in(inner);
+	}
+
+	public static Fluent Li(Fluent... fluents) {
+		return Li().add(fluents);
 	}
 
 	public Fluent div() {
@@ -887,6 +896,10 @@ public class Fluent implements Viewable {
 
 	public Fluent label() {
 		return new Fluent("LABEL", this);
+	}
+
+	public Fluent label(Fluent... fluents) {
+		return label().add(fluents);
 	}
 
 	public Fluent label(String classs) {
@@ -1301,7 +1314,7 @@ public class Fluent implements Viewable {
 			}
 		}
 		if (styles != null) {
-			for (Style name : styles.keySet()) {
+			for (Css name : styles.keySet()) {
 				result.css(name, styles.get(name));
 			}
 		}
@@ -1319,6 +1332,39 @@ public class Fluent implements Viewable {
 				}
 			}
 		}
+		return result;
+	}
+
+	private CRC32 crc32 = new CRC32();
+
+	/*
+	 * This does not cover listeners (which is not possible in GWT production
+	 * mode), but does cover the rest, which should be enough to identify which
+	 * child is which for most render optimalisation issues. For example, when
+	 * one child between other childs in a list is deleted.
+	 */
+	public long getCrc() {
+		if (tag != null) {
+			crc32.update(tag.getBytes());
+		}
+		if (inner != null) {
+			crc32.update(inner.getBytes());
+		}
+		if (attrs != null) {
+			for (Att att : attrs.keySet()) {
+				crc32.update(att.name().getBytes());
+			}
+		}
+		if (childs != null) {
+			// only three deep
+			for (int x = 0; x < 3 && x < childs.size(); x++) {
+				long child = childs.get(x).getCrc();
+				crc32.update((int) child);
+				crc32.update((int) child >> 32);
+			}
+		}
+		long result = crc32.getValue();
+		crc32.reset();
 		return result;
 	}
 

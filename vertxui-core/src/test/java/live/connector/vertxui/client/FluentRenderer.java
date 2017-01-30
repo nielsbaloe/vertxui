@@ -13,7 +13,7 @@ import elemental.dom.NamedNodeMap;
 import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.fluent.Style;
+import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.client.test.TestDOM;
 
@@ -185,21 +185,21 @@ public class FluentRenderer extends TestDOM {
 			Fluent result = Fluent.Div();
 			switch (s) {
 			case 0:
-				result.css(Style.color, "blue");
+				result.css(Css.color, "blue");
 				break;
 			case 1:
-				result.css(Style.color, "blue");
-				result.css(Style.fontSize, "50px");
+				result.css(Css.color, "blue");
+				result.css(Css.fontSize, "50px");
 				break;
 			case 2:
-				result.css(Style.marginLeft, "0");
+				result.css(Css.marginLeft, "0");
 				break;
 			case 3:
 				break;
 			case 4:
-				result.css(Style.color, "blue");
-				result.css(Style.fontSize, "50px");
-				result.css(Style.textAlign, "left");
+				result.css(Css.color, "blue");
+				result.css(Css.fontSize, "50px");
+				result.css(Css.textAlign, "left");
 				break;
 			}
 			return result;
@@ -215,7 +215,7 @@ public class FluentRenderer extends TestDOM {
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("2", styleNames.size(), 2);
 		assertEquals("2.1", styleNames.get(0), "color");
-		assertEquals("2.2", styleNames.get(1), Style.fontSize.nameValid());
+		assertEquals("2.2", styleNames.get(1), Css.fontSize.nameValid());
 
 		view.state(0);
 		styleNames = getAllNamesFromStyles(view);
@@ -226,7 +226,7 @@ public class FluentRenderer extends TestDOM {
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("3", styleNames.size(), 2);
 		assertEquals("3.1", styleNames.get(0), "color");
-		assertEquals("3.2", styleNames.get(1), Style.fontSize.nameValid());
+		assertEquals("3.2", styleNames.get(1), Css.fontSize.nameValid());
 
 		view.state(2);
 		styleNames = getAllNamesFromStyles(view);
@@ -237,7 +237,7 @@ public class FluentRenderer extends TestDOM {
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("5", styleNames.size(), 2);
 		assertEquals("5.1", styleNames.get(0), "color");
-		assertEquals("5.2", styleNames.get(1), Style.fontSize.nameValid());
+		assertEquals("5.2", styleNames.get(1), Css.fontSize.nameValid());
 
 		view.state(3);
 		styleNames = getAllNamesFromStyles(view);
@@ -247,7 +247,7 @@ public class FluentRenderer extends TestDOM {
 		styleNames = getAllNamesFromStyles(view);
 		assertEquals("7", styleNames.size(), 2);
 		assertEquals("7.1", styleNames.get(0), "color");
-		assertEquals("7.2", styleNames.get(1), Style.fontSize.nameValid());
+		assertEquals("7.2", styleNames.get(1), Css.fontSize.nameValid());
 
 		view.state(4);
 		styleNames = getAllNamesFromStyles(view);
