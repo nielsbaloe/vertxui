@@ -23,7 +23,7 @@ import elemental.html.InputElement;
 import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
-import live.connector.vertxui.client.CRC32;
+import live.connector.vertxui.client.CRC64;
 import live.connector.vertxui.client.test.ConsoleTester;
 
 /**
@@ -138,15 +138,15 @@ public class Fluent implements Viewable {
 	 * Set the inner text (HTML) for this element. Set to null (or empty string)
 	 * to clear.
 	 */
-	public Fluent in(String innerHtml) {
-		if (Renderer.equalsString(this.inner, innerHtml)) {
-			// console.log("Skipping, still " + innerHtml);
+	public Fluent in(String innerText) {
+		if (Renderer.equalsString(this.inner, innerText)) {
+			// console.log("Skipping, still " + innerText);
 			return this;
 		}
-		this.inner = innerHtml;
+		this.inner = innerText;
 		if (element != null) {
-			// console.log("setting innerHtml to "+innerHtml);
-			element.setInnerHTML(innerHtml);
+			// console.log("setting innerText to "+innerText);
+			element.setInnerText(innerText);
 		}
 		return this;
 	}
@@ -1100,7 +1100,7 @@ public class Fluent implements Viewable {
 		return this;
 	}
 
-	public Fluent style(String... csss) {
+	public Fluent stylesheet(String... csss) {
 		for (String css : csss) {
 			new Fluent("link", this).att(Att.rel, "stylesheet").att(Att.href, css);
 		}
@@ -1275,6 +1275,10 @@ public class Fluent implements Viewable {
 		return Ul(classs).add(items);
 	}
 
+	public static Fluent Ul(Fluent... items) {
+		return Ul().add(items);
+	}
+
 	public Fluent var() {
 		return new Fluent("VAR", this);
 	}
@@ -1335,8 +1339,6 @@ public class Fluent implements Viewable {
 		return result;
 	}
 
-	private CRC32 crc32 = new CRC32();
-
 	/*
 	 * This does not cover listeners (which is not possible in GWT production
 	 * mode), but does cover the rest, which should be enough to identify which
@@ -1344,28 +1346,32 @@ public class Fluent implements Viewable {
 	 * one child between other childs in a list is deleted.
 	 */
 	public long getCrc() {
+		StringBuilder result = new StringBuilder();
 		if (tag != null) {
-			crc32.update(tag.getBytes());
+			result.append(tag);
 		}
 		if (inner != null) {
-			crc32.update(inner.getBytes());
+			result.append(inner);
 		}
 		if (attrs != null) {
 			for (Att att : attrs.keySet()) {
-				crc32.update(att.name().getBytes());
+				result.append(att.name());
 			}
 		}
 		if (childs != null) {
 			// only three deep
+			byte[] cache = new byte[8];
+
 			for (int x = 0; x < 3 && x < childs.size(); x++) {
 				long child = childs.get(x).getCrc();
-				crc32.update((int) child);
-				crc32.update((int) child >> 32);
+				for (int i = 7; i >= 0; i--) {
+					cache[i] = (byte) (child & 0xFF);
+					child >>= 8;
+				}
+				result.append(cache);
 			}
 		}
-		long result = crc32.getValue();
-		crc32.reset();
-		return result;
+		return CRC64.checksum(result.toString().getBytes());
 	}
 
 }

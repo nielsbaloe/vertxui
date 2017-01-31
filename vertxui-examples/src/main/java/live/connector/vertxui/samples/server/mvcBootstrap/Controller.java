@@ -55,6 +55,7 @@ public class Controller extends AbstractVerticle {
 		bills.all = new ArrayList<>();
 		for (int x = 0; x < 10; x++) {
 			Bill bill = new Bill(Name.Niels, 2300, new Date());
+			bill.id = x;
 			bills.all.add(bill);
 		}
 		grocery.all = new ArrayList<>();
@@ -88,6 +89,7 @@ public class Controller extends AbstractVerticle {
 	}
 
 	public void addBill(Bill bill, RoutingContext context) {
+		bill.id = bills.all.size();
 		bills.all.add(bill);
 	}
 

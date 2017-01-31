@@ -24,7 +24,7 @@ public class AnotherTest extends TestDOM {
 
 		Element found = document.getElementById(id);
 		assertTrue("should exist", found != null);
-		assertEquals("inner text", found.getInnerHTML(), inner);
+		assertEquals("inner text", found.getInnerText(), inner);
 	}
 
 	private void printStructure(Element element) {
@@ -37,8 +37,8 @@ public class AnotherTest extends TestDOM {
 			}
 		}
 		console.log(">");
-		if (element.getInnerHTML() != null) {
-			console.log(element.getInnerHTML());
+		if (element.getInnerText() != null) {
+			console.log(element.getInnerText());
 		}
 		NodeList children = element.getChildNodes();
 		for (int x = 0; x < children.getLength(); x++) {

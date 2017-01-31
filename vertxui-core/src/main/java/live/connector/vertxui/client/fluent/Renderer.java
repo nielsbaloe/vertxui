@@ -68,7 +68,7 @@ public class Renderer {
 				}
 			}
 			if (newView.inner != null) {
-				newView.element.setInnerHTML(newView.inner);
+				newView.element.setInnerText(newView.inner);
 			}
 			if (newView.listeners != null) {
 				for (String name : newView.listeners.keySet()) {
@@ -119,13 +119,14 @@ public class Renderer {
 			newView.element = oldView.element;
 
 			if (!equalsString(newView.inner, oldView.inner)) {
-				newView.element.setInnerHTML(newView.inner);
+				newView.element.setInnerText(newView.inner);
 			}
 			compareApply(newView.element, newView.attrs, oldView.attrs, emptyAttributes);
 			compareApply(newView.element, newView.styles, oldView.styles, emptyStyles);
 			compareApply(newView.element, newView.listeners, oldView.listeners, emptyListeners);
 		}
 
+		// Children
 		int nChilds = (newView.childs == null) ? 0 : newView.childs.size();
 		int oChilds = (oldView.childs == null) ? 0 : oldView.childs.size();
 		int max = Math.max(nChilds, oChilds);
@@ -148,30 +149,37 @@ public class Renderer {
 
 			// middle-child removal optimalisation
 			// if number of childs/ differ, and if there is an old child
-//			if (nChilds != oChilds && oldChild != null) {
-//				long newRef = newView.getCrc();
-//				// and if the current child is different
-//				if (newRef != oldChildAsFluent.getCrc()) {
-//					// then look forward whether there is a next one similar
-//					for (; x < oChilds; x++) {
-//						Viewable test = oldView.childs.get(x);
-//						Fluent found = null;
-//						if (test == null) {
-//							continue;
-//						} else if (test instanceof Fluent) {
-//							found = (Fluent) test;
-//						} else {
-//							found = ((ViewOn<?>) test).getView();
-//						}
-//						if (found.getCrc() == newRef) {
-//							parent.element.replaceChild(oldChildAsFluent.element, found.element);
-//							Element intermediate = found.element;
-//							found.element = oldChildAsFluent.element;
-//							oldChildAsFluent.element = intermediate;
-//						}
-//					}
-//				}
-//			}
+			if (nChilds != oChilds && oldChild != null) {
+				long newRef = newView.getCrc();
+				// and if the current child is different
+				if (newRef != oldChildAsFluent.getCrc()) {
+					// then look forward whether there is a next one similar
+					for (int y = 0; y < oChilds; y++) {
+						Viewable test = oldView.childs.get(y);
+						Fluent tester = null;
+						if (test == null) {
+							continue;
+						} else if (test instanceof Fluent) {
+							tester = (Fluent) test;
+						} else {
+							tester = ((ViewOn<?>) test).getView();
+						}
+						if (tester.getCrc() == newRef) {
+
+							if (parent.element != null) {
+								parent.element.replaceChild(oldChildAsFluent.element, tester.element);
+								Element intermediate = tester.element;
+								tester.element = oldChildAsFluent.element;
+								oldChildAsFluent.element = intermediate;
+							}
+
+							oldView.childs.set(x, tester);
+							oldView.childs.set(y, oldChild);
+							break;
+						}
+					}
+				}
+			}
 
 			syncChild(newView, newChild, oldChildAsFluent);
 		}

@@ -9,10 +9,11 @@ public class Bills {
 
 	public static class Bill implements Comparable<Bill> {
 
+		public int id;
 		public Name who;
 		public double amount;
 		public Date date;
-
+		
 		public Bill() { // empty constructor for serialization
 		}
 

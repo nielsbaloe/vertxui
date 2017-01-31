@@ -175,13 +175,11 @@ public class VertxUI {
 			} else {
 				options += " -XnoclassMetadata -nodraftCompile -optimize 9 -noincremental";
 			}
-			String classpath = System.getProperty("java.class.path") + ";" + folderSourceMain;
-
-			String separator = ";"; // windows
-			if (!classpath.contains(separator)) {
-				separator = ":"; // unix
-			}
-			classpath = Stream.of(classpath.split(separator)).map(c -> "\"" + c + "\";").reduce("", String::concat);
+			String classpath = System.getProperty("java.class.path");
+			String sep = (System.getenv("path.separator") == null) ? (classpath.contains(";") ? ";" : ":")
+					: System.getenv("path.separator");
+			classpath += sep + folderSourceMain;
+			classpath = Stream.of(classpath.split(sep)).map(c -> "\"" + c + "\"" + sep).reduce("", String::concat);
 
 			String line = null;
 			Process p = Runtime.getRuntime()
@@ -229,6 +227,17 @@ public class VertxUI {
 			// is OK, does not exist
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Could not access public static String scripts[]", e);
+		}
+		try {
+			for (String css : (String[]) classs.getDeclaredField("css").get(null)) {
+				html.append("<link rel=stylesheet href='");
+				html.append(css);
+				html.append("'/>");
+			}
+		} catch (NoSuchFieldException e) {
+			// is OK, does not exist
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not access public static String css[]", e);
 		}
 		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
 

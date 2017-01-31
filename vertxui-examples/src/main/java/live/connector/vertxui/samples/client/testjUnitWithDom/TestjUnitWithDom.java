@@ -50,7 +50,7 @@ public class TestjUnitWithDom extends TestDOM {
 		v.menuBills(null);
 		NodeList b = document.getElementsByClassName("active");
 		assertEquals("length of actives", b.length(), 1);
-		assertTrue("selected item title", ((Element) b.item(0).getChildNodes().at(0)).getInnerHTML().equals("Bills"));
+		assertTrue("selected item title", ((Element) b.item(0).getChildNodes().at(0)).getInnerText().equals("Bills"));
 	}
 
 }

@@ -19,7 +19,7 @@ public class Client implements EntryPoint {
 	public static String figLocation = "/figwheely.js";
 
 	public Client() {
-		head.style("/sourcez/sample.css?" + System.currentTimeMillis()).script(figLocation);
+		head.stylesheet("/sourcez/sample.css?" + System.currentTimeMillis()).script(figLocation);
 
 		body.div().id("picture");
 		Fluent button = body.button(null, "Look at the css, and change something WITHOUT reloading.");

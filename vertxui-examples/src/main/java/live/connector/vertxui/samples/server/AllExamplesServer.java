@@ -59,7 +59,7 @@ public class AllExamplesServer {
 		});
 		log.info("Initialised:" + router.getRoutes().stream().map(a -> {
 			return "\n\thttp://localhost:" + server.actualPort() + a.getPath();
-		}).collect(Collectors.joining()));
+		}).distinct().collect(Collectors.joining()));
 	}
 
 }
