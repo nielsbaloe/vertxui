@@ -27,10 +27,12 @@ public class Renderer {
 		if (newViewable instanceof Fluent) {
 			newView = (Fluent) newViewable;
 			newView.parent = parent;
-		} else {
+		} else if (newViewable instanceof ViewOn<?>) {
 			newView = ((ViewOn<?>) newViewable).generate(parent);
 			// Fluent.console.log("Just generated for newView=" + newView + "
 			// with dom=" + (parent.element != null));
+		} else {
+			newView = ((ViewOnBoth<?, ?>) newViewable).generate(parent);
 		}
 
 		if (oldView == null) {
@@ -144,7 +146,7 @@ public class Renderer {
 			} else if (oldChild instanceof Fluent) {
 				oldChildAsFluent = (Fluent) oldChild;
 			} else {
-				oldChildAsFluent = ((ViewOn<?>) oldChild).getView();
+				oldChildAsFluent = ((ViewOnBase) oldChild).getView();
 			}
 
 			// middle-child removal optimalisation
@@ -162,7 +164,7 @@ public class Renderer {
 						} else if (test instanceof Fluent) {
 							tester = (Fluent) test;
 						} else {
-							tester = ((ViewOn<?>) test).getView();
+							tester = ((ViewOnBase) test).getView();
 						}
 						if (tester.getCrc() == newRef) {
 

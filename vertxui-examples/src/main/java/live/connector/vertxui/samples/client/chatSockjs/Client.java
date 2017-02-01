@@ -24,7 +24,7 @@ public class Client implements EntryPoint {
 	public Client() {
 		String name = window.prompt("What is your name?", "");
 
-		Fluent input = body.input(null, null, "text", null);
+		Fluent input = body.input(null, "text");
 		Fluent messages = body.div();
 
 		SockJS socket = SockJS.create("http://localhost/chatSockjs");

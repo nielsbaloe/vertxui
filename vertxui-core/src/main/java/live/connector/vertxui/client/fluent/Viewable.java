@@ -8,6 +8,6 @@ package live.connector.vertxui.client.fluent;
  */
 public interface Viewable {
 
-	public long getCrc();
+	public int getCrc();
 
 }

@@ -3,6 +3,7 @@ package live.connector.vertxui.client.fluent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -23,7 +24,6 @@ import elemental.html.InputElement;
 import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
-import live.connector.vertxui.client.CRC64;
 import live.connector.vertxui.client.test.ConsoleTester;
 
 /**
@@ -398,9 +398,9 @@ public class Fluent implements Viewable {
 		if (childs == null) {
 			childs = new ArrayList<>();
 		}
-		if (item instanceof ViewOn) {
-			((ViewOn<?>) item).setParent(this);
-			((ViewOn<?>) item).sync(); // needs to render!
+		if (item instanceof ViewOnBase) {
+			((ViewOnBase) item).setParent(this);
+			((ViewOnBase) item).sync(); // needs to render!
 		} else {
 			item = getRootOf((Fluent) item);
 		}
@@ -430,7 +430,7 @@ public class Fluent implements Viewable {
 		return this;
 	}
 
-	public Fluent add(Stream<Fluent> stream) {
+	private Fluent add(Stream<Fluent> stream) {
 		stream.forEach(item -> addNew(item));
 		return this;
 	}
@@ -439,7 +439,7 @@ public class Fluent implements Viewable {
 		return childs;
 	}
 
-	public <T> ViewOn<T> add(ViewOn<T> result) {
+	public ViewOnBase add(ViewOnBase result) {
 		result.setParent(this);
 		addNew(result);
 		return result;
@@ -447,6 +447,12 @@ public class Fluent implements Viewable {
 
 	public <T> ViewOn<T> add(T initialState, Function<T, Fluent> method) {
 		ViewOn<T> result = new ViewOn<T>(initialState, method);
+		add(result);
+		return result;
+	}
+
+	public <A, B> ViewOnBoth<A, B> add(A initialState1, B initialState2, BiFunction<A, B, Fluent> method) {
+		ViewOnBoth<A, B> result = new ViewOnBoth<A, B>(initialState1, initialState2, method);
 		add(result);
 		return result;
 	}
@@ -522,20 +528,28 @@ public class Fluent implements Viewable {
 		return new Fluent("INPUT", this);
 	}
 
-	public Fluent input(String classs, String inner, String type, String id) {
-		return input().classs(classs).in(inner).att(Att.type, type).id(id);
+	public Fluent input(String classs) {
+		return input().classs(classs);
+	}
+
+	public Fluent input(String classs, String type) {
+		return input().classs(classs).att(Att.type, type);
+	}
+
+	public Fluent input(String classs, String type, String id) {
+		return input().classs(classs).att(Att.type, type).id(id);
 	}
 
 	public static Fluent Input() {
 		return new Fluent("INPUT", null);
 	}
 
-	public static Fluent Input(String classs, String inner, String type) {
-		return Input().classs(classs).in(inner).att(Att.type, type);
+	public static Fluent Input(String classs, String type) {
+		return Input().classs(classs).att(Att.type, type);
 	}
 
-	public static Fluent Input(String classs, String inner, String type, String id) {
-		return Input().classs(classs).in(inner).att(Att.type, type).id(id);
+	public static Fluent Input(String classs, String type, String id) {
+		return Input().classs(classs).att(Att.type, type).id(id);
 	}
 
 	public Fluent button() {
@@ -1040,7 +1054,7 @@ public class Fluent implements Viewable {
 	}
 
 	public native static void eval(String code) /*-{
-													eval(code);
+													window.top.eval(code);
 													}-*/;
 
 	/**
@@ -1279,6 +1293,10 @@ public class Fluent implements Viewable {
 		return Ul().add(items);
 	}
 
+	public static Fluent Ul(Stream<Fluent> items) {
+		return Ul().add(items);
+	}
+
 	public Fluent var() {
 		return new Fluent("VAR", this);
 	}
@@ -1331,8 +1349,10 @@ public class Fluent implements Viewable {
 			for (Viewable child : childs) {
 				if (child instanceof Fluent) {
 					result.add(((Fluent) child).clone());
-				} else {
+				} else if (child instanceof ViewOn<?>) {
 					result.add(((ViewOn<?>) child).clone());
+				} else {
+					result.add(((ViewOnBoth<?, ?>) child).clone());
 				}
 			}
 		}
@@ -1345,7 +1365,7 @@ public class Fluent implements Viewable {
 	 * child is which for most render optimalisation issues. For example, when
 	 * one child between other childs in a list is deleted.
 	 */
-	public long getCrc() {
+	public int getCrc() {
 		StringBuilder result = new StringBuilder();
 		if (tag != null) {
 			result.append(tag);
@@ -1371,7 +1391,7 @@ public class Fluent implements Viewable {
 				result.append(cache);
 			}
 		}
-		return CRC64.checksum(result.toString().getBytes());
+		return result.toString().hashCode();
 	}
 
 }

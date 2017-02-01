@@ -167,7 +167,7 @@ public class FluentRenderer extends TestDOM {
 	}
 
 	private List<String> getAllNamesFromAttributes(ViewOn<Integer> view) {
-		NamedNodeMap attributes = view.getCurrentViewForDebugPurposesOnly().dom().getAttributes();
+		NamedNodeMap attributes = view.getView().dom().getAttributes();
 		List<String> attributeNames = new ArrayList<>();
 		for (int x = 0; x < attributes.length(); x++) {
 			attributeNames.add(attributes.item(x).getNodeName());
@@ -264,7 +264,7 @@ public class FluentRenderer extends TestDOM {
 	}
 
 	private List<String> getAllNamesFromStyles(ViewOn<Integer> view) {
-		CSSStyleDeclaration styles = view.getCurrentViewForDebugPurposesOnly().dom().getStyle();
+		CSSStyleDeclaration styles = view.getView().dom().getStyle();
 		List<String> result = new ArrayList<>();
 		for (int x = 0; x < styles.getLength(); x++) {
 			result.add(styles.item(x));

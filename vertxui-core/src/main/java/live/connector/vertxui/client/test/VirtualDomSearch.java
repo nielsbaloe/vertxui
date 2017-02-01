@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 import com.google.gwt.core.client.GWT;
 
 import live.connector.vertxui.client.fluent.Fluent;
-import live.connector.vertxui.client.fluent.ViewOn;
+import live.connector.vertxui.client.fluent.ViewOnBase;
 import live.connector.vertxui.client.fluent.Viewable;
 
 public class VirtualDomSearch {
@@ -23,7 +23,7 @@ public class VirtualDomSearch {
 				if (child instanceof Fluent) {
 					filter((Fluent) child, filter, result);
 				} else {
-					filter(((ViewOn<?>) child).getCurrentViewForDebugPurposesOnly(), filter, result);
+					filter(((ViewOnBase) child).getView(), filter, result);
 				}
 			}
 		}

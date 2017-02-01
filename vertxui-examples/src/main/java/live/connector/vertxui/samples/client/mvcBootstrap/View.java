@@ -76,7 +76,7 @@ public class View implements EntryPoint {
 			return result;
 		});
 
-		// Three pages
+		// Totals on entering
 		totals = container.add(null, totals -> {
 			if (totals == null) {
 				return null;
@@ -93,13 +93,15 @@ public class View implements EntryPoint {
 			if (opened == false) {
 				return Button("btn btn-success", "Add").att(Att.type, "button").click(e -> {
 					billsForm.state(true);
-					Fluent.eval("window.top.$('#datepicker').datepicker({ dateFormat:'dd/mm/yy'});");
+					Fluent.eval("$('#datepicker').datepicker({ dateFormat:'dd/mm/yy'});");
 				});
 			}
+
 			Fluent result = Form();
 
+			// three input fields
 			Fluent name = Select("form-control", Option(null, Name.Niels.name()), Option(null, Name.Linda.name()));
-			Fluent amount = Input("form-control", null, "number").att(Att.min, "0", Att.max, "2000", Att.value, "0")
+			Fluent amount = Input("form-control", "number").att(Att.min, "0", Att.max, "2000", Att.value, "0")
 					.keypress(event -> {
 						int code = event.getCharCode();
 						if ((code >= 48 && code <= 57) || code == 0) {
@@ -107,7 +109,7 @@ public class View implements EntryPoint {
 						}
 						event.preventDefault();
 					});
-			Fluent when = Input("form-control", null, "text").id("datepicker");
+			Fluent when = Input("form-control", "text").id("datepicker");
 
 			Fluent text = Span("input-group-addon").css(Css.width, "100px");
 
@@ -147,7 +149,7 @@ public class View implements EntryPoint {
 			Fluent form = Div().form("form");
 
 			form.div("form-group", Label(null, "Name ").att(Att.for_, "n"),
-					Input("form-control", null, "text", "n").css(Css.maxWidth, "200px").keyup(event -> {
+					Input("form-control", "text", "n").css(Css.maxWidth, "200px").keyup(event -> {
 						if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
 							InputElement element = (InputElement) event.getTarget();
 							if (!element.getValue().isEmpty()) {
