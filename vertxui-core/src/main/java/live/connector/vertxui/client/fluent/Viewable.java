@@ -10,4 +10,6 @@ public interface Viewable {
 
 	public int getCrc();
 
+	public String getCrcString();
+
 }

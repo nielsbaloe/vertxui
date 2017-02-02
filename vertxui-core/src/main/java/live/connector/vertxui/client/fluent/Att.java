@@ -7,14 +7,14 @@ public enum Att {
 	max, maxlength, media, method, min, multiple, novalidate, open, //
 	optimum, pattern, ping, paceholder, poster, preload, pubdate, radiogroup, //
 	readonly, rel, required, reversed, role, rows, rowspan, sandbox, spellcheck, scope, //
-	scoped, seamless, seleted, shape, size, sizes, span, src, srcdoc, srclang, srcset, //
+	scoped, seamless, selected, shape, size, sizes, span, src, srcdoc, srclang, srcset, //
 	start, step, style, summary, tabindex, target, title, type, usemap, value, width, wrap, //
 	border, buffered, challenge, charset, checked, cite, color, cols, colspan, content, //
 	contenteditable, contextmenu, controls, coords, data, datetime, defer, dir, //
 	dirnme, disable, download, draggable, dropzone, enctype, form, formaction, //
 	headers, height, accept, accesskey, action, align, alt, async, //
 	autocomplete, autofocus, autoplay, autosave, //
-	name_, for_, default_, class_, http_equiv, accept_charset, text, dataProvide, dataRole;
+	name_, for_, default_, class_, http_equiv, accept_charset, text, dataProvide, dataRole, placeholder;
 
 	public String nameValid() {
 		switch (this) {

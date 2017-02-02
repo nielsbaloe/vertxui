@@ -30,7 +30,8 @@ public class ExampleFigWheely extends AbstractVerticle {
 		// Serve folder assets-figwheely, and notify
 		// clients of changes if figwheely is started (otherwise it is just a
 		// normal StaticHandler).
-		router.get("/sourcez/*").handler(FigStaticHandler.create("assets-figwheely", "/sourcez/"));
+		String url = "/sourcez/";
+		router.get(url + "*").handler(FigStaticHandler.create("assets/figwheely", url));
 
 		AllExamplesServer.startWarAndServer(Client.class, router, server);
 	}

@@ -3,11 +3,14 @@ package live.connector.vertxui.samples.client.todomvc;
 public class Model {
 
 	private String text;
+	private boolean completed;
 
-	private boolean done;
+	public Model() {
+	}
 
-	public Model(String text) {
+	public Model(String text, boolean completed) {
 		this.text = text;
+		this.completed = false;
 	}
 
 	public String getText() {
@@ -18,12 +21,12 @@ public class Model {
 		this.text = text;
 	}
 
-	public boolean isDone() {
-		return done;
+	public boolean isCompleted() {
+		return completed;
 	}
 
-	public void setDone(boolean done) {
-		this.done = done;
+	public void setCompleted(boolean completed) {
+		this.completed = completed;
 	}
 
 }

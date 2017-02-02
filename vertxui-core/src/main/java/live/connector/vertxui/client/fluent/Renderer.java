@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import elemental.dom.Element;
 import elemental.dom.Node;
 import elemental.events.EventListener;
+import elemental.html.InputElement;
 
 public class Renderer {
 
@@ -148,40 +149,51 @@ public class Renderer {
 			} else {
 				oldChildAsFluent = ((ViewOnBase) oldChild).getView();
 			}
-
-			// middle-child removal optimalisation
-			// if number of childs/ differ, and if there is an old child
-			if (nChilds != oChilds && oldChild != null) {
-				long newRef = newView.getCrc();
-				// and if the current child is different
-				if (newRef != oldChildAsFluent.getCrc()) {
-					// then look forward whether there is a next one similar
-					for (int y = 0; y < oChilds; y++) {
-						Viewable test = oldView.childs.get(y);
-						Fluent tester = null;
-						if (test == null) {
-							continue;
-						} else if (test instanceof Fluent) {
-							tester = (Fluent) test;
-						} else {
-							tester = ((ViewOnBase) test).getView();
-						}
-						if (tester.getCrc() == newRef) {
-
-							if (parent.element != null) {
-								parent.element.replaceChild(oldChildAsFluent.element, tester.element);
-								Element intermediate = tester.element;
-								tester.element = oldChildAsFluent.element;
-								oldChildAsFluent.element = intermediate;
-							}
-
-							oldView.childs.set(x, tester);
-							oldView.childs.set(y, oldChild);
-							break;
-						}
-					}
-				}
-			}
+//
+//			// middle-child removal optimalisation
+//			// if number of childs/differ, and if there is an old child
+//			if (nChilds != oChilds && oldChild != null) {
+//				Fluent.console.log("Starting compare for new=" + newChild.getCrcString() + " because nChilds=" + nChilds
+//						+ " oChilds=" + oChilds);
+//
+//				long newRef = newChild.getCrc();
+//				// and if the
+//				// current child is different
+//				if (newRef != oldChildAsFluent.getCrc()) { // then look forward
+//															// whether there
+//					Fluent.console.log("  not equal for old =" + oldChildAsFluent.getCrcString());
+//					// is a next one similar
+//					for (int y = 0; y < oChilds; y++) {
+//						Viewable test = oldView.childs.get(y);
+//						Fluent tester = null;
+//						if (test == null) {
+//							continue;
+//						} else if (test instanceof Fluent) {
+//							tester = (Fluent) test;
+//						} else {
+//							tester = ((ViewOnBase) test).getView();
+//						}
+//						if (tester.getCrc() == newRef) {
+//
+//							if (parent.element != null) {
+//
+//								Fluent.console
+//										.log("Switching " + oldChildAsFluent.element.getParentElement().getOuterHTML()
+//												+ " and " + tester.element.getParentElement().getOuterHTML());
+//								parent.element.replaceChild(oldChildAsFluent.element, tester.element);
+//								Element intermediate = tester.element;
+//								tester.element = oldChildAsFluent.element;
+//								oldChildAsFluent.element = intermediate;
+//							}
+//
+//							oldView.childs.set(x, tester);
+//							oldView.childs.set(y, oldChild);
+//
+//							break;
+//						}
+//					}
+//				}
+//			}
 
 			syncChild(newView, newChild, oldChildAsFluent);
 		}
@@ -302,23 +314,31 @@ public class Renderer {
 	}
 
 	private static <T, V> void compareApplyRemove(Element element, T name, V value) {
+		// Fluent.console.log("removing " + name + " with " + value);
 		if (name instanceof Att) {
-			element.removeAttribute(((Att) name).nameValid());
+			if (name != Att.checked) {
+				element.removeAttribute(((Att) name).nameValid());
+			} else {
+				((InputElement) element).setChecked(false);
+			}
 		} else if (name instanceof Css) {
 			element.getStyle().removeProperty(((Css) name).nameValid());
 		} else {
-			// Fluent.console.log("removing " + name);
 			((Node) element).removeEventListener((String) name, (EventListener) value);
 		}
 	}
 
 	private static <T, V> void compareApplySet(Element element, T name, V value) {
+		// Fluent.console.log("setting " + name + " with " + value);
 		if (name instanceof Att) {
-			element.setAttribute(((Att) name).nameValid(), (String) value);
+			if (name != Att.checked) {
+				element.setAttribute(((Att) name).nameValid(), (String) value);
+			} else {
+				((InputElement) element).setChecked(true);
+			}
 		} else if (name instanceof Css) {
 			element.getStyle().setProperty(((Css) name).nameValid(), (String) value);
 		} else {
-			// Fluent.console.log("setting " + name + " with " + value);
 			((Node) element).addEventListener((String) name, (EventListener) value);
 		}
 	}

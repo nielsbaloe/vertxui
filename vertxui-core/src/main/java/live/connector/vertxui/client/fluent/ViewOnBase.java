@@ -52,6 +52,15 @@ public abstract class ViewOnBase implements Viewable {
 		}
 	}
 
+	@Override
+	public String getCrcString() {
+		if (view != null) {
+			return view.getCrcString();
+		} else {
+			return "";
+		}
+	}
+
 	public ViewOnBase sync() {
 		// the 'if' below prevents throwing away inner viewOn's with a outer
 		// state. Because, if sync is called fromout fluent when adding inside a

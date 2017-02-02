@@ -199,6 +199,12 @@ public class Fluent implements Viewable {
 
 	public Fluent click(Consumer<MouseEvent> listener) {
 		return listen(Event.CLICK, evt -> {
+			if (evt.getTarget() instanceof InputElement) {
+				InputElement input = (InputElement) evt.getTarget();
+				if (input.getAttribute("type") == "checkbox") {
+					att(Att.checked, input.getAttribute("checked"));
+				}
+			}
 			evt.stopPropagation();
 			listener.accept((MouseEvent) evt);
 		});
@@ -355,19 +361,28 @@ public class Fluent implements Viewable {
 			if (attrs.containsKey(name)) {
 				attrs.remove(name);
 				if (element != null) {
-					element.removeAttribute(name.nameValid());
+					if (name != Att.checked) {
+						element.removeAttribute(name.nameValid());
+					} else {
+						((InputElement) element).setChecked(false);
+					}
 				}
 			}
 		} else {
+			// TODO do not set when value is the same, also elsewhere
 			attrs.put(name, value);
 			if (element != null) {
-				element.setAttribute(name.nameValid(), value);
+				if (name != Att.checked) {
+					element.setAttribute(name.nameValid(), value);
+				} else {
+					((InputElement) element).setChecked(true);
+				}
 			}
 		}
 		return this;
 	}
 
-	public String attr(Att name) {
+	public String att(Att name) {
 		if (attrs == null) {
 			return null;
 		}
@@ -375,7 +390,7 @@ public class Fluent implements Viewable {
 	}
 
 	public String id() {
-		return attr(Att.id);
+		return att(Att.id);
 	}
 
 	public Fluent id(String string) {
@@ -383,7 +398,7 @@ public class Fluent implements Viewable {
 	}
 
 	public String classs() {
-		return attr(Att.class_);
+		return att(Att.class_);
 	}
 
 	public Fluent classs(String string) {
@@ -403,6 +418,9 @@ public class Fluent implements Viewable {
 			((ViewOnBase) item).sync(); // needs to render!
 		} else {
 			item = getRootOf((Fluent) item);
+			if (element != null) {
+				Renderer.syncChild(this, item, null);
+			}
 		}
 		childs.add(item);
 	}
@@ -423,14 +441,22 @@ public class Fluent implements Viewable {
 		return item;
 	}
 
-	private Fluent add(Fluent... items) {
+	/**
+	 * Try not to use this method, use the fluent methods or the cosntructors
+	 * instead.
+	 */
+	public Fluent add(Fluent... items) {
 		for (Fluent item : items) {
 			addNew(item);
 		}
 		return this;
 	}
 
-	private Fluent add(Stream<Fluent> stream) {
+	/**
+	 * Try not to use this method, use the fluent methods or the cosntructors
+	 * instead.
+	 */
+	public Fluent add(Stream<Fluent> stream) {
 		stream.forEach(item -> addNew(item));
 		return this;
 	}
@@ -542,6 +568,10 @@ public class Fluent implements Viewable {
 
 	public static Fluent Input() {
 		return new Fluent("INPUT", null);
+	}
+
+	public static Fluent Input(String classs) {
+		return Input().classs(classs);
 	}
 
 	public static Fluent Input(String classs, String type) {
@@ -744,6 +774,18 @@ public class Fluent implements Viewable {
 		return new Fluent("ASIDE", this);
 	}
 
+	public Fluent aside(String classs) {
+		return aside().classs(classs);
+	}
+
+	public static Fluent Aside() {
+		return new Fluent("ASIDE", null);
+	}
+
+	public static Fluent Aside(String classs) {
+		return Aside().classs(classs);
+	}
+
 	public Fluent audio() {
 		return new Fluent("AUDIO", this);
 	}
@@ -890,6 +932,14 @@ public class Fluent implements Viewable {
 
 	public Fluent header() {
 		return new Fluent("HEADER", this);
+	}
+
+	public Fluent header(String classs) {
+		return header().classs(classs);
+	}
+
+	public Fluent header(String classs, Fluent... items) {
+		return header().classs(classs).add(items);
 	}
 
 	public Fluent i() {
@@ -1125,6 +1175,18 @@ public class Fluent implements Viewable {
 		return new Fluent("SECTION", this);
 	}
 
+	public Fluent section(String classs) {
+		return section().classs(classs);
+	}
+
+	public static Fluent Section() {
+		return new Fluent("SECTION", null);
+	}
+
+	public static Fluent Section(String classs) {
+		return Section().classs(classs);
+	}
+
 	public Fluent select() {
 		return new Fluent("SELECT", this);
 	}
@@ -1289,6 +1351,10 @@ public class Fluent implements Viewable {
 		return Ul(classs).add(items);
 	}
 
+	public static Fluent Ul(String classs, Stream<Fluent> items) {
+		return Ul().classs(classs).add(items);
+	}
+
 	public static Fluent Ul(Fluent... items) {
 		return Ul().add(items);
 	}
@@ -1365,7 +1431,8 @@ public class Fluent implements Viewable {
 	 * child is which for most render optimalisation issues. For example, when
 	 * one child between other childs in a list is deleted.
 	 */
-	public int getCrc() {
+	@Override
+	public String getCrcString() {
 		StringBuilder result = new StringBuilder();
 		if (tag != null) {
 			result.append(tag);
@@ -1380,18 +1447,32 @@ public class Fluent implements Viewable {
 		}
 		if (childs != null) {
 			// only three deep
-			byte[] cache = new byte[8];
-
+			// byte[] cache = new byte[8];
 			for (int x = 0; x < 3 && x < childs.size(); x++) {
-				long child = childs.get(x).getCrc();
-				for (int i = 7; i >= 0; i--) {
-					cache[i] = (byte) (child & 0xFF);
-					child >>= 8;
-				}
-				result.append(cache);
+				result.append(childs.get(x).getCrcString());
+				// for (int i = 7; i >= 0; i--) {
+				// cache[i] = (byte) (child & 0xFF);
+				// child >>= 8;
+				// }
+				// result.append(cache);
 			}
 		}
-		return result.toString().hashCode();
+		return result.toString();
+	}
+
+	@Override
+	public int getCrc() {
+		Fluent.console.log(getCrcString());
+		return getCrcString().hashCode();
+	}
+
+	public Fluent placeholder(String string) {
+		att(Att.placeholder, string);
+		return this;
+	}
+
+	public String placeholder() {
+		return att(Att.placeholder);
 	}
 
 }
