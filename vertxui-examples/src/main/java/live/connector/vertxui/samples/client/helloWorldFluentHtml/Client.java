@@ -23,7 +23,7 @@ public class Client implements EntryPoint {
 	public Client() {
 		button = body.div().button(null, "Click me!").id("hello-button").click(this::clicked);
 		response = body.div();
-		thinking = body.div().in("The server waits as demonstration!").id("thinking-panel").css(Css.display, "none");
+		thinking = body.div().txt("The server waits as demonstration!").id("thinking-panel").css(Css.display, "none");
 	}
 
 	// It is advisable to write callbacks into methods, so you can easily write
@@ -39,7 +39,7 @@ public class Client implements EntryPoint {
 	private void responsed(int responseCode, String text) {
 		button.disabled(false);
 
-		response.div().in(text);
+		response.div().txt(text);
 		thinking.css(Css.display, "none");
 
 		// extra: POJO example

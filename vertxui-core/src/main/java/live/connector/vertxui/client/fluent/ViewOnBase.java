@@ -1,9 +1,16 @@
 package live.connector.vertxui.client.fluent;
 
+import com.google.gwt.core.shared.GWT;
+
+/**
+ * A base class for descriptive lambda-views.
+ * 
+ * @author ng
+ *
+ */
 public abstract class ViewOnBase implements Viewable {
 
 	protected Fluent view;
-
 	protected Fluent parent;
 
 	/**
@@ -66,7 +73,9 @@ public abstract class ViewOnBase implements Viewable {
 		// state. Because, if sync is called fromout fluent when adding inside a
 		// viewon, the attached dom is thrown away, which is not supposed to
 		// happen.
-		if (parent.element != null) {
+		// However, it prevents testing against the virtual dom, so we leave it
+		// on in pure java.
+		if (!GWT.isClient() || (parent != null && parent.element != null)) {
 			Renderer.syncChild(parent, this, view);
 		}
 		return this;

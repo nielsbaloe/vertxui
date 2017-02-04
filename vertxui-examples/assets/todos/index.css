@@ -1,5 +1,4 @@
-html,
-body {
+html, body {
 	margin: 0;
 	padding: 0;
 }
@@ -35,8 +34,7 @@ body {
 	font-weight: 300;
 }
 
-button,
-input[type="checkbox"] {
+button, input[type="checkbox"] {
 	outline: none;
 }
 
@@ -48,8 +46,8 @@ input[type="checkbox"] {
 	background: #fff;
 	margin: 130px 0 40px 0;
 	position: relative;
-	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2),
-	            0 25px 50px 0 rgba(0, 0, 0, 0.1);
+	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0
+		rgba(0, 0, 0, 0.1);
 }
 
 .todoapp input::-webkit-input-placeholder {
@@ -83,8 +81,7 @@ input[type="checkbox"] {
 	text-rendering: optimizeLegibility;
 }
 
-.new-todo,
-.edit {
+.new-todo, .edit {
 	position: relative;
 	margin: 0;
 	width: 100%;
@@ -108,7 +105,7 @@ input[type="checkbox"] {
 	padding: 16px 16px 16px 60px;
 	border: none;
 	background: rgba(0, 0, 0, 0.003);
-	box-shadow: inset 0 -2px 1px rgba(0,0,0,0.03);
+	box-shadow: inset 0 -2px 1px rgba(0, 0, 0, 0.03);
 }
 
 .main {
@@ -132,7 +129,7 @@ label[for='toggle-all'] {
 }
 
 .toggle-all:before {
-	content: '❯';
+	content: 'â�¯';
 	font-size: 22px;
 	color: #e6e6e6;
 	padding: 10px 27px 10px 27px;
@@ -189,11 +186,13 @@ label[for='toggle-all'] {
 }
 
 .todo-list li .toggle:after {
-	content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-10 -18 100 135"><circle cx="50" cy="50" r="50" fill="none" stroke="#ededed" stroke-width="3"/></svg>');
+	content:
+		url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-10 -18 100 135"><circle cx="50" cy="50" r="50" fill="none" stroke="#ededed" stroke-width="3"/></svg>');
 }
 
 .todo-list li .toggle:checked:after {
-	content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-10 -18 100 135"><circle cx="50" cy="50" r="50" fill="none" stroke="#bddad5" stroke-width="3"/><path fill="#5dc2af" d="M72 25L42 71 27 56l-4 4 20 20 34-52z"/></svg>');
+	content:
+		url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="-10 -18 100 135"><circle cx="50" cy="50" r="50" fill="none" stroke="#bddad5" stroke-width="3"/><path fill="#5dc2af" d="M72 25L42 71 27 56l-4 4 20 20 34-52z"/></svg>');
 }
 
 .todo-list li label {
@@ -231,7 +230,7 @@ label[for='toggle-all'] {
 }
 
 .todo-list li .destroy:after {
-	content: '×';
+	content: "\00d7"
 }
 
 .todo-list li:hover .destroy {
@@ -262,11 +261,9 @@ label[for='toggle-all'] {
 	left: 0;
 	height: 50px;
 	overflow: hidden;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2),
-	            0 8px 0 -3px #f6f6f6,
-	            0 9px 1px -3px rgba(0, 0, 0, 0.2),
-	            0 16px 0 -6px #f6f6f6,
-	            0 17px 2px -6px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2), 0 8px 0 -3px #f6f6f6, 0 9px
+		1px -3px rgba(0, 0, 0, 0.2), 0 16px 0 -6px #f6f6f6, 0 17px 2px -6px
+		rgba(0, 0, 0, 0.2);
 }
 
 .todo-count {
@@ -300,8 +297,7 @@ label[for='toggle-all'] {
 	border-radius: 3px;
 }
 
-.filters li a.selected,
-.filters li a:hover {
+.filters li a.selected, .filters li a:hover {
 	border-color: rgba(175, 47, 47, 0.1);
 }
 
@@ -309,8 +305,7 @@ label[for='toggle-all'] {
 	border-color: rgba(175, 47, 47, 0.2);
 }
 
-.clear-completed,
-html .clear-completed:active {
+.clear-completed, html .clear-completed:active {
 	float: right;
 	position: relative;
 	line-height: 20px;
@@ -350,15 +345,12 @@ html .clear-completed:active {
 	Can't use it globally since it destroys checkboxes in Firefox
 */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
-	.toggle-all,
-	.todo-list li .toggle {
+	.toggle-all, .todo-list li .toggle {
 		background: none;
 	}
-
 	.todo-list li .toggle {
 		height: 40px;
 	}
-
 	.toggle-all {
 		-webkit-transform: rotate(90deg);
 		transform: rotate(90deg);
@@ -367,11 +359,10 @@ html .clear-completed:active {
 	}
 }
 
-@media (max-width: 430px) {
+@media ( max-width : 430px) {
 	.footer {
 		height: 50px;
 	}
-
 	.filters {
 		bottom: 10px;
 	}

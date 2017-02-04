@@ -1,6 +1,6 @@
 package live.connector.vertxui.samples.client.mvcBootstrap;
 
-import static live.connector.vertxui.client.fluent.Fluent.Button;
+import static live.connector.vertxui.client.fluent.Fluent.*;
 import static live.connector.vertxui.client.fluent.Fluent.Div;
 import static live.connector.vertxui.client.fluent.Fluent.Form;
 import static live.connector.vertxui.client.fluent.Fluent.Input;
@@ -21,6 +21,7 @@ import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.shared.DateTimeFormat;
+import com.google.gwt.i18n.shared.DefaultDateTimeFormatInfo;
 
 import elemental.dom.Element;
 import elemental.events.Event;
@@ -56,9 +57,25 @@ public class View implements EntryPoint {
 			"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js",
 			"https://code.jquery.com/ui/1.12.1/jquery-ui.js" };
 
-	private DateTimeFormat dater = DateTimeFormat.getFormat("dd/MM/yyyy");
+	private DateTimeFormat dater = new InnerDateTimeFormat("dd/MM/yyyy");
+
+	class InnerDateTimeFormat extends DateTimeFormat {
+		protected InnerDateTimeFormat(String pattern) {
+			super(pattern, new DefaultDateTimeFormatInfo());
+		}
+	}
 
 	public View() {
+
+		// Initialise models
+		String url = Fluent.window.getLocation().getHref();
+		int start = url.indexOf("#");
+		String menuStart = "home";
+		if (start != -1) {
+			menuStart = url.substring(start + 1, url.length());
+		}
+		Fluent.console.log(menuStart);
+
 		// Head
 		head.meta().att(Att.charset, "utf-8");
 		head.meta().att(Att.name_, "viewport", Att.content, "width=device-width, initial-scale=1");
@@ -68,11 +85,11 @@ public class View implements EntryPoint {
 		container.h1(null, "Bills").classs("jumbotron text-center").id("titlerForJunitTest");
 
 		// Menu
-		menu = container.nav("navbar navbar-inverse").add("home", selected -> {
+		menu = container.nav("navbar navbar-inverse").add(menuStart, selected -> {
 			Fluent result = Ul("nav navbar-nav");
-			result.li(selected.equals("home") ? "active" : null).a("Home", "#").click(this::menuHome);
-			result.li(selected.equals("bills") ? "active" : null).a("Bills", "#").click(this::menuBills);
-			result.li(selected.equals("grocery") ? "active" : null).a("Grocery", "#").click(this::menuGrocery);
+			result.li(selected.equals("home") ? "active" : null).a(null, "Home", "#home", this::onMenuHome);
+			result.li(selected.equals("bills") ? "active" : null).a(null, "Bills", "#bills", this::onMenuBills);
+			result.li(selected.equals("grocery") ? "active" : null).a(null, "Grocery", "#grocery", this::onMenuGrocery);
 			return result;
 		});
 
@@ -102,24 +119,18 @@ public class View implements EntryPoint {
 			// three input fields
 			Fluent name = Select("form-control", Option(null, Name.Niels.name()), Option(null, Name.Linda.name()));
 			Fluent amount = Input("form-control", "number").att(Att.min, "0", Att.max, "2000", Att.value, "0")
-					.keypress(event -> {
-						int code = event.getCharCode();
-						if ((code >= 48 && code <= 57) || code == 0) {
-							return; // numeric or a not-a-character is OK
-						}
-						event.preventDefault();
-					});
+					.keypress(this::onBillOnlyNumeric);
 			Fluent when = Input("form-control", "text").id("datepicker");
 
 			Fluent text = Span("input-group-addon").css(Css.width, "100px");
 
-			result.div("input-group", text.clone().in("Name"), name).css(Css.width, "80%");
-			result.div("input-group", text.clone().in("Amount"), amount).css(Css.width, "80%");
-			result.div("input-group", text.clone().in("When"), when).css(Css.width, "80%");
+			result.div("input-group", text.clone().txt("Name"), name).css(Css.width, "80%");
+			result.div("input-group", text.clone().txt("Amount"), amount).css(Css.width, "80%");
+			result.div("input-group", text.clone().txt("When"), when).css(Css.width, "80%");
 
 			result.button("btn btn-success", "OK").att(Att.type, "button").click(event -> {
 				try {
-					addBill(name.value(), amount.value(), when.value());
+					addBill(name.domValue(), amount.domValue(), when.domValue());
 				} catch (IllegalArgumentException e) {
 					Fluent.window.alert(e.getMessage());
 					return;
@@ -149,16 +160,7 @@ public class View implements EntryPoint {
 			Fluent form = Div().form("form");
 
 			form.div("form-group", Label(null, "Name ").att(Att.for_, "n"),
-					Input("form-control", "text", "n").css(Css.maxWidth, "200px").keyup(event -> {
-						if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
-							InputElement element = (InputElement) event.getTarget();
-							if (!element.getValue().isEmpty()) {
-								addGrocery(element.getValue());
-								element.setValue("");
-							}
-						}
-					}));
-
+					Input("form-control", "text", "n").css(Css.maxWidth, "200px").keyup(this::onGroceryAdd));
 			form.ul(dto.all.stream().map(s -> Div("checkbox",
 					Li(Input().att(Att.type, "checkbox", Att.value, s).click(this::delGrocery), Label(null, s)))));
 
@@ -166,7 +168,35 @@ public class View implements EntryPoint {
 		});
 
 		// Init
-		menuHome(null);
+		switch (menu.state()) {
+		case "home":
+			onMenuHome(null);
+			break;
+		case "bills":
+			onMenuBills(null);
+			break;
+		case "grocery":
+			onMenuGrocery(null);
+			break;
+		}
+	}
+
+	protected void onBillOnlyNumeric(KeyboardEvent event) {
+		int code = event.getCharCode();
+		if ((code >= 48 && code <= 57) || code == 0) {
+			return; // numeric or a not-a-character is OK
+		}
+		event.preventDefault();
+	}
+
+	protected void onGroceryAdd(KeyboardEvent event) {
+		if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
+			InputElement element = (InputElement) event.getTarget();
+			if (!element.getValue().isEmpty()) {
+				addGrocery(element.getValue());
+				element.setValue("");
+			}
+		}
 	}
 
 	public void addGrocery(String text) {
@@ -209,7 +239,7 @@ public class View implements EntryPoint {
 		Pojofy.ajax("PUT", billsUrl, bill, billMap, null, null);
 	}
 
-	public void menuHome(Event evt) {
+	public void onMenuHome(Event evt) {
 		menu.state("home");
 		totals.unhide();
 		bills.hide();
@@ -219,7 +249,7 @@ public class View implements EntryPoint {
 		Pojofy.ajax("GET", totalsUrl, null, null, totalsMap, this::setTotals);
 	}
 
-	public void menuBills(Event evt) {
+	public void onMenuBills(Event evt) {
 		menu.state("bills");
 		totals.hide();
 		bills.unhide();
@@ -229,7 +259,7 @@ public class View implements EntryPoint {
 		Pojofy.ajax("GET", billsUrl, null, null, billsMap, this::setBills);
 	}
 
-	public void menuGrocery(Event evt) {
+	public void onMenuGrocery(Event evt) {
 		menu.state("grocery");
 		totals.hide();
 		bills.hide();

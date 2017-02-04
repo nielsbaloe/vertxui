@@ -21,7 +21,7 @@ import live.connector.vertxui.samples.client.mvcBootstrap.dto.Totals;
 import live.connector.vertxui.samples.server.AllExamplesServer;
 import live.connector.vertxui.server.transport.Pojofy;
 
-public class Controller extends AbstractVerticle {
+public class ServerBootstrap extends AbstractVerticle {
 
 	// private final static Logger log =
 	// Logger.getLogger(MethodHandles.lookup().lookupClass().getName());

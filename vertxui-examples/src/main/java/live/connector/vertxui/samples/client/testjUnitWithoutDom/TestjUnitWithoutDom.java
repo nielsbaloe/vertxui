@@ -58,17 +58,17 @@ public class TestjUnitWithoutDom {
 
 		// After pressing the menuBills button, check in the LI with class
 		// active, the name of the A-link.
-		v.menuBills(null);
+		v.onMenuBills(null);
 		List<Fluent> b = VirtualDomSearch.getElementsByClassName("active", Fluent.body);
 		assertEquals(b.size(), 1);
-		assertTrue(((Fluent) b.get(0).getChildren().get(0)).in().equals("Bills"));
+		assertTrue(((Fluent) b.get(0).getChildren().get(0)).txt().equals("Bills"));
 	}
 
 	@Test
 	public void nonBodyTest() {
 		Fluent root = Fluent.Div();
 		root.h1(null, "blabla");
-		root.ul("aClass", Fluent.Li().in("bladiebla"), Fluent.Li().in("pooo"));
+		root.ul("aClass", Fluent.Li().txt("bladiebla"), Fluent.Li().txt("pooo"));
 
 		assertEquals(1, VirtualDomSearch.getElementsByClassName("aClass", root).size());
 		assertEquals(2, VirtualDomSearch.getElementsByTagName("LI", root).size());

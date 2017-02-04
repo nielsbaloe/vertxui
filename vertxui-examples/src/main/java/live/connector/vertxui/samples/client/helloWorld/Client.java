@@ -22,7 +22,7 @@ public class Client implements EntryPoint {
 
 		button = document.createElement("button");
 		button.setAttribute("id", "hello-button");
-		button.setInnerText("Click me");
+		button.setTextContent("Click me");
 		button.setOnclick(this::clicked);
 		body.appendChild(button);
 
@@ -30,7 +30,7 @@ public class Client implements EntryPoint {
 		body.appendChild(response);
 
 		thinking = document.createElement("div");
-		thinking.setInnerText("The server waits as demonstration");
+		thinking.setTextContent("The server waits as demonstration");
 		thinking.getStyle().setProperty("display", "none");
 		body.appendChild(thinking);
 	}

@@ -76,7 +76,7 @@ public class Fluent implements Viewable {
 	 * If we are attached, this element exists, otherwise this is null (or we
 	 * must be synced).
 	 */
-	protected Element element;
+	protected Node element;
 	protected Fluent parent;
 
 	/**
@@ -88,7 +88,7 @@ public class Fluent implements Viewable {
 	protected TreeMap<Css, String> styles;
 	protected TreeMap<String, EventListener> listeners;
 	protected List<Viewable> childs;
-	protected String inner;
+	protected String text;
 
 	/**
 	 * API call for normal HTML elements. Without a parent: detached.
@@ -107,7 +107,12 @@ public class Fluent implements Viewable {
 
 		// Add to DOM if connected
 		if (tag != null && parent != null && parent.element != null) {
-			element = document.createElement(tag);
+
+			if (tag.equals("TEXT")) {
+				element = document.createTextNode("");
+			} else {
+				element = document.createElement(tag);
+			}
 			if (parent != null) {
 				// console.log("appending " + tag + " to parentTag: " +
 				// parent.tag);
@@ -130,23 +135,25 @@ public class Fluent implements Viewable {
 	/**
 	 * Do not create but GET the dom object.
 	 */
-	public Element dom() {
+	public Node dom() {
 		return element;
 	}
 
 	/**
-	 * Set the inner text (HTML) for this element. Set to null (or empty string)
-	 * to clear.
+	 * Set the textContent (HTML) for this element, avoiding the less stable
+	 * innerHtml and innerTxt. Set to null (or empty string) to clear. Note that
+	 * it will also set the text of all children, so although this is most often
+	 * what you mean, if there are other items in there as well, use text().
 	 */
-	public Fluent in(String innerText) {
-		if (Renderer.equalsString(this.inner, innerText)) {
-			// console.log("Skipping, still " + innerText);
+	public Fluent txt(String text) {
+		if (Renderer.equalsString(this.text, text)) {
+			// console.log("Skipping, still " + text);
 			return this;
 		}
-		this.inner = innerText;
+		this.text = text;
 		if (element != null) {
-			// console.log("setting innerText to "+innerText);
-			element.setInnerText(innerText);
+			// console.log("setting textto "+text);
+			element.setTextContent(text);
 		}
 		return this;
 	}
@@ -155,8 +162,8 @@ public class Fluent implements Viewable {
 	 * Gives the inner html that has been set; note that the real DOM inner HTML
 	 * is "" if you set it to null or when no value is given anymore.
 	 */
-	public String in() {
-		return this.inner;
+	public String txt() {
+		return this.text;
 	}
 
 	/**
@@ -171,13 +178,13 @@ public class Fluent implements Viewable {
 		if (value != null) {
 			listeners.put(name, value);
 			if (element != null) {
-				((Node) element).addEventListener(name, value);
+				element.addEventListener(name, value);
 			}
 		} else { // remove
 			EventListener oldValue = listeners.get(name);
 			listeners.remove(name);
 			if (element != null) {
-				((Node) element).removeEventListener(name, oldValue);
+				element.removeEventListener(name, oldValue);
 			}
 		}
 		return this;
@@ -320,9 +327,9 @@ public class Fluent implements Viewable {
 		}
 		if (element != null) {
 			if (value == null) {
-				element.getStyle().removeProperty(name.nameValid());
+				((Element) element).getStyle().removeProperty(name.nameValid());
 			} else {
-				element.getStyle().setProperty(name.nameValid(), value);
+				((Element) element).getStyle().setProperty(name.nameValid(), value);
 			}
 		}
 		return this;
@@ -361,25 +368,56 @@ public class Fluent implements Viewable {
 			if (attrs.containsKey(name)) {
 				attrs.remove(name);
 				if (element != null) {
-					if (name != Att.checked) {
-						element.removeAttribute(name.nameValid());
-					} else {
+
+					switch (name) {
+					case checked:
 						((InputElement) element).setChecked(false);
+						break;
+					case value:
+						((InputElement) element).setValue(null);
+						break;
+					default:
+						((Element) element).removeAttribute(name.nameValid());
+						break;
 					}
+
 				}
 			}
 		} else {
 			// TODO do not set when value is the same, also elsewhere
 			attrs.put(name, value);
 			if (element != null) {
-				if (name != Att.checked) {
-					element.setAttribute(name.nameValid(), value);
-				} else {
+
+				switch (name) {
+				case checked:
 					((InputElement) element).setChecked(true);
+					break;
+				case value:
+					((InputElement) element).setValue(value);
+					break;
+				default:
+					((Element) element).setAttribute(name.nameValid(), value);
+					break;
 				}
+
 			}
 		}
 		return this;
+	}
+
+	/**
+	 * Get the value of an input field; use att() to set the value.
+	 */
+	public String domValue() {
+		return ((InputElement) element).getValue();
+	}
+
+	/**
+	 * Get whether an input with type checkbox is checked; use att() to set the
+	 * value.
+	 */
+	public boolean domChecked() {
+		return ((InputElement) element).isChecked();
 	}
 
 	public String att(Att name) {
@@ -418,7 +456,10 @@ public class Fluent implements Viewable {
 			((ViewOnBase) item).sync(); // needs to render!
 		} else {
 			item = getRootOf((Fluent) item);
-			if (element != null) {
+
+			// This line connects staticly created Fluents to the DOM.
+			// see for comments for the if-statement below in ViewOnBase::sync()
+			if (!GWT.isClient() || element != null) {
 				Renderer.syncChild(this, item, null);
 			}
 		}
@@ -445,8 +486,8 @@ public class Fluent implements Viewable {
 	 * Try not to use this method, use the fluent methods or the cosntructors
 	 * instead.
 	 */
-	public Fluent add(Fluent... items) {
-		for (Fluent item : items) {
+	public Fluent add(Viewable... items) {
+		for (Viewable item : items) {
 			addNew(item);
 		}
 		return this;
@@ -465,21 +506,15 @@ public class Fluent implements Viewable {
 		return childs;
 	}
 
-	public ViewOnBase add(ViewOnBase result) {
-		result.setParent(this);
-		addNew(result);
-		return result;
-	}
-
 	public <T> ViewOn<T> add(T initialState, Function<T, Fluent> method) {
 		ViewOn<T> result = new ViewOn<T>(initialState, method);
-		add(result);
+		addNew(result);
 		return result;
 	}
 
 	public <A, B> ViewOnBoth<A, B> add(A initialState1, B initialState2, BiFunction<A, B, Fluent> method) {
 		ViewOnBoth<A, B> result = new ViewOnBoth<A, B>(initialState1, initialState2, method);
-		add(result);
+		addNew(result);
 		return result;
 	}
 
@@ -510,37 +545,12 @@ public class Fluent implements Viewable {
 		return result;
 	}
 
-	public Fluent hidden(boolean b) {
-		element.setHidden(b);
-		// if (hidden) {
-		// css(Style.visibility, "hidden");
-		// } else {
-		// css(Style.visibility, "visible");
-		// }
-		return this;
-	}
-
 	public void disabled(boolean disabled) {
 		if (disabled) {
 			att(Att.disable, "");
 		} else {
 			att(Att.disable, null);
 		}
-	}
-
-	/**
-	 * Get the value of an input field.
-	 */
-	public String value() {
-		return ((InputElement) element).getValue();
-	}
-
-	/**
-	 * Set the value of an input field.
-	 */
-	public Fluent value(String value) {
-		((InputElement) element).setValue("");
-		return this;
 	}
 
 	// Constructor-tags:
@@ -591,7 +601,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent button(String classs, String text) {
-		return button().classs(classs).in(text);
+		return button().classs(classs).txt(text);
 	}
 
 	public static Fluent Button() {
@@ -603,7 +613,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Button(String classs, String text) {
-		return Button().classs(classs).in(text);
+		return Button().classs(classs).txt(text);
 	}
 
 	public Fluent li() {
@@ -615,7 +625,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent li(String classs, String text) {
-		return li(classs).in(text);
+		return li(classs).txt(text);
 	}
 
 	public Fluent li(Fluent... fluents) {
@@ -631,7 +641,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Li(String classs, String inner) {
-		return Li(classs).in(inner);
+		return Li(classs).txt(inner);
 	}
 
 	public static Fluent Li(Fluent... fluents) {
@@ -647,7 +657,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent div(String classs, String inner) {
-		return div(classs).in(inner);
+		return div(classs).txt(inner);
 	}
 
 	public Fluent div(Fluent... list) {
@@ -659,7 +669,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent div(String classs, String inner, Fluent... adds) {
-		return div(classs).in(inner).add(adds);
+		return div(classs).txt(inner).add(adds);
 	}
 
 	public Fluent div(String classs, Stream<Fluent> stream) {
@@ -679,7 +689,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Div(String classs, String inner) {
-		return Div().classs(classs).in(inner);
+		return Div().classs(classs).txt(inner);
 	}
 
 	public static Fluent Div(Fluent... list) {
@@ -706,6 +716,18 @@ public class Fluent implements Viewable {
 
 	public Fluent br() {
 		return new Fluent("BR", this);
+	}
+
+	/**
+	 * If you really really have to combine plain text and DOM elements next to
+	 * each other: create a html text NODE. The behavior is plain text, but
+	 * thanks to this method it is as if you area creating <text>...</text>. For
+	 * 99% of all cases, please use txt(...) to set the text of an node, however
+	 * this fails when there are other html tags inside too (which is badly ugly
+	 * anyway). So if you can, do not use this method!
+	 */
+	public Fluent text(String text) {
+		return new Fluent("TEXT", this).txt(text);
 	}
 
 	public Fluent col() {
@@ -750,12 +772,12 @@ public class Fluent implements Viewable {
 		return new Fluent("WBR", this);
 	}
 
-	public Fluent a(String inner, String href) {
-		return new Fluent("A", this).att(Att.href, href).in(inner);
+	public Fluent a(String classs, String inner, String href, Consumer<MouseEvent> clickListener) {
+		return new Fluent("A", this).classs(classs).txt(inner).att(Att.href, href).click(clickListener);
 	}
 
-	public static Fluent A(String classs, String inner, String href) {
-		return new Fluent("A", null).att(Att.href, href).classs(classs).in(inner);
+	public static Fluent A(String classs, String inner, String href, Consumer<MouseEvent> clickListener) {
+		return new Fluent("A", null).classs(classs).txt(inner).att(Att.href, href).click(clickListener);
 	}
 
 	public Fluent abbr() {
@@ -882,6 +904,18 @@ public class Fluent implements Viewable {
 		return new Fluent("FOOTER", this);
 	}
 
+	public Fluent footer(String classs) {
+		return footer().classs(classs);
+	}
+
+	public static Fluent Footer() {
+		return new Fluent("FOOTER", null);
+	}
+
+	public static Fluent Footer(String classs) {
+		return Footer().classs(classs);
+	}
+
 	public Fluent form() {
 		return new Fluent("FORM", this);
 	}
@@ -903,11 +937,11 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent h1(String classs, String text) {
-		return h1().classs(classs).in(text);
+		return h1().classs(classs).txt(text);
 	}
 
 	public static Fluent H1(String classs, String text) {
-		return new Fluent("H1", null).classs(classs).in(text);
+		return new Fluent("H1", null).classs(classs).txt(text);
 	}
 
 	public Fluent h2() {
@@ -971,7 +1005,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent label(String classs, String inner) {
-		return label().classs(classs).in(inner);
+		return label().classs(classs).txt(inner);
 	}
 
 	public static Fluent Label() {
@@ -983,7 +1017,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Label(String classs, String inner) {
-		return Label().classs(classs).in(inner);
+		return Label().classs(classs).txt(inner);
 	}
 
 	public Fluent legend() {
@@ -1047,7 +1081,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Option(String classs, String inner) {
-		return Option().classs(classs).in(inner);
+		return Option().classs(classs).txt(inner);
 	}
 
 	public Fluent output() {
@@ -1059,11 +1093,11 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent p(String classs, String text) {
-		return p().classs(classs).in(text);
+		return p().classs(classs).txt(text);
 	}
 
 	public Fluent pre(String classs, String text) {
-		return new Fluent("PRE", this).classs(classs).in(text);
+		return new Fluent("PRE", this).classs(classs).txt(text);
 	}
 
 	public Fluent progress() {
@@ -1216,7 +1250,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent span(String classs, String inner) {
-		return span().classs(classs).in(inner);
+		return span().classs(classs).txt(inner);
 	}
 
 	public static Fluent Span() {
@@ -1228,11 +1262,19 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Span(String classs, String inner) {
-		return Span().classs(classs).in(inner);
+		return Span().classs(classs).txt(inner);
 	}
 
 	public Fluent strong() {
 		return new Fluent("STRONG", this);
+	}
+
+	public Fluent strong(String classs) {
+		return strong().classs(classs);
+	}
+
+	public Fluent strong(String classs, String text) {
+		return strong().classs(classs).txt(text);
 	}
 
 	public Fluent sub() {
@@ -1272,7 +1314,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent td(String classs, String inner) {
-		return td().classs(classs).in(inner);
+		return td().classs(classs).txt(inner);
 	}
 
 	public static Fluent Td() {
@@ -1280,7 +1322,7 @@ public class Fluent implements Viewable {
 	}
 
 	public static Fluent Td(String classs, String inner) {
-		return Td().classs(classs).in(inner);
+		return Td().classs(classs).txt(inner);
 	}
 
 	public Fluent textarea() {
@@ -1304,7 +1346,7 @@ public class Fluent implements Viewable {
 	}
 
 	public Fluent title(String classs, String inner) {
-		return new Fluent("TITLE", this).classs(classs).in(inner);
+		return new Fluent("TITLE", this).classs(classs).txt(inner);
 	}
 
 	public Fluent tr() {
@@ -1393,8 +1435,8 @@ public class Fluent implements Viewable {
 					"You can only clone objects created with a static method (which start with a capital letter like Div or Span) and which are not DOM-connected yet.");
 		}
 		Fluent result = new Fluent(tag, null);
-		if (inner != null) {
-			result.in(inner);
+		if (text != null) {
+			result.txt(text);
 		}
 		if (attrs != null) {
 			for (Att att : attrs.keySet()) {
@@ -1437,8 +1479,8 @@ public class Fluent implements Viewable {
 		if (tag != null) {
 			result.append(tag);
 		}
-		if (inner != null) {
-			result.append(inner);
+		if (text != null) {
+			result.append(text);
 		}
 		if (attrs != null) {
 			for (Att att : attrs.keySet()) {

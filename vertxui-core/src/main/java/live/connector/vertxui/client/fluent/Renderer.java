@@ -57,21 +57,26 @@ public class Renderer {
 		newView.parent = parent;
 
 		if (parent.element != null) { // if dom-attached
-			newView.element = document.createElement(newView.tag);
+
+			if (newView.tag.equals("TEXT")) {
+				newView.element = document.createTextNode("");
+			} else {
+				newView.element = document.createElement(newView.tag);
+			}
 			// NOT APPENDCHILD, WE DO THAT AS LATE AS POSSIBLE
 
 			if (newView.attrs != null) {
 				for (Att name : newView.attrs.keySet()) {
-					newView.element.setAttribute(name.nameValid(), newView.attrs.get(name));
+					((Element)newView.element).setAttribute(name.nameValid(), newView.attrs.get(name));
 				}
 			}
 			if (newView.styles != null) {
 				for (Css name : newView.styles.keySet()) {
-					newView.element.getStyle().setProperty(name.nameValid(), newView.styles.get(name));
+					((Element)newView.element).getStyle().setProperty(name.nameValid(), newView.styles.get(name));
 				}
 			}
-			if (newView.inner != null) {
-				newView.element.setInnerText(newView.inner);
+			if (newView.text != null) {
+				newView.element.setTextContent(newView.text);
 			}
 			if (newView.listeners != null) {
 				for (String name : newView.listeners.keySet()) {
@@ -121,8 +126,8 @@ public class Renderer {
 		if (parent.element != null) { // if we are dom-attached
 			newView.element = oldView.element;
 
-			if (!equalsString(newView.inner, oldView.inner)) {
-				newView.element.setInnerText(newView.inner);
+			if (!equalsString(newView.text, oldView.text)) {
+				newView.element.setTextContent(newView.text);
 			}
 			compareApply(newView.element, newView.attrs, oldView.attrs, emptyAttributes);
 			compareApply(newView.element, newView.styles, oldView.styles, emptyStyles);
@@ -149,51 +154,55 @@ public class Renderer {
 			} else {
 				oldChildAsFluent = ((ViewOnBase) oldChild).getView();
 			}
-//
-//			// middle-child removal optimalisation
-//			// if number of childs/differ, and if there is an old child
-//			if (nChilds != oChilds && oldChild != null) {
-//				Fluent.console.log("Starting compare for new=" + newChild.getCrcString() + " because nChilds=" + nChilds
-//						+ " oChilds=" + oChilds);
-//
-//				long newRef = newChild.getCrc();
-//				// and if the
-//				// current child is different
-//				if (newRef != oldChildAsFluent.getCrc()) { // then look forward
-//															// whether there
-//					Fluent.console.log("  not equal for old =" + oldChildAsFluent.getCrcString());
-//					// is a next one similar
-//					for (int y = 0; y < oChilds; y++) {
-//						Viewable test = oldView.childs.get(y);
-//						Fluent tester = null;
-//						if (test == null) {
-//							continue;
-//						} else if (test instanceof Fluent) {
-//							tester = (Fluent) test;
-//						} else {
-//							tester = ((ViewOnBase) test).getView();
-//						}
-//						if (tester.getCrc() == newRef) {
-//
-//							if (parent.element != null) {
-//
-//								Fluent.console
-//										.log("Switching " + oldChildAsFluent.element.getParentElement().getOuterHTML()
-//												+ " and " + tester.element.getParentElement().getOuterHTML());
-//								parent.element.replaceChild(oldChildAsFluent.element, tester.element);
-//								Element intermediate = tester.element;
-//								tester.element = oldChildAsFluent.element;
-//								oldChildAsFluent.element = intermediate;
-//							}
-//
-//							oldView.childs.set(x, tester);
-//							oldView.childs.set(y, oldChild);
-//
-//							break;
-//						}
-//					}
-//				}
-//			}
+			//
+			// // middle-child removal optimalisation
+			// // if number of childs/differ, and if there is an old child
+			// if (nChilds != oChilds && oldChild != null) {
+			// Fluent.console.log("Starting compare for new=" +
+			// newChild.getCrcString() + " because nChilds=" + nChilds
+			// + " oChilds=" + oChilds);
+			//
+			// long newRef = newChild.getCrc();
+			// // and if the
+			// // current child is different
+			// if (newRef != oldChildAsFluent.getCrc()) { // then look forward
+			// // whether there
+			// Fluent.console.log(" not equal for old =" +
+			// oldChildAsFluent.getCrcString());
+			// // is a next one similar
+			// for (int y = 0; y < oChilds; y++) {
+			// Viewable test = oldView.childs.get(y);
+			// Fluent tester = null;
+			// if (test == null) {
+			// continue;
+			// } else if (test instanceof Fluent) {
+			// tester = (Fluent) test;
+			// } else {
+			// tester = ((ViewOnBase) test).getView();
+			// }
+			// if (tester.getCrc() == newRef) {
+			//
+			// if (parent.element != null) {
+			//
+			// Fluent.console
+			// .log("Switching " +
+			// oldChildAsFluent.element.getParentElement().getOuterHTML()
+			// + " and " + tester.element.getParentElement().getOuterHTML());
+			// parent.element.replaceChild(oldChildAsFluent.element,
+			// tester.element);
+			// Element intermediate = tester.element;
+			// tester.element = oldChildAsFluent.element;
+			// oldChildAsFluent.element = intermediate;
+			// }
+			//
+			// oldView.childs.set(x, tester);
+			// oldView.childs.set(y, oldChild);
+			//
+			// break;
+			// }
+			// }
+			// }
+			// }
 
 			syncChild(newView, newChild, oldChildAsFluent);
 		}
@@ -203,7 +212,7 @@ public class Renderer {
 	private final static String[] emptyListeners = new String[0];
 	private final static Att[] emptyAttributes = new Att[0];
 
-	private static <K extends Comparable<K>, V> void compareApply(Element element, TreeMap<K, V> treeNew,
+	private static <K extends Comparable<K>, V> void compareApply(Node element, TreeMap<K, V> treeNew,
 			TreeMap<K, V> treeOld, K[] empty) {
 
 		K[] keysNew = (treeNew == null) ? empty : treeNew.keySet().toArray(empty);
@@ -313,33 +322,33 @@ public class Renderer {
 		// }
 	}
 
-	private static <T, V> void compareApplyRemove(Element element, T name, V value) {
+	private static <T, V> void compareApplyRemove(Node element, T name, V value) {
 		// Fluent.console.log("removing " + name + " with " + value);
 		if (name instanceof Att) {
 			if (name != Att.checked) {
-				element.removeAttribute(((Att) name).nameValid());
+				((Element)element).removeAttribute(((Att) name).nameValid());
 			} else {
 				((InputElement) element).setChecked(false);
 			}
 		} else if (name instanceof Css) {
-			element.getStyle().removeProperty(((Css) name).nameValid());
+			((Element)element).getStyle().removeProperty(((Css) name).nameValid());
 		} else {
-			((Node) element).removeEventListener((String) name, (EventListener) value);
+			element.removeEventListener((String) name, (EventListener) value);
 		}
 	}
 
-	private static <T, V> void compareApplySet(Element element, T name, V value) {
+	private static <T, V> void compareApplySet(Node element, T name, V value) {
 		// Fluent.console.log("setting " + name + " with " + value);
 		if (name instanceof Att) {
 			if (name != Att.checked) {
-				element.setAttribute(((Att) name).nameValid(), (String) value);
+				((Element)element).setAttribute(((Att) name).nameValid(), (String) value);
 			} else {
 				((InputElement) element).setChecked(true);
 			}
 		} else if (name instanceof Css) {
-			element.getStyle().setProperty(((Css) name).nameValid(), (String) value);
+			((Element)element).getStyle().setProperty(((Css) name).nameValid(), (String) value);
 		} else {
-			((Node) element).addEventListener((String) name, (EventListener) value);
+			element.addEventListener((String) name, (EventListener) value);
 		}
 	}
 

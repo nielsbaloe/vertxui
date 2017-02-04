@@ -15,6 +15,9 @@ import live.connector.vertxui.client.fluent.Viewable;
 public class VirtualDomSearch {
 
 	private static void filter(Fluent target, Predicate<Fluent> filter, List<Fluent> result) {
+		if (target == null) {
+			return;
+		}
 		if (filter.test(target)) {
 			result.add(target);
 		}

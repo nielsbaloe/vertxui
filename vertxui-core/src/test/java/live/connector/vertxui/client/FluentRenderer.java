@@ -1,6 +1,6 @@
 package live.connector.vertxui.client;
 
-import static live.connector.vertxui.client.fluent.Fluent.*;
+import static live.connector.vertxui.client.fluent.Fluent.body;
 import static live.connector.vertxui.client.test.Asserty.assertEquals;
 import static live.connector.vertxui.client.test.Asserty.assertTrue;
 
@@ -9,11 +9,12 @@ import java.util.Collections;
 import java.util.List;
 
 import elemental.css.CSSStyleDeclaration;
+import elemental.dom.Element;
 import elemental.dom.NamedNodeMap;
 import elemental.events.Event;
 import live.connector.vertxui.client.fluent.Att;
-import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Css;
+import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.client.test.TestDOM;
 
@@ -93,7 +94,7 @@ public class FluentRenderer extends TestDOM {
 				break;
 			case 4:
 				result.att(Att.id, "id");
-				result.att(Att.checked, "checked");
+				result.att(Att.content, "content");
 				result.att(Att.accept, "accept");
 				break;
 			}
@@ -155,7 +156,7 @@ public class FluentRenderer extends TestDOM {
 		attributeNames = getAllNamesFromAttributes(view);
 		assertEquals("8", attributeNames.size(), 3);
 		assertEquals("8.1", attributeNames.get(0), "accept");
-		assertEquals("8.2", attributeNames.get(1), "checked");
+		assertEquals("8.2", attributeNames.get(1), "content");
 		assertEquals("8.3", attributeNames.get(2), "id");
 
 		// Should remove checked
@@ -264,7 +265,7 @@ public class FluentRenderer extends TestDOM {
 	}
 
 	private List<String> getAllNamesFromStyles(ViewOn<Integer> view) {
-		CSSStyleDeclaration styles = view.getView().dom().getStyle();
+		CSSStyleDeclaration styles = ((Element)view.getView().dom()).getStyle();
 		List<String> result = new ArrayList<>();
 		for (int x = 0; x < styles.getLength(); x++) {
 			result.add(styles.item(x));

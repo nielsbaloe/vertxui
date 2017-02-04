@@ -3,7 +3,7 @@ vertxui
 
 Suppose we had native asynchronous Java access at the browser, backed by a no-nonsense Java asynchronous server. Then both browser and server would be using the same Java strong-typed data entities/DTO's for ajax/websocket/sockjs traffic. And we would have an eventbus where server and browsers can share information.
 
-For the view, we would not want to write HTML or a javascript-lookalike new language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view on an entity, similar to ReactJS but then nicely in Java with lambda's streams enums and other object oriented features.
+For the view, we would not want to write HTML or a javascript-lookalike new language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view on an entity, similar to ReactJS but then nicely in Java with streams enums namespaces and other basic object oriented mature language features.
 
 Regarding tooling, we would want to use trusted Java tooling like jUnit, and realtime debugging with automatic browser refreshing after a code change, but we would not want to install any IDE-specific tooling.  
 
@@ -32,10 +32,11 @@ Pure-Java clientside (not locked-in currently using down-to-the-DOM wrapped-away
 * extremely easy junit testing of client-side GUI (even without a DOM, but also with a DOM), and other Java tooling
 
 VertxUI is _not_ at all
-* a HTML template engine: no HTML is generated at all; VertxUI is for writing single-paged-applications.
-* a javascript framework; it leans on plain javascript and HTML+CSS, instead adding a new set of javascript tooling.
+* a HTML template engine: VertxUI is for writing single-paged-applications (static templating is HTML itsself).
+* a javascript framework; it leans on plain HTML + CSS, instead adding a new set of javascript tooling.
+* a locked-in solution: you can also use VertxUI to extend an existing page, or use in Tomcat instead of Verx.
 
-Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, a Bootstrap application, a jQuery Mobile application, and more.
+Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, a Bootstrap application, and more.
 
 ### Serverside
 
@@ -84,24 +85,24 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 You can create state-aware Fluent HTML objects with ViewOn. The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent Html only updates changed DOM-items.
 
 		ViewOn<Model> view = response.add(model, m -> {
-				 return Li("myClass").a(m.name, "/details?name=" + m.name);
+				 return Li("myClass").a(null, m.name, "/details?name=" + m.name);
 			}
 		});
 
 		input.keyup(event -> {
 			 model.name = input.value();
-			 view.sync(); // re-render.
+			 view.sync(); // re-renders
 		});
 
-The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your class. You can abuse this to set the state when your Model is just a primitive for example a string. The method .state(model) also calls sync:
+The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your class. You can abuse this to set the state when your Model is just a primitive for example a string. The method .state(model) also calls sync():
 
 		input.keyup(event -> {
-			view.state("newValue");
+			view.state(input.value());
 		});
 
 If necessary, use Java 8 streams to write your user interface:
 
-	div(Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li(t)));
+	div(Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li("aClass",t)));
 
 
 ### jUnit
@@ -149,11 +150,11 @@ The model+view (browser):
 	
 	public View() {
 		response = body.div();
-		Input input = body.div().input("text", "aName");
+		Input input = body.div().input("cssClass", "text");
 		
 		// Controller		
 		input.keyUp(changed -> {
-			model.name = input.value();
+			model.name = input.domValue();
 			Pojofy.ajax("POST", "/ajax", model, modelMap, null, (String s) -> console.log(s));
 		});
 
@@ -168,9 +169,9 @@ The controller (serverside) can be for example (ajax example):
 
 ### More
 
-Currently GWT is used, because it is by far the most efficiënt and full-featured Java 8 implementation out there. In the first month, TeaVM is used, which is 1000% faster in compiling but does not correctly support all lambda notations. The same goes for jsweet, Vertxui was ported into jsweet in about half an hour, but jsweet does not support all Java constructions (not even enums properly).
+Currently GWT -extremely wrapped away- is used, because it is by far the most efficiënt and full-featured Java 2 Javascript implementation out there. In the first month, TeaVM was used, which is 1000% faster in compiling but does not correctly support lambda's. The same goes for jsweet, Vertxui was ported into jsweet in about half an hour, but jsweet does not support all Java constructions (like enums) and does not do a very good job in 100% Java support. GWT is actually very reliable, it's been chewed on since 2006 ;) .
 
-Polyglot is possible as long as the sourcecode is included in the jars.
+Polyglot is possible as long as the sourcecode is included in the jars, there are vague plans to support Groovy as a proof of concept.
 
 
 Niels Gorisse

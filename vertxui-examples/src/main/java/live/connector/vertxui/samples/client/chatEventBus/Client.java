@@ -8,6 +8,7 @@ import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.KeyboardEvent;
 import elemental.json.Json;
+import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.EventBus;
 import live.connector.vertxui.samples.client.AllExamplesClient;
@@ -45,8 +46,8 @@ public class Client implements EntryPoint {
 
 		input.keydown(event -> {
 			if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
-				eventBus.publish(freeway, name + ": " + input.value(), null);
-				input.value(""); // clear the inputfield
+				eventBus.publish(freeway, name + ": " + input.domValue(), null);
+				input.att(Att.value,""); 
 
 				// extra example: object publish
 				eventBus.publish(addressPojo, new Dto("blue by " + name), Json.parse("{\"action\":\"save\"}"),

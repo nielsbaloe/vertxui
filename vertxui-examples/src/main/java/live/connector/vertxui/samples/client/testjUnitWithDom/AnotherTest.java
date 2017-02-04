@@ -19,12 +19,12 @@ public class AnotherTest extends TestDOM {
 
 		String id = "id" + Math.random();
 		String inner = "bladiebla" + Math.random();
-		body.div().in(inner).id(id).classs("bladiebla");
+		body.div().txt(inner).id(id).classs("bladiebla");
 		printStructure((Element) body.dom());
 
 		Element found = document.getElementById(id);
 		assertTrue("should exist", found != null);
-		assertEquals("inner text", found.getInnerText(), inner);
+		assertEquals("inner text", found.getTextContent(), inner);
 	}
 
 	private void printStructure(Element element) {
@@ -37,8 +37,8 @@ public class AnotherTest extends TestDOM {
 			}
 		}
 		console.log(">");
-		if (element.getInnerText() != null) {
-			console.log(element.getInnerText());
+		if (element.getTextContent() != null) {
+			console.log(element.getTextContent());
 		}
 		NodeList children = element.getChildNodes();
 		for (int x = 0; x < children.getLength(); x++) {
