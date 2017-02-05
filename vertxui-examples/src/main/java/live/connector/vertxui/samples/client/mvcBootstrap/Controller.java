@@ -16,7 +16,8 @@ import live.connector.vertxui.samples.client.mvcBootstrap.dto.Totals;
 
 public class Controller {
 
-	// Models
+	// Models - here the controller 'owns' them, but you can also let the store
+	// own them.
 	private Totals totals = new Totals();
 	private Bills bills = new Bills();
 	private Grocery grocery = new Grocery();
@@ -101,36 +102,39 @@ public class Controller {
 	}
 
 	public void onMenuHome(Event evt) {
-		view.syncMenu("home"); // the view handles this model
+		view.stateAndSyncMenu("home"); // the view handles this model
 
 		// Note that old available data is already shown before any answer
 		store.getTotals(this::setTotals);
 	}
 
 	public void onMenuBills(Event evt) {
-		view.syncMenu("bills");// the view handles this model
+		view.stateAndSyncMenu("bills");// the view handles this model
 
 		// Note that old available data is already shown before any answer
 		store.getBills(this::setBills);
 	}
 
 	public void onMenuGrocery(Event evt) {
-		view.syncMenu("grocery");// the view handles this model
+		view.stateAndSyncMenu("grocery");// the view handles this model
 
 		// Note that old available data is already shown before any answer
 		store.getGrocery(this::setGrocery);
 	}
 
+	// callback from the store - in a seperate method so we can junit test it
 	public void setTotals(int responseCode, Totals totals) {
 		this.totals.all = totals.all;
 		view.syncTotals();
 	}
 
+	// callback from the store - in a seperate method so we can junit test it
 	public void setBills(int responseCode, Bills bills) {
 		this.bills.all = bills.all;
 		view.syncBills();
 	}
 
+	// callback from the store - in a seperate method so we can junit test it
 	public void setGrocery(int responseCode, Grocery grocery) {
 		this.grocery.all = grocery.all;
 		view.syncGrocery();

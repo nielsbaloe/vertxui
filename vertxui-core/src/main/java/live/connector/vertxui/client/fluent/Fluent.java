@@ -129,7 +129,7 @@ public class Fluent implements Viewable {
 	 * @param parent
 	 *            the existing object
 	 */
-	protected Fluent(Element parent) {
+	private Fluent(Node parent) {
 		element = parent;
 	}
 
@@ -141,10 +141,28 @@ public class Fluent implements Viewable {
 	}
 
 	/**
+	 * Create a Fluent object by starting out with an existing node with an id,
+	 * usefull for existing HTML pages.
+	 * 
+	 * @return a Fluent object with the give id, or null.
+	 */
+	public static Fluent dom(String id) {
+		Node node = document.getElementById(id);
+		if (node == null) {
+			return null;
+		}
+		return new Fluent(node);
+	}
+
+	/**
 	 * Set the textContent (HTML) for this element, avoiding the less stable
-	 * innerHtml and innerTxt. Set to null (or empty string) to clear. Note that
-	 * it will also set the text of all children, so although this is most often
-	 * what you mean, if there are other items in there as well, use text().
+	 * innerHtml and innerTxt. Set to null (or empty string) to clear.
+	 * 
+	 * Note that it will also set the text of all children, so prevent combining
+	 * text and children together. If you really really mean to have children
+	 * and text together (which is opiniated bad practice), use text() to create
+	 * a text node.
+	 * 
 	 */
 	public Fluent txt(String text) {
 		if (Renderer.equalsString(this.text, text)) {
@@ -160,8 +178,8 @@ public class Fluent implements Viewable {
 	}
 
 	/**
-	 * Gives the inner html that has been set; note that the real DOM inner HTML
-	 * is "" if you set it to null or when no value is given anymore.
+	 * Gives the text that has been set; note that the real DOM text is "" if
+	 * after you set it to null.
 	 */
 	public String txt() {
 		return this.text;
@@ -171,7 +189,6 @@ public class Fluent implements Viewable {
 	 * Add or remove (by value null) an eventlistener.
 	 * 
 	 */
-
 	public Fluent listen(String name, EventListener value) {
 		if (listeners == null) {
 			listeners = new TreeMap<>();

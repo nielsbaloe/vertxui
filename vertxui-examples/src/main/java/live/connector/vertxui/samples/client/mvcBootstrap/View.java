@@ -17,6 +17,7 @@ import static live.connector.vertxui.client.fluent.Fluent.head;
 import java.util.Date;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.shared.DateTimeFormat;
 import com.google.gwt.i18n.shared.DefaultDateTimeFormatInfo;
 
@@ -58,16 +59,19 @@ public class View implements EntryPoint {
 		Store transport = new Store();
 		View view = new View();
 		Controller controller = new Controller(transport, view);
-		view.start(controller, Fluent.window.getLocation().getHref());
+		view.start(controller);
 	}
 
-	public void start(Controller controller, String url) {
+	public void start(Controller controller) {
 
 		// Initialise models:
 		String menuStart = "home";
-		int start = url.indexOf("#");
-		if (start != -1) {
-			menuStart = url.substring(start + 1, url.length());
+		if (GWT.isClient()) {
+			String url = Fluent.window.getLocation().getHref();
+			int start = url.indexOf("#");
+			if (start != -1) {
+				menuStart = url.substring(start + 1, url.length());
+			}
 		}
 
 		// Initialise view:
@@ -194,7 +198,7 @@ public class View implements EntryPoint {
 		totals.sync();
 	}
 
-	public void syncMenu(String state) {
+	public void stateAndSyncMenu(String state) {
 		menu.state(state);
 
 		switch (state) {

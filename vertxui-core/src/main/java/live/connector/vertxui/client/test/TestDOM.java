@@ -52,7 +52,7 @@ public abstract class TestDOM implements EntryPoint {
 		JBrowserDriver jBrowser = new JBrowserDriver(Settings.builder().logJavascript(true).build());
 
 		// Convert to javascript
-		VertxUI.with(this.getClass(), null, true);
+		VertxUI.with(this.getClass(), null, true, true);
 
 		// headless run
 		try {

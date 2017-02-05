@@ -1,15 +1,14 @@
-/07 to do mvc.com with existing html-page - http://todomvc.com/examples/vanillajs/
-/08 make multi-registerable assert-js-callbacks for duallanguage tests, not one class TestDOM
-/09 use mockito instead of storeNone in TestWithoutDOM
-/10 testcase middle-child removal optimalisation + cache crc
-/11 BLOCK: chatEventbus: receivePOJO does not work in debug=false
+/06 make multi-registerable assert-js-callbacks for duallanguage tests, not one class TestDOM
+/07 use mockito instead of storeNone in TestWithoutDOM
+/08 testcase middle-child removal optimalisation + cache crc
+/09 BLOCK: chatEventbus: receivePOJO does not work in debug=false
 /13 FluentInnerRendering: write tests for all types, and also built for all a check whether the new value is different, otherwise don't take the new value.
 /15 split Fluent: all non-html in FluentBase + remove Att.java and Css.java
 /19 FigWheely: fix name of compiled .js changes in GWT... + look at sourcefolder not classes
 /20 relocate war->/build/war
 /22 mvcBootstrap bills paginated
-/30 publish: write wiki, maven, todomvc.com, info@nljug.org, vertx-awesome, vertx, GWT list, g-widgets.com, etc.
-
+/25 write wiki
+/30 publish: maven, todomvc.com, info@nljug.org, vertx-awesome, vertx, GWT list, g-widgets.com, etc.
 
 AFTER RELEASE
 - example with webrtc with 'open source app for android ios windows' like siberiancms.com

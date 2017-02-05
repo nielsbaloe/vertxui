@@ -23,6 +23,18 @@ public class AllExamplesServer {
 
 	public static void startWarAndServer(Class<?> classs, Router router, HttpServer server) {
 
+		// Serve the javascript for figwheely (and turn it on too)
+		router.get(Client.figLocation).handler(FigWheely.create());
+
+		// The main compiled js
+		router.get("/*").handler(VertxUI.with(classs, "/", true, true));
+
+		// Boilerplate startup
+		startWarAndServer2(router, server);
+	}
+
+	public static void startWarAndServer2(Router router, HttpServer server) {
+
 		// Make sure that when we exit, we do it properly.
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
@@ -35,12 +47,6 @@ public class AllExamplesServer {
 				vertx.close();
 			}
 		});
-
-		// All examples: in debug mode, so with figwheely: serve the javascript
-		router.get(Client.figLocation).handler(FigWheely.create());
-
-		// All examples: the main compiled js
-		router.get("/*").handler(VertxUI.with(classs, "/", true));
 
 		// A fancy 404
 		// .failureHandler(fail -> {

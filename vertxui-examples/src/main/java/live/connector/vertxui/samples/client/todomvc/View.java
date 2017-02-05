@@ -1,12 +1,10 @@
 package live.connector.vertxui.samples.client.todomvc;
 
-import static live.connector.vertxui.client.fluent.Fluent.Aside;
-import static live.connector.vertxui.client.fluent.Fluent.Footer;
+import static live.connector.vertxui.client.fluent.Fluent.*;
 import static live.connector.vertxui.client.fluent.Fluent.H1;
 import static live.connector.vertxui.client.fluent.Fluent.Input;
 import static live.connector.vertxui.client.fluent.Fluent.Li;
 import static live.connector.vertxui.client.fluent.Fluent.Ul;
-import static live.connector.vertxui.client.fluent.Fluent.body;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -31,7 +29,7 @@ public class View implements EntryPoint {
 	public static String[] css = { "css/base.css", "css/index.css" };
 
 	public View() {
-		
+
 		// Initialise controller
 		controller = new Controller(this);
 
@@ -42,8 +40,12 @@ public class View implements EntryPoint {
 		// Initialise views:
 
 		// Static upper part
-		body.classs("learn-bar").add(getInfo());
-		Fluent container = body.section("todoapp");
+
+		Fluent container = Fluent.dom("startpoint");
+		if (container == null) { // this is not the pre-defined index.html!!
+			body.classs("learn-bar").aside();
+			container = body.section("todoapp");
+		}
 		container.header("header", H1(null, "todos"),
 				Input("new-todo").placeholder("What needs to be done?").keydown(controller::onInput));
 
@@ -102,11 +104,6 @@ public class View implements EntryPoint {
 			}
 			return result;
 		});
-	}
-
-	private Fluent getInfo() {
-		// TODO Auto-generated method stub
-		return Aside("learn");
 	}
 
 	public void syncModel() {

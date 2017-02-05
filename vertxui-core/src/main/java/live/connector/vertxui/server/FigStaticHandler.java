@@ -21,11 +21,11 @@ public class FigStaticHandler {
 	// private final static Logger log =
 	// Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	public static Handler<RoutingContext> create(String root, String url) {
+	public static Handler<RoutingContext> create(String root, String urlWithoutAsterix) {
 		// log.info("creating figwheely static handler, started=" +
 		// FigWheely.started);
 		if (FigWheely.started) {
-			registerFolder(Vertx.factory.context().owner().fileSystem(), root, url);
+			registerFolder(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix);
 		}
 		return StaticHandler.create(root);
 	}

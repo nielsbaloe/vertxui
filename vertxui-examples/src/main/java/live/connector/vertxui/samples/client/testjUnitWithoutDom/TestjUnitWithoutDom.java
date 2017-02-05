@@ -42,7 +42,7 @@ public class TestjUnitWithoutDom {
 		Store transport = new StoreNone(); // BUT with a different store!
 		View view = new View();
 		Controller controller = new Controller(transport, view);
-		view.start(controller, ""); // AND no URL
+		view.start(controller);
 
 		// Check the title (using 'id')
 		Fluent a = VirtualDomSearch.getElementById("titlerForJunitTest", Fluent.body);
@@ -62,7 +62,7 @@ public class TestjUnitWithoutDom {
 		Store transport = new StoreNone(); // BUT with a different store!
 		View view = new View();
 		Controller controller = new Controller(transport, view);
-		view.start(controller, "");
+		view.start(controller);
 
 		// After pressing the menuBills button, check in the LI with class
 		// active, the name of the A-link.

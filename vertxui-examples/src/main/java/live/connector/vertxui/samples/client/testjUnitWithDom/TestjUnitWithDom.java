@@ -40,7 +40,7 @@ public class TestjUnitWithDom extends TestDOM {
 		Store transport = new StoreNone(); // BUT with a different store!
 		View view = new View();
 		Controller controller = new Controller(transport, view);
-		view.start(controller, "");
+		view.start(controller);
 
 		// After pressing the menuBills button, check in the LI with class
 		// active, the name of the A-link.

@@ -69,7 +69,7 @@ hr {
 }
 
 .quote p:before {
-	content: '‚Äú';
+	content: "ì";
 	font-size: 50px;
 	opacity: .15;
 	position: absolute;
@@ -78,7 +78,7 @@ hr {
 }
 
 .quote p:after {
-	content: '‚Äù';
+	content: "î";
 	font-size: 50px;
 	opacity: .15;
 	position: absolute;

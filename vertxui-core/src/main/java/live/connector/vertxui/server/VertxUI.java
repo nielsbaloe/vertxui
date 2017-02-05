@@ -30,7 +30,8 @@ public class VertxUI {
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	private Class<?> classs;
-	private boolean debug = false;
+	private boolean debug;
+	private boolean withHtml;
 
 	/**
 	 * Set the location of your source files if not /src, /src/main or
@@ -61,10 +62,11 @@ public class VertxUI {
 	 * If figwheely is started or if the URL is null, debugging is set to true.
 	 * 
 	 */
-	private VertxUI(Class<?> classs, String url, boolean debug) {
+	private VertxUI(Class<?> classs, String url, boolean debug, boolean withHtml) {
 		this.classs = classs;
 		this.debug = debug;
-		if (FigWheely.started) {
+		this.withHtml = withHtml;
+		if (FigWheely.started) { // override
 			this.debug = true;
 		}
 
@@ -106,7 +108,7 @@ public class VertxUI {
 	 * java to javascript. Give url:null for compiling only.
 	 * 
 	 */
-	public static Handler<RoutingContext> with(Class<?> classs, String url, boolean debug) {
+	public static Handler<RoutingContext> with(Class<?> classs, String urlSWithoutAsterix, boolean debug, boolean withHtml) {
 
 		// If no sourceLocation, then we are in production so we don't do
 		// anything at all.
@@ -120,8 +122,8 @@ public class VertxUI {
 		if (folderSourceMain == null) {
 			throw new IllegalArgumentException("Please define your sourcefolder location at Vertxui.folderSourceMain");
 		}
-		new VertxUI(classs, url, debug);
-		if (url != null) {
+		new VertxUI(classs, urlSWithoutAsterix, debug, withHtml);
+		if (urlSWithoutAsterix != null) {
 			return StaticHandler.create("war").setCachingEnabled(false);
 		} else {
 			return null;
@@ -136,15 +138,18 @@ public class VertxUI {
 	 * Debug is false by default; enable Figwheely to set debug to true.
 	 */
 	public void translate() throws IOException, InterruptedException {
+
 		// Write index.html file which autoreloads
-		FileUtils.writeStringToFile(new File("war/index.html"),
-				"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
-						+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
-						+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
-						+ "animation:spin 1.0s linear infinite; } "
-						+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
-						+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
-						+ "</style></head><body><div class=loader></div></body></html>");
+		if (withHtml) {
+			FileUtils.writeStringToFile(new File("war/index.html"),
+					"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
+							+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
+							+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
+							+ "animation:spin 1.0s linear infinite; } "
+							+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
+							+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
+							+ "</style></head><body><div class=loader></div></body></html>");
+		}
 
 		// Write the .gml.xml file
 		String className = classs.getName();
@@ -216,39 +221,33 @@ public class VertxUI {
 		}
 
 		// Write the final index.html file
-		StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head>");
-		try {
-			for (String script : (String[]) classs.getDeclaredField("scripts").get(null)) {
-				html.append("<script src='");
-				html.append(script);
-				html.append("'></script>");
+		if (withHtml) {
+			StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head>");
+			try {
+				for (String script : (String[]) classs.getDeclaredField("scripts").get(null)) {
+					html.append("<script src='");
+					html.append(script);
+					html.append("'></script>");
+				}
+			} catch (NoSuchFieldException e) {
+				// is OK, does not exist
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Could not access public static String scripts[]", e);
 			}
-		} catch (NoSuchFieldException e) {
-			// is OK, does not exist
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not access public static String scripts[]", e);
-		}
-		try {
-			for (String css : (String[]) classs.getDeclaredField("css").get(null)) {
-				html.append("<link rel=stylesheet href='");
-				html.append(css);
-				html.append("'/>");
+			try {
+				for (String css : (String[]) classs.getDeclaredField("css").get(null)) {
+					html.append("<link rel=stylesheet href='");
+					html.append(css);
+					html.append("'/>");
+				}
+			} catch (NoSuchFieldException e) {
+				// is OK, does not exist
+			} catch (Exception e) {
+				throw new IllegalArgumentException("Could not access public static String css[]", e);
 			}
-		} catch (NoSuchFieldException e) {
-			// is OK, does not exist
-		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not access public static String css[]", e);
+			html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
+			FileUtils.writeStringToFile(new File("war/index.html"), html.toString());
 		}
-		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
-
-		// Not using vertx filesystem() because there is no speed gain and is
-		// called by tests outside vertx
-		FileUtils.writeStringToFile(new File("war/index.html"), html.toString());
-		// Vertx.currentContext().owner().fileSystem().writeFile(,
-		// Buffer.buffer(), a -> {
-		// if (a.failed()) {
-		// throw new IllegalArgumentException("Could not create html file",
-		// a.cause()); } });
 
 		// OLD ATTEMPT TO RUN GWT EMBEDDED
 		// OLD ATTEMPT TO RUN GWT EMBEDDED
