@@ -12,6 +12,7 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import live.connector.vertxui.samples.client.mvcBootstrap.Store;
 import live.connector.vertxui.samples.client.mvcBootstrap.View;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Bill;
@@ -40,27 +41,23 @@ public class ServerBootstrap extends AbstractVerticle {
 		Router router = Router.router(vertx);
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
-		router.get(View.totalsUrl).handler(Pojofy.ajax(null, this::getTotals));
+		router.get(Store.totalsUrl).handler(Pojofy.ajax(null, this::getTotals));
 
-		router.get(View.billsUrl).handler(Pojofy.ajax(null, this::getBills));
-		router.put(View.billsUrl).handler(Pojofy.ajax(Bill.class, this::addBill));
+		router.get(Store.billsUrl).handler(Pojofy.ajax(null, this::getBills));
+		router.put(Store.billsUrl).handler(Pojofy.ajax(Bill.class, this::addBill));
 
-		router.get(View.groceryUrl).handler(Pojofy.ajax(null, this::getGrocery));
-		router.put(View.groceryUrl).handler(Pojofy.ajax(null, this::addGrocery));
-		router.delete(View.groceryUrl).handler(Pojofy.ajax(null, this::delGrocery));
+		router.get(Store.groceryUrl).handler(Pojofy.ajax(null, this::getGrocery));
+		router.put(Store.groceryUrl).handler(Pojofy.ajax(null, this::addGrocery));
+		router.delete(Store.groceryUrl).handler(Pojofy.ajax(null, this::delGrocery));
 
 		AllExamplesServer.startWarAndServer(View.class, router, server);
 
 		// Fake initial data
 		bills.all = new ArrayList<>();
-		for (int x = 0; x < 10; x++) {
-			Bill bill = new Bill(Name.Niels, 2300, new Date());
-			bill.id = x;
-			bills.all.add(bill);
-		}
+		Bill bill = new Bill(Name.Niels, 2300, new Date());
+		bills.all.add(bill);
 		grocery.all = new ArrayList<>();
 		grocery.all.add("Chocolate milk");
-		grocery.all.add("Banana's");
 	}
 
 	public Totals getTotals(String __, RoutingContext context) {

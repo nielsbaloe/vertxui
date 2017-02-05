@@ -21,6 +21,7 @@ import elemental.events.MouseEvent;
 import elemental.events.UIEvent;
 import elemental.html.Console;
 import elemental.html.InputElement;
+import elemental.html.SelectElement;
 import elemental.html.Window;
 import elemental.js.dom.JsDocument;
 import elemental.js.html.JsWindow;
@@ -418,6 +419,13 @@ public class Fluent implements Viewable {
 	 */
 	public boolean domChecked() {
 		return ((InputElement) element).isChecked();
+	}
+
+	/**
+	 * Get the selected index of a select node.
+	 */
+	public int domSelectedIndex() {
+		return ((SelectElement) element).getSelectedIndex();
 	}
 
 	public String att(Att name) {

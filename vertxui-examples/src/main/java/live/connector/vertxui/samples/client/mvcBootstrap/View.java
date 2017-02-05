@@ -1,6 +1,6 @@
 package live.connector.vertxui.samples.client.mvcBootstrap;
 
-import static live.connector.vertxui.client.fluent.Fluent.*;
+import static live.connector.vertxui.client.fluent.Fluent.Button;
 import static live.connector.vertxui.client.fluent.Fluent.Div;
 import static live.connector.vertxui.client.fluent.Fluent.Form;
 import static live.connector.vertxui.client.fluent.Fluent.Input;
@@ -14,25 +14,16 @@ import static live.connector.vertxui.client.fluent.Fluent.Ul;
 import static live.connector.vertxui.client.fluent.Fluent.body;
 import static live.connector.vertxui.client.fluent.Fluent.head;
 
-import java.util.Collections;
 import java.util.Date;
 
-import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.shared.DateTimeFormat;
 import com.google.gwt.i18n.shared.DefaultDateTimeFormatInfo;
 
-import elemental.dom.Element;
-import elemental.events.Event;
-import elemental.events.KeyboardEvent;
-import elemental.events.MouseEvent;
-import elemental.html.InputElement;
 import live.connector.vertxui.client.fluent.Att;
-import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Css;
+import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
-import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Bill;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Name;
@@ -41,15 +32,12 @@ import live.connector.vertxui.samples.client.mvcBootstrap.dto.Totals;
 
 public class View implements EntryPoint {
 
+	// Views
 	private ViewOn<String> menu;
 	private ViewOn<Totals> totals;
 	private ViewOn<Bills> bills;
 	private ViewOn<Boolean> billsForm;
 	private ViewOn<Grocery> grocery;
-
-	public static String totalsUrl = "/totals";
-	public static String billsUrl = "/bills";
-	public static String groceryUrl = "/grocery";
 
 	public static String[] css = new String[] { "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css",
 			"https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" };
@@ -57,7 +45,7 @@ public class View implements EntryPoint {
 			"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js",
 			"https://code.jquery.com/ui/1.12.1/jquery-ui.js" };
 
-	private DateTimeFormat dater = new InnerDateTimeFormat("dd/MM/yyyy");
+	protected DateTimeFormat dater = new InnerDateTimeFormat("dd/MM/yyyy");
 
 	class InnerDateTimeFormat extends DateTimeFormat {
 		protected InnerDateTimeFormat(String pattern) {
@@ -65,18 +53,26 @@ public class View implements EntryPoint {
 		}
 	}
 
-	public View() {
+	@Override
+	public void onModuleLoad() {
+		Store transport = new Store();
+		View view = new View();
+		Controller controller = new Controller(transport, view);
+		view.start(controller, Fluent.window.getLocation().getHref());
+	}
 
-		// Initialise models
-		String url = Fluent.window.getLocation().getHref();
-		int start = url.indexOf("#");
+	public void start(Controller controller, String url) {
+
+		// Initialise models:
 		String menuStart = "home";
+		int start = url.indexOf("#");
 		if (start != -1) {
 			menuStart = url.substring(start + 1, url.length());
 		}
-		Fluent.console.log(menuStart);
 
-		// Head
+		// Initialise view:
+
+		// Page head
 		head.meta().att(Att.charset, "utf-8");
 		head.meta().att(Att.name_, "viewport", Att.content, "width=device-width, initial-scale=1");
 
@@ -87,15 +83,16 @@ public class View implements EntryPoint {
 		// Menu
 		menu = container.nav("navbar navbar-inverse").add(menuStart, selected -> {
 			Fluent result = Ul("nav navbar-nav");
-			result.li(selected.equals("home") ? "active" : null).a(null, "Home", "#home", this::onMenuHome);
-			result.li(selected.equals("bills") ? "active" : null).a(null, "Bills", "#bills", this::onMenuBills);
-			result.li(selected.equals("grocery") ? "active" : null).a(null, "Grocery", "#grocery", this::onMenuGrocery);
+			result.li(selected.equals("home") ? "active" : null).a(null, "Home", "#home", controller::onMenuHome);
+			result.li(selected.equals("bills") ? "active" : null).a(null, "Bills", "#bills", controller::onMenuBills);
+			result.li(selected.equals("grocery") ? "active" : null).a(null, "Grocery", "#grocery",
+					controller::onMenuGrocery);
 			return result;
 		});
 
-		// Totals on entering
-		totals = container.add(null, totals -> {
-			if (totals == null) {
+		// Totals
+		totals = container.add(controller.getTotals(), totals -> {
+			if (totals.all.isEmpty()) {
 				return null;
 			}
 			Fluent result = Div("row", Div("col-sm-3"));
@@ -119,7 +116,7 @@ public class View implements EntryPoint {
 			// three input fields
 			Fluent name = Select("form-control", Option(null, Name.Niels.name()), Option(null, Name.Linda.name()));
 			Fluent amount = Input("form-control", "number").att(Att.min, "0", Att.max, "2000", Att.value, "0")
-					.keypress(this::onBillOnlyNumeric);
+					.keypress(controller::onBillOnlyNumeric);
 			Fluent when = Input("form-control", "text").id("datepicker");
 
 			Fluent text = Span("input-group-addon").css(Css.width, "100px");
@@ -129,19 +126,21 @@ public class View implements EntryPoint {
 			result.div("input-group", text.clone().txt("When"), when).css(Css.width, "80%");
 
 			result.button("btn btn-success", "OK").att(Att.type, "button").click(event -> {
+				Date date = null;
 				try {
-					addBill(name.domValue(), amount.domValue(), when.domValue());
+					date = dater.parse(when.domValue());
 				} catch (IllegalArgumentException e) {
-					Fluent.window.alert(e.getMessage());
+					Fluent.window.alert("This is not a valid date.");
 					return;
 				}
+				controller.onAddBill(name.domValue(), amount.domValue(), date);
 				billsForm.state(false);
 			});
 			return result;
 		});
 
-		bills = container.add(null, bills -> {
-			if (bills == null) {
+		bills = container.add(controller.getBills(), bills -> {
+			if (bills.all == null) {
 				return null;
 			}
 			Fluent result = Div();
@@ -153,164 +152,68 @@ public class View implements EntryPoint {
 			return result;
 		});
 
-		grocery = container.add(null, dto -> {
-			if (dto == null) {
+		grocery = container.add(controller.getGrocery(), grocery -> {
+			if (grocery.all == null) {
 				return null;
 			}
 			Fluent form = Div().form("form");
 
 			form.div("form-group", Label(null, "Name ").att(Att.for_, "n"),
-					Input("form-control", "text", "n").css(Css.maxWidth, "200px").keyup(this::onGroceryAdd));
-			form.ul(dto.all.stream().map(s -> Div("checkbox",
-					Li(Input().att(Att.type, "checkbox", Att.value, s).click(this::delGrocery), Label(null, s)))));
+					Input("form-control", "text", "n").css(Css.maxWidth, "200px").keyup(controller::onGroceryAdd));
+			form.ul(grocery.all.stream()
+					.map(s -> Div("checkbox",
+							Li(Input().att(Att.type, "checkbox", Att.value, s).click(controller::onGroceryDelete),
+									Label(null, s)))));
 
 			return form; // Fluent winds it back to the origin.
 		});
 
-		// Init
-		switch (menu.state()) {
+		// Init data
+		switch (menuStart) {
 		case "home":
-			onMenuHome(null);
+			controller.onMenuHome(null);
 			break;
 		case "bills":
-			onMenuBills(null);
+			controller.onMenuBills(null);
 			break;
 		case "grocery":
-			onMenuGrocery(null);
+			controller.onMenuGrocery(null);
 			break;
 		}
 	}
 
-	protected void onBillOnlyNumeric(KeyboardEvent event) {
-		int code = event.getCharCode();
-		if ((code >= 48 && code <= 57) || code == 0) {
-			return; // numeric or a not-a-character is OK
-		}
-		event.preventDefault();
-	}
-
-	protected void onGroceryAdd(KeyboardEvent event) {
-		if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
-			InputElement element = (InputElement) event.getTarget();
-			if (!element.getValue().isEmpty()) {
-				addGrocery(element.getValue());
-				element.setValue("");
-			}
-		}
-	}
-
-	public void addGrocery(String text) {
-		grocery.state().all.add(text);
+	public void syncGrocery() {
 		grocery.sync();
-
-		Pojofy.ajax("PUT", groceryUrl, text, null, null, null);
 	}
 
-	public void delGrocery(MouseEvent evt) {
-		Element element = ((Element) evt.getTarget());
-		String text = element.getAttribute("value");
-		((InputElement) element).setChecked(false);
-		grocery.state().all.remove(text);
-		grocery.sync();
-
-		Pojofy.ajax("DELETE", groceryUrl, text, null, null, null);
+	public void syncBills() {
+		bills.sync();
 	}
 
-	// No DOM specific elements in callbacks from the GUI means easy junit
-	// testing
-	public void addBill(String name, String amount, String when) {
-		Date date = null;
-		try {
-			date = dater.parse(when);
-		} catch (IllegalArgumentException e) {
-			throw new IllegalArgumentException("This is not a valid date.", e);
+	public void syncTotals() {
+		totals.sync();
+	}
+
+	public void syncMenu(String state) {
+		menu.state(state);
+
+		switch (state) {
+		case "home":
+			totals.unhide();
+			bills.hide();
+			grocery.hide();
+			break;
+		case "bills":
+			totals.hide();
+			bills.unhide();
+			grocery.hide();
+			break;
+		case "grocery":
+			totals.hide();
+			bills.hide();
+			grocery.unhide();
+			break;
 		}
-		// Create a new bill
-		Bill bill = new Bills.Bill(Name.valueOf(name), Integer.parseInt(amount), date);
-
-		// Get the state, add the bill, and sort
-		Bills dto = bills.state();
-		dto.all.add(bill);
-		Collections.sort(dto.all);
-
-		// set the new state (which resyncs too)
-		bills.state(dto);
-
-		Pojofy.ajax("PUT", billsUrl, bill, billMap, null, null);
-	}
-
-	public void onMenuHome(Event evt) {
-		menu.state("home");
-		totals.unhide();
-		bills.hide();
-		grocery.hide();
-
-		// Note that old available data is already shown before any answer
-		Pojofy.ajax("GET", totalsUrl, null, null, totalsMap, this::setTotals);
-	}
-
-	public void onMenuBills(Event evt) {
-		menu.state("bills");
-		totals.hide();
-		bills.unhide();
-		grocery.hide();
-
-		// Note that old available data is already shown before any answer
-		Pojofy.ajax("GET", billsUrl, null, null, billsMap, this::setBills);
-	}
-
-	public void onMenuGrocery(Event evt) {
-		menu.state("grocery");
-		totals.hide();
-		bills.hide();
-		grocery.unhide();
-
-		// Note that old available data is already shown before any answer
-		Pojofy.ajax("GET", groceryUrl, null, null, groceryMap, this::setGrocery);
-	}
-
-	public void setTotals(int responseCode, Totals pojo) {
-		totals.state(pojo);
-	}
-
-	public void setBills(int responseCode, Bills pojo) {
-		bills.state(pojo);
-	}
-
-	public void setGrocery(int responseCode, Grocery pojo) {
-		grocery.state(pojo);
-	}
-
-	// POJO MAPPERS
-	public interface TotalsMap extends ObjectMapper<Totals> {
-	}
-
-	public interface GroceryMap extends ObjectMapper<Grocery> {
-	}
-
-	public interface BillsMap extends ObjectMapper<Bills> {
-	}
-
-	public interface BillMap extends ObjectMapper<Bills.Bill> {
-	}
-
-	public static TotalsMap totalsMap = null;
-	public static GroceryMap groceryMap = null;
-	public static BillsMap billsMap = null;
-	public static BillMap billMap = null;
-
-	static {
-		// thanks to this construction, we can read the URL's in the servercode
-		if (GWT.isClient()) {
-			totalsMap = GWT.create(TotalsMap.class);
-			groceryMap = GWT.create(GroceryMap.class);
-			billsMap = GWT.create(BillsMap.class);
-			billMap = GWT.create(BillMap.class);
-		}
-	}
-
-	@Override
-	public void onModuleLoad() {
 	}
 
 }

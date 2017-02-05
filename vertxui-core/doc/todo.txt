@@ -1,7 +1,7 @@
-	BLOCK: junit clientside fails: introduce controller in mvcbootstrap and add example with Mockito for Pojofy.ajax
-/05 to do mvc.com with existing html-page - http://todomvc.com/examples/vanillajs/
-/07 testcase middle-child removal optimalisation + cache crc
-/10 make multi-registerable assert-js-callbacks for duallanguage tests, not one class TestDOM
+/07 to do mvc.com with existing html-page - http://todomvc.com/examples/vanillajs/
+/08 make multi-registerable assert-js-callbacks for duallanguage tests, not one class TestDOM
+/09 use mockito instead of storeNone in TestWithoutDOM
+/10 testcase middle-child removal optimalisation + cache crc
 /11 BLOCK: chatEventbus: receivePOJO does not work in debug=false
 /13 FluentInnerRendering: write tests for all types, and also built for all a check whether the new value is different, otherwise don't take the new value.
 /15 split Fluent: all non-html in FluentBase + remove Att.java and Css.java

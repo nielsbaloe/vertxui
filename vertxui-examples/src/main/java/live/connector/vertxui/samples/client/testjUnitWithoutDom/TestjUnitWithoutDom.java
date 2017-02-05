@@ -11,7 +11,10 @@ import com.google.gwt.core.shared.GwtIncompatible;
 
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.test.VirtualDomSearch;
+import live.connector.vertxui.samples.client.mvcBootstrap.Controller;
+import live.connector.vertxui.samples.client.mvcBootstrap.Store;
 import live.connector.vertxui.samples.client.mvcBootstrap.View;
+import live.connector.vertxui.samples.client.testjUnitWithDom.StoreNone;
 
 /**
  * Run this class in junit in your IDE. Note that this is the preferred way of
@@ -35,8 +38,11 @@ public class TestjUnitWithoutDom {
 		// in the class you can leave it out.
 		Fluent.clearVirtualDOM();
 
-		new View().onModuleLoad();
-		// note: you can leave .onModuleLoad() out, it's nicer when it's empty.
+		// This is like 'new View().onModuleLoad()'
+		Store transport = new StoreNone(); // BUT with a different store!
+		View view = new View();
+		Controller controller = new Controller(transport, view);
+		view.start(controller, ""); // AND no URL
 
 		// Check the title (using 'id')
 		Fluent a = VirtualDomSearch.getElementById("titlerForJunitTest", Fluent.body);
@@ -52,13 +58,15 @@ public class TestjUnitWithoutDom {
 		// in the class you can leave it out.
 		Fluent.clearVirtualDOM();
 
-		View v = new View();
-		v.onModuleLoad();
-		// note: you can leave .onModuleLoad() out, it's nicer when it's empty.
+		// This is like 'new View().onModuleLoad()'
+		Store transport = new StoreNone(); // BUT with a different store!
+		View view = new View();
+		Controller controller = new Controller(transport, view);
+		view.start(controller, "");
 
 		// After pressing the menuBills button, check in the LI with class
 		// active, the name of the A-link.
-		v.onMenuBills(null);
+		controller.onMenuBills(null);
 		List<Fluent> b = VirtualDomSearch.getElementsByClassName("active", Fluent.body);
 		assertEquals(b.size(), 1);
 		assertTrue(((Fluent) b.get(0).getChildren().get(0)).txt().equals("Bills"));

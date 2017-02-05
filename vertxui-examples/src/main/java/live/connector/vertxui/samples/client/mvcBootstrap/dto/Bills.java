@@ -1,5 +1,6 @@
 package live.connector.vertxui.samples.client.mvcBootstrap.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -7,13 +8,17 @@ public class Bills {
 
 	public List<Bill> all;
 
+	public Bills() {
+		all = new ArrayList<>();
+	}
+
 	public static class Bill implements Comparable<Bill> {
 
 		public int id;
 		public Name who;
 		public double amount;
 		public Date date;
-		
+
 		public Bill() { // empty constructor for serialization
 		}
 

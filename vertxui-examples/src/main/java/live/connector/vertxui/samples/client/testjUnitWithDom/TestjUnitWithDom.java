@@ -1,13 +1,14 @@
 package live.connector.vertxui.samples.client.testjUnitWithDom;
 
 import static live.connector.vertxui.client.fluent.Fluent.document;
-
 import static live.connector.vertxui.client.test.Asserty.assertEquals;
 import static live.connector.vertxui.client.test.Asserty.assertTrue;
 
 import elemental.dom.Element;
 import elemental.dom.NodeList;
 import live.connector.vertxui.client.test.TestDOM;
+import live.connector.vertxui.samples.client.mvcBootstrap.Controller;
+import live.connector.vertxui.samples.client.mvcBootstrap.Store;
 import live.connector.vertxui.samples.client.mvcBootstrap.View;
 
 /**
@@ -34,20 +35,16 @@ public class TestjUnitWithDom extends TestDOM {
 	}
 
 	public void mvcBootstrapStateChange() {
-		// You can do clearVirtualDOM(), but the DOM wil not be cleared, so only
-		// run clearVirtualDom if you test without the DOM.
-		// Fluent.clearVirtualDOM();
 
-		View v = new live.connector.vertxui.samples.client.mvcBootstrap.View(); // create
-																				// the
-																				// _whole_
-																				// view
-		v.onModuleLoad();
-		// note: you can leave .onModuleLoad() out, it's nicer when it's empty.
+		// This is like 'new View().onModuleLoad()'
+		Store transport = new StoreNone(); // BUT with a different store!
+		View view = new View();
+		Controller controller = new Controller(transport, view);
+		view.start(controller, "");
 
 		// After pressing the menuBills button, check in the LI with class
 		// active, the name of the A-link.
-		v.onMenuBills(null);
+		controller.onMenuBills(null);
 		NodeList b = document.getElementsByClassName("active");
 		assertEquals("length of actives", b.length(), 1);
 		assertTrue("selected item title", ((Element) b.item(0).getChildNodes().at(0)).getTextContent().equals("Bills"));
