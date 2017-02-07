@@ -6,6 +6,13 @@ import static live.connector.vertxui.client.fluent.Fluent.document;
 import static live.connector.vertxui.client.test.Asserty.assertEquals;
 import static live.connector.vertxui.client.test.Asserty.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Test;
+
+import com.google.gwt.core.shared.GwtIncompatible;
+
 import elemental.dom.Element;
 import elemental.dom.NamedNodeMap;
 import elemental.dom.Node;
@@ -14,17 +21,26 @@ import live.connector.vertxui.client.test.TestDOM;
 
 public class AnotherTest extends TestDOM {
 
+	@GwtIncompatible
+	@Test
+	public void test() throws Exception {
+		runJS(3);
+	}
+
 	@Override
-	public void tests() {
+	public Map<Integer, Runnable> registerJS() {
+		Map<Integer, Runnable> result = new HashMap<>();
+		result.put(3, () -> {
+			String id = "id" + Math.random();
+			String inner = "bladiebla" + Math.random();
+			body.div().txt(inner).id(id).classs("bladiebla");
+			printStructure((Element) body.dom());
 
-		String id = "id" + Math.random();
-		String inner = "bladiebla" + Math.random();
-		body.div().txt(inner).id(id).classs("bladiebla");
-		printStructure((Element) body.dom());
-
-		Element found = document.getElementById(id);
-		assertTrue("should exist", found != null);
-		assertEquals("inner text", found.getTextContent(), inner);
+			Element found = document.getElementById(id);
+			assertTrue("should exist", found != null);
+			assertEquals("inner text", found.getTextContent(), inner);
+		});
+		return result;
 	}
 
 	private void printStructure(Element element) {

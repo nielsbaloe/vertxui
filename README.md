@@ -3,7 +3,7 @@ vertxui
 
 Suppose we had native asynchronous Java access at the browser, backed by a no-nonsense Java asynchronous server. Then both browser and server would be using the same Java strong-typed data entities/DTO's for ajax/websocket/sockjs traffic. And we would have an eventbus where server and browsers can share information.
 
-For the view, we would not want to write HTML or a javascript-lookalike new language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view on an entity, similar to ReactJS but then nicely in Java with streams enums namespaces and other basic object oriented mature language features.
+For the view, we would not want to write HTML or a javascript-lookalike new language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view on a model, similar to ReactJS but then nicely in Java with streams enums namespaces and other basic object oriented mature language features.
 
 Regarding tooling, we would want to use trusted Java tooling like jUnit, and realtime debugging with automatic browser refreshing after a code change, but we would not want to install any IDE-specific tooling.  
 
@@ -32,9 +32,9 @@ Pure-Java clientside (not locked-in currently using down-to-the-DOM wrapped-away
 * extremely easy junit testing of client-side GUI (even without a DOM, but also with a DOM), and other Java tooling
 
 VertxUI is _not_ at all
-* a HTML template engine: VertxUI is for writing single-paged-applications (static templating is HTML itsself).
-* a javascript framework; it leans on plain HTML + CSS, instead adding a new set of javascript tooling.
-* a locked-in solution: you can also use VertxUI to extend an existing page, or use in Tomcat instead of Verx.
+* a HTML template engine: no HTML is generated. VertxUI is for writing single-paged-applications (static templating is HTML itsself).
+* a new javascript framework; it leans on plain HTML + CSS + standarised javascript, instead adding a new set of javascript tooling.
+* a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat instead of Verx.
 
 Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, a Bootstrap application, and more.
 
@@ -42,7 +42,7 @@ Examples are included for: hello world (vanilla js and Fluent HTML), automatic b
 
 The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary (single-lined) wrapping HTML, ready to be shown in the browser. It compiles to javascript too (if there is a source folder), without installing an IDE plugin. Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples).
 
-	router.route("/client").handler(new VertxUI(Client.class, true));
+	router.route("/client").handler(new VertxUI(Client.class, true, true));
 
 ### Automatic browser reloading
 
@@ -69,7 +69,7 @@ The clientside looks like plain javascript but then with Java (8's lambda) callb
 
 ### Clientside Fluent HTML
 
-You can also use fluent HTML, which is a lot shorter and more readable. Don't worry about speed, fluent HTML uses a virtual DOM behind the scenes.
+You can also use fluent HTML, which is a lot shorter and more readable. Don't worry about speed, fluent HTML uses a virtual DOM behind the scenes. Note that an id is given to the button, but that is not the way to go in Fluent; typically you save the object as a class member (or only save the view-on-model), rather than to do all sorts of slow searches on the DOM (like document.getElementBy...).
 
 		Button button = body.button("Click me").id("hello-button").onClick(evt -> clicked());
 		...
@@ -94,7 +94,7 @@ You can create state-aware Fluent HTML objects with ViewOn. The ViewOn<> constru
 			 view.sync(); // re-renders
 		});
 
-The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your class. You can abuse this to set the state when your Model is just a primitive for example a string. The method .state(model) also calls sync():
+The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your view class. You can abuse this to set the state when your Model is just a primitive for example a string. The method .state(model) also calls sync():
 
 		input.keyup(event -> {
 			view.state(input.value());
@@ -118,24 +118,35 @@ Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit test
 		assertTrue(a.tag().equals("H1"));
 	}
 
-If you really need the DOM (for whatever reason), that's possible too (but not advisable because it's slower). Vertxui then first compiles to javascript and then runs one javascript function tests() right inside a real representative headless 100%-java browser. All inside jUnit, freely combinable with other pure-java tests. Thanks to GWT, the stacktrace is accurate too. Do not add a constructor, because that will be run in junit and in the browser ;) .
+If you really need the DOM (for whatever reason), that's possible too (but absolutely not advisable because it's slower). Vertxui then first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. You decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in junit and in the browser ;) .
 
-	public class FluentRenderTests extends TestDOM {
+	public class WithDom extends TestDOM {
+	
+		@GwtIncompatible
+		@Test
+		public void aJunitTest() throws Exception {
+			System.out.println("This is java");
+			runJS(3); // run '3'
+		}
 	
 		@Override
-		public void tests() {
-			fluentAttributeRenderTests();
-			fluentStylesTests();
+		public Map<Integer, Runnable> registerJS() {
+			Map<Integer, Runnable> result = new HashMap<>();
+			result.put(3, () -> attributeTests()); // register '3'
+			return result;
 		}
 
-	...
-	
+		public void attributeTests() {
+			console.log("This is javascript");
+			....
+		}
+
 	}
  
 
 ### Pojo
 
-Having your entity and DTO classes (models) in the same language has its advantages. All three chat examples (websockets, sockjs, eventBus) also have POJO examples in them. Here is an example:
+Having your entity and DTO classes (models) in the same language has its advantages. All three chat examples (websockets, sockjs, eventBus) also have POJO examples in the code so open the console in your browser to see them (F12). Here is an example:
 
 The model+view (browser):
 
@@ -169,9 +180,9 @@ The controller (serverside) can be for example (ajax example):
 
 ### More
 
-Currently GWT -extremely wrapped away- is used, because it is by far the most efficiënt and full-featured Java 2 Javascript implementation out there. In the first month, TeaVM was used, which is 1000% faster in compiling but does not correctly support lambda's. The same goes for jsweet, Vertxui was ported into jsweet in about half an hour, but jsweet does not support all Java constructions (like enums) and does not do a very good job in 100% Java support. GWT is actually very reliable, it's been chewed on since 2006 ;) .
+Currently GWT -extremely wrapped away- is used, because it is by far the most efficiënt and full-featured Java 2 Javascript implementation out there. In the first month, TeaVM was used, which is 1000% faster in compiling but does not correctly support lambda's. The same goes for jsweet, Vertxui was ported into jsweet in about half an hour, but jsweet does not support all Java constructions (like enums) and does not do a very good job in 100% Java support in general. GWT is actually very very reliable, it's been chewed on since 2006 ;) .
 
-Polyglot is possible as long as the sourcecode is included in the jars, there are vague plans to support Groovy as a proof of concept.
+Polyglot language support is possible as long as the sourcecode is included in the jars, there are vague plans to support Groovy as a proof of concept.
 
 
 Niels Gorisse

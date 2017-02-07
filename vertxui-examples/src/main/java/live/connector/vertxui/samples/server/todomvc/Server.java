@@ -32,10 +32,13 @@ public class Server extends AbstractVerticle {
 
 		// This application is also an example for using an existing index.html.
 		// The only thing is that there is a slight
-		// different setup for an existing HTML: call VertxUI.with()
-		// with a null URL (third parameter) and server /a/ manually
-		VertxUI.with(View.class, null, true, false);
-		router.get("/a/*").handler(StaticHandler.create("war/a"));
+		// different setup at startup time: call VertxUI.with()
+		// with a null URL (2nd parameter) so that it only compiles and false
+		// with the last parameter so that there is no index.html generated (not
+		// necessary), and then server folder /a/ manually
+		boolean debug = true;
+		VertxUI.with(View.class, null, debug, false);
+		router.get("/a/*").handler(StaticHandler.create(VertxUI.getTargetFolder(debug) + "/a"));
 		router.get("/*").handler(FigStaticHandler.create("assets/todos", "/"));
 		AllExamplesServer.startWarAndServer2(router, server);
 	}

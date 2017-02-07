@@ -1,19 +1,37 @@
 package live.connector.vertxui.client;
 
+import static live.connector.vertxui.client.fluent.Fluent.Li;
+import static live.connector.vertxui.client.fluent.Fluent.Ul;
 import static live.connector.vertxui.client.test.Asserty.assertEquals;
 
-import static live.connector.vertxui.client.fluent.Fluent.*;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.junit.Test;
+
+import com.google.gwt.core.shared.GwtIncompatible;
+
+import elemental.dom.NodeList;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.client.test.TestDOM;
 
 public class FluentInnerRendering extends TestDOM {
 
+	@GwtIncompatible
+	@Test
+	public void test() throws Exception {
+		runJS(3);
+	}
+
 	@Override
-	public void tests() {
-		inner();
-		middleChildRemoval();
+	public Map<Integer, Runnable> registerJS() {
+		Map<Integer, Runnable> result = new HashMap<>();
+		result.put(3, () -> {
+			inner();
+			middleChildRemoval();
+		});
+		return result;
 	}
 
 	private void middleChildRemoval() {
@@ -23,12 +41,22 @@ public class FluentInnerRendering extends TestDOM {
 				return Ul(Li("a"), Li("b"), Li("c"));
 			case 1:
 				return Ul(Li("a"), Li("b"), Li("c"));
+			case 2:
+				return Ul(Li("a"), Li("c"));
+			case 3:
+				return Ul(Li("a"), Li("b"));
+			case 4:
+				return Ul(Li("a"), Li("b"), Li("c"));
 			default:
 				return null;
 			}
 		});
-		
-		
+		NodeList nodes = Fluent.document.getElementsByTagName("LI");
+		assertEquals("three children", 3, nodes.length());
+
+		children.state(1);
+		nodes = Fluent.document.getElementsByTagName("LI");
+		assertEquals("three children", 3, nodes.length());
 
 	}
 

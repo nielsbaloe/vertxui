@@ -66,11 +66,14 @@ public class View implements EntryPoint {
 
 		// Initialise models:
 		String menuStart = "home";
-		if (GWT.isClient()) {
+		if (GWT.isClient()) { // in junit tests, there is no Fluent.window
 			String url = Fluent.window.getLocation().getHref();
 			int start = url.indexOf("#");
 			if (start != -1) {
 				menuStart = url.substring(start + 1, url.length());
+			}
+			if (!menuStart.equals("home") && !menuStart.equals("bills") && !menuStart.equals("grocery")) {
+				menuStart = "home";
 			}
 		}
 

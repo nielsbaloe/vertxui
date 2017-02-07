@@ -17,11 +17,14 @@ import live.connector.vertxui.samples.client.mvcBootstrap.dto.Totals;
 public class Controller {
 
 	// Models - here the controller 'owns' them, but you can also let the store
-	// own them.
+	// own them. Actually, the model-to-view objects also have the models,
+	// because these are placeholders that do not change in the application
+	// (only the .all content is changed).
 	private Totals totals = new Totals();
 	private Bills bills = new Bills();
 	private Grocery grocery = new Grocery();
-	// 'menu' is a primitive so not saved but directly pushed to the client.
+	// model 'menu' is a primitive not saved here, but directly pushed to the
+	// client.
 
 	private View view;
 
@@ -102,6 +105,7 @@ public class Controller {
 	}
 
 	public void onMenuHome(Event evt) {
+		// Push model to view
 		view.stateAndSyncMenu("home"); // the view handles this model
 
 		// Note that old available data is already shown before any answer
@@ -109,6 +113,7 @@ public class Controller {
 	}
 
 	public void onMenuBills(Event evt) {
+		// Push model to view
 		view.stateAndSyncMenu("bills");// the view handles this model
 
 		// Note that old available data is already shown before any answer
@@ -116,25 +121,41 @@ public class Controller {
 	}
 
 	public void onMenuGrocery(Event evt) {
+		// Push model to view
 		view.stateAndSyncMenu("grocery");// the view handles this model
 
 		// Note that old available data is already shown before any answer
 		store.getGrocery(this::setGrocery);
 	}
 
-	// callback from the store - in a seperate method so we can junit test it
+	/**
+	 * Callback from the store - in a seperate method so we can junit test it
+	 * 
+	 * @param responseCode
+	 * @param totals
+	 */
 	public void setTotals(int responseCode, Totals totals) {
 		this.totals.all = totals.all;
 		view.syncTotals();
 	}
 
-	// callback from the store - in a seperate method so we can junit test it
+	/**
+	 * Callback from the store - in a seperate method so we can junit test it
+	 * 
+	 * @param responseCode
+	 * @param totals
+	 */
 	public void setBills(int responseCode, Bills bills) {
 		this.bills.all = bills.all;
 		view.syncBills();
 	}
 
-	// callback from the store - in a seperate method so we can junit test it
+	/**
+	 * Callback from the store - in a seperate method so we can junit test it
+	 * 
+	 * @param responseCode
+	 * @param totals
+	 */
 	public void setGrocery(int responseCode, Grocery grocery) {
 		this.grocery.all = grocery.all;
 		view.syncGrocery();

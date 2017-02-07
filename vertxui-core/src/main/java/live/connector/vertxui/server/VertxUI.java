@@ -39,21 +39,36 @@ public class VertxUI {
 	 */
 	public static String folderSourceMain = null;
 
+	private static String targetFolder = null;
+
+	public static List<String> librariesGwt;
+
 	static {
 		librariesGwt = new ArrayList<>();
-		addLibrariesGwt("live.connector.vertxui.Vertxui");
+		librariesGwt.add("live.connector.vertxui.Vertxui");
 	}
 
 	/**
-	 * Add gwt libraries if you need to do so.
+	 * Get the target folder of the build. If overwritten, you get that one,
+	 * otherwise you get one of the defaults: build/development or
+	 * build/production depending on debug or not.
+	 * 
+	 * @return the target folder of the java to javascript build
 	 */
-	public static void addLibrariesGwt(String... gwts) {
-		for (String gwt : gwts) {
-			librariesGwt.add(gwt);
+	public static String getTargetFolder(boolean debugMode) {
+		if (targetFolder != null) {
+			return targetFolder;
+		}
+		if (debugMode) {
+			return "build/development";
+		} else {
+			return "build/production";
 		}
 	}
 
-	private static List<String> librariesGwt;
+	public static void setTargetFolder(String targetFolder) {
+		VertxUI.targetFolder = targetFolder;
+	}
 
 	/**
 	 * Serve the /war folder. Also, if a source folder is found, convert the
@@ -104,11 +119,12 @@ public class VertxUI {
 	}
 
 	/**
-	 * Create a VertXUI statichandler at /war and compile the given class from
-	 * java to javascript. Give url:null for compiling only.
+	 * Create a VertXUI static-handler at the target folder and translate the
+	 * given class from java to javascript. Give url:null for only translating.
 	 * 
 	 */
-	public static Handler<RoutingContext> with(Class<?> classs, String urlSWithoutAsterix, boolean debug, boolean withHtml) {
+	public static Handler<RoutingContext> with(Class<?> classs, String urlSWithoutAsterix, boolean debug,
+			boolean withHtml) {
 
 		// If no sourceLocation, then we are in production so we don't do
 		// anything at all.
@@ -120,11 +136,20 @@ public class VertxUI {
 					}
 				});
 		if (folderSourceMain == null) {
-			throw new IllegalArgumentException("Please define your sourcefolder location at Vertxui.folderSourceMain");
+			if (debug) {
+				throw new IllegalArgumentException(
+						"Sourcefolder not found but debug is still true, did you compile with debug=false?");
+			}
+			if (urlSWithoutAsterix == null) {
+				throw new IllegalArgumentException(
+						"Sourcefolder not found, but urlWithoutAsterix is null, so unable to server files.");
+			}
+			log.info("Production mode: no source folder found, not translating from java to javascript.");
+		} else {
+			new VertxUI(classs, urlSWithoutAsterix, debug, withHtml);
 		}
-		new VertxUI(classs, urlSWithoutAsterix, debug, withHtml);
 		if (urlSWithoutAsterix != null) {
-			return StaticHandler.create("war").setCachingEnabled(false);
+			return StaticHandler.create(VertxUI.getTargetFolder(debug)).setCachingEnabled(false);
 		} else {
 			return null;
 		}
@@ -141,7 +166,7 @@ public class VertxUI {
 
 		// Write index.html file which autoreloads
 		if (withHtml) {
-			FileUtils.writeStringToFile(new File("war/index.html"),
+			FileUtils.writeStringToFile(new File(VertxUI.getTargetFolder(debug) + "/index.html"),
 					"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
 							+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
 							+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
@@ -174,7 +199,7 @@ public class VertxUI {
 
 		// Compile to javacript
 		try {
-			String options = "-strict -XdisableUpdateCheck";
+			String options = "-strict -XdisableUpdateCheck -war " + getTargetFolder(debug);
 			if (debug) {
 				options += " -draftCompile -optimize 0 -style DETAILED"; // -incremental
 			} else {
@@ -246,7 +271,7 @@ public class VertxUI {
 				throw new IllegalArgumentException("Could not access public static String css[]", e);
 			}
 			html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
-			FileUtils.writeStringToFile(new File("war/index.html"), html.toString());
+			FileUtils.writeStringToFile(new File(VertxUI.getTargetFolder(debug) + "/index.html"), html.toString());
 		}
 
 		// OLD ATTEMPT TO RUN GWT EMBEDDED

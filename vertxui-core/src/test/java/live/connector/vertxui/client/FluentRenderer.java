@@ -1,12 +1,18 @@
 package live.connector.vertxui.client;
 
-import static live.connector.vertxui.client.fluent.Fluent.body;
+import static live.connector.vertxui.client.fluent.Fluent.*;
 import static live.connector.vertxui.client.test.Asserty.assertEquals;
 import static live.connector.vertxui.client.test.Asserty.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.junit.Test;
+
+import com.google.gwt.core.shared.GwtIncompatible;
 
 import elemental.css.CSSStyleDeclaration;
 import elemental.dom.Element;
@@ -20,60 +26,21 @@ import live.connector.vertxui.client.test.TestDOM;
 
 public class FluentRenderer extends TestDOM {
 
-	@Override
-	public void tests() {
-		attributes();
-		styles();
-		listeners();
+	@GwtIncompatible
+	@Test
+	public void aTest() throws Exception {
+		runJS(1);
+		runJS(2);
 	}
 
-	public void a(Event e) {
-	}
-
-	public void b(Event e) {
-	}
-
-	public void c(Event e) {
-	}
-
-	private void listeners() {
-		// unable to test, this is a manual test
-		ViewOn<Integer> view = body.add(0, s -> {
-			Fluent result = Fluent.Div();
-			switch (s) {
-			case 0:
-				result.click(this::a);
-				break;
-			case 1:
-				result.click(this::b);
-				break;
-			case 2:
-				result.click(this::b);
-				result.focus(this::c);
-				break;
-			case 3:
-				break;
-			case 4:
-				result.click(this::a);
-				result.focus(this::c);
-				result.dblclick(this::b);
-				break;
-			}
-			return result;
+	public Map<Integer, Runnable> registerJS() {
+		Map<Integer, Runnable> result = new HashMap<>();
+		result.put(1, () -> attributes());
+		result.put(2, () -> {
+			styles();
+			listeners();
 		});
-
-		// console.log("should replace click");
-		view.state(1);
-		// console.log("2. should add focus and keep click");
-		view.state(2);
-		// console.log("3. should remove click and focus");
-		view.state(3);
-		// console.log("should add click focus and dblclick");
-		view.state(4);
-		// console.log("should remove focus and dblclick");
-		view.state(0);
-		// console.log("should add focus and dblclick");
-		view.state(4);
+		return result;
 	}
 
 	private void attributes() {
@@ -265,13 +232,62 @@ public class FluentRenderer extends TestDOM {
 	}
 
 	private List<String> getAllNamesFromStyles(ViewOn<Integer> view) {
-		CSSStyleDeclaration styles = ((Element)view.getView().dom()).getStyle();
+		CSSStyleDeclaration styles = ((Element) view.getView().dom()).getStyle();
 		List<String> result = new ArrayList<>();
 		for (int x = 0; x < styles.getLength(); x++) {
 			result.add(styles.item(x));
 		}
 		Collections.sort(result);
 		return result;
+	}
+
+	private void listeners() {
+		// unable to test, this is a manual test
+		ViewOn<Integer> view = body.add(0, s -> {
+			Fluent result = Fluent.Div();
+			switch (s) {
+			case 0:
+				result.click(this::a);
+				break;
+			case 1:
+				result.click(this::b);
+				break;
+			case 2:
+				result.click(this::b);
+				result.focus(this::c);
+				break;
+			case 3:
+				break;
+			case 4:
+				result.click(this::a);
+				result.focus(this::c);
+				result.dblclick(this::b);
+				break;
+			}
+			return result;
+		});
+
+		// console.log("should replace click");
+		view.state(1);
+		// console.log("2. should add focus and keep click");
+		view.state(2);
+		// console.log("3. should remove click and focus");
+		view.state(3);
+		// console.log("should add click focus and dblclick");
+		view.state(4);
+		// console.log("should remove focus and dblclick");
+		view.state(0);
+		// console.log("should add focus and dblclick");
+		view.state(4);
+	}
+
+	public void a(Event e) {
+	}
+
+	public void b(Event e) {
+	}
+
+	public void c(Event e) {
 	}
 
 }

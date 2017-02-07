@@ -1,7 +1,7 @@
 /target/
 /.settings/
 /.vertx/
-/war/
+/build/
 /gwt-unitCache/
 .project
 .classpath

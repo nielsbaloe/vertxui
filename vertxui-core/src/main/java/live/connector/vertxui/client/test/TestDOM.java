@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
+import org.junit.After;
+import org.junit.Before;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.shared.GwtIncompatible;
@@ -28,45 +30,53 @@ import live.connector.vertxui.server.VertxUI;
  */
 public abstract class TestDOM implements EntryPoint {
 
+	@GwtIncompatible
+	private JBrowserDriver jBrowser;
+
+	@GwtIncompatible
+	@Before
 	public void before() {
-	}
+		// for correct stacktrace decoding, we need the debug info.
+		boolean debug = true;
 
-	public abstract void tests();
+		// Convert to javascript
+		VertxUI.with(this.getClass(), null, debug, true);
 
-	public void after() {
-	}
-
-	@Override
-	public void onModuleLoad() {
-		Asserty.asserty(() -> {
-			before();
-			tests();
-			after();
-		});
+		// Start the headless browser
+		jBrowser = new JBrowserDriver(Settings.builder().logJavascript(true).build());
+		jBrowser.get("file:///" + new File(VertxUI.getTargetFolder(debug) + "/index.html").getAbsolutePath());
 	}
 
 	@GwtIncompatible
-	@Test
-	public void testsInJavascript() throws Exception {
+	@After
+	public void after() {
+		if (jBrowser != null) {
+			jBrowser.quit();
+		}
+	}
 
-		JBrowserDriver jBrowser = new JBrowserDriver(Settings.builder().logJavascript(true).build());
+	public abstract Map<Integer, Runnable> registerJS();
 
-		// Convert to javascript
-		VertxUI.with(this.getClass(), null, true, true);
+	@Override
+	public void onModuleLoad() {
+		Asserty.asserty(registerJS());
+	}
 
-		// headless run
+	@GwtIncompatible
+	public void runJS(int which) throws Exception {
 		try {
-			jBrowser.get("file:///" + new File("war/index.html").getAbsolutePath());
-			String error = (String) jBrowser.executeScript("return window.asserty();");
+			String error = (String) jBrowser.executeScript("return window.asserty(" + which + ");");
 			if (error == null) {
 				return; // OK
 			}
 
 			// find symbolmap-file
-			Optional<File> symbolMap = Stream.of(new File("war/WEB-INF/deploy/a/symbolMaps").listFiles())
+			Optional<File> symbolMap = Stream
+					.of(new File(VertxUI.getTargetFolder(true) + "/WEB-INF/deploy/a/symbolMaps").listFiles())
 					.filter(f -> f.getName().endsWith(".symbolMap")).findFirst();
 			if (symbolMap.isPresent() == false) {
-				throw new Exception(error); // no symbolmap file, is OK
+				// no symbolmap file, is OK but less readable
+				throw new Exception(error);
 			}
 
 			// Read it
@@ -104,7 +114,6 @@ public abstract class TestDOM implements EntryPoint {
 		} finally {
 			// unfortunately jBrowser doesn't react on a runtime shutdown hook,
 			// otherwise we could just recycle the jBrowser....
-			jBrowser.quit();
 		}
 	}
 

@@ -1,5 +1,7 @@
 package live.connector.vertxui.client.test;
 
+import java.util.Map;
+
 /**
  * A small junit port, leaving about a handfull or assertions which need
  * external dependencies, inlining some methods to reduce the length of the
@@ -16,19 +18,25 @@ public class Asserty {
 	 * Give a method that runs all your testcases and throws an exception when
 	 * something goes wrong.
 	 */
-	public final native static String asserty(Runnable handler)/*-{
-																		$wnd.asserty = function() {
-																		try{ @live.connector.vertxui.client.test.Asserty::doit(Ljava/lang/Runnable;)
-																		(handler); 
-																		} catch(e) { 
-																		return e.message+"\n"+e.stack;
-																		};
-																		return null;
-																		}
-																		}-*/;
+	public final native static String asserty(Map<Integer, Runnable> map)/*-{
+																			$wnd.asserty = function(which) {
+																			try{ @live.connector.vertxui.client.test.Asserty::doit(Ljava/lang/Integer;Ljava/util/Map;)
+																			(which,map); 
+																			} catch(e) { 
+																			return e.message+"\n"+e.stack;
+																			};
+																			return null;
+																			}
+																			}-*/;
 
-	private static void doit(Runnable handler) throws Exception {
-		handler.run();
+	private static void doit(Integer which, Map<Integer, Runnable> map) throws Exception {
+		for (Integer key : map.keySet()) {
+			if ((key + "").endsWith(which + "")) {
+				map.get(key).run();
+				return;
+			}
+		}
+		throw new IllegalArgumentException("Method '" + which + "' was not defined.");
 	}
 
 	public static void failNoMessage() {
