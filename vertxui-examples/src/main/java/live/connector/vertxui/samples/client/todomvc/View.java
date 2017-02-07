@@ -47,7 +47,7 @@ public class View implements EntryPoint {
 			container = body.section("todoapp");
 		}
 		container.header("header", H1(null, "todos"),
-				Input("new-todo").placeholder("What needs to be done?").keydown(controller::onInput));
+				Input("new-todo").att(Att.placeholder, "What needs to be done?").keydown(controller::onInput));
 
 		// List of items
 		Fluent main = container.section("main").css(Css.display, "block");

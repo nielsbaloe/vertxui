@@ -1,9 +1,9 @@
 vertxui
 ===
 
-Suppose we had native asynchronous Java access at the browser, backed by a no-nonsense Java asynchronous server. Then both browser and server would be using the same Java strong-typed data entities/DTO's for ajax/websocket/sockjs traffic. And we would have an eventbus where server and browsers can share information.
+Suppose we had native asynchronous Java access at the browser, backed by a no-nonsense Java asynchronous server. Then both browser and server would be using the same Java strong-typed data models/entities/DTO's for ajax/websocket/sockjs traffic.
 
-For the view, we would not want to write HTML or a javascript-lookalike new language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view on a model, similar to ReactJS but then nicely in Java with streams enums namespaces and other basic object oriented mature language features.
+For the view, we would not want to write HTML or a javascript-lookalike new language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view-on-a-model, similar to ReactJS but then nicely in Java with streams enums namespaces and other basic object oriented mature language features.
 
 Regarding tooling, we would want to use trusted Java tooling like jUnit, and realtime debugging with automatic browser refreshing after a code change, but we would not want to install any IDE-specific tooling.  
 
@@ -15,20 +15,21 @@ VertxUI offers:
 * forget about HTML or learning a HTML-ish language like ReactJS, but declarate view-on-models by using Java lambdas and streams.
 * no IDE tooling required, the java to javascript translation happens run-time.
 * during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
-* Fluent HTML has a virtual DOM behind the scenes (a la ReactJS), only visually updating what changed in your model.
+* Fluent HTML has a sophisticated virtual DOM behind the scenes (a la ReactJS), only visually updating what has changed.
 * painless nodejs-less websockets/sockjs/eventbus at server and browsers in the same language.
-* speeeeedy junit testing of Fluent HTML objects by testing against virtual DOM, and headless browser testing.
+* speeeeedy junit testing of Fluent HTML objects by testing against virtual DOM, and mixed-languages headless browser testing.
 
 Serverside [Vert.X](http://vertx.io/) adds:
 * probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
 * no need for anything else: no Apache and Tomcat.
-* the serverside EventBus, and a wonderful professional speedy async ecosystem.
+* a clientside and eventside EventBus.
+* in general and a wonderful professional speedy async ecosystem.
 
 Pure-Java clientside (not locked-in currently using down-to-the-DOM wrapped-away GWT/elemental) means:
 * strong-typed client-side Javascript
 * use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML like React)
 * use the same DTO/entity classes and constants server-side and client-side.
-* access to both the Java (threads etc) ánd the Javascript ecosystems
+* access to both the Java (threads etc) and the Javascript ecosystems
 * extremely easy junit testing of client-side GUI (even without a DOM, but also with a DOM), and other Java tooling
 
 VertxUI is _not_ at all
@@ -69,12 +70,12 @@ The clientside looks like plain javascript but then with Java (8's lambda) callb
 
 ### Clientside Fluent HTML
 
-You can also use fluent HTML, which is a lot shorter and more readable. Don't worry about speed, fluent HTML uses a virtual DOM behind the scenes. Note that an id is given to the button, but that is not the way to go in Fluent; typically you save the object as a class member (or only save the view-on-model), rather than to do all sorts of slow searches on the DOM (like document.getElementBy...).
+You can also use fluent HTML, which is a lot shorter and more readable. Don't worry about speed, fluent HTML uses a virtual DOM behind the scenes. An id is given to the button in the example below, but that is not the way to go in Fluent; typically you save the object as a class member (or only save the view-on-model), rather than to do all sorts of slow searches on the DOM with document.getElementBy....
 
-		Button button = body.button("Click me").id("hello-button").onClick(evt -> clicked());
+		Button button = body.button("Click me").id("hello-button").onClick(this::clicked);
 		...
 		
-	private void clicked() {
+	private void clicked(MouseEvent __) {
 		button.disabled(true);
 		thinking.css(Style.display, "");
 		...
@@ -118,15 +119,16 @@ Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit test
 		assertTrue(a.tag().equals("H1"));
 	}
 
-If you really need the DOM (for whatever reason), that's possible too (but absolutely not advisable because it's slower). Vertxui then first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. You decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in junit and in the browser ;) .
+If you really need the DOM (for whatever reason), that's possible too (but absolutely not advisable because it's slower). Vertxui then first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. You decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in junit and in the browser ;) . Use runJS and registerJS as follows:
 
 	public class WithDom extends TestDOM {
 	
 		@GwtIncompatible
 		@Test
-		public void aJunitTest() throws Exception {
+		public void youtJUnitTest() throws Exception {
 			System.out.println("This is java");
 			runJS(3); // run '3'
+			...
 		}
 	
 		@Override
@@ -157,7 +159,7 @@ The model+view (browser):
 	class View {
 
 	private Model model = new Model();
-	private Div response;
+	private Fluent response;
 	
 	public View() {
 		response = body.div();

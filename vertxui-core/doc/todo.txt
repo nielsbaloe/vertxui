@@ -1,9 +1,8 @@
-/07 testcase middle-child removal optimalisation + cache crc
+/07 remove Att.java and Css.java
+/09 testcase middle-child removal optimalisation + cache crc
 /10 FluentInnerRendering: write tests for all types, and also built for all a check whether the new value is different, otherwise don't take the new value.
 /11 BLOCK: chatEventbus: receivePOJO does not work in debug=false
-/12 split Fluent: all non-html in FluentBase + remove Att.java and Css.java
 /13 FigWheely: fix name of compiled .js changes in GWT... + look at sourcefolder not classes
-/15 mvcBootstrap bills paginated
 /20 write wiki, javadoc
 /30 publish: maven, todomvc.com, info@nljug.org, vertx-awesome, vertx, GWT list, g-widgets.com, etc.
-AFTER RELEASE: examples with webrtc in an app, with jquery mobile, with http://purecss.io
+AFTER RELEASE: extra examples: mvcBoostrap-bills paginated, webrtc in an app, jquery mobile, purecss.io
