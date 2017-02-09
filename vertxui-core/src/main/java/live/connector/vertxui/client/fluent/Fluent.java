@@ -10,13 +10,13 @@ import elemental.dom.Node;
 import elemental.events.MouseEvent;
 
 /**
- * Fluent HTML, child-based fluent-basednotation of html. Use getDocument()
+ * Fluent HTML is a child-based fluent notation of html. Use getDocument()
  * getBody() and getHead() to start building your GUI.
  * 
  * Adding childs is done by using the methods (like .li() ) or by some
  * constructors that can handle multiple arguments (like .div(li[]) ).
- * Attributes are set by attr(), styles by style(), and listeners by listen() or
- * their appropriate methods.
+ * Attributes are set by att(), styles by css(), and listeners by listen() or
+ * their appropriate helper methods like click().
  * 
  * @author Niels Gorisse
  *

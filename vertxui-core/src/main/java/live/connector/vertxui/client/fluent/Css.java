@@ -1,5 +1,11 @@
 package live.connector.vertxui.client.fluent;
 
+/**
+ * A list of standarised CSS elements
+ * 
+ * @author ng
+ *
+ */
 public enum Css {
 
 	alignContent, alignItems, alignSelf, animation, animationDelay, animationDirection, //

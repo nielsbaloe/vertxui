@@ -126,7 +126,7 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * Do not create but GET the dom object.
+	 * GET the dom object, null if it doesn't exist.
 	 */
 	public Node dom() {
 		return element;
@@ -208,6 +208,9 @@ public class FluentBase implements Viewable {
 		return (Fluent) this;
 	}
 
+	/**
+	 * Get the eventlistener for the given eventname.
+	 */
 	public EventListener listen(String event) {
 		if (listeners == null) {
 			return null;
@@ -215,6 +218,9 @@ public class FluentBase implements Viewable {
 		return listeners.get(event);
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent keyup(Consumer<KeyboardEvent> listener) {
 		return listen(Event.KEYUP, evt -> {
 			evt.stopPropagation();
@@ -222,12 +228,15 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent click(Consumer<MouseEvent> listener) {
 		return listen(Event.CLICK, evt -> {
 			if (evt.getTarget() instanceof InputElement) {
 				InputElement input = (InputElement) evt.getTarget();
 				if (input.getAttribute("type") == "checkbox") {
-					att(Att.checked, input.getAttribute("checked"));
+					att(Att.checked, input.isChecked() ? "1" : null);
 				}
 			}
 			evt.stopPropagation();
@@ -235,14 +244,23 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent load(EventListener listener) {
 		return listen("LOAD", listener);
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent focus(EventListener listener) {
 		return listen(Event.FOCUS, listener);
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent blur(Consumer<UIEvent> listener) {
 		return listen(Event.BLUR, evt -> {
 			evt.stopPropagation();
@@ -250,6 +268,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent keydown(Consumer<KeyboardEvent> listener) {
 		return listen(Event.KEYDOWN, evt -> {
 			evt.stopPropagation();
@@ -257,6 +278,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent keypress(Consumer<KeyboardEvent> listener) {
 		return listen(Event.KEYPRESS, evt -> {
 			evt.stopPropagation();
@@ -264,6 +288,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent dblclick(Consumer<MouseEvent> listener) {
 		return listen(Event.DBLCLICK, evt -> {
 			evt.stopPropagation();
@@ -271,6 +298,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent mousedown(Consumer<MouseEvent> listener) {
 		return listen(Event.MOUSEDOWN, evt -> {
 			evt.stopPropagation();
@@ -278,6 +308,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent mouseup(Consumer<MouseEvent> listener) {
 		return listen(Event.MOUSEUP, evt -> {
 			evt.stopPropagation();
@@ -285,6 +318,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent mouseover(Consumer<MouseEvent> listener) {
 		return listen(Event.MOUSEOVER, evt -> {
 			evt.stopPropagation();
@@ -292,6 +328,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent mouseenter(Consumer<MouseEvent> listener) {
 		return listen("mouseenter", evt -> {
 			evt.stopPropagation();
@@ -299,6 +338,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent mouseleave(Consumer<MouseEvent> listener) {
 		return listen("mouseleave", evt -> {
 			evt.stopPropagation();
@@ -306,6 +348,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent mousemove(Consumer<MouseEvent> listener) {
 		return listen(Event.MOUSEMOVE, evt -> {
 			evt.stopPropagation();
@@ -313,6 +358,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * A convenient helper method for this event listener.
+	 */
 	public Fluent mouseout(Consumer<MouseEvent> listener) {
 		return listen(Event.MOUSEOUT, evt -> {
 			evt.stopPropagation();
@@ -320,6 +368,9 @@ public class FluentBase implements Viewable {
 		});
 	}
 
+	/**
+	 * Set multiple css parameters in one call.
+	 */
 	public Fluent css(Css name, String value, Css name2, String value2) {
 		css(name, value);
 		css(name2, value2);
@@ -329,9 +380,6 @@ public class FluentBase implements Viewable {
 	/**
 	 * Set or remove (by value null) a css style.
 	 * 
-	 * @param name
-	 * @param value
-	 * @return
 	 */
 	public Fluent css(Css name, String value) {
 		if (styles == null) {
@@ -363,6 +411,9 @@ public class FluentBase implements Viewable {
 		return (Fluent) this;
 	}
 
+	/**
+	 * Get the css property, returns null if it doesn't exist.
+	 */
 	public String css(Css name) {
 		if (styles == null) {
 			return null;
@@ -373,9 +424,6 @@ public class FluentBase implements Viewable {
 	/**
 	 * Set or remove (by value null) an attribute.
 	 * 
-	 * @param name
-	 * @param value
-	 * @return
 	 */
 	public Fluent att(Att name, String value) {
 		if (attrs == null) {
@@ -430,10 +478,16 @@ public class FluentBase implements Viewable {
 		return (Fluent) this;
 	}
 
+	/**
+	 * Set two attributes.
+	 */
 	public Fluent att(Att name, String value, Att name2, String value2) {
 		return att(name, value).att(name2, value2);
 	}
 
+	/**
+	 * Set three attributes.
+	 */
 	public Fluent att(Att name, String value, Att name2, String value2, Att name3, String value3) {
 		return att(name, value).att(name2, value2).att(name3, value3);
 	}
@@ -460,6 +514,9 @@ public class FluentBase implements Viewable {
 		return ((SelectElement) element).getSelectedIndex();
 	}
 
+	/**
+	 * Get the attribute value that was set before.
+	 */
 	public String att(Att name) {
 		if (attrs == null) {
 			return null;
@@ -467,22 +524,41 @@ public class FluentBase implements Viewable {
 		return attrs.get(name);
 	}
 
+	/**
+	 * Convenient method to get the id of this node; note that this is quite
+	 * irrelevant vwhen working with Fluent, because in Fluent you keep the
+	 * references to the objects, rather then to do anything with ids.
+	 */
 	public String id() {
 		return att(Att.id);
 	}
 
+	/**
+	 * Set the id for this method; note that this is quite irrelevant vwhen
+	 * working with Fluent, because in Fluent you keep the references to the
+	 * objects, rather then to do anything with ids.
+	 */
 	public Fluent id(String string) {
 		return att(Att.id, string);
 	}
 
+	/**
+	 * Convenient method to set the class attribute.
+	 */
 	public String classs() {
 		return att(Att.class_);
 	}
 
+	/**
+	 * Convenient method to get the given class attribute.
+	 */
 	public Fluent classs(String string) {
 		return att(Att.class_, string);
 	}
 
+	/**
+	 * @return the tag name
+	 */
 	public String tag() {
 		return tag;
 	}
@@ -542,6 +618,10 @@ public class FluentBase implements Viewable {
 		return (Fluent) this;
 	}
 
+	/**
+	 * Get a list of children; do not change or modify this set, it will mesh up
+	 * your GUI.
+	 */
 	public List<Viewable> getChildren() {
 		return childs;
 	}

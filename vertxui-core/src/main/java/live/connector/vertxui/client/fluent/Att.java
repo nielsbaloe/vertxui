@@ -1,5 +1,11 @@
 package live.connector.vertxui.client.fluent;
 
+/**
+ * A list of standarised attributes.
+ * 
+ * @author ng
+ *
+ */
 public enum Att {
 
 	hidden, high, href, hreflang, icon, id, ismap, itemprop, //
