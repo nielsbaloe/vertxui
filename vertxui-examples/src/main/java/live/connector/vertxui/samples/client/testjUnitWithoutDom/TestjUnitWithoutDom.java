@@ -23,7 +23,7 @@ import live.connector.vertxui.samples.client.testjUnitWithDom.StoreNone;
  * If you prefer, you can place this class in your .server package too, doesn't
  * matter.
  * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 

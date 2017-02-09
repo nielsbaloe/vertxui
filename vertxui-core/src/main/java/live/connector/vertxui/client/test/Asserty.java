@@ -9,7 +9,7 @@ import java.util.Map;
  * test (because GWT does not show _which_ assertion went wrong), and with a
  * javascript callable (window.asserty()).
  * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 public class Asserty {

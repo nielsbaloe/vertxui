@@ -9,7 +9,7 @@ import elemental.util.Indexable;
  * Should be in the /client package because Fluent.java needs access to this
  * one.
  * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 public class ConsoleTester implements Console {

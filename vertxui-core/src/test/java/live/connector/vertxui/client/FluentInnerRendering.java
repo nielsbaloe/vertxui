@@ -38,25 +38,57 @@ public class FluentInnerRendering extends TestDOM {
 		ViewOn<Integer> children = Fluent.body.add(0, i -> {
 			switch (i) {
 			case 0:
-				return Ul(Li("a"), Li("b"), Li("c"));
+				return Ul(Li(null, "a"), Li(null, "b"), Li(null, "c"));
 			case 1:
-				return Ul(Li("a"), Li("b"), Li("c"));
+				return Ul(Li(null, "a"), Li(null, "b"), Li(null, "c"));
 			case 2:
-				return Ul(Li("a"), Li("c"));
+				return Ul(Li(null, "a"), Li(null, "c"));
 			case 3:
-				return Ul(Li("a"), Li("b"));
+				return Ul(Li(null, "a"), Li(null, "b"));
 			case 4:
-				return Ul(Li("a"), Li("b"), Li("c"));
+				return Ul(Li(null, "c"), Li(null, "b"), Li(null, "a"));
 			default:
 				return null;
 			}
 		});
 		NodeList nodes = Fluent.document.getElementsByTagName("LI");
-		assertEquals("three children", 3, nodes.length());
+		assertEquals("1. length", 3, nodes.length());
+		assertEquals("1. first value", "a", nodes.item(0).getTextContent());
+		assertEquals("1. second value", "b", nodes.item(1).getTextContent());
+		assertEquals("1. third value", "c", nodes.item(2).getTextContent());
 
 		children.state(1);
 		nodes = Fluent.document.getElementsByTagName("LI");
-		assertEquals("three children", 3, nodes.length());
+		assertEquals("2. length", 3, nodes.length());
+		assertEquals("2. first value", "a", nodes.item(0).getTextContent());
+		assertEquals("2. second value", "b", nodes.item(1).getTextContent());
+		assertEquals("2. third alue", "c", nodes.item(2).getTextContent());
+
+		children.state(2);
+		nodes = Fluent.document.getElementsByTagName("LI");
+		assertEquals("3. length", 2, nodes.length());
+		assertEquals("3. first value", "a", nodes.item(0).getTextContent());
+		assertEquals("3. second value", "c", nodes.item(1).getTextContent());
+
+		children.state(3);
+		nodes = Fluent.document.getElementsByTagName("LI");
+		assertEquals("4. length", 2, nodes.length());
+		assertEquals("4. first value", "a", nodes.item(0).getTextContent());
+		assertEquals("4. second value", "b", nodes.item(1).getTextContent());
+
+		children.state(1);
+		nodes = Fluent.document.getElementsByTagName("LI");
+		assertEquals("5. length", 3, nodes.length());
+		assertEquals("5. first value", "a", nodes.item(0).getTextContent());
+		assertEquals("5. second value", "b", nodes.item(1).getTextContent());
+		assertEquals("5. third alue", "c", nodes.item(2).getTextContent());
+
+		children.state(4);
+		nodes = Fluent.document.getElementsByTagName("LI");
+		assertEquals("6. length", 3, nodes.length());
+		assertEquals("6. first value", "c", nodes.item(0).getTextContent());
+		assertEquals("6. second value", "b", nodes.item(1).getTextContent());
+		assertEquals("6. third alue", "a", nodes.item(2).getTextContent());
 
 	}
 

@@ -1,8 +1,6 @@
-/07 remove Att.java and Css.java
-/09 testcase middle-child removal optimalisation + cache crc
-/10 FluentInnerRendering: write tests for all types, and also built for all a check whether the new value is different, otherwise don't take the new value.
-/11 BLOCK: chatEventbus: receivePOJO does not work in debug=false
-/13 FigWheely: fix name of compiled .js changes in GWT... + look at sourcefolder not classes
-/20 write wiki, javadoc
-/30 publish: maven, todomvc.com, info@nljug.org, vertx-awesome, vertx, GWT list, g-widgets.com, etc.
-AFTER RELEASE: extra examples: mvcBoostrap-bills paginated, webrtc in an app, jquery mobile, purecss.io
+/09 automaticly fix show-differences, see /todoMvc/Controller::63
+/10 BLOCK: ExampleChatEventbus: receivePOJO does not work in debug=false
+/11 FigWheely: fix name of compiled .js changes in GWT... + look at sourcefolder not classes
+/15 write wiki, javadoc
+/20 publish: maven, todomvc.com, info@nljug.org, vertx-awesome, vertx, GWT list, g-widgets.com, etc.
+AFTER RELEASE: middle-child-removal + paginate mvcBoostrap-bills + examples: webrtc inapp, jquery mobile, purecss.io

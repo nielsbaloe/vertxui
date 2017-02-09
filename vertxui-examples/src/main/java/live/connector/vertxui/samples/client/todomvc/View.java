@@ -61,8 +61,8 @@ public class View implements EntryPoint {
 			// Return a list with items
 			return Ul("todo-list", m.stream().filter(filter).map(t -> {
 				Fluent result = Li().div("view");
-				result.input("toggle", "checkbox").att(Att.checked, t.isCompleted() ? "1" : null)
-						.click(e -> controller.onSelect(t));
+				Fluent input = result.input("toggle", "checkbox").att(Att.checked, t.isCompleted() ? "1" : null);
+				input.click(event -> controller.onSelect(input, t));
 				result.label(null, t.getText());
 				result.button("destroy").click(e -> controller.onDestroy(t));
 				return result;

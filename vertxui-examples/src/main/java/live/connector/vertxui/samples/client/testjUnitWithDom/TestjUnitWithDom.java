@@ -39,7 +39,7 @@ import live.connector.vertxui.samples.client.mvcBootstrap.View;
  *
  * Do not create a constructor. It will be used in junit and in the browser.
  * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 

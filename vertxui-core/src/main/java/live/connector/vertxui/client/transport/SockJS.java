@@ -15,6 +15,6 @@ public class SockJS extends JsWebSocket {
 	protected static void ensureStaticLoadingJsFile() {
 	}
 
-	public final native static SockJS create(String url) /*-{ return new SockJS(url); }-*/;
+	public final native static SockJS create(String url) /*-{ return new window.top.SockJS(url); }-*/;
 
 }

@@ -12,8 +12,8 @@ import elemental.html.InputElement;
 public class Renderer {
 
 	protected static void syncChild(Fluent parent, Viewable newViewable, Fluent oldView) {
-		// Fluent.console.log("START new=" + newViewable + " old=" + oldView + "
-		// parent=" + parent);
+		// Fluent.console.log("syncChild() new=" + newViewable + " old=" +
+		// oldView + " parent=" + parent);
 
 		// Nothing new, just remove
 		if (newViewable == null) {
@@ -67,12 +67,12 @@ public class Renderer {
 
 			if (newView.attrs != null) {
 				for (Att name : newView.attrs.keySet()) {
-					((Element)newView.element).setAttribute(name.nameValid(), newView.attrs.get(name));
+					((Element) newView.element).setAttribute(name.nameValid(), newView.attrs.get(name));
 				}
 			}
 			if (newView.styles != null) {
 				for (Css name : newView.styles.keySet()) {
-					((Element)newView.element).getStyle().setProperty(name.nameValid(), newView.styles.get(name));
+					((Element) newView.element).getStyle().setProperty(name.nameValid(), newView.styles.get(name));
 				}
 			}
 			if (newView.text != null) {
@@ -154,15 +154,19 @@ public class Renderer {
 			} else {
 				oldChildAsFluent = ((ViewOnBase) oldChild).getView();
 			}
+
+			// BETA middle-child removal optimalisation, see
+			// FluentInnerRendering.java
+			// if number of childs/differ, and if there is an old child
+			// if (nChilds != oChilds && oldChild != null && newChild != null) {
+			// Fluent.console.log("Starting compare ");
+			// Fluent.console.log(" for new=" + newChild + " because nChilds=" +
+			// nChilds + " oChilds=" + oChilds);
 			//
-			// // middle-child removal optimalisation
-			// // if number of childs/differ, and if there is an old child
-			// if (nChilds != oChilds && oldChild != null) {
-			// Fluent.console.log("Starting compare for new=" +
-			// newChild.getCrcString() + " because nChilds=" + nChilds
-			// + " oChilds=" + oChilds);
-			//
-			// long newRef = newChild.getCrc();
+			// int newRef = newChild.getCrc();
+			// Fluent.console.log(
+			// "Comparing new=" + newChild.getCrcString() + " and old=" +
+			// oldChildAsFluent.getCrcString());
 			// // and if the
 			// // current child is different
 			// if (newRef != oldChildAsFluent.getCrc()) { // then look forward
@@ -170,7 +174,7 @@ public class Renderer {
 			// Fluent.console.log(" not equal for old =" +
 			// oldChildAsFluent.getCrcString());
 			// // is a next one similar
-			// for (int y = 0; y < oChilds; y++) {
+			// for (int y = x; y < oChilds; y++) {
 			// Viewable test = oldView.childs.get(y);
 			// Fluent tester = null;
 			// if (test == null) {
@@ -185,19 +189,31 @@ public class Renderer {
 			// if (parent.element != null) {
 			//
 			// Fluent.console
-			// .log("Switching " +
-			// oldChildAsFluent.element.getParentElement().getOuterHTML()
-			// + " and " + tester.element.getParentElement().getOuterHTML());
-			// parent.element.replaceChild(oldChildAsFluent.element,
-			// tester.element);
-			// Element intermediate = tester.element;
-			// tester.element = oldChildAsFluent.element;
-			// oldChildAsFluent.element = intermediate;
+			// .log("Switching old=" + ((Element)
+			// oldChildAsFluent.element).getOuterHTML()
+			// + " and new=" + ((Element) tester.element).getOuterHTML());
+			// Fluent.console.log(
+			// "old=" + oldChildAsFluent.getCrcString() + " oldNew=" +
+			// tester.getCrcString());
+			// Fluent.console.log("parent=" + parent.element + " "
+			// + (parent.element == tester.element.getParentNode()));
+			// Fluent.console.log("parentOld=" + parent.element + " "
+			// + (oldChildAsFluent.element.getParentNode() ==
+			// tester.element.getParentNode()));
+			// Fluent.console.log("parentNew=" + parent.element + " "
+			// + (parent.element == oldChildAsFluent.element.getParentNode()));
+			// Node removed =
+			// tester.element.getParentNode().replaceChild(tester.element,
+			// oldChildAsFluent.element);
+			// // Node intermediate = tester.element;
+			// // oldChildAsFluent.element = intermediate;
 			// }
-			//
-			// oldView.childs.set(x, tester);
-			// oldView.childs.set(y, oldChild);
-			//
+			// oldChildAsFluent = tester;
+			// oldView.childs.set(x, test);
+			// oldView.childs.remove(oldChild);
+			// oChilds--;
+			// max = Math.max(nChilds, oChilds);
+			// Fluent.console.log("Done");
 			// break;
 			// }
 			// }
@@ -326,12 +342,12 @@ public class Renderer {
 		// Fluent.console.log("removing " + name + " with " + value);
 		if (name instanceof Att) {
 			if (name != Att.checked) {
-				((Element)element).removeAttribute(((Att) name).nameValid());
+				((Element) element).removeAttribute(((Att) name).nameValid());
 			} else {
 				((InputElement) element).setChecked(false);
 			}
 		} else if (name instanceof Css) {
-			((Element)element).getStyle().removeProperty(((Css) name).nameValid());
+			((Element) element).getStyle().removeProperty(((Css) name).nameValid());
 		} else {
 			element.removeEventListener((String) name, (EventListener) value);
 		}
@@ -341,12 +357,12 @@ public class Renderer {
 		// Fluent.console.log("setting " + name + " with " + value);
 		if (name instanceof Att) {
 			if (name != Att.checked) {
-				((Element)element).setAttribute(((Att) name).nameValid(), (String) value);
+				((Element) element).setAttribute(((Att) name).nameValid(), (String) value);
 			} else {
 				((InputElement) element).setChecked(true);
 			}
 		} else if (name instanceof Css) {
-			((Element)element).getStyle().setProperty(((Css) name).nameValid(), (String) value);
+			((Element) element).getStyle().setProperty(((Css) name).nameValid(), (String) value);
 		} else {
 			element.addEventListener((String) name, (EventListener) value);
 		}

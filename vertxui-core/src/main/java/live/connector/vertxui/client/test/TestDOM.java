@@ -25,7 +25,7 @@ import live.connector.vertxui.server.VertxUI;
  * then calls test() in which you can call your javascript tests. You must
  * implement tests(), you can override before() and after() if necessary.
  * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 public abstract class TestDOM implements EntryPoint {

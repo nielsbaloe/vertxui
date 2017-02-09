@@ -81,11 +81,9 @@ public class VertxUI {
 		this.classs = classs;
 		this.debug = debug;
 		this.withHtml = withHtml;
-		if (FigWheely.started) { // override
-			this.debug = true;
-		}
-
 		if (FigWheely.started) {
+			this.debug = true;// override
+
 			String classFile = FigWheely.buildDir + "/" + classs.getCanonicalName().replace(".", "/") + ".class";
 			File file = new File(classFile);
 			if (!file.exists()) {

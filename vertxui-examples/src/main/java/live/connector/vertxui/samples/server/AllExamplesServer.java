@@ -14,7 +14,7 @@ import live.connector.vertxui.server.FigWheely;
 import live.connector.vertxui.server.VertxUI;
 
 /**
- * @author ng
+ * @author Niels Gorisse
  *
  */
 public class AllExamplesServer {

@@ -13,7 +13,7 @@ import io.vertx.ext.web.handler.StaticHandler;
  * in the browser when FigWheely is turned on, otherwise it is just a regular
  * StaticHandler.
  * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 public class FigStaticHandler {

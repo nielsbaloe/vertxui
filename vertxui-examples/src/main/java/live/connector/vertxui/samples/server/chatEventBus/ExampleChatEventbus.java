@@ -23,7 +23,7 @@ import live.connector.vertxui.server.transport.Pojofy;
  * necessarily go to the server but after more browsers connect, it will go to
  * one other browser too.
  * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 public class ExampleChatEventbus extends AbstractVerticle {

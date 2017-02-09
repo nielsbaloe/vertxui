@@ -6,6 +6,8 @@ import java.util.List;
 import elemental.events.KeyboardEvent;
 import elemental.events.MouseEvent;
 import elemental.html.InputElement;
+import live.connector.vertxui.client.fluent.Att;
+import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.samples.client.todomvc.State.Buttons;
 
 public class Controller {
@@ -53,8 +55,12 @@ public class Controller {
 		view.syncModel();
 	}
 
-	public void onSelect(Model model) {
+	public void onSelect(Fluent source, Model model) {
 		model.setCompleted(!model.isCompleted());
+
+		// Fluent is unaware of HTML changes so it can not always correctly
+		// recycle the checkbox. So here we update the view just in case.
+		source.att(Att.checked, model.isCompleted() ? "1" : null);
 
 		// AJAX CALL WOULD BE HERE
 

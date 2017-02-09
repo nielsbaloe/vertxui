@@ -18,7 +18,7 @@ import elemental.events.MouseEvent;
  * Attributes are set by attr(), styles by style(), and listeners by listen() or
  * their appropriate methods.
  * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 public class Fluent extends FluentBase {
@@ -608,10 +608,6 @@ public class Fluent extends FluentBase {
 																						}-*/;
 	}
 
-	public native static void eval(String code) /*-{
-													window.top.eval(code);
-													}-*/;
-
 	/**
 	 * Load javascript files synchronously and evalue/execute them directly too.
 	 * You can also add them at the head of the html-document with
@@ -640,7 +636,7 @@ public class Fluent extends FluentBase {
 
 	/**
 	 * Load one or more javascript files, asynchronous as normal. You can't use
-	 * these libraries in your code directly, for that, use scriptAsyncEval().
+	 * these libraries in your code directly, for that, use scriptSync().
 	 * 
 	 * @param jss
 	 * @return

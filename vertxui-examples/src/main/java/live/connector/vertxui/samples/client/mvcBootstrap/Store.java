@@ -14,7 +14,7 @@ import live.connector.vertxui.samples.client.mvcBootstrap.dto.Totals;
 /**
  * A three-way store, which handles all communication with the server.
  * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 public class Store {

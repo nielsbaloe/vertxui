@@ -30,7 +30,7 @@ public class EventBus extends JavaScriptObject {
 	}
 
 	public final native static EventBus create(String address, String[] options) /*-{
-																					return new EventBus(address, options);
+																					return new window.top.EventBus(address, options);
 																					}-*/;
 
 	public final native void onopen(EventListener listener)/*-{

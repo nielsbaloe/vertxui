@@ -5,7 +5,7 @@ import com.google.gwt.core.shared.GWT;
 /**
  * A base class for descriptive lambda-views.
  * 
- * @author ng
+ * @author Niels Gorisse
  *
  */
 public abstract class ViewOnBase implements Viewable {

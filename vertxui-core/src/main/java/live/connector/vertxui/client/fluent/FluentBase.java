@@ -62,6 +62,10 @@ public class FluentBase implements Viewable {
 													return window.top.document;
 														}-*/;
 
+	public native static void eval(String code) /*-{
+												window.top.eval(code);
+												}-*/;
+
 	/**
 	 * If we are attached to DOM , 'element' exists, otherwise this is null.
 	 */
@@ -153,14 +157,12 @@ public class FluentBase implements Viewable {
 	 * 
 	 */
 	public Fluent txt(String text) {
-		if (Renderer.equalsString(this.text, text)) {
-			// console.log("Skipping, still " + text);
-			return (Fluent) this;
-		}
-		this.text = text;
-		if (element != null) {
-			// console.log("setting textto "+text);
-			element.setTextContent(text);
+		if (!Renderer.equalsString(this.text, text)) {
+			this.text = text;
+			if (element != null) {
+				// console.log("setting text to "+text);
+				element.setTextContent(text);
+			}
 		}
 		return (Fluent) this;
 	}
@@ -181,16 +183,26 @@ public class FluentBase implements Viewable {
 		if (listeners == null) {
 			listeners = new TreeMap<>();
 		}
-		if (value != null) {
-			listeners.put(name, value);
-			if (element != null) {
-				element.addEventListener(name, value);
+		EventListener oldValue = listeners.get(name);
+
+		if (value != null) { // set it
+
+			// if does not exist yet or has a different value
+			if (oldValue == null || !oldValue.equals(value)) {
+				listeners.put(name, value);
+				if (element != null) { // if visual
+					element.addEventListener(name, value);
+				}
 			}
-		} else { // remove
-			EventListener oldValue = listeners.get(name);
-			listeners.remove(name);
-			if (element != null) {
-				element.removeEventListener(name, oldValue);
+
+		} else { // remove it
+
+			// if old value exists
+			if (oldValue != null) {
+				listeners.remove(name);
+				if (element != null) { // if visual
+					element.removeEventListener(name, oldValue);
+				}
 			}
 		}
 		return (Fluent) this;
@@ -325,17 +337,28 @@ public class FluentBase implements Viewable {
 		if (styles == null) {
 			styles = new TreeMap<>();
 		}
-		if (value == null) {
-			styles.remove(name);
-		} else {
-			styles.put(name, value);
-		}
-		if (element != null) {
-			if (value == null) {
-				((Element) element).getStyle().removeProperty(name.nameValid());
-			} else {
-				((Element) element).getStyle().setProperty(name.nameValid(), value);
+		String oldValue = styles.get(name);
+
+		if (value != null) { // set it
+
+			// if does not exist yet or has a different value
+			if (oldValue == null || !oldValue.equals(value)) {
+				styles.put(name, value);
+				if (element != null) { // if visual
+					((Element) element).getStyle().setProperty(name.nameValid(), value);
+				}
 			}
+
+		} else { // remove it
+
+			// if old value exists
+			if (oldValue != null) {
+				styles.remove(name);
+				if (element != null) { // if visual
+					((Element) element).getStyle().removeProperty(name.nameValid());
+				}
+			}
+
 		}
 		return (Fluent) this;
 	}
@@ -347,14 +370,6 @@ public class FluentBase implements Viewable {
 		return styles.get(name);
 	}
 
-	public Fluent att(Att name, String value, Att name2, String value2) {
-		return att(name, value).att(name2, value2);
-	}
-
-	public Fluent att(Att name, String value, Att name2, String value2, Att name3, String value3) {
-		return att(name, value).att(name2, value2).att(name3, value3);
-	}
-
 	/**
 	 * Set or remove (by value null) an attribute.
 	 * 
@@ -363,16 +378,39 @@ public class FluentBase implements Viewable {
 	 * @return
 	 */
 	public Fluent att(Att name, String value) {
-		if (name == null) { // ignoring the call
-			return (Fluent) this;
-		}
 		if (attrs == null) {
 			attrs = new TreeMap<>();
 		}
-		if (value == null) {
-			if (attrs.containsKey(name)) {
+		String oldValue = attrs.get(name);
+
+		if (value != null) { // set it
+
+			// if does not exist yet or has a different value
+			if (oldValue == null || !oldValue.equals(value)) {
+				attrs.put(name, value);
+				if (element != null) { // if visual
+
+					switch (name) {
+					case checked:
+						((InputElement) element).setChecked(true);
+						break;
+					case value:
+						((InputElement) element).setValue(value);
+						break;
+					default:
+						((Element) element).setAttribute(name.nameValid(), value);
+						break;
+					}
+
+				}
+			}
+
+		} else { // remove it
+
+			// if old value exists
+			if (oldValue != null) {
 				attrs.remove(name);
-				if (element != null) {
+				if (element != null) { // if visual
 
 					switch (name) {
 					case checked:
@@ -388,26 +426,16 @@ public class FluentBase implements Viewable {
 
 				}
 			}
-		} else {
-			// TODO do not set when value is the same, also elsewhere
-			attrs.put(name, value);
-			if (element != null) {
-
-				switch (name) {
-				case checked:
-					((InputElement) element).setChecked(true);
-					break;
-				case value:
-					((InputElement) element).setValue(value);
-					break;
-				default:
-					((Element) element).setAttribute(name.nameValid(), value);
-					break;
-				}
-
-			}
 		}
 		return (Fluent) this;
+	}
+
+	public Fluent att(Att name, String value, Att name2, String value2) {
+		return att(name, value).att(name2, value2);
+	}
+
+	public Fluent att(Att name, String value, Att name2, String value2, Att name3, String value3) {
+		return att(name, value).att(name2, value2).att(name3, value3);
 	}
 
 	/**
@@ -543,12 +571,13 @@ public class FluentBase implements Viewable {
 				result += " " + attr.nameValid() + "=" + attrs.get(attr);
 			}
 		}
-		result += " /> el=";
-		if (element == null) {
-			result += "null";
-		} else {
-			result += element.getNodeName();
-		}
+		result += "/> el=";
+		// if (element == null || ((element != null && !(element instanceof
+		// Element)))) {
+		// result += "null";
+		// } else {
+		// result += ((Element) element).getOuterHTML();
+		// }
 		result += ", parent.tag=";
 		if (parent != null) {
 			result += parent.tag;
@@ -656,7 +685,6 @@ public class FluentBase implements Viewable {
 
 	@Override
 	public int getCrc() {
-		Fluent.console.log(getCrcString());
 		return getCrcString().hashCode();
 	}
 
