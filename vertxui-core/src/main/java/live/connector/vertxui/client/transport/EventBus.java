@@ -1,9 +1,7 @@
 package live.connector.vertxui.client.transport;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
-import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.JavaScriptObject;
 
 import elemental.events.EventListener;
@@ -82,34 +80,5 @@ public class EventBus extends JavaScriptObject {
 	public final native void onerror(EventListener listener) /*-{
 																this.onerror = @elemental.js.dom.JsElementalMixinBase::getHandlerFor(Lelemental/events/EventListener;)(listener);
 																}-*/;
-
-	/**
-	 * Warning: the thing you send can go to anyone connected to the eventbus,
-	 * including other browsers that are connected. So please handle with care!
-	 */
-	public final <I, O> void send(String address, I model, JsonObject headers, ObjectMapper<I> inMapper,
-			ObjectMapper<O> outMapper, Consumer<O> handler) {
-		send(address, Pojofy.in(model, inMapper), headers, (error, m) -> {
-			if (error != null) {
-				throw new IllegalArgumentException(error.asString());
-			}
-			handler.accept(Pojofy.out(m.get("body"), outMapper));
-		});
-	}
-
-	public final <I> void publish(String address, I model, JsonObject headers, ObjectMapper<I> inMapper) {
-		publish(address, Pojofy.in(model, inMapper), headers);
-	}
-
-	public final <O> void registerHandler(String address, JsonObject headers, ObjectMapper<O> outMapper,
-			Consumer<O> handler) {
-		registerHandler(address, headers, (error, m) -> {
-			if (error != null) {
-				throw new IllegalArgumentException(error.asString());
-			}
-			O output = Pojofy.out(m.get("body"), outMapper);
-			handler.accept(output);
-		});
-	}
 
 }

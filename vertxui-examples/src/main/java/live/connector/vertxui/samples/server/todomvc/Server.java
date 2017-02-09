@@ -39,9 +39,7 @@ public class Server extends AbstractVerticle {
 		router.get("/a/*").handler(StaticHandler.create(VertxUI.getTargetFolder(debug) + "/a"));
 
 		router.get("/*").handler(FigStaticHandler.create("assets/todos", "/"));
-		if (debug) {
-			router.get(Client.figLocation).handler(FigWheely.create());
-		}
+		router.get(Client.figLocation).handler(FigWheely.create());
 		AllExamplesServer.startWarAndServer2(router, server);
 	}
 

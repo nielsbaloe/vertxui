@@ -22,12 +22,13 @@ public class AllExamplesServer {
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
 	public static void startWarAndServer(Class<?> classs, Router router, HttpServer server) {
+		boolean debug = true;
 
 		// Serve the javascript for figwheely (and turn it on too)
 		router.get(Client.figLocation).handler(FigWheely.create());
 
 		// The main compiled js
-		router.get("/*").handler(VertxUI.with(classs, "/", true, true));
+		router.get("/*").handler(VertxUI.with(classs, "/", debug, true));
 
 		// Boilerplate startup
 		startWarAndServer2(router, server);

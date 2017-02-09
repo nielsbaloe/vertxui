@@ -11,6 +11,7 @@ import elemental.json.Json;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.EventBus;
+import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.AllExamplesClient;
 
 /**
@@ -40,23 +41,22 @@ public class Client implements EntryPoint {
 			});
 
 			// extra example: pojo consume
-			eventBus.registerHandler(addressPojo, null, AllExamplesClient.dto,
+			Pojofy.eventbusReceive(eventBus, addressPojo, null, AllExamplesClient.dto,
 					a -> console.log("Received pojo: " + a.color));
 		});
 
 		input.keydown(event -> {
 			if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
 				eventBus.publish(freeway, name + ": " + input.domValue(), null);
-				input.att(Att.value,""); 
+				input.att(Att.value, "");
 
 				// extra example: object publish
-				eventBus.publish(addressPojo, new Dto("blue by " + name), Json.parse("{\"action\":\"save\"}"),
-						AllExamplesClient.dto);
+				Pojofy.eventbusPublish(eventBus, addressPojo, new Dto("blue by " + name),
+						Json.parse("{\"action\":\"save\"}"), AllExamplesClient.dto);
 			}
 		});
 	}
 
-	
 	@Override
 	public void onModuleLoad() {
 	}

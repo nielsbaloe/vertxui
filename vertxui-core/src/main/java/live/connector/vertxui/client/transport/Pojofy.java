@@ -80,4 +80,34 @@ public class Pojofy {
 		socket.send(object.toJson());
 	}
 
+	/**
+	 * Warning: the thing you send can go to anyone connected to the eventbus,
+	 * including other browsers that are connected. So please handle with care!
+	 */
+	public static <I, O> void eventbusSend(EventBus eventBus, String address, I model, JsonObject headers,
+			ObjectMapper<I> inMapper, ObjectMapper<O> outMapper, Consumer<O> handler) {
+		eventBus.send(address, in(model, inMapper), headers, (error, m) -> {
+			if (error != null) {
+				throw new IllegalArgumentException(error.asString());
+			}
+			handler.accept(out(m.getString("body"), outMapper));
+		});
+	}
+
+	public static <I> void eventbusPublish(EventBus eventBus, String address, I model, JsonObject headers,
+			ObjectMapper<I> inMapper) {
+		eventBus.publish(address, in(model, inMapper), headers);
+	}
+
+	public static <O> void eventbusReceive(EventBus eventBus, String address, JsonObject headers,
+			ObjectMapper<O> outMapper, Consumer<O> handler) {
+		eventBus.registerHandler(address, headers, (error, m) -> {
+			if (error != null) {
+				throw new IllegalArgumentException(error.asString());
+			}
+			O output = out(m.getString("body"), outMapper);
+			handler.accept(output);
+		});
+	}
+
 }

@@ -74,16 +74,12 @@ public class VertxUI {
 	 * Serve the /war folder. Also, if a source folder is found, convert the
 	 * class to html+javascript .
 	 * 
-	 * If figwheely is started or if the URL is null, debugging is set to true.
-	 * 
 	 */
 	private VertxUI(Class<?> classs, String url, boolean debug, boolean withHtml) {
 		this.classs = classs;
 		this.debug = debug;
 		this.withHtml = withHtml;
 		if (FigWheely.started) {
-			this.debug = true;// override
-
 			String classFile = FigWheely.buildDir + "/" + classs.getCanonicalName().replace(".", "/") + ".class";
 			File file = new File(classFile);
 			if (!file.exists()) {
