@@ -11,7 +11,6 @@ import io.vertx.ext.web.handler.StaticHandler;
 import live.connector.vertxui.samples.client.figwheely.Client;
 import live.connector.vertxui.samples.client.todomvc.View;
 import live.connector.vertxui.samples.server.AllExamplesServer;
-import live.connector.vertxui.server.FigStaticHandler;
 import live.connector.vertxui.server.FigWheely;
 import live.connector.vertxui.server.VertxUI;
 
@@ -37,8 +36,7 @@ public class Server extends AbstractVerticle {
 		boolean debug = true;
 		VertxUI.with(View.class, null, debug, false);
 		router.get("/a/*").handler(StaticHandler.create(VertxUI.getTargetFolder(debug) + "/a"));
-
-		router.get("/*").handler(FigStaticHandler.create("assets/todos", "/"));
+		router.get("/*").handler(FigWheely.staticHandler("assets/todos", "/"));
 		router.get(Client.figLocation).handler(FigWheely.create());
 		AllExamplesServer.startWarAndServer2(router, server);
 	}

@@ -9,7 +9,6 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import live.connector.vertxui.samples.client.figwheely.Client;
 import live.connector.vertxui.samples.server.AllExamplesServer;
-import live.connector.vertxui.server.FigStaticHandler;
 import live.connector.vertxui.server.FigWheely;
 
 public class ExampleFigWheely extends AbstractVerticle {
@@ -31,7 +30,7 @@ public class ExampleFigWheely extends AbstractVerticle {
 		// clients of changes if figwheely is started (otherwise it is just a
 		// normal StaticHandler).
 		String url = "/sourcez/";
-		router.get(url + "*").handler(FigStaticHandler.create("assets/figwheely", url));
+		router.get(url + "*").handler(FigWheely.staticHandler("assets/figwheely", url));
 
 		AllExamplesServer.startWarAndServer(Client.class, router, server);
 	}

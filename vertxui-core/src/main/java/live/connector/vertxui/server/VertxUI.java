@@ -37,9 +37,9 @@ public class VertxUI {
 	 * Set the location of your source files if not /src, /src/main or
 	 * /src/main/java .
 	 */
-	public static String folderSourceMain = null;
+	public static String folderSource = null;
 
-	private static String targetFolder = null;
+	private static String folderBuild = null;
 
 	public static List<String> librariesGwt;
 
@@ -56,8 +56,8 @@ public class VertxUI {
 	 * @return the target folder of the java to javascript build
 	 */
 	public static String getTargetFolder(boolean debugMode) {
-		if (targetFolder != null) {
-			return targetFolder;
+		if (folderBuild != null) {
+			return folderBuild;
 		}
 		if (debugMode) {
 			return "build/development";
@@ -67,7 +67,7 @@ public class VertxUI {
 	}
 
 	public static void setTargetFolder(String targetFolder) {
-		VertxUI.targetFolder = targetFolder;
+		VertxUI.folderBuild = targetFolder;
 	}
 
 	/**
@@ -79,16 +79,6 @@ public class VertxUI {
 		this.classs = classs;
 		this.debug = debug;
 		this.withHtml = withHtml;
-		if (FigWheely.started) {
-			String classFile = FigWheely.buildDir + "/" + classs.getCanonicalName().replace(".", "/") + ".class";
-			File file = new File(classFile);
-			if (!file.exists()) {
-				throw new IllegalArgumentException("please set FigWheely.buildDir, failed to load " + classFile);
-			}
-			FigWheely.addVertX(file, url + "a/a.nocache.js", this); // useless,
-																	// needs
-																	// refactoring
-		}
 
 		// do a first translation
 		if (Vertx.currentContext() != null) {
@@ -117,32 +107,38 @@ public class VertxUI {
 	 * given class from java to javascript. Give url:null for only translating.
 	 * 
 	 */
-	public static Handler<RoutingContext> with(Class<?> classs, String urlSWithoutAsterix, boolean debug,
+	public static Handler<RoutingContext> with(Class<?> classs, String urlWithoutAsterix, boolean debug,
 			boolean withHtml) {
 
 		// If no sourceLocation, then we are in production so we don't do
 		// anything at all.
 		String sourceFilePath = classs.getName().replace(".", "/") + ".java";
-		Stream.of("src", "src/main", "src/main/java", "src/test", "src/test/java", folderSourceMain)
-				.forEach(location -> {
-					if (location != null && new File(location + "/" + sourceFilePath).exists()) {
-						folderSourceMain = location;
-					}
-				});
-		if (folderSourceMain == null) {
+		Stream.of("src", "src/main", "src/main/java", "src/test", "src/test/java", folderSource).forEach(location -> {
+			if (location != null && new File(location + "/" + sourceFilePath).exists()) {
+				folderSource = location;
+			}
+		});
+		if (folderSource == null) {
 			if (debug) {
 				throw new IllegalArgumentException(
 						"Sourcefolder not found but debug is still true, did you compile with debug=false?");
 			}
-			if (urlSWithoutAsterix == null) {
+			if (urlWithoutAsterix == null) {
 				throw new IllegalArgumentException(
 						"Sourcefolder not found, but urlWithoutAsterix is null, so unable to server files.");
 			}
 			log.info("Production mode: no source folder found, not translating from java to javascript.");
 		} else {
-			new VertxUI(classs, urlSWithoutAsterix, debug, withHtml);
+			VertxUI translated = new VertxUI(classs, urlWithoutAsterix, debug, withHtml);
+
+			if (FigWheely.started) {
+				String clientFolder = (folderSource + "/" + classs.getName()).replace(".", "/");
+				clientFolder = clientFolder.substring(0, clientFolder.lastIndexOf("client") + 6);
+				FigWheely.addFromVertX(Vertx.currentContext().owner().fileSystem(),
+						urlWithoutAsterix + "a/a.nocache.js", clientFolder, translated);
+			}
 		}
-		if (urlSWithoutAsterix != null) {
+		if (urlWithoutAsterix != null) {
 			return StaticHandler.create(VertxUI.getTargetFolder(debug)).setCachingEnabled(false);
 		} else {
 			return null;
@@ -178,7 +174,7 @@ public class VertxUI {
 		// given classname
 		String path = className.replace(".", "/");
 		path = path.substring(0, path.lastIndexOf("client") + 6);
-		File gwtXml = new File(folderSourceMain + "/" + xmlFile + ".gwt.xml");
+		File gwtXml = new File(folderSource + "/" + xmlFile + ".gwt.xml");
 		StringBuilder content = new StringBuilder("<module rename-to='a'>");
 		librariesGwt.forEach(l -> content.append("<inherits name='" + l + "'/>"));
 		content.append("<entry-point class='" + className + "'/><source path='" + path + "'/>");
@@ -202,7 +198,7 @@ public class VertxUI {
 			String classpath = System.getProperty("java.class.path");
 			String sep = (System.getenv("path.separator") == null) ? (classpath.contains(";") ? ";" : ":")
 					: System.getenv("path.separator");
-			classpath += sep + folderSourceMain;
+			classpath += sep + folderSource;
 			classpath = Stream.of(classpath.split(sep)).map(c -> "\"" + c + "\"" + sep).reduce("", String::concat);
 
 			String line = null;
