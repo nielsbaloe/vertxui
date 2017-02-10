@@ -16,26 +16,23 @@ public abstract class ViewOnBase implements Viewable {
 	/**
 	 * Set the display parameter of the view (if any) to none.
 	 */
-	public void hide() {
+	@Override
+	public ViewOnBase hide(boolean doit) {
 		if (view != null) {
-			view.css(Css.display, "none");
+			view.hide(doit);
 		}
-	}
-
-	/**
-	 * Set the display parameter of the view (if any) to null.
-	 * 
-	 */
-	public void unhide() {
-		if (view != null) {
-			view.css(Css.display, null);
-		}
+		return this;
 	}
 
 	protected void setParent(Fluent parent) {
 		this.parent = parent;
 	}
 
+	/**
+	 * Get the view (if there is any), useful for junit tests.
+	 * 
+	 * @return
+	 */
 	public Fluent getView() {
 		return view;
 	}
@@ -72,9 +69,10 @@ public abstract class ViewOnBase implements Viewable {
 		// the 'if' below prevents throwing away inner viewOn's with a outer
 		// state. Because, if sync is called fromout fluent when adding inside a
 		// viewon, the attached dom is thrown away, which is not supposed to
-		// happen.
+		// happen then. (for parent!=null&&parent.elemnt!=null)
+		//
 		// However, it prevents testing against the virtual dom, so we leave it
-		// on in pure java.
+		// on in pure java (!gwt.isClient()).
 		if (!GWT.isClient() || (parent != null && parent.element != null)) {
 			Renderer.syncChild(parent, this, view);
 		}

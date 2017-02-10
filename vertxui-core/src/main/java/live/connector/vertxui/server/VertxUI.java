@@ -41,6 +41,9 @@ public class VertxUI {
 
 	private static String folderBuild = null;
 
+	/**
+	 * Add GWT libraries to the path if you need to do so.
+	 */
 	public static List<String> librariesGwt;
 
 	static {
@@ -66,15 +69,15 @@ public class VertxUI {
 		}
 	}
 
+	/**
+	 * Set the location of your target build folder, in case you do not want it
+	 * in build/development (when debug=true) or build/production (when
+	 * debug=false).
+	 */
 	public static void setTargetFolder(String targetFolder) {
 		VertxUI.folderBuild = targetFolder;
 	}
 
-	/**
-	 * Serve the /war folder. Also, if a source folder is found, convert the
-	 * class to html+javascript .
-	 * 
-	 */
 	private VertxUI(Class<?> classs, String url, boolean debug, boolean withHtml) {
 		this.classs = classs;
 		this.debug = debug;
@@ -145,14 +148,7 @@ public class VertxUI {
 		}
 	}
 
-	public void sychronousReTranslate() throws IOException, InterruptedException {
-		translate();
-	}
-
-	/**
-	 * Debug is false by default; enable Figwheely to set debug to true.
-	 */
-	public void translate() throws IOException, InterruptedException {
+	protected void translate() throws IOException, InterruptedException {
 
 		// Write index.html file which autoreloads
 		if (withHtml) {
@@ -169,7 +165,6 @@ public class VertxUI {
 		// Write the .gml.xml file
 		String className = classs.getName();
 		String xmlFile = "gwtTemp";
-
 		// as path: the "client" package in the name of the classpath of the
 		// given classname
 		String path = className.replace(".", "/");

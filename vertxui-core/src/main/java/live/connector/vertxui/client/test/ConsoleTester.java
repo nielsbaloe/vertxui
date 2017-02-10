@@ -6,8 +6,6 @@ import elemental.util.Indexable;
 
 /**
  * A class which simulates console.log for plain-java outside-gwt junit testing.
- * Should be in the /client package because Fluent.java needs access to this
- * one.
  * 
  * @author Niels Gorisse
  *

@@ -1,5 +1,4 @@
-/11 browsertests 
-/12 wiki
-/13 javadoc
+/12 browsertests 
+/13 wiki
 /20 PUBLISH: maven, todomvc.com, info@nljug.org, vertx-awesome, vertx, GWT list, g-widgets.com, etc
 AFTER RELEASE: middle-child-removal + page&id mvcBoostrap-bills + examples: webrtc inapp, jquery mobile, purecss.io

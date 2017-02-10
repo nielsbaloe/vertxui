@@ -599,8 +599,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * Try not to use this method, use the fluent methods or the cosntructors
-	 * instead.
+	 * Addd items; try not to use this method, use the fluent methods or the
+	 * cosntructors instead.
 	 */
 	public Fluent add(Viewable... items) {
 		for (Viewable item : items) {
@@ -610,8 +610,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * Try not to use this method, use the fluent methods or the cosntructors
-	 * instead.
+	 * Addd items; try not to use this method, use the fluent methods or the
+	 * cosntructors instead.
 	 */
 	public Fluent add(Stream<Fluent> stream) {
 		stream.forEach(item -> addNew(item));
@@ -626,12 +626,31 @@ public class FluentBase implements Viewable {
 		return childs;
 	}
 
+	/**
+	 * Add a view-on-model to describe a view on a model. If your model changes,
+	 * use .sync() or .state(newState) to notify viewOn and VertxUI will adjust
+	 * the differences in the view.
+	 * 
+	 * @param initialState
+	 * @param method
+	 * @return the created ViewOn object.
+	 */
 	public <T> ViewOn<T> add(T initialState, Function<T, Fluent> method) {
 		ViewOn<T> result = new ViewOn<T>(initialState, method);
 		addNew(result);
 		return result;
 	}
 
+	/**
+	 * Add a view-on-both-model2 to describe a view on two models. If your
+	 * models changes, use .sync() or .state(newState) to notify viewOnBoth and
+	 * VertxUI will adjust the differences in the view.
+	 * 
+	 * @param initialState1
+	 * @param initialState2
+	 * @param method
+	 * @return a ViewOnBoth object
+	 */
 	public <A, B> ViewOnBoth<A, B> add(A initialState1, B initialState2, BiFunction<A, B, Fluent> method) {
 		ViewOnBoth<A, B> result = new ViewOnBoth<A, B>(initialState1, initialState2, method);
 		addNew(result);
@@ -666,12 +685,34 @@ public class FluentBase implements Viewable {
 		return result;
 	}
 
+	/**
+	 * Convenient method to disable an object. The attribute 'disable' is set or
+	 * unset.
+	 * 
+	 * @param disabled
+	 */
 	public void disabled(boolean disabled) {
 		if (disabled) {
 			att(Att.disable, "");
 		} else {
 			att(Att.disable, null);
 		}
+	}
+
+	/**
+	 * Convenient method to hide this visual object. The css style 'display' is
+	 * set to none or nothing.
+	 * 
+	 * @param doit
+	 */
+	@Override
+	public Fluent hide(boolean doit) {
+		if (doit) {
+			css(Css.display, "none");
+		} else {
+			css(Css.display, null);
+		}
+		return (Fluent) this;
 	}
 
 	// UNIT TESTING
@@ -729,10 +770,11 @@ public class FluentBase implements Viewable {
 	}
 
 	/*
-	 * This does not cover listeners (which is not possible in GWT production
-	 * mode), but does cover the rest, which should be enough to identify which
-	 * child is which for most render optimalisation issues. For example, when
-	 * one child between other childs in a list is deleted.
+	 * A not-exact string representation of this node and a few children. This
+	 * does not cover listeners (which is not possible in GWT production mode),
+	 * but does cover the rest, which should be enough to identify which child
+	 * is which for most render optimalisation issues. For example, when one
+	 * child between other childs in a list is deleted.
 	 */
 	@Override
 	public String getCrcString() {
@@ -750,14 +792,8 @@ public class FluentBase implements Viewable {
 		}
 		if (childs != null) {
 			// only three deep
-			// byte[] cache = new byte[8];
 			for (int x = 0; x < 3 && x < childs.size(); x++) {
 				result.append(childs.get(x).getCrcString());
-				// for (int i = 7; i >= 0; i--) {
-				// cache[i] = (byte) (child & 0xFF);
-				// child >>= 8;
-				// }
-				// result.append(cache);
 			}
 		}
 		return result.toString();

@@ -15,24 +15,21 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.WriteStream;
 import io.vertx.ext.web.RoutingContext;
 
+/**
+ * A Vert.x helper class to communicate in POJO's for ajax, the eventbus and
+ * websocket/sockjs.
+ * 
+ * Note: try to use vertx-jersey for a lot of ajax calls if you do not use
+ * Vert.x as microservice, it is probably more efficient and does generate
+ * cleaner code.
+ * 
+ * @author ng
+ *
+ */
 public class Pojofy {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	/**
-	 * Create a web-handler which gets a pojo of type inputType. Note: please
-	 * use vertx-jersey if you have a lot of ajax calls (if you don't use vert.x
-	 * as microservice), that is probably faster and better to use due to clean
-	 * code.
-	 * 
-	 * @param inputType
-	 *            a pojo type, or String.class for a string
-	 * @param handler
-	 *            a handler for this call, which returns a POJO back to the
-	 *            browser, or a string, or null if you response something
-	 *            yourself using the provided context.
-	 * @return a web-handler which can receive and send POJO's through ajax.
-	 */
 	public static <A> Handler<RoutingContext> ajax(Class<A> inputType, BiFunction<A, RoutingContext, Object> handler) {
 		return context -> {
 			context.request().bodyHandler(body -> {
@@ -73,7 +70,16 @@ public class Pojofy {
 		});
 	}
 
-	// Note: replies at the same address!
+	/**
+	 * Note: replies at the same address!
+	 * 
+	 * @param socket
+	 * @param url
+	 * @param in
+	 * @param inputType
+	 * @param handler
+	 * @return
+	 */
 	public static <A, S extends WriteStream<Buffer>> boolean socket(S socket, String url, Buffer in, Class<A> inputType,
 			BiFunction<A, JsonObject, Object> handler) {
 		String start = ("{\"url\":\"" + url);
@@ -100,7 +106,7 @@ public class Pojofy {
 		return true;
 	}
 
-	public static String out(Object output) {
+	private static String out(Object output) {
 		if (output == null) {
 			return null;
 		} else if (output instanceof String) {

@@ -206,19 +206,19 @@ public class View implements EntryPoint {
 
 		switch (state) {
 		case "home":
-			totals.unhide();
-			bills.hide();
-			grocery.hide();
+			totals.hide(false);
+			bills.hide(true);
+			grocery.hide(true);
 			break;
 		case "bills":
-			totals.hide();
-			bills.unhide();
-			grocery.hide();
+			totals.hide(true);
+			bills.hide(false);
+			grocery.hide(true);
 			break;
 		case "grocery":
-			totals.hide();
-			bills.hide();
-			grocery.unhide();
+			totals.hide(true);
+			bills.hide(true);
+			grocery.hide(false);
 			break;
 		}
 	}

@@ -18,6 +18,14 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 
+/**
+ * Figwheely is for detecting javascript or file changes, and then triggering a
+ * recompilation (if it is java for javascript compilation) and notify the
+ * browser of these changes.
+ * 
+ * @author ng
+ *
+ */
 public class FigWheely extends AbstractVerticle {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
@@ -83,6 +91,12 @@ public class FigWheely extends AbstractVerticle {
 		});
 	}
 
+	/**
+	 * Serve the root folder as static handler, but with notifications to the
+	 * browser if folder change. Does not work when figwheely wasn't started
+	 * before, so there is no performance loss if you leave this on.
+	 * 
+	 */
 	public static Handler<RoutingContext> staticHandler(String root, String urlWithoutAsterix) {
 		// log.info("creating figwheely static handler, started=" +
 		// FigWheely.started);
@@ -126,7 +140,7 @@ public class FigWheely extends AbstractVerticle {
 						watchable.lastModified = watchable.file.lastModified();
 						try {
 							if (watchable.handler != null) {
-								watchable.handler.sychronousReTranslate();
+								watchable.handler.translate();
 							}
 							// log.info("url=" + url);
 							for (Object obj : vertx.sharedData().getLocalMap(browserIds).keySet()) {
@@ -145,7 +159,7 @@ public class FigWheely extends AbstractVerticle {
 		});
 	}
 
-	public static final String script = "new WebSocket('ws://localhost:" + port + "/" + url
+	private static final String script = "new WebSocket('ws://localhost:" + port + "/" + url
 			+ "').onmessage = function(m) {console.log(m.data);removejscssfile(m.data.substr(8));};                                         \n "
 			+ "console.log('FigWheely started');                                                                                \n "
 			+ "function removejscssfile(filename){                 \n"
@@ -165,13 +179,17 @@ public class FigWheely extends AbstractVerticle {
 			+ "       }                                                                     "
 			+ "       parent.appendChild(script);   	                 \n" + "  }  } };                           ";
 
+	/**
+	 * Create handler which serves the figwheely javascript. Also turns on the
+	 * wheel of figwheely.
+	 */
 	public static Handler<RoutingContext> create() {
 		if (!started) {
 			started = true;
 			Vertx.currentContext().owner().deployVerticle(FigWheely.class.getName());
 		}
-		return a -> {
-			a.response().end(FigWheely.script);
+		return context -> {
+			context.response().end(FigWheely.script);
 		};
 	}
 

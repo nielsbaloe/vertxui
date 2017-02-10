@@ -6,8 +6,8 @@ import java.util.Map;
  * A small junit port, leaving about a handfull or assertions which need
  * external dependencies, inlining some methods to reduce the length of the
  * stacktrace, not allowing testing without a first argument which describes the
- * test (because GWT does not show _which_ assertion went wrong), and with a
- * javascript callable (window.asserty()).
+ * test (because GWT does not show at which linenumber the assertion went
+ * wrong).
  * 
  * @author Niels Gorisse
  *
@@ -15,8 +15,8 @@ import java.util.Map;
 public class Asserty {
 
 	/**
-	 * Give a method that runs all your testcases and throws an exception when
-	 * something goes wrong.
+	 * Give a map of integer&methods that runs all your testcases and throw an
+	 * exception when something goes wrong.
 	 */
 	public final native static String asserty(Map<Integer, Runnable> map)/*-{
 																			$wnd.asserty = function(which) {

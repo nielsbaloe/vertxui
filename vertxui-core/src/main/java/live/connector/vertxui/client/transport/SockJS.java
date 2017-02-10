@@ -3,6 +3,13 @@ package live.connector.vertxui.client.transport;
 import elemental.js.html.JsWebSocket;
 import live.connector.vertxui.client.fluent.Fluent;
 
+/**
+ * A wrapper around websocket with lots of shockwave-less fallback methods -
+ * called SockJS.
+ * 
+ * @author ng
+ *
+ */
 public class SockJS extends JsWebSocket {
 
 	protected SockJS() {

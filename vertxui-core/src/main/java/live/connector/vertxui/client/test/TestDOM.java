@@ -21,9 +21,8 @@ import live.connector.vertxui.server.VertxUI;
 
 /**
  * A junit testrunner which starts as a normal java junit test, but underneath
- * converts the class to a javascript page, fires up a headless browser, and
- * then calls test() in which you can call your javascript tests. You must
- * implement tests(), you can override before() and after() if necessary.
+ * converts the class to a javascript page, fires up a headless browser.
+ * Register with registerJS() and run your tests with runJS().
  * 
  * @author Niels Gorisse
  *

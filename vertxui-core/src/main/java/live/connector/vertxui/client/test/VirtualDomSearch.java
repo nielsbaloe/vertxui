@@ -12,6 +12,12 @@ import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOnBase;
 import live.connector.vertxui.client.fluent.Viewable;
 
+/**
+ * For DOM searching in junit tests.
+ * 
+ * @author ng
+ *
+ */
 public class VirtualDomSearch {
 
 	private static void filter(Fluent target, Predicate<Fluent> filter, List<Fluent> result) {

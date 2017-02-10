@@ -13,6 +13,12 @@ import elemental.html.WebSocket;
 import elemental.json.Json;
 import elemental.json.JsonObject;
 
+/**
+ * A helper class for communicating in pure-java POJO objects.
+ * 
+ * @author ng
+ *
+ */
 public class Pojofy {
 
 	public static <I, O> void ajax(String protocol, String url, I model, ObjectMapper<I> inMapper,

@@ -12,4 +12,6 @@ public interface Viewable {
 
 	public String getCrcString();
 
+	public Viewable hide(boolean doit);
+
 }

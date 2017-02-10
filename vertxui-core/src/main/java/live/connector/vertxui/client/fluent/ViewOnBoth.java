@@ -3,7 +3,7 @@ package live.connector.vertxui.client.fluent;
 import java.util.function.BiFunction;
 
 /**
- * A view of a state.
+ * A view of two states.
  *
  */
 public class ViewOnBoth<A, B> extends ViewOnBase {
