@@ -39,9 +39,12 @@ public class Controller {
 
 	public void onInput(KeyboardEvent event) {
 		if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
-			InputElement inputElement = (InputElement) event.getTarget();
-			addModel(inputElement.getValue());
-			inputElement.setValue("");
+			InputElement input = (InputElement) event.getTarget();
+			String value = input.getValue();
+			if (!value.isEmpty()) {
+				addModel(value);
+				input.setValue("");
+			}
 		}
 	}
 

@@ -159,6 +159,7 @@ public class FigWheely extends AbstractVerticle {
 		});
 	}
 
+	// Internet Explorer 11 does not have .endsWith()
 	private static final String script = "function endsWith(str, suffix) {return str.indexOf(suffix, str.length - suffix.length) !== -1;}"
 			+ "new WebSocket('ws://localhost:" + port + "/" + url
 			+ "').onmessage = function(m) {console.log(m.data);removejscssfile(m.data.substr(8));};                                         \n "

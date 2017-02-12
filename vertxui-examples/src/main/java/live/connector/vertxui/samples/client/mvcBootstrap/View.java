@@ -42,6 +42,7 @@ public class View implements EntryPoint {
 
 	public static String[] css = new String[] { "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css",
 			"https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" };
+
 	public static String[] scripts = new String[] { "https://code.jquery.com/jquery-1.12.4.js",
 			"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js",
 			"https://code.jquery.com/ui/1.12.1/jquery-ui.js" };

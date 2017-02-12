@@ -65,7 +65,7 @@ public class Fluent extends FluentBase {
 
 	public Fluent button(String classs, String type, String text) {
 		if (type == null) {
-			throw new IllegalArgumentException("You must specify the button type");
+			throw new IllegalArgumentException("You must specify the button type because the default type is 'submit'.");
 		}
 		return new Fluent("BUTTON", this).classs(classs).att(Att.type, type).txt(text);
 	}

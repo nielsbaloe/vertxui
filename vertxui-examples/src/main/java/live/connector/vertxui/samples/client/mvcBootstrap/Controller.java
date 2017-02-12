@@ -60,7 +60,8 @@ public class Controller {
 			return;
 		}
 
-		// PREVENT SENDING THE FORM BECAUSE IT HAS ONLY ONE ELEMENT (IE11)
+		// Internet explorer 11
+		// PREVENT SENDING THE FORM BECAUSE IT HAS ONLY ONE ELEMENT
 		event.preventDefault();
 
 		InputElement element = (InputElement) event.getTarget();
