@@ -1,4 +1,4 @@
-package live.connector.vertxui.samples.client.chatEventBus;
+package live.connector.vertxui.samples.client;
 
 import java.util.ArrayList;
 import java.util.List;

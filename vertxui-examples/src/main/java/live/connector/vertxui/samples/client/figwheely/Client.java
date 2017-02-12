@@ -22,10 +22,10 @@ public class Client implements EntryPoint {
 		head.stylesheet("/sourcez/sample.css?" + System.currentTimeMillis()).script(figLocation);
 
 		body.div().id("picture");
-		Fluent button = body.button(null, "Look at the css, and change something WITHOUT reloading.");
+		Fluent button = body.button(null, "button", "Look at the css, and change something WITHOUT reloading.");
 		button.click(e -> {
 			button.txt("Something else");
-			body.button(null, "sdfsdf!");
+			body.button(null, "button", "sdfsdf!");
 		});
 	}
 

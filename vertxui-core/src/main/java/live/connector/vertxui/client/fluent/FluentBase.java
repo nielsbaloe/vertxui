@@ -235,6 +235,8 @@ public class FluentBase implements Viewable {
 		return listen(Event.CLICK, evt -> {
 			if (evt.getTarget() instanceof InputElement) {
 				InputElement input = (InputElement) evt.getTarget();
+
+				// synchronizing the DOM value with the Fluent datastructure.
 				if (input.getAttribute("type") == "checkbox") {
 					att(Att.checked, input.isChecked() ? "1" : null);
 				}
@@ -422,8 +424,10 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * Set or remove (by value null) an attribute.
-	 * 
+	 * Set (or remove by value null) an attribute, or the property 'checked' or
+	 * 'value'. Note that with the properties you only set the default value,
+	 * these can change in runtime. Please use the event from your callbacks to
+	 * reset the objects back to initial states.
 	 */
 	public Fluent att(Att name, String value) {
 		if (attrs == null) {
@@ -493,22 +497,37 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * Get the value of an input field; use att() to set the value.
+	 * Get the value of an input field if it has been changed by the DOM.
 	 */
 	public String domValue() {
 		return ((InputElement) element).getValue();
 	}
 
 	/**
-	 * Get whether an input with type checkbox is checked; use att() to set the
-	 * value.
+	 * Set the value of an input field if you know it differs from the initial
+	 * value (which you can set with att()).
+	 */
+	public void domValue(String value) {
+		((InputElement) element).setValue(value);
+	}
+
+	/**
+	 * Get the value of a checkbox if it has been changed by the DOM.
 	 */
 	public boolean domChecked() {
 		return ((InputElement) element).isChecked();
 	}
 
 	/**
-	 * Get the selected index of a select node.
+	 * Set the value of a checkbox if you know it differs from the initial value
+	 * (which you can set with att()).
+	 */
+	public void domChecked(boolean checked) {
+		((InputElement) element).setChecked(checked);
+	}
+
+	/**
+	 * Get the selected index if it has been changed by the DOM.
 	 */
 	public int domSelectedIndex() {
 		return ((SelectElement) element).getSelectedIndex();

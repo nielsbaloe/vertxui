@@ -12,8 +12,8 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
+import live.connector.vertxui.samples.client.Dto;
 import live.connector.vertxui.samples.client.chatEventBus.Client;
-import live.connector.vertxui.samples.client.chatEventBus.Dto;
 import live.connector.vertxui.samples.server.AllExamplesServer;
 import live.connector.vertxui.server.transport.Pojofy;
 

@@ -112,7 +112,7 @@ public class View implements EntryPoint {
 		// a detached view on a bills form
 		billsForm = new ViewOn<Boolean>(false, opened -> {
 			if (opened == false) {
-				return Button("btn btn-success", "Add").att(Att.type, "button").click(e -> {
+				return Button("btn btn-success", "button", "Add").att(Att.type, "button").click(e -> {
 					billsForm.state(true);
 					Fluent.eval("$('#datepicker').datepicker({ dateFormat:'dd/mm/yy'});");
 				});
@@ -132,7 +132,7 @@ public class View implements EntryPoint {
 			result.div("input-group", text.clone().txt("Amount"), amount).css(Css.width, "80%");
 			result.div("input-group", text.clone().txt("When"), when).css(Css.width, "80%");
 
-			result.button("btn btn-success", "OK").att(Att.type, "button").click(event -> {
+			result.button("btn btn-success", "button", "OK").att(Att.type, "button").click(event -> {
 				Date date = null;
 				try {
 					date = dater.parse(when.domValue());
@@ -166,7 +166,7 @@ public class View implements EntryPoint {
 			Fluent form = Div().form("form");
 
 			form.div("form-group", Label(null, "Name ").att(Att.for_, "n"),
-					Input("form-control", "text", "n").css(Css.maxWidth, "200px").keyup(controller::onGroceryAdd));
+					Input("form-control", "text", "n").css(Css.maxWidth, "200px").keypress(controller::onGroceryAdd));
 			form.ul(grocery.all.stream()
 					.map(s -> Div("checkbox",
 							Li(Input().att(Att.type, "checkbox", Att.value, s).click(controller::onGroceryDelete),

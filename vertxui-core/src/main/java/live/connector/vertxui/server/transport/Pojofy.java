@@ -49,6 +49,12 @@ public class Pojofy {
 	 */
 	public static <A> Handler<RoutingContext> ajax(Class<A> inputType, BiConsumer<A, RoutingContext> handler) {
 		return context -> {
+
+			// Internet Explorer 11 caches ajax calls
+			context.response().putHeader("Cache-control", "none");
+			context.response().putHeader("Pragma", "none");
+			context.response().putHeader("Expires", "0");
+
 			context.request().bodyHandler(body -> {
 				context.response().end();
 				handler.accept(in(inputType, body.toString()), context);

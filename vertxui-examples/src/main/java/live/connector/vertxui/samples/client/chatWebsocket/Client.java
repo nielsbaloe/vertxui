@@ -1,19 +1,18 @@
 package live.connector.vertxui.samples.client.chatWebsocket;
 
-import static live.connector.vertxui.client.fluent.Fluent.body;
-import static live.connector.vertxui.client.fluent.Fluent.console;
-import static live.connector.vertxui.client.fluent.Fluent.window;
+import static live.connector.vertxui.client.fluent.FluentBase.body;
+import static live.connector.vertxui.client.fluent.FluentBase.console;
+import static live.connector.vertxui.client.fluent.FluentBase.window;
 
 import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.MessageEvent;
 import elemental.html.WebSocket;
 import elemental.json.Json;
-import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.AllExamplesClient;
-import live.connector.vertxui.samples.client.chatEventBus.Dto;
+import live.connector.vertxui.samples.client.Dto;
 
 /**
  * @author Niels Gorisse
@@ -46,7 +45,9 @@ public class Client implements EntryPoint {
 		input.keydown(event -> {
 			if (event.getKeyCode() == 13) {
 				socket.send(name + ": " + input.domValue());
-				input.att(Att.value, "");
+
+				// RESET dom changes after reading out.
+				input.domValue("");
 
 				// extra: pojo example
 				Pojofy.socketSend(socket, urlPojo, new Dto("darkviolet"), AllExamplesClient.dto,

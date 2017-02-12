@@ -63,28 +63,18 @@ public class Fluent extends FluentBase {
 		return Input().classs(classs).att(Att.type, type).id(id);
 	}
 
-	public Fluent button() {
-		return new Fluent("BUTTON", this);
+	public Fluent button(String classs, String type, String text) {
+		if (type == null) {
+			throw new IllegalArgumentException("You must specify the button type");
+		}
+		return new Fluent("BUTTON", this).classs(classs).att(Att.type, type).txt(text);
 	}
 
-	public Fluent button(String classs) {
-		return button().classs(classs);
-	}
-
-	public Fluent button(String classs, String text) {
-		return button().classs(classs).txt(text);
-	}
-
-	public static Fluent Button() {
-		return new Fluent("BUTTON", null);
-	}
-
-	public static Fluent Button(String classs) {
-		return Button().classs(classs);
-	}
-
-	public static Fluent Button(String classs, String text) {
-		return Button().classs(classs).txt(text);
+	public static Fluent Button(String classs, String type, String text) {
+		if (type == null) {
+			throw new IllegalArgumentException("You must specify the button type");
+		}
+		return new Fluent("BUTTON", null).classs(classs).att(Att.type, type).txt(text);
 	}
 
 	public Fluent li() {

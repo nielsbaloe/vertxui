@@ -159,11 +159,12 @@ public class FigWheely extends AbstractVerticle {
 		});
 	}
 
-	private static final String script = "new WebSocket('ws://localhost:" + port + "/" + url
+	private static final String script = "function endsWith(str, suffix) {return str.indexOf(suffix, str.length - suffix.length) !== -1;}"
+			+ "new WebSocket('ws://localhost:" + port + "/" + url
 			+ "').onmessage = function(m) {console.log(m.data);removejscssfile(m.data.substr(8));};                                         \n "
 			+ "console.log('FigWheely started');                                                                                \n "
 			+ "function removejscssfile(filename){                 \n"
-			+ "if (filename.endsWith('js')) filetype='js'; else filetype='css';         "
+			+ "if (endsWith(filename,'js')) filetype='js'; else filetype='css';         "
 			+ "var el = (filetype=='js')? 'script':'link';                                              "
 			+ "var attr = (filetype=='js')? 'src':'href';                                  \n"
 			+ "var all =document.getElementsByTagName(el);                               \n"

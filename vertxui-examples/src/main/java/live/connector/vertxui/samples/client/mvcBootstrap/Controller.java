@@ -59,6 +59,10 @@ public class Controller {
 		if (event.getKeyCode() != KeyboardEvent.KeyCode.ENTER) {
 			return;
 		}
+
+		// PREVENT SENDING THE FORM BECAUSE IT HAS ONLY ONE ELEMENT (IE11)
+		event.preventDefault();
+
 		InputElement element = (InputElement) event.getTarget();
 		String text = element.getValue();
 		if (!text.isEmpty()) {

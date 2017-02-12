@@ -64,7 +64,7 @@ public class View implements EntryPoint {
 				Fluent input = result.input("toggle", "checkbox").att(Att.checked, t.isCompleted() ? "1" : null);
 				input.click(event -> controller.onSelect(input, t));
 				result.label(null, t.getText());
-				result.button("destroy").click(e -> controller.onDestroy(t));
+				result.button("destroy", "button", null).click(e -> controller.onDestroy(t));
 				return result;
 			}));
 		});
@@ -99,7 +99,7 @@ public class View implements EntryPoint {
 
 			// "Clear Completed" button
 			if (completedCount != models.size()) {
-				result.button("clear-completed", "Clear completed").css(Css.display, "block")
+				result.button("clear-completed", "button", "Clear completed").css(Css.display, "block")
 						.click(controller::onClearCompleted);
 			}
 			return result;

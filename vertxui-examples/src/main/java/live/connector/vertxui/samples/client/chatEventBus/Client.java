@@ -1,18 +1,18 @@
 package live.connector.vertxui.samples.client.chatEventBus;
 
-import static live.connector.vertxui.client.fluent.Fluent.body;
-import static live.connector.vertxui.client.fluent.Fluent.console;
-import static live.connector.vertxui.client.fluent.Fluent.window;
+import static live.connector.vertxui.client.fluent.FluentBase.body;
+import static live.connector.vertxui.client.fluent.FluentBase.console;
+import static live.connector.vertxui.client.fluent.FluentBase.window;
 
 import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.KeyboardEvent;
 import elemental.json.Json;
-import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.EventBus;
 import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.AllExamplesClient;
+import live.connector.vertxui.samples.client.Dto;
 
 /**
  * @author Niels Gorisse
@@ -48,7 +48,9 @@ public class Client implements EntryPoint {
 		input.keydown(event -> {
 			if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
 				eventBus.publish(freeway, name + ": " + input.domValue(), null);
-				input.att(Att.value, "");
+
+				// RESET dom changes after reading out.
+				input.domValue("");
 
 				// extra example: object publish
 				Pojofy.eventbusPublish(eventBus, addressPojo, new Dto("blue by " + name),

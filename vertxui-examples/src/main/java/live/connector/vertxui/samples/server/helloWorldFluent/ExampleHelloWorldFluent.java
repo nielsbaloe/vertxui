@@ -8,7 +8,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
-import live.connector.vertxui.samples.client.chatEventBus.Dto;
+import live.connector.vertxui.samples.client.Dto;
 import live.connector.vertxui.samples.client.helloWorldFluentHtml.Client;
 import live.connector.vertxui.samples.server.AllExamplesServer;
 import live.connector.vertxui.server.transport.Pojofy;

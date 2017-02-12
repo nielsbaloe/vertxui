@@ -10,7 +10,7 @@ import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.AllExamplesClient;
-import live.connector.vertxui.samples.client.chatEventBus.Dto;
+import live.connector.vertxui.samples.client.Dto;
 
 public class Client implements EntryPoint {
 
@@ -21,7 +21,7 @@ public class Client implements EntryPoint {
 	private Fluent thinking;
 
 	public Client() {
-		button = body.div().button(null, "Click me!").id("hello-button").click(this::clicked);
+		button = body.div().button(null, "button", "Click me!").id("hello-button").click(this::clicked);
 		response = body.div();
 		thinking = body.div().txt("The server waits as demonstration!").id("thinking-panel").css(Css.display, "none");
 	}
@@ -33,7 +33,7 @@ public class Client implements EntryPoint {
 		thinking.css(Css.display, "");
 		Pojofy.ajax("POST", url, null, null, null, this::responsed);
 	}
-	
+
 	// It is advisable to write callbacks into methods, so you can easily write
 	// jUnit tests.
 	private void responsed(int responseCode, String text) {

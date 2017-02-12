@@ -11,7 +11,7 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
-import live.connector.vertxui.samples.client.chatEventBus.Dto;
+import live.connector.vertxui.samples.client.Dto;
 import live.connector.vertxui.samples.client.chatWebsocket.Client;
 import live.connector.vertxui.samples.server.AllExamplesServer;
 import live.connector.vertxui.server.transport.Pojofy;

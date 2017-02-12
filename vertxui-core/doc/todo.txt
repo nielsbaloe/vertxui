@@ -1,4 +1,5 @@
-/12 browsertests 
-/13 wiki
+/13 figwheely: als meerdere files saven, dan overal tijdstip gelijk trekken voor targurl=a/a.nocache.js ipv meermaals compileren
+/14 browsertests: Chrome: alle
+/15 wiki
 /20 PUBLISH: maven, todomvc.com, info@nljug.org, vertx-awesome, vertx, GWT list, g-widgets.com, etc
 AFTER RELEASE: middle-child-removal + page&id mvcBoostrap-bills + examples: webrtc inapp, jquery mobile, purecss.io
