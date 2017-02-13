@@ -1,6 +1,6 @@
 package live.connector.vertxui.client.fluent;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import com.google.gwt.core.client.GWT;
@@ -180,7 +180,7 @@ public class Fluent extends FluentBase {
 	 * (which is badly ugly and therefore not recommended). So if you can, do
 	 * not use this method, and try to avoid mixing tags and text.
 	 */
-	public Fluent text(String text) {
+	public Fluent textNode(String text) {
 		return new Fluent("TEXT", this).txt(text);
 	}
 
@@ -226,11 +226,11 @@ public class Fluent extends FluentBase {
 		return new Fluent("WBR", this);
 	}
 
-	public Fluent a(String classs, String inner, String href, Consumer<MouseEvent> clickListener) {
+	public Fluent a(String classs, String inner, String href, BiConsumer<Fluent, MouseEvent> clickListener) {
 		return new Fluent("A", this).classs(classs).txt(inner).att(Att.href, href).click(clickListener);
 	}
 
-	public static Fluent A(String classs, String inner, String href, Consumer<MouseEvent> clickListener) {
+	public static Fluent A(String classs, String inner, String href, BiConsumer<Fluent, MouseEvent> clickListener) {
 		return new Fluent("A", null).classs(classs).txt(inner).att(Att.href, href).click(clickListener);
 	}
 

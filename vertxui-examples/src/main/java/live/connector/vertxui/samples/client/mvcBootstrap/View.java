@@ -113,7 +113,7 @@ public class View implements EntryPoint {
 		// a detached view on a bills form
 		billsForm = new ViewOn<Boolean>(false, opened -> {
 			if (opened == false) {
-				return Button("btn btn-success", "button", "Add").att(Att.type, "button").click(e -> {
+				return Button("btn btn-success", "button", "Add").att(Att.type, "button").click((fluent, event) -> {
 					billsForm.state(true);
 					Fluent.eval("$('#datepicker').datepicker({ dateFormat:'dd/mm/yy'});");
 				});
@@ -133,7 +133,7 @@ public class View implements EntryPoint {
 			result.div("input-group", text.clone().txt("Amount"), amount).css(Css.width, "80%");
 			result.div("input-group", text.clone().txt("When"), when).css(Css.width, "80%");
 
-			result.button("btn btn-success", "button", "OK").att(Att.type, "button").click(event -> {
+			result.button("btn btn-success", "button", "OK").att(Att.type, "button").click((fluent, event) -> {
 				Date date = null;
 				try {
 					date = dater.parse(when.domValue());
@@ -168,10 +168,8 @@ public class View implements EntryPoint {
 
 			form.div("form-group", Label(null, "Name ").att(Att.for_, "n"), Input("form-control", "text").id("n")
 					.css(Css.maxWidth, "200px").keypress(controller::onGroceryAdd));
-			form.ul(grocery.all.stream()
-					.map(s -> Div("checkbox",
-							Li(Input().att(Att.type, "checkbox", Att.value, s).click(controller::onGroceryDelete),
-									Label(null, s)))));
+			form.ul(grocery.all.stream().map(s -> Div("checkbox",
+					Li(Input(null, "checkbox").att(Att.value, s).click(controller::onGroceryDelete), Label(null, s)))));
 
 			return form; // Fluent winds it back to the origin.
 		});
@@ -179,13 +177,13 @@ public class View implements EntryPoint {
 		// Init data
 		switch (menuStart) {
 		case "home":
-			controller.onMenuHome(null);
+			controller.onMenuHome(null, null);
 			break;
 		case "bills":
-			controller.onMenuBills(null);
+			controller.onMenuBills(null, null);
 			break;
 		case "grocery":
-			controller.onMenuGrocery(null);
+			controller.onMenuGrocery(null, null);
 			break;
 		}
 	}

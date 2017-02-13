@@ -3,8 +3,8 @@ package live.connector.vertxui.client.fluent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -138,7 +138,7 @@ public class FluentBase implements Viewable {
 	 * 
 	 * @return a Fluent object with the give id, or null.
 	 */
-	public static Fluent dom(String id) {
+	public static Fluent getElementById(String id) {
 		Node node = document.getElementById(id);
 		if (node == null) {
 			return null;
@@ -152,7 +152,7 @@ public class FluentBase implements Viewable {
 	 * 
 	 * Note that it will also set the text of all children, so prevent combining
 	 * text and children together. If you really really mean to have children
-	 * and text together (which is opiniated bad practice), use text() to create
+	 * and text together (which is opiniated bad practice), use textNode() to create
 	 * a text node.
 	 * 
 	 */
@@ -173,6 +173,17 @@ public class FluentBase implements Viewable {
 	 */
 	public String txt() {
 		return this.text;
+	}
+
+	/**
+	 * A convenient helper method for general even listeners when you want the
+	 * Fluent object too - also executes event.stopPropagation().
+	 */
+	public Fluent listen(String type, BiConsumer<Fluent, Event> listener) {
+		return listen(type, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, event);
+		});
 	}
 
 	/**
@@ -222,31 +233,21 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent keyup(Consumer<KeyboardEvent> listener) {
-		return listen(Event.KEYUP, evt -> {
-			evt.stopPropagation();
-			listener.accept((KeyboardEvent) evt);
+	public Fluent keyup(BiConsumer<Fluent, KeyboardEvent> listener) {
+		return listen(Event.KEYUP, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (KeyboardEvent) event);
 		});
 	}
 
 	/**
 	 * A convenient helper method for this event listener - also executes
-	 * event.stopPropagation() and saves the latest checked property in the
-	 * Fluent virtual DOM (so that it syncs correctly).
+	 * event.stopPropagation().
 	 */
-	public Fluent click(Consumer<MouseEvent> listener) {
-		return listen(Event.CLICK, evt -> {
-
-			// synchronizing the DOM value with the Fluent datastructure.
-			if (evt.getTarget() instanceof InputElement && att(Att.type).equals("checkbox")) {
-				if (((InputElement) evt.getTarget()).isChecked()) {
-					attrs.put(Att.checked, "1");
-				} else {
-					attrs.remove(Att.checked);
-				}
-			}
-			evt.stopPropagation();
-			listener.accept((MouseEvent) evt);
+	public Fluent click(BiConsumer<Fluent, MouseEvent> listener) {
+		return listen(Event.CLICK, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (MouseEvent) event);
 		});
 	}
 
@@ -268,10 +269,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent blur(Consumer<UIEvent> listener) {
-		return listen(Event.BLUR, evt -> {
-			evt.stopPropagation();
-			listener.accept((UIEvent) evt);
+	public Fluent blur(BiConsumer<Fluent, UIEvent> listener) {
+		return listen(Event.BLUR, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (UIEvent) event);
 		});
 	}
 
@@ -279,10 +280,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent keydown(Consumer<KeyboardEvent> listener) {
-		return listen(Event.KEYDOWN, evt -> {
-			evt.stopPropagation();
-			listener.accept((KeyboardEvent) evt);
+	public Fluent keydown(BiConsumer<Fluent, KeyboardEvent> listener) {
+		return listen(Event.KEYDOWN, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (KeyboardEvent) event);
 		});
 	}
 
@@ -290,10 +291,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent keypress(Consumer<KeyboardEvent> listener) {
-		return listen(Event.KEYPRESS, evt -> {
-			evt.stopPropagation();
-			listener.accept((KeyboardEvent) evt);
+	public Fluent keypress(BiConsumer<Fluent, KeyboardEvent> listener) {
+		return listen(Event.KEYPRESS, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (KeyboardEvent) event);
 		});
 	}
 
@@ -301,10 +302,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent dblclick(Consumer<MouseEvent> listener) {
-		return listen(Event.DBLCLICK, evt -> {
-			evt.stopPropagation();
-			listener.accept((MouseEvent) evt);
+	public Fluent dblclick(BiConsumer<Fluent, MouseEvent> listener) {
+		return listen(Event.DBLCLICK, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (MouseEvent) event);
 		});
 	}
 
@@ -312,10 +313,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent mousedown(Consumer<MouseEvent> listener) {
-		return listen(Event.MOUSEDOWN, evt -> {
-			evt.stopPropagation();
-			listener.accept((MouseEvent) evt);
+	public Fluent mousedown(BiConsumer<Fluent, MouseEvent> listener) {
+		return listen(Event.MOUSEDOWN, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (MouseEvent) event);
 		});
 	}
 
@@ -323,10 +324,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent mouseup(Consumer<MouseEvent> listener) {
-		return listen(Event.MOUSEUP, evt -> {
-			evt.stopPropagation();
-			listener.accept((MouseEvent) evt);
+	public Fluent mouseup(BiConsumer<Fluent, MouseEvent> listener) {
+		return listen(Event.MOUSEUP, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (MouseEvent) event);
 		});
 	}
 
@@ -334,10 +335,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent mouseover(Consumer<MouseEvent> listener) {
-		return listen(Event.MOUSEOVER, evt -> {
-			evt.stopPropagation();
-			listener.accept((MouseEvent) evt);
+	public Fluent mouseover(BiConsumer<Fluent, MouseEvent> listener) {
+		return listen(Event.MOUSEOVER, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (MouseEvent) event);
 		});
 	}
 
@@ -345,10 +346,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent mouseenter(Consumer<MouseEvent> listener) {
-		return listen("mouseenter", evt -> {
-			evt.stopPropagation();
-			listener.accept((MouseEvent) evt);
+	public Fluent mouseenter(BiConsumer<Fluent, MouseEvent> listener) {
+		return listen("mouseenter", event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (MouseEvent) event);
 		});
 	}
 
@@ -356,10 +357,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent mouseleave(Consumer<MouseEvent> listener) {
-		return listen("mouseleave", evt -> {
-			evt.stopPropagation();
-			listener.accept((MouseEvent) evt);
+	public Fluent mouseleave(BiConsumer<Fluent, MouseEvent> listener) {
+		return listen("mouseleave", event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (MouseEvent) event);
 		});
 	}
 
@@ -367,10 +368,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent mousemove(Consumer<MouseEvent> listener) {
-		return listen(Event.MOUSEMOVE, evt -> {
-			evt.stopPropagation();
-			listener.accept((MouseEvent) evt);
+	public Fluent mousemove(BiConsumer<Fluent, MouseEvent> listener) {
+		return listen(Event.MOUSEMOVE, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (MouseEvent) event);
 		});
 	}
 
@@ -378,10 +379,10 @@ public class FluentBase implements Viewable {
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
 	 */
-	public Fluent mouseout(Consumer<MouseEvent> listener) {
-		return listen(Event.MOUSEOUT, evt -> {
-			evt.stopPropagation();
-			listener.accept((MouseEvent) evt);
+	public Fluent mouseout(BiConsumer<Fluent, MouseEvent> listener) {
+		return listen(Event.MOUSEOUT, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (MouseEvent) event);
 		});
 	}
 
@@ -440,9 +441,9 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * Set (or remove by value null) an attribute, or the property 'checked' or
-	 * 'value'. Note that with the properties you only set the default value,
-	 * these can change in runtime. Please use the event from your callbacks to
-	 * reset the objects back to initial states.
+	 * 'value' or 'selectedIndex'. Note that with the properties you only set
+	 * the default value, these can change in runtime, use dom*() methods to get
+	 * the live value.
 	 */
 	public Fluent att(Att name, String value) {
 		if (attrs == null) {
@@ -464,6 +465,8 @@ public class FluentBase implements Viewable {
 					case value:
 						((InputElement) element).setValue(value);
 						break;
+					case selectedIndex:
+						((SelectElement) element).setSelectedIndex(Integer.parseInt(value));
 					default:
 						((Element) element).setAttribute(name.nameValid(), value);
 						break;
@@ -485,6 +488,10 @@ public class FluentBase implements Viewable {
 						break;
 					case value:
 						((InputElement) element).setValue(null);
+						break;
+					case selectedIndex:
+						// nothing to do
+						// ((SelectElement) element).);
 						break;
 					default:
 						((Element) element).removeAttribute(name.nameValid());
@@ -512,40 +519,48 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * Get the value of an input field if it has been changed by the DOM.
+	 * Get the value of an input field if it has been changed by the DOM. Also
+	 * synchronizes with the virtual DOM, which is why you should prefer this
+	 * above reading out the event.targetEvent()... .
 	 */
 	public String domValue() {
-		return ((InputElement) element).getValue();
+		String result = ((InputElement) element).getValue();
+		if (result != null) {
+			attrs.put(Att.value, result);
+		} else {
+			attrs.remove(Att.value);
+		}
+		return result;
 	}
 
 	/**
-	 * Set the value of an input field if you know it differs from the initial
-	 * value (which you can set with att()).
-	 */
-	public void domValue(String value) {
-		((InputElement) element).setValue(value);
-	}
-
-	/**
-	 * Get the value of a checkbox if it has been changed by the DOM.
+	 * Get the value of a checkbox if it has been changed by the DOM. Also
+	 * synchronizes with the virtual DOM, which is why you should prefer this
+	 * above reading out the event.targetEvent()... .
 	 */
 	public boolean domChecked() {
-		return ((InputElement) element).isChecked();
+		boolean result = ((InputElement) element).isChecked();
+		if (result) {
+			attrs.put(Att.checked, "1");
+		} else {
+			attrs.remove(Att.checked);
+		}
+		return result;
 	}
 
 	/**
-	 * Set the value of a checkbox if you know it differs from the initial value
-	 * (which you can set with att()).
-	 */
-	public void domChecked(boolean checked) {
-		((InputElement) element).setChecked(checked);
-	}
-
-	/**
-	 * Get the selected index if it has been changed by the DOM.
+	 * Get the selected index if it has been changed by the DOM. Also
+	 * synchronizes with the virtual DOM, which is why you should prefer this
+	 * above reading out the event.targetEvent()... .
 	 */
 	public int domSelectedIndex() {
-		return ((SelectElement) element).getSelectedIndex();
+		int result = ((SelectElement) element).getSelectedIndex();
+		if (result != -1) {
+			attrs.put(Att.selectedIndex, result + "");
+		} else {
+			attrs.put(Att.selectedIndex, null);
+		}
+		return result;
 	}
 
 	/**

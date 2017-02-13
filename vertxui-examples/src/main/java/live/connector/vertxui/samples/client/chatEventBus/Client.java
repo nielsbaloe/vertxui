@@ -8,6 +8,7 @@ import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.KeyboardEvent;
 import elemental.json.Json;
+import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.EventBus;
 import live.connector.vertxui.client.transport.Pojofy;
@@ -34,7 +35,7 @@ public class Client implements EntryPoint {
 		Fluent messages = body.div();
 
 		EventBus eventBus = EventBus.create("http://localhost/chatEventbus", null);
-		eventBus.onopen(evt -> {
+		eventBus.onopen(event -> {
 			eventBus.publish(freeway, name + ": Ola, I'm " + name + ".", null);
 			eventBus.registerHandler(freeway, null, (error, in) -> { // onmessage
 				messages.li(null, in.get("body").asString());
@@ -45,12 +46,10 @@ public class Client implements EntryPoint {
 					a -> console.log("Received pojo: " + a.color));
 		});
 
-		input.keydown(event -> {
+		input.keydown((fluent, event) -> {
 			if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
 				eventBus.publish(freeway, name + ": " + input.domValue(), null);
-
-				// RESET dom changes after reading out.
-				input.domValue("");
+				input.att(Att.value, null);
 
 				// extra example: object publish
 				Pojofy.eventbusPublish(eventBus, addressPojo, new Dto("blue by " + name),

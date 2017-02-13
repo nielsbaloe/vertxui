@@ -66,7 +66,7 @@ public class TestjUnitWithoutDom {
 
 		// After pressing the menuBills button, check in the LI with class
 		// active, the name of the A-link.
-		controller.onMenuBills(null);
+		controller.onMenuBills(null, null);
 		List<Fluent> b = VirtualDomSearch.getElementsByClassName("active", Fluent.body);
 		assertEquals(b.size(), 1);
 		assertTrue(((Fluent) b.get(0).getChildren().get(0)).txt().equals("Bills"));

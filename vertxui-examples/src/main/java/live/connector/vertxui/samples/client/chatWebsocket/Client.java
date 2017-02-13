@@ -9,6 +9,7 @@ import com.google.gwt.core.client.EntryPoint;
 import elemental.events.MessageEvent;
 import elemental.html.WebSocket;
 import elemental.json.Json;
+import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.AllExamplesClient;
@@ -42,12 +43,10 @@ public class Client implements EntryPoint {
 			messages.li(null, ((MessageEvent) e).getData().toString());
 		});
 
-		input.keydown(event -> {
+		input.keydown((fluent, event) -> {
 			if (event.getKeyCode() == 13) {
 				socket.send(name + ": " + input.domValue());
-
-				// RESET dom changes after reading out.
-				input.domValue("");
+				input.att(Att.value, null);
 
 				// extra: pojo example
 				Pojofy.socketSend(socket, urlPojo, new Dto("darkviolet"), AllExamplesClient.dto,

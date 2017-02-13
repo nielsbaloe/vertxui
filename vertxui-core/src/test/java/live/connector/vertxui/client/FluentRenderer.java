@@ -254,13 +254,13 @@ public class FluentRenderer extends TestDOM {
 				break;
 			case 2:
 				result.click(this::b);
-				result.focus(this::c);
+				result.keypress(this::c);
 				break;
 			case 3:
 				break;
 			case 4:
 				result.click(this::a);
-				result.focus(this::c);
+				result.keypress(this::c);
 				result.dblclick(this::b);
 				break;
 			}
@@ -281,13 +281,13 @@ public class FluentRenderer extends TestDOM {
 		view.state(4);
 	}
 
-	public void a(Event e) {
+	public void a(Fluent __, Event e) {
 	}
 
-	public void b(Event e) {
+	public void b(Fluent __, Event e) {
 	}
 
-	public void c(Event e) {
+	public void c(Fluent __, Event e) {
 	}
 
 }

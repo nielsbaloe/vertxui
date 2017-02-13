@@ -44,7 +44,8 @@ public class View implements EntryPoint {
 
 		// Static upper part
 
-		Fluent container = Fluent.dom("startpoint"); // search for id=startpoint
+		Fluent container = Fluent.getElementById("startpoint"); // search for
+																// id=startpoint
 		if (container == null) { // if the existing index.html is not found
 			// Note: todomvc is also the extend-an-existing-index.html example
 			// for vertxui.
@@ -75,18 +76,18 @@ public class View implements EntryPoint {
 					|| (p.isCompleted() == (s.getButtons() == Buttons.Completed));
 
 			// Return a list with items
-			return Ul("todo-list", m.stream().filter(filter).map(t -> {
-				Fluent li = Li(t.isCompleted() ? "completed" : null).div("view");
+			return Ul("todo-list", m.stream().filter(filter).map(item -> {
+				Fluent li = Li(item.isCompleted() ? "completed" : null).div("view");
 
 				Fluent input = li.input("toggle", "checkbox");
-				input.click(event -> controller.onSelect(input, t));
-				if (t.isCompleted()) {
+				input.click((fluent, event) -> controller.onSelect(fluent, item));
+				if (item.isCompleted()) {
 					input.att(Att.checked, "!");
 				}
 
-				li.label(null, t.getText());
+				li.label(null, item.getText());
 
-				li.button("destroy", "button", null).click(e -> controller.onDestroy(t));
+				li.button("destroy", "button", null).click((f, e) -> controller.onDestroy(item));
 
 				return li;
 			}));
@@ -106,11 +107,11 @@ public class View implements EntryPoint {
 			if (completedCount == 1) {
 				// this is exceptional and bad style, combining plain text and
 				// html. however this is how the todomvc example should work
-				counter.text(" item left");
+				counter.textNode(" item left");
 			} else {
 				// this is exceptional and bad style, combining plain text and
 				// html. however this is how the todomvc example should work
-				counter.text(" items left");
+				counter.textNode(" items left");
 			}
 
 			// Buttons

@@ -8,6 +8,7 @@ import elemental.dom.Element;
 import elemental.dom.Node;
 import elemental.events.EventListener;
 import elemental.html.InputElement;
+import elemental.html.SelectElement;
 
 public class Renderer {
 
@@ -341,11 +342,23 @@ public class Renderer {
 	private static <T, V> void compareApplyRemove(Node element, T name, V value) {
 		// Fluent.console.log("removing " + name + " with " + value);
 		if (name instanceof Att) {
-			if (name != Att.checked) {
-				((Element) element).removeAttribute(((Att) name).nameValid());
-			} else {
+
+			switch ((Att) name) {
+			case checked:
 				((InputElement) element).setChecked(false);
+				break;
+			case value:
+				((InputElement) element).setValue(null);
+				break;
+			case selectedIndex:
+				// nothing to do
+				// ((SelectElement) element).);
+				break;
+			default:
+				((Element) element).removeAttribute(((Att) name).nameValid());
+				break;
 			}
+
 		} else if (name instanceof Css) {
 			((Element) element).getStyle().removeProperty(((Css) name).nameValid());
 		} else {
@@ -356,11 +369,21 @@ public class Renderer {
 	private static <T, V> void compareApplySet(Node element, T name, V value) {
 		// Fluent.console.log("setting " + name + " with " + value);
 		if (name instanceof Att) {
-			if (name != Att.checked) {
-				((Element) element).setAttribute(((Att) name).nameValid(), (String) value);
-			} else {
+
+			switch ((Att) name) {
+			case checked:
 				((InputElement) element).setChecked(true);
+				break;
+			case value:
+				((InputElement) element).setValue((String) value);
+				break;
+			case selectedIndex:
+				((SelectElement) element).setSelectedIndex(Integer.parseInt((String) value));
+			default:
+				((Element) element).setAttribute(((Att) name).nameValid(), (String) value);
+				break;
 			}
+
 		} else if (name instanceof Css) {
 			((Element) element).getStyle().setProperty(((Css) name).nameValid(), (String) value);
 		} else {

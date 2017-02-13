@@ -72,7 +72,7 @@ public class TestjUnitWithDom extends TestDOM {
 
 		// After pressing the menuBills button, check in the LI with class
 		// active, the name of the A-link.
-		controller.onMenuBills(null);
+		controller.onMenuBills(null, null);
 
 		NodeList b = document.getElementsByClassName("active");
 		assertEquals("length of actives", b.length(), 1);

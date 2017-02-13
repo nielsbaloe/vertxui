@@ -1,13 +1,13 @@
 package live.connector.vertxui.samples.client.helloWorldFluentHtml;
 
-import static live.connector.vertxui.client.fluent.Fluent.body;
-import static live.connector.vertxui.client.fluent.Fluent.console;
+import static live.connector.vertxui.client.fluent.FluentBase.body;
+import static live.connector.vertxui.client.fluent.FluentBase.console;
 
 import com.google.gwt.core.client.EntryPoint;
 
-import elemental.events.Event;
-import live.connector.vertxui.client.fluent.Fluent;
+import elemental.events.MouseEvent;
 import live.connector.vertxui.client.fluent.Css;
+import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.AllExamplesClient;
 import live.connector.vertxui.samples.client.Dto;
@@ -28,7 +28,7 @@ public class Client implements EntryPoint {
 
 	// It is advisable to write callbacks into methods, so you can easily write
 	// jUnit tests.
-	private void clicked(Event e) {
+	private void clicked(Fluent __, MouseEvent ___) {
 		button.disabled(true);
 		thinking.css(Css.display, "");
 		Pojofy.ajax("POST", url, null, null, null, this::responsed);

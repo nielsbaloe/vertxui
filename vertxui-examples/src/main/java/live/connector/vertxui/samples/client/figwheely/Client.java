@@ -23,7 +23,7 @@ public class Client implements EntryPoint {
 
 		body.div().id("picture");
 		Fluent button = body.button(null, "button", "Look at the css, and change something WITHOUT reloading.");
-		button.click(e -> {
+		button.click((fluent, event) -> {
 			button.txt("Something else");
 			body.button(null, "button", "sdfsdf!");
 		});

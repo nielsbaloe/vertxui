@@ -3,11 +3,11 @@ package live.connector.vertxui.samples.client.mvcBootstrap;
 import java.util.Collections;
 import java.util.Date;
 
-import elemental.dom.Element;
 import elemental.events.Event;
 import elemental.events.KeyboardEvent;
 import elemental.events.MouseEvent;
-import elemental.html.InputElement;
+import live.connector.vertxui.client.fluent.Att;
+import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Bill;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Name;
@@ -47,7 +47,7 @@ public class Controller {
 		return grocery;
 	}
 
-	public void onBillOnlyNumeric(KeyboardEvent event) {
+	public void onBillOnlyNumeric(Fluent __, KeyboardEvent event) {
 		int code = event.getCharCode();
 		if ((code >= 48 && code <= 57) || code == 0) {
 			return; // numeric or a not-a-character is OK
@@ -55,7 +55,7 @@ public class Controller {
 		event.preventDefault();
 	}
 
-	public void onGroceryAdd(KeyboardEvent event) {
+	public void onGroceryAdd(Fluent fluent, KeyboardEvent event) {
 		if (event.getKeyCode() != KeyboardEvent.KeyCode.ENTER) {
 			return;
 		}
@@ -64,10 +64,9 @@ public class Controller {
 		// PREVENT SENDING THE FORM BECAUSE IT HAS ONLY ONE ELEMENT
 		event.preventDefault();
 
-		InputElement element = (InputElement) event.getTarget();
-		String text = element.getValue();
+		String text = fluent.domValue();
 		if (!text.isEmpty()) {
-			element.setValue("");
+			fluent.att(Att.value, null);
 
 			// Apply change in model
 			grocery.all.add(text);
@@ -81,10 +80,12 @@ public class Controller {
 
 	}
 
-	public void onGroceryDelete(MouseEvent evt) {
-		Element element = ((Element) evt.getTarget());
-		((InputElement) element).setChecked(false);
-		String text = element.getAttribute("value");
+	public void onGroceryDelete(Fluent fluent, MouseEvent event) {
+
+		fluent.domChecked(); // synchronize virtual DOM
+		fluent.att(Att.checked, null); // before adjusting it
+
+		String text = fluent.domValue();
 
 		// Apply change in model
 		grocery.all.remove(text);
@@ -109,7 +110,7 @@ public class Controller {
 		store.addBill(bill);
 	}
 
-	public void onMenuHome(Event evt) {
+	public void onMenuHome(Fluent __, Event ___) {
 		// Push model to view
 		view.stateAndSyncMenu("home"); // the view handles this model
 
@@ -117,7 +118,7 @@ public class Controller {
 		store.getTotals(this::setTotals);
 	}
 
-	public void onMenuBills(Event evt) {
+	public void onMenuBills(Fluent __, Event ___) {
 		// Push model to view
 		view.stateAndSyncMenu("bills");// the view handles this model
 
@@ -125,7 +126,7 @@ public class Controller {
 		store.getBills(this::setBills);
 	}
 
-	public void onMenuGrocery(Event evt) {
+	public void onMenuGrocery(Fluent __, Event ___) {
 		// Push model to view
 		view.stateAndSyncMenu("grocery");// the view handles this model
 
