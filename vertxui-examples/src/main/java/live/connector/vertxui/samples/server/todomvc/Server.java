@@ -22,22 +22,24 @@ public class Server extends AbstractVerticle {
 
 	@Override
 	public void start() {
+		boolean debug = true;
+
 		// Initialize the router and a webserver with HTTP-compression
 		Router router = Router.router(vertx);
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
 		// Serve the javascript for FigWheely
+		router.get(Client.figLocation).handler(FigWheely.create());
 
 		// This application is also an example for using an existing index.html.
 		// The only difference is here at startup time: call VertxUI.with()
 		// with url=null (2nd parameter) so it only compiles, give false
 		// as last parameter so that there is no index.html generated (not
 		// necessary), and then server folder /a/ manually
-		boolean debug = true;
 		VertxUI.with(View.class, null, debug, false);
 		router.get("/a/*").handler(StaticHandler.create(VertxUI.getTargetFolder(debug) + "/a"));
 		router.get("/*").handler(FigWheely.staticHandler("assets/todos", "/"));
-		router.get(Client.figLocation).handler(FigWheely.create());
+
 		AllExamplesServer.startWarAndServer2(router, server);
 	}
 

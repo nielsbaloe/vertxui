@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.gson.Gson;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -42,50 +40,52 @@ public class FigWheely extends AbstractVerticle {
 		long lastModified;
 		File file;
 		String url;
+		String root;
+
 		VertxUI handler;
 
-		@Override
-		public String toString() {
-			return new Gson().toJson(this).toString();
-		}
 	}
 
-	protected static Watchable addFile(File file, String url) {
+	protected static Watchable addFile(File file, String url, String root) {
 		// log.info("Adding: file=" + file + " url=" + url);
 		Watchable watchable = new Watchable();
 		watchable.file = file;
 		watchable.lastModified = file.lastModified();
 		watchable.url = url;
+		watchable.root = root;
 		watchables.add(watchable);
 		return watchable;
 	}
 
-	protected static void addFromVertX(FileSystem fileSystem, String url, String sourcePath, VertxUI handler) {
+	protected static void addFromVertX(FileSystem fileSystem, String url, String sourcePath, VertxUI handler,
+			String rootroot) {
 		fileSystem.readDir(sourcePath, files -> {
+			if (files.result() == null) {
+				return;
+			}
 			for (String file : files.result()) {
 				File jfile = new File(file);
 				if (jfile.isDirectory()) {
-					addFromVertX(fileSystem, url, jfile.getAbsolutePath(), handler);
+					addFromVertX(fileSystem, url, jfile.getAbsolutePath(), handler, rootroot);
 				} else {
 					// note that url is NOT changed in the loop
-					addFile(jfile, url).handler = handler;
+					addFile(jfile, url, rootroot).handler = handler;
 				}
 			}
 		});
 	}
 
-	protected static void addFromStaticHandler(FileSystem fileSystem, String root, String url) {
-		fileSystem.readDir(root, items -> {
-			if (items.result() == null) {
+	protected static void addFromStaticHandler(FileSystem fileSystem, String sourcePath, String url, String rootroot) {
+		fileSystem.readDir(sourcePath, files -> {
+			if (files.result() == null) {
 				return;
 			}
-			for (String item : items.result()) {
+			for (String item : files.result()) {
 				File file = new File(item);
 				if (file.isFile()) {
-					// log.info("adding " + url + " for file=" + file);
-					FigWheely.addFile(file, url + file.getName());
+					addFile(file, url + file.getName(), rootroot);
 				} else {
-					addFromStaticHandler(fileSystem, item, url + file.getName() + "/");
+					addFromStaticHandler(fileSystem, item, url + file.getName() + "/", rootroot);
 				}
 			}
 		});
@@ -101,7 +101,7 @@ public class FigWheely extends AbstractVerticle {
 		// log.info("creating figwheely static handler, started=" +
 		// FigWheely.started);
 		if (FigWheely.started) {
-			FigWheely.addFromStaticHandler(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix);
+			FigWheely.addFromStaticHandler(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix, root);
 		}
 		return StaticHandler.create(root);
 	}
@@ -141,6 +141,12 @@ public class FigWheely extends AbstractVerticle {
 						try {
 							if (watchable.handler != null) {
 								watchable.handler.translate();
+
+								// also update lastModified for same handler:
+								// when multiple .java sourcefiles were changed
+								// and saved at once.
+								watchables.stream().filter(w -> w.root.equals(watchable.root))
+										.forEach(w -> w.lastModified = w.file.lastModified());
 							}
 							// log.info("url=" + url);
 							for (Object obj : vertx.sharedData().getLocalMap(browserIds).keySet()) {

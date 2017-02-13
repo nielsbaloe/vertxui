@@ -166,8 +166,8 @@ public class View implements EntryPoint {
 			}
 			Fluent form = Div().form("form");
 
-			form.div("form-group", Label(null, "Name ").att(Att.for_, "n"),
-					Input("form-control", "text", "n").css(Css.maxWidth, "200px").keypress(controller::onGroceryAdd));
+			form.div("form-group", Label(null, "Name ").att(Att.for_, "n"), Input("form-control", "text").id("n")
+					.css(Css.maxWidth, "200px").keypress(controller::onGroceryAdd));
 			form.ul(grocery.all.stream()
 					.map(s -> Div("checkbox",
 							Li(Input().att(Att.type, "checkbox", Att.value, s).click(controller::onGroceryDelete),

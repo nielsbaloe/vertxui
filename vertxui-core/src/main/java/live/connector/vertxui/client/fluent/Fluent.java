@@ -43,10 +43,6 @@ public class Fluent extends FluentBase {
 		return input().classs(classs).att(Att.type, type);
 	}
 
-	public Fluent input(String classs, String type, String id) {
-		return input().classs(classs).att(Att.type, type).id(id);
-	}
-
 	public static Fluent Input() {
 		return new Fluent("INPUT", null);
 	}
@@ -59,13 +55,10 @@ public class Fluent extends FluentBase {
 		return Input().classs(classs).att(Att.type, type);
 	}
 
-	public static Fluent Input(String classs, String type, String id) {
-		return Input().classs(classs).att(Att.type, type).id(id);
-	}
-
 	public Fluent button(String classs, String type, String text) {
 		if (type == null) {
-			throw new IllegalArgumentException("You must specify the button type because the default type is 'submit'.");
+			throw new IllegalArgumentException(
+					"You must specify the button type because the default type is 'submit'.");
 		}
 		return new Fluent("BUTTON", this).classs(classs).att(Att.type, type).txt(text);
 	}

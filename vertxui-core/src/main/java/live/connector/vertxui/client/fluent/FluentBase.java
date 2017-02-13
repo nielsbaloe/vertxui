@@ -219,7 +219,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent keyup(Consumer<KeyboardEvent> listener) {
 		return listen(Event.KEYUP, evt -> {
@@ -229,16 +230,19 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation() and saves the latest checked property in the
+	 * Fluent virtual DOM (so that it syncs correctly).
 	 */
 	public Fluent click(Consumer<MouseEvent> listener) {
 		return listen(Event.CLICK, evt -> {
-			if (evt.getTarget() instanceof InputElement) {
-				InputElement input = (InputElement) evt.getTarget();
 
-				// synchronizing the DOM value with the Fluent datastructure.
-				if (input.getAttribute("type") == "checkbox") {
-					att(Att.checked, input.isChecked() ? "1" : null);
+			// synchronizing the DOM value with the Fluent datastructure.
+			if (evt.getTarget() instanceof InputElement && att(Att.type).equals("checkbox")) {
+				if (((InputElement) evt.getTarget()).isChecked()) {
+					attrs.put(Att.checked, "1");
+				} else {
+					attrs.remove(Att.checked);
 				}
 			}
 			evt.stopPropagation();
@@ -261,7 +265,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent blur(Consumer<UIEvent> listener) {
 		return listen(Event.BLUR, evt -> {
@@ -271,7 +276,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent keydown(Consumer<KeyboardEvent> listener) {
 		return listen(Event.KEYDOWN, evt -> {
@@ -281,7 +287,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent keypress(Consumer<KeyboardEvent> listener) {
 		return listen(Event.KEYPRESS, evt -> {
@@ -291,7 +298,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent dblclick(Consumer<MouseEvent> listener) {
 		return listen(Event.DBLCLICK, evt -> {
@@ -301,7 +309,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent mousedown(Consumer<MouseEvent> listener) {
 		return listen(Event.MOUSEDOWN, evt -> {
@@ -311,7 +320,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent mouseup(Consumer<MouseEvent> listener) {
 		return listen(Event.MOUSEUP, evt -> {
@@ -321,7 +331,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent mouseover(Consumer<MouseEvent> listener) {
 		return listen(Event.MOUSEOVER, evt -> {
@@ -331,7 +342,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent mouseenter(Consumer<MouseEvent> listener) {
 		return listen("mouseenter", evt -> {
@@ -341,7 +353,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent mouseleave(Consumer<MouseEvent> listener) {
 		return listen("mouseleave", evt -> {
@@ -351,7 +364,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent mousemove(Consumer<MouseEvent> listener) {
 		return listen(Event.MOUSEMOVE, evt -> {
@@ -361,7 +375,8 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * A convenient helper method for this event listener.
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
 	 */
 	public Fluent mouseout(Consumer<MouseEvent> listener) {
 		return listen(Event.MOUSEOUT, evt -> {
