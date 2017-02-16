@@ -34,10 +34,10 @@ Pure-Java clientside (not locked-in currently using down-to-the-DOM wrapped-away
 
 VertxUI is _not_ at all
 * a HTML template engine: no HTML is generated. VertxUI is for writing single-paged-applications (static templating is HTML itsself).
-* a new javascript framework; it leans on plain HTML + CSS + standarised javascript, instead adding a new set of javascript tooling.
-* a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat instead of Verx.
+* a new javascript framework; it leans on plain HTML + CSS + standarised javascript, instead adding a new set of javascript tooling. There is zero browser specific code.
+* a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat (or any other framework which serves plain files) instead of Verx.
 
-Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, a Bootstrap application, and more.
+Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, a Bootstrap application, and more. Vertxui mixes well with pure html+css frameworks like bootstrap, purecss, jquery mobile and similar.
 
 ### Serverside
 
@@ -57,7 +57,7 @@ The clientside looks like plain javascript but then with Java (8's lambda) callb
 
 		button = document.createElement("button");
 		button.setAttribute("id", "hello-button");
-		button.setInnerHTML("Click me");
+		button.setTextContent("Click me");
 		button.setOnclick(evt -> clicked());
 		body.appendChild(button);
 		...
@@ -72,10 +72,10 @@ The clientside looks like plain javascript but then with Java (8's lambda) callb
 
 You can also use fluent HTML, which is a lot shorter and more readable. Don't worry about speed, fluent HTML uses a virtual DOM behind the scenes. An id is given to the button in the example below, but that is not the way to go in Fluent; typically you save the object as a class member (or only save the view-on-model), rather than to do all sorts of slow searches on the DOM with document.getElementBy....
 
-		Button button = body.button("Click me").id("hello-button").onClick(this::clicked);
+		Button button = body.button("Click me").id("hello-button").click(this::clicked);
 		...
 		
-	private void clicked(MouseEvent __) {
+	private void clicked(Fluent __, MouseEvent __) {
 		button.disabled(true);
 		thinking.css(Style.display, "");
 		...
@@ -83,21 +83,21 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 
 ## View-On-Model
 
-You can create state-aware Fluent HTML objects with ViewOn. The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent Html only updates changed DOM-items.
+You can create state-aware Fluent HTML objects with ViewOn and ViewOnBoth. The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent Html only updates changed DOM-items, so just declaratively write down how you would like to see things.
 
 		ViewOn<Model> view = response.add(model, m -> {
-				 return Li("myClass").a(null, m.name, "/details?name=" + m.name);
+			return Li("myClass").a(null, m.name, "/details?name=" + m.name);
 			}
 		});
 
-		input.keyup(event -> {
+		input.keyup((fluent,event) -> {
 			 model.name = input.value();
 			 view.sync(); // re-renders
 		});
 
-The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your view class. You can abuse this to set the state when your Model is just a primitive for example a string. The method .state(model) also calls sync():
+The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your view class. You can abuse this to set the state when your Model is just a primitive for example a string. The method state() also calls sync():
 
-		input.keyup(event -> {
+		input.keyup((fluent,event) -> {
 			view.state(input.value());
 		});
 
@@ -105,6 +105,7 @@ If necessary, use Java 8 streams to write your user interface:
 
 	div(Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li("aClass",t)));
 
+The TodoMvc and MvcBootstrap examples contain bigger structures with ViewOn and ViewOnBoth.
 
 ### jUnit
 
@@ -126,6 +127,7 @@ If you really need the DOM (for whatever reason), that's possible too (but absol
 		@GwtIncompatible
 		@Test
 		public void youtJUnitTest() throws Exception {
+			...
 			System.out.println("This is java");
 			runJS(3); // run '3'
 			...
@@ -148,7 +150,7 @@ If you really need the DOM (for whatever reason), that's possible too (but absol
 
 ### Pojo
 
-Having your entity and DTO classes (models) in the same language has its advantages. All three chat examples (websockets, sockjs, eventBus) also have POJO examples in the code so open the console in your browser to see them (F12). Here is an example:
+Having your entity and DTO classes (models) in the same language has its advantages. All three chat examples (websockets, sockjs, eventBus) also have POJO examples in the code, so open the console in your browser to see them (F12). Here is an example:
 
 The model+view (browser):
 
@@ -166,8 +168,8 @@ The model+view (browser):
 		Input input = body.div().input("cssClass", "text");
 		
 		// Controller		
-		input.keyUp(changed -> {
-			model.name = input.domValue();
+		input.keyUp((fluent,changed) -> {
+			model.name = fluent.domValue();
 			Pojofy.ajax("POST", "/ajax", model, modelMap, null, (String s) -> console.log(s));
 		});
 
@@ -182,7 +184,7 @@ The controller (serverside) can be for example (ajax example):
 
 ### More
 
-Currently GWT -extremely wrapped away- is used, because it is by far the most efficiënt and full-featured Java 2 Javascript implementation out there. In the first month, TeaVM was used, which is 1000% faster in compiling but does not correctly support lambda's. The same goes for jsweet, Vertxui was ported into jsweet in about half an hour, but jsweet does not support all Java constructions (like enums) and does not do a very good job in 100% Java support in general. GWT is actually very very reliable, it's been chewed on since 2006 ;) .
+Currently GWT -extremely wrapped away- is used, because it is by far the most efficiÃ«nt and full-featured Java 2 Javascript implementation out there. In the first month, TeaVM was used, which is 1000% faster in compiling but does not correctly support lambda's. The same goes for jsweet, Vertxui was ported into jsweet in about half an hour, but jsweet does not support all Java constructions (like enums) and does not do a very good job in 100% Java support in general. GWT is actually very very reliable, it's been chewed on since 2006 ;) .
 
 Polyglot language support is possible as long as the sourcecode is included in the jars, there are vague plans to support Groovy as a proof of concept.
 
