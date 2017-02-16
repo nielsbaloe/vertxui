@@ -11,8 +11,8 @@ import static live.connector.vertxui.client.fluent.Fluent.Select;
 import static live.connector.vertxui.client.fluent.Fluent.Span;
 import static live.connector.vertxui.client.fluent.Fluent.Td;
 import static live.connector.vertxui.client.fluent.Fluent.Ul;
-import static live.connector.vertxui.client.fluent.Fluent.body;
-import static live.connector.vertxui.client.fluent.Fluent.head;
+import static live.connector.vertxui.client.fluent.FluentBase.body;
+import static live.connector.vertxui.client.fluent.FluentBase.head;
 
 import java.util.Date;
 
@@ -86,7 +86,7 @@ public class View implements EntryPoint {
 
 		// Header
 		Fluent container = body.div("container");
-		container.h1(null, "Bills").classs("jumbotron text-center").id("titlerForJunitTest");
+		container.h1("jumbotron text-center", "Bills").id("titlerForJunitTest");
 
 		// Menu
 		menu = container.nav("navbar navbar-inverse").add(menuStart, selected -> {
@@ -113,9 +113,8 @@ public class View implements EntryPoint {
 		// a detached view on a bills form
 		billsForm = new ViewOn<Boolean>(false, opened -> {
 			if (opened == false) {
-				return Button("btn btn-success", "button", "Add").att(Att.type, "button").click((fluent, event) -> {
+				return Button("btn btn-success", "button", "Add").click((fluent, event) -> {
 					billsForm.state(true);
-					Fluent.eval("$('#datepicker').datepicker({ dateFormat:'dd/mm/yy'});");
 				});
 			}
 
@@ -125,7 +124,7 @@ public class View implements EntryPoint {
 			Fluent name = Select("form-control", Option(null, Name.Niels.name()), Option(null, Name.Linda.name()));
 			Fluent amount = Input("form-control", "number").att(Att.min, "0", Att.max, "2000", Att.value, "0")
 					.keypress(controller::onBillOnlyNumeric);
-			Fluent when = Input("form-control", "text").id("datepicker");
+			Fluent when = new ComponentDatePicker();
 
 			Fluent text = Span("input-group-addon").css(Css.width, "100px");
 
@@ -133,7 +132,7 @@ public class View implements EntryPoint {
 			result.div("input-group", text.clone().txt("Amount"), amount).css(Css.width, "80%");
 			result.div("input-group", text.clone().txt("When"), when).css(Css.width, "80%");
 
-			result.button("btn btn-success", "button", "OK").att(Att.type, "button").click((fluent, event) -> {
+			result.button("btn btn-success", "button", "OK").click((fluent, event) -> {
 				Date date = null;
 				try {
 					date = dater.parse(when.domValue());
@@ -171,7 +170,7 @@ public class View implements EntryPoint {
 			form.ul(grocery.all.stream().map(s -> Div("checkbox",
 					Li(Input(null, "checkbox").att(Att.value, s).click(controller::onGroceryDelete), Label(null, s)))));
 
-			return form; // Fluent winds it back to the origin.
+			return form;
 		});
 
 		// Init data

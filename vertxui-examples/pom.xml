@@ -4,22 +4,31 @@
 
 	<groupId>live.connector</groupId>
 	<artifactId>vertxui-samples</artifactId>
-	<version>0.1</version>
+	<version>1.0</version>
 
 	<packaging>jar</packaging>
 
-	<name>vertx-samples</name>
+	<name>${project.groupId}:${project.artifactId}</name>
 
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
+	<licenses>
+		<license>
+			<name>GNU General Public License, Version 3</name>
+			<url>http://www.gnu.org/licenses/gpl-3.0.html</url>
+			<distribution>manual</distribution>
+			<comments>A free, copyleft license for software and other kinds of works</comments>
+		</license>
+	</licenses>
+
 	<dependencies>
 		<dependency>
 			<groupId>live.connector</groupId>
 			<artifactId>vertxui-core</artifactId>
-			<version>0.1</version>
+			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>io.vertx</groupId>

@@ -152,8 +152,8 @@ public class FluentBase implements Viewable {
 	 * 
 	 * Note that it will also set the text of all children, so prevent combining
 	 * text and children together. If you really really mean to have children
-	 * and text together (which is opiniated bad practice), use textNode() to create
-	 * a text node.
+	 * and text together (which is opiniated bad practice), use textNode() to
+	 * create a text node.
 	 * 
 	 */
 	public Fluent txt(String text) {
@@ -626,6 +626,7 @@ public class FluentBase implements Viewable {
 			// see for comments for the if-statement below in ViewOnBase::sync()
 			if (!GWT.isClient() || element != null) {
 				Renderer.syncChild((Fluent) this, item, null);
+				isRendered(true);
 			}
 		}
 		childs.add(item);
@@ -851,6 +852,21 @@ public class FluentBase implements Viewable {
 	@Override
 	public int getCrc() {
 		return getCrcString().hashCode();
+	}
+
+	/**
+	 * Is called when the element is attached to the DOM. Currently the 'shown'
+	 * parameter is always true, the unattach version is not implemented yet.
+	 * 
+	 * @param shown
+	 */
+	@Override
+	public void isRendered(boolean state) {
+		if (childs != null) {
+			for (Viewable child : childs) {
+				child.isRendered(state);
+			}
+		}
 	}
 
 }

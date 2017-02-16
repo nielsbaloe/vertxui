@@ -4,17 +4,42 @@
 
 	<groupId>live.connector</groupId>
 	<artifactId>vertxui-core</artifactId>
-	<version>0.1</version>
-
+	<version>1.0</version>
 	<packaging>jar</packaging>
 
-	<name>vertxui-core</name>
+	<name>${project.groupId}:${project.artifactId}</name>
+	<description>100% Java 100% async client and server with POJO codecs, Fluent HTML (with virtualDOM and declarative view-on-model), fast GUI jUnit testing, an Eventbus server and clientside, automatic browser reloading and more.</description>
+	<url>https://github.com/nielsbaloe/vertxui</url>
 
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
+	<licenses>
+		<license>
+			<name>GNU General Public License, Version 3</name>
+			<url>http://www.gnu.org/licenses/gpl-3.0.html</url>
+			<distribution>manual</distribution>
+			<comments>A free, copyleft license for software and other kinds of works</comments>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Niels Baloe</name>
+			<email>nielsbaloe@usegithubplease.com</email>
+			<organization>Bonneville</organization>
+			<organizationUrl>http://www.bonneville.nl</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/nielsbaloe/vertxui.git</connection>
+		<developerConnection>scm:git:ssh://github.com:nielsbaloe/vertxui.git</developerConnection>
+		<url>https://github.com/nielsbaloe/vertxui/tree/master/vertxui-core</url>
+	</scm>
 
 	<dependencies>
 		<!-- server -->

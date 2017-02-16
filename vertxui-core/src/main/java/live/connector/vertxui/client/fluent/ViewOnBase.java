@@ -75,8 +75,15 @@ public abstract class ViewOnBase implements Viewable {
 		// on in pure java (!gwt.isClient()).
 		if (!GWT.isClient() || (parent != null && parent.element != null)) {
 			Renderer.syncChild(parent, this, view);
+			isRendered(true);
 		}
 		return this;
 	}
 
+	@Override
+	public void isRendered(boolean state) {
+		if (view != null) {
+			view.isRendered(state);
+		}
+	}
 }
