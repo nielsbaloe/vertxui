@@ -1,0 +1,12 @@
+apply plugin: 'java'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'live.connector:vertxui-core:1.0'
+
+    testCompile 'junit:junit:4.12'
+}
+
