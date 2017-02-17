@@ -9,10 +9,25 @@ Regarding tooling, we would want to use trusted Java tooling like jUnit, and rea
 
 Welcome to vertxui. This is how Java web programming should have looked like 15 years ago.
 
+Use it in your project by using one of these
+
+	Maven:   
+		<dependency>
+				<groupId>live.connector</groupId>
+				<artifactId>vertxui-core</artifactId>
+				<version>1.0</version>
+			</dependency>
+
+	Gradle:	compile 'live.connector:vertxui-core:1.0'
+
+or another source from  https://search.maven.org/#artifactdetails%7Clive.connector%7Cvertxui-core%7C1.0%7Cjar
+
+## General
+
 VertxUI offers:
 * 100% java, 100% asynchronous
 * communicate in 100% the same POJO's at client- and serverside through ajax/websockets/sockjs/eventbus.
-* forget about HTML or learning a HTML-ish language like ReactJS, but declarate view-on-models by using Java lambdas and streams.
+* forget about JavaScript/TypeScript or a tool like ReactJS, but declarate view-on-models by using Java lambdas and streams.
 * no IDE tooling required, the java to javascript translation happens run-time.
 * during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
 * Fluent HTML has a sophisticated virtual DOM behind the scenes (a la ReactJS), only visually updating what has changed.
@@ -32,10 +47,10 @@ Pure-Java clientside (not locked-in currently using down-to-the-DOM wrapped-away
 * access to both the Java (threads etc) and the Javascript ecosystems
 * extremely easy junit testing of client-side GUI (even without a DOM, but also with a DOM), and other Java tooling
 
-VertxUI is _not_ at all
-* a HTML template engine: no HTML is generated. VertxUI is for writing single-paged-applications (static templating is HTML itsself).
-* a new javascript framework; it leans on plain HTML + CSS + standarised javascript, instead adding a new set of javascript tooling. There is zero browser specific code.
-* a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat (or any other framework which serves plain files) instead of Verx.
+VertxUI is
+* _not_ a HTML template engine: no HTML is generated. VertxUI is for writing single-paged-applications (static templating is HTML itsself).
+* _not_ a new javascript framework; it leans on plain HTML + CSS + standarised javascript, instead adding a new set of javascript tooling. There is zero browser specific code.
+* _not_ a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat (or any other framework which serves plain files) instead of Verx.
 
 Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, a Bootstrap application, and more. Vertxui mixes well with pure html+css frameworks like bootstrap, purecss, jquery mobile and similar.
 
