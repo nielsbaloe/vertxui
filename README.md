@@ -10,12 +10,12 @@ Regarding tooling, we would want to use trusted Java tooling like jUnit, and rea
 Welcome to vertxui. This is how Java web programming should have looked like 15 years ago.
 
 Use it in your project by using one of these
-	Maven:	<dependency>
-		    <groupId>live.connector</groupId>
-		    <artifactId>vertxui-core</artifactId>
-		    <version>1.0</version>
-		</dependency>
-	Gradle:	compile 'live.connector:vertxui-core:1.0'
+		Maven:   <dependency>
+				<groupId>live.connector</groupId>
+				<artifactId>vertxui-core</artifactId>
+				<version>1.0</version>
+			</dependency>
+		Gradle:	compile 'live.connector:vertxui-core:1.0'
 or another source from  https://search.maven.org/#artifactdetails%7Clive.connector%7Cvertxui-core%7C1.0%7Cjar
 
 ## General
