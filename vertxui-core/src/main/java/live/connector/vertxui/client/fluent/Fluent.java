@@ -179,6 +179,10 @@ public class Fluent extends FluentBase {
 	 * an node, however this fails when there are other html tags inside too
 	 * (which is badly ugly and therefore not recommended). So if you can, do
 	 * not use this method, and try to avoid mixing tags and text.
+	 * 
+	 * @param text
+	 *            the text for a textNode
+	 * @return this
 	 */
 	public Fluent textNode(String text) {
 		return new Fluent("TEXT", this).txt(text);
@@ -598,7 +602,9 @@ public class Fluent extends FluentBase {
 	 * need this if you want to use the javascript right after loading it (which
 	 * is normal in most cases).
 	 * 
-	 * @return
+	 * @param jss
+	 *            javascript file(s)
+	 * @return this
 	 */
 	public Fluent scriptSync(String... jss) {
 		if (!GWT.isClient()) {
@@ -622,7 +628,8 @@ public class Fluent extends FluentBase {
 	 * these libraries in your code directly, for that, use scriptSync().
 	 * 
 	 * @param jss
-	 * @return
+	 *            javascript urls
+	 * @return this
 	 */
 	public Fluent script(String... jss) {
 		for (String js : jss) {

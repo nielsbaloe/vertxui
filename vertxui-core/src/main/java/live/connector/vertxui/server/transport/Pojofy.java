@@ -47,6 +47,15 @@ public class Pojofy {
 	/**
 	 * An ajax call handler for a void method.
 	 */
+	/**
+	 * @param <A>
+	 *            the input type class
+	 * @param inputType
+	 *            the input type
+	 * @param handler
+	 *            the callback
+	 * @return the webserver handler for this ajax call.
+	 */
 	public static <A> Handler<RoutingContext> ajax(Class<A> inputType, BiConsumer<A, RoutingContext> handler) {
 		return context -> {
 
@@ -79,12 +88,21 @@ public class Pojofy {
 	/**
 	 * Note: replies at the same address!
 	 * 
+	 * @param <A>
+	 *            the input type class
+	 * @param <S>
+	 *            the socket
 	 * @param socket
+	 *            the socket
 	 * @param url
+	 *            the url
 	 * @param in
+	 *            the input buffer
 	 * @param inputType
+	 *            the input class
 	 * @param handler
-	 * @return
+	 *            the callback
+	 * @return whether the input wqs successfully shallowed.
 	 */
 	public static <A, S extends WriteStream<Buffer>> boolean socket(S socket, String url, Buffer in, Class<A> inputType,
 			BiFunction<A, JsonObject, Object> handler) {

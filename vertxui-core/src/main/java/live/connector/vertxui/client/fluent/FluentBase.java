@@ -85,6 +85,11 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * API call for normal HTML elements. Without a parent: detached.
+	 * 
+	 * @param tag
+	 *            the tag
+	 * @param parent
+	 *            the parent, if any.
 	 */
 	protected FluentBase(String tag, Fluent parent) {
 		this.tag = tag;
@@ -127,6 +132,8 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * GET the dom object, null if it doesn't exist.
+	 * 
+	 * @return the corresponding node if DOM-attached, otherwise null.
 	 */
 	public Node dom() {
 		return element;
@@ -136,6 +143,8 @@ public class FluentBase implements Viewable {
 	 * Create a Fluent object by starting out with an existing node with an id,
 	 * usefull for existing HTML pages.
 	 * 
+	 * @param id
+	 *            the id.
 	 * @return a Fluent object with the give id, or null.
 	 */
 	public static Fluent getElementById(String id) {
@@ -155,6 +164,9 @@ public class FluentBase implements Viewable {
 	 * and text together (which is opiniated bad practice), use textNode() to
 	 * create a text node.
 	 * 
+	 * @param text
+	 *            the new text inside this node.
+	 * @return this
 	 */
 	public Fluent txt(String text) {
 		if (!Renderer.equalsString(this.text, text)) {
@@ -170,6 +182,8 @@ public class FluentBase implements Viewable {
 	/**
 	 * Gives the text that has been set; note that the real DOM text is "" if
 	 * after you set it to null.
+	 * 
+	 * @return the current text.
 	 */
 	public String txt() {
 		return this.text;
@@ -178,6 +192,13 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for general even listeners when you want the
 	 * Fluent object too - also executes event.stopPropagation().
+	 * 
+	 * @param type
+	 *            the listener type
+	 * @param listener
+	 *            the async callback method as bifunction (including the Fluent
+	 *            object)
+	 * @return this
 	 */
 	public Fluent listen(String type, BiConsumer<Fluent, Event> listener) {
 		return listen(type, event -> {
@@ -189,6 +210,11 @@ public class FluentBase implements Viewable {
 	/**
 	 * Add or remove (by value null) an eventlistener.
 	 * 
+	 * @param name
+	 *            the name that should be listening too
+	 * @param value
+	 *            the low level eventlistener
+	 * @return this
 	 */
 	public Fluent listen(String name, EventListener value) {
 		if (listeners == null) {
@@ -221,6 +247,10 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * Get the eventlistener for the given eventname.
+	 * 
+	 * @param event
+	 *            event name
+	 * @return the event listener
 	 */
 	public EventListener listen(String event) {
 		if (listeners == null) {
@@ -232,6 +262,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent keyup(BiConsumer<Fluent, KeyboardEvent> listener) {
 		return listen(Event.KEYUP, event -> {
@@ -243,6 +277,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent click(BiConsumer<Fluent, MouseEvent> listener) {
 		return listen(Event.CLICK, event -> {
@@ -253,6 +291,10 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * A convenient helper method for this event listener.
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent load(EventListener listener) {
 		return listen("LOAD", listener);
@@ -260,6 +302,10 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * A convenient helper method for this event listener.
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent focus(EventListener listener) {
 		return listen(Event.FOCUS, listener);
@@ -268,6 +314,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent blur(BiConsumer<Fluent, UIEvent> listener) {
 		return listen(Event.BLUR, event -> {
@@ -279,6 +329,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent keydown(BiConsumer<Fluent, KeyboardEvent> listener) {
 		return listen(Event.KEYDOWN, event -> {
@@ -290,6 +344,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent keypress(BiConsumer<Fluent, KeyboardEvent> listener) {
 		return listen(Event.KEYPRESS, event -> {
@@ -301,6 +359,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent dblclick(BiConsumer<Fluent, MouseEvent> listener) {
 		return listen(Event.DBLCLICK, event -> {
@@ -312,6 +374,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent mousedown(BiConsumer<Fluent, MouseEvent> listener) {
 		return listen(Event.MOUSEDOWN, event -> {
@@ -323,6 +389,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent mouseup(BiConsumer<Fluent, MouseEvent> listener) {
 		return listen(Event.MOUSEUP, event -> {
@@ -334,6 +404,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent mouseover(BiConsumer<Fluent, MouseEvent> listener) {
 		return listen(Event.MOUSEOVER, event -> {
@@ -345,6 +419,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent mouseenter(BiConsumer<Fluent, MouseEvent> listener) {
 		return listen("mouseenter", event -> {
@@ -356,6 +434,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent mouseleave(BiConsumer<Fluent, MouseEvent> listener) {
 		return listen("mouseleave", event -> {
@@ -367,6 +449,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent mousemove(BiConsumer<Fluent, MouseEvent> listener) {
 		return listen(Event.MOUSEMOVE, event -> {
@@ -378,6 +464,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * A convenient helper method for this event listener - also executes
 	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
 	 */
 	public Fluent mouseout(BiConsumer<Fluent, MouseEvent> listener) {
 		return listen(Event.MOUSEOUT, event -> {
@@ -388,6 +478,16 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * Set multiple css parameters in one call.
+	 * 
+	 * @param name
+	 *            name of first parameter
+	 * @param value
+	 *            value of first parameter
+	 * @param name2
+	 *            name of second parameter
+	 * @param value2
+	 *            value of second parameter
+	 * @return this
 	 */
 	public Fluent css(Css name, String value, Css name2, String value2) {
 		css(name, value);
@@ -398,6 +498,11 @@ public class FluentBase implements Viewable {
 	/**
 	 * Set or remove (by value null) a css style.
 	 * 
+	 * @param name
+	 *            name of css item
+	 * @param value
+	 *            value of css item
+	 * @return this
 	 */
 	public Fluent css(Css name, String value) {
 		if (styles == null) {
@@ -431,6 +536,10 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * Get the css property, returns null if it doesn't exist.
+	 * 
+	 * @param name
+	 *            the name of the requested css
+	 * @return the value of the current css, or null if none was given.
 	 */
 	public String css(Css name) {
 		if (styles == null) {
@@ -444,6 +553,12 @@ public class FluentBase implements Viewable {
 	 * 'value' or 'selectedIndex'. Note that with the properties you only set
 	 * the default value, these can change in runtime, use dom*() methods to get
 	 * the live value.
+	 * 
+	 * @param name
+	 *            the name to be set
+	 * @param value
+	 *            the value to be set
+	 * @return this
 	 */
 	public Fluent att(Att name, String value) {
 		if (attrs == null) {
@@ -506,6 +621,16 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * Set two attributes.
+	 * 
+	 * @param name
+	 *            name of attribute 1
+	 * @param value
+	 *            value of attrube 1
+	 * @param name2
+	 *            name of attribute 2
+	 * @param value2
+	 *            value of attribute 2
+	 * @return this
 	 */
 	public Fluent att(Att name, String value, Att name2, String value2) {
 		return att(name, value).att(name2, value2);
@@ -513,6 +638,20 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * Set three attributes.
+	 * 
+	 * @param name
+	 *            name of attribute 1
+	 * @param value
+	 *            value of attrube 1
+	 * @param name2
+	 *            name of attribute 2
+	 * @param value2
+	 *            value of attribute 2
+	 * @param name3
+	 *            name of attribute 3
+	 * @param value3
+	 *            value of attribute 3
+	 * @return this
 	 */
 	public Fluent att(Att name, String value, Att name2, String value2, Att name3, String value3) {
 		return att(name, value).att(name2, value2).att(name3, value3);
@@ -522,6 +661,8 @@ public class FluentBase implements Viewable {
 	 * Get the value of an input field if it has been changed by the DOM. Also
 	 * synchronizes with the virtual DOM, which is why you should prefer this
 	 * above reading out the event.targetEvent()... .
+	 * 
+	 * @return the .value or: what has been entered in this input field
 	 */
 	public String domValue() {
 		String result = ((InputElement) element).getValue();
@@ -537,6 +678,9 @@ public class FluentBase implements Viewable {
 	 * Get the value of a checkbox if it has been changed by the DOM. Also
 	 * synchronizes with the virtual DOM, which is why you should prefer this
 	 * above reading out the event.targetEvent()... .
+	 * 
+	 * @return the .value property or: whether the visual value has been
+	 *         checked.
 	 */
 	public boolean domChecked() {
 		boolean result = ((InputElement) element).isChecked();
@@ -552,6 +696,9 @@ public class FluentBase implements Viewable {
 	 * Get the selected index if it has been changed by the DOM. Also
 	 * synchronizes with the virtual DOM, which is why you should prefer this
 	 * above reading out the event.targetEvent()... .
+	 * 
+	 * @return the .selectedIndex property or: which option in this select has
+	 *         been selected.
 	 */
 	public int domSelectedIndex() {
 		int result = ((SelectElement) element).getSelectedIndex();
@@ -565,6 +712,12 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * Get the attribute value that was set before.
+	 * 
+	 * @param name
+	 *            the name of the attribute
+	 * 
+	 * @return the string value of this attribute if it has been set, otherwise
+	 *         null.
 	 */
 	public String att(Att name) {
 		if (attrs == null) {
@@ -577,6 +730,8 @@ public class FluentBase implements Viewable {
 	 * Convenient method to get the id of this node; note that this is quite
 	 * irrelevant vwhen working with Fluent, because in Fluent you keep the
 	 * references to the objects, rather then to do anything with ids.
+	 * 
+	 * @return the id attribute of this item if it has been set, otherwise null.
 	 */
 	public String id() {
 		return att(Att.id);
@@ -586,6 +741,10 @@ public class FluentBase implements Viewable {
 	 * Set the id for this method; note that this is quite irrelevant vwhen
 	 * working with Fluent, because in Fluent you keep the references to the
 	 * objects, rather then to do anything with ids.
+	 * 
+	 * @param string
+	 *            the requested id
+	 * @return this
 	 */
 	public Fluent id(String string) {
 		return att(Att.id, string);
@@ -593,13 +752,20 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * Convenient method to set the class attribute.
+	 * 
+	 * @return the class attribute of this item if it has been set, otherwise
+	 *         null.
 	 */
 	public String classs() {
 		return att(Att.class_);
 	}
 
 	/**
-	 * Convenient method to get the given class attribute.
+	 * Convenient method to get the given CSS-class attribute.
+	 * 
+	 * @param string
+	 *            the CSS-class attribute.
+	 * @return this
 	 */
 	public Fluent classs(String string) {
 		return att(Att.class_, string);
@@ -650,7 +816,11 @@ public class FluentBase implements Viewable {
 
 	/**
 	 * Addd items; try not to use this method, use the fluent methods or the
-	 * cosntructors instead.
+	 * constructors instead.
+	 * 
+	 * @param items
+	 *            the items to be added
+	 * @return this
 	 */
 	public Fluent add(Viewable... items) {
 		for (Viewable item : items) {
@@ -662,6 +832,10 @@ public class FluentBase implements Viewable {
 	/**
 	 * Addd items; try not to use this method, use the fluent methods or the
 	 * cosntructors instead.
+	 * 
+	 * @param stream
+	 *            the stream of items to be added
+	 * @return this
 	 */
 	public Fluent add(Stream<Fluent> stream) {
 		stream.forEach(item -> addNew(item));
@@ -671,6 +845,8 @@ public class FluentBase implements Viewable {
 	/**
 	 * Get a list of children; do not change or modify this set, it will mesh up
 	 * your GUI.
+	 * 
+	 * @return a list of children.
 	 */
 	public List<Viewable> getChildren() {
 		return childs;
@@ -681,9 +857,15 @@ public class FluentBase implements Viewable {
 	 * use .sync() or .state(newState) to notify viewOn and VertxUI will adjust
 	 * the differences in the view.
 	 * 
+	 * @param <T>
+	 *            the model
 	 * @param initialState
+	 *            a pointer to a wrapper-object in which the real DTO is, or the
+	 *            initial state which you will replace with state(...) when it
+	 *            has changed.
 	 * @param method
-	 * @return the created ViewOn object.
+	 *            a view on the model description
+	 * @return the created ViewOn object, added as child.
 	 */
 	public <T> ViewOn<T> add(T initialState, Function<T, Fluent> method) {
 		ViewOn<T> result = new ViewOn<T>(initialState, method);
@@ -696,10 +878,21 @@ public class FluentBase implements Viewable {
 	 * models changes, use .sync() or .state(newState) to notify viewOnBoth and
 	 * VertxUI will adjust the differences in the view.
 	 * 
+	 * @param <A>
+	 *            the first model
+	 * @param <B>
+	 *            the second model
 	 * @param initialState1
+	 *            a pointer to a wrapper-object in which the real DTO is, or the
+	 *            initial state which you will replace with state(...) when it
+	 *            has changed.
 	 * @param initialState2
+	 *            a second pointer to a wrapper-object in which the real DTO is,
+	 *            or the initial state which you will replace with state(...)
+	 *            when it has changed.
 	 * @param method
-	 * @return a ViewOnBoth object
+	 *            a view on the model description
+	 * @return a ViewOnBoth object, added as child to this object
 	 */
 	public <A, B> ViewOnBoth<A, B> add(A initialState1, B initialState2, BiFunction<A, B, Fluent> method) {
 		ViewOnBoth<A, B> result = new ViewOnBoth<A, B>(initialState1, initialState2, method);
@@ -740,13 +933,16 @@ public class FluentBase implements Viewable {
 	 * unset.
 	 * 
 	 * @param disabled
+	 *            should this object be disabled
+	 * @return this;
 	 */
-	public void disabled(boolean disabled) {
+	public Fluent disabled(boolean disabled) {
 		if (disabled) {
 			att(Att.disable, "");
 		} else {
 			att(Att.disable, null);
 		}
+		return (Fluent) this;
 	}
 
 	/**
@@ -754,6 +950,8 @@ public class FluentBase implements Viewable {
 	 * set to none or nothing.
 	 * 
 	 * @param doit
+	 *            hide this object
+	 * @return this
 	 */
 	@Override
 	public Fluent hide(boolean doit) {
@@ -858,7 +1056,8 @@ public class FluentBase implements Viewable {
 	 * Is called when the element is attached to the DOM. Currently the 'shown'
 	 * parameter is always true, the unattach version is not implemented yet.
 	 * 
-	 * @param shown
+	 * @param state
+	 *            whether the object is rendered or removed from the DOM.
 	 */
 	@Override
 	public void isRendered(boolean state) {

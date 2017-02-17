@@ -39,6 +39,16 @@ public class EventBus extends JavaScriptObject {
 	 * Warning: the thing you send can go to anyone connected to the eventbus,
 	 * including other browsers that are connected. So please handle with care!
 	 */
+	/**
+	 * @param address
+	 *            the address
+	 * @param message
+	 *            the message
+	 * @param headers
+	 *            the headers
+	 * @param receiver
+	 *            the callback
+	 */
 	public final native void send(String address, String message, JsonObject headers,
 			BiConsumer<JsonObject, JsonObject> receiver)/*-{
 														this.send(address,message,headers, 

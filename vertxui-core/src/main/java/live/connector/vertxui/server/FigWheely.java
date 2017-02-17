@@ -96,6 +96,11 @@ public class FigWheely extends AbstractVerticle {
 	 * browser if folder change. Does not work when figwheely wasn't started
 	 * before, so there is no performance loss if you leave this on.
 	 * 
+	 * @param root
+	 *            the root folder
+	 * @param urlWithoutAsterix
+	 *            the url but without the asterix at the end
+	 * @return a static file handler with figwheely support
 	 */
 	public static Handler<RoutingContext> staticHandler(String root, String urlWithoutAsterix) {
 		// log.info("creating figwheely static handler, started=" +
@@ -190,6 +195,8 @@ public class FigWheely extends AbstractVerticle {
 	/**
 	 * Create handler which serves the figwheely javascript. Also turns on the
 	 * wheel of figwheely.
+	 * 
+	 * @return the static handler which servers the necessary javascript.
 	 */
 	public static Handler<RoutingContext> create() {
 		if (!started) {

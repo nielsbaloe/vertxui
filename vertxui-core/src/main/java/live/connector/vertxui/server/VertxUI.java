@@ -56,6 +56,8 @@ public class VertxUI {
 	 * otherwise you get one of the defaults: build/development or
 	 * build/production depending on debug or not.
 	 * 
+	 * @param debugMode
+	 *            whether we are in debug mode or not.
 	 * @return the target folder of the java to javascript build
 	 */
 	public static String getTargetFolder(boolean debugMode) {
@@ -73,12 +75,15 @@ public class VertxUI {
 	 * Set the location of your target build folder, in case you do not want it
 	 * in build/development (when debug=true) or build/production (when
 	 * debug=false).
+	 * 
+	 * @param targetFolder
+	 *            the target folder
 	 */
 	public static void setTargetFolder(String targetFolder) {
 		VertxUI.folderBuild = targetFolder;
 	}
 
-	private VertxUI(Class<?> classs, String url, boolean debug, boolean withHtml) {
+	private VertxUI(Class<?> classs, boolean debug, boolean withHtml) {
 		this.classs = classs;
 		this.debug = debug;
 		this.withHtml = withHtml;
@@ -109,6 +114,16 @@ public class VertxUI {
 	 * Create a VertXUI static-handler at the target folder and translate the
 	 * given class from java to javascript. Give url:null for only translating.
 	 * 
+	 * @param classs
+	 *            the class that will be compiled to javascript
+	 * @param urlWithoutAsterix
+	 *            the url but without asterix for the static file handler; set
+	 *            to null if you only want compiling.
+	 * @param debug
+	 *            debug or not
+	 * @param withHtml
+	 *            with a generated .html file or not.
+	 * @return the static file handler.
 	 */
 	public static Handler<RoutingContext> with(Class<?> classs, String urlWithoutAsterix, boolean debug,
 			boolean withHtml) {
@@ -132,7 +147,7 @@ public class VertxUI {
 			}
 			log.info("Production mode: no source folder found, not translating from java to javascript.");
 		} else {
-			VertxUI translated = new VertxUI(classs, urlWithoutAsterix, debug, withHtml);
+			VertxUI translated = new VertxUI(classs, debug, withHtml);
 
 			if (FigWheely.started) {
 				String clientFolder = (folderSource + "/" + classs.getName()).replace(".", "/");

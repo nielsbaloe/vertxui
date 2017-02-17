@@ -1,8 +1,8 @@
 package live.connector.vertxui.client.fluent;
 
 /**
- * A base for all view elements, currently FluentBase => Fluent and ViewOnBase=>
- * ViewOn and ViewOnBoth
+ * A base for all view elements, currently FluentBase for Fluent and ViewOnBase
+ * for ViewOn and ViewOnBoth
  * 
  * @author Niels Gorisse
  *

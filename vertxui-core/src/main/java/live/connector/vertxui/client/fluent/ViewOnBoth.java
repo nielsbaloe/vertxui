@@ -28,11 +28,19 @@ public class ViewOnBoth<A, B> extends ViewOnBase {
 	/**
 	 * Get the current state, in case it was easier not to keep a reference to
 	 * it yourself.
+	 * 
+	 * @return the first state
 	 */
 	public A state1() {
 		return state1;
 	}
 
+	/**
+	 * Get the current second state, in case it was easier not to keep a
+	 * reference to it yourself.
+	 * 
+	 * @return the second state
+	 */
 	public B state2() {
 		return state2;
 	}
@@ -50,6 +58,12 @@ public class ViewOnBoth<A, B> extends ViewOnBase {
 	/**
 	 * Set the current state and sync(). You can also keep the state yourself,
 	 * change it and call sync();
+	 * 
+	 * @param state1
+	 *            the first new state
+	 * @param state2
+	 *            the second new state
+	 * @return this
 	 */
 	public ViewOnBase state(A state1, B state2) {
 		this.state1 = state1;

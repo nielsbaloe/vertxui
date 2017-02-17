@@ -26,6 +26,8 @@ public class ViewOn<A> extends ViewOnBase {
 	/**
 	 * Get the current state, in case it was easier not to keep a reference to
 	 * it yourself.
+	 * 
+	 * @return the state
 	 */
 	public A state() {
 		return state;
@@ -34,6 +36,10 @@ public class ViewOn<A> extends ViewOnBase {
 	/**
 	 * Set the current state and sync(). You can also keep the state yourself,
 	 * change it and call sync();
+	 * 
+	 * @param state
+	 *            the new state
+	 * @return this
 	 */
 	public ViewOnBase state(A state) {
 		this.state = state;

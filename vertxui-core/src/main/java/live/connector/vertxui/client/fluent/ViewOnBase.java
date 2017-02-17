@@ -31,7 +31,7 @@ public abstract class ViewOnBase implements Viewable {
 	/**
 	 * Get the view (if there is any), useful for junit tests.
 	 * 
-	 * @return
+	 * @return this
 	 */
 	public Fluent getView() {
 		return view;

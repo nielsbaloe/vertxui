@@ -14,10 +14,6 @@ import java.util.Map;
  */
 public class Asserty {
 
-	/**
-	 * Give a map of integer&methods that runs all your testcases and throw an
-	 * exception when something goes wrong.
-	 */
 	public final native static String asserty(Map<Integer, Runnable> map)/*-{
 																			$wnd.asserty = function(which) {
 																			try{ @live.connector.vertxui.client.test.Asserty::doit(Ljava/lang/Integer;Ljava/util/Map;)
@@ -128,7 +124,6 @@ public class Asserty {
 	 *            expected value
 	 * @param actual
 	 *            actual value
-	 * @throws Exception
 	 */
 	static public void assertEquals(String message, Object expected, Object actual) {
 		if (message == null) {
@@ -164,7 +159,6 @@ public class Asserty {
 	 *            expected value
 	 * @param actual
 	 *            the value to check against <code>expected</code>
-	 * @throws Exception
 	 */
 	static public void assertEquals(Object expected, Object actual) {
 		failNoMessage();
@@ -342,7 +336,6 @@ public class Asserty {
 	 * @param actuals
 	 *            Object array or array of arrays (multi-dimensional array) with
 	 *            actual values
-	 * @throws Exception
 	 */
 	public static void assertArrayEquals(Object[] expecteds, Object[] actuals) {
 		failNoMessage();
@@ -375,7 +368,6 @@ public class Asserty {
 	 *            boolean array with expected values.
 	 * @param actuals
 	 *            boolean array with expected values.
-	 * @throws Exception
 	 */
 	public static void assertArrayEquals(boolean[] expecteds, boolean[] actuals) {
 		failNoMessage();
@@ -405,7 +397,6 @@ public class Asserty {
 	 *            byte array with expected values.
 	 * @param actuals
 	 *            byte array with actual values
-	 * @throws Exception
 	 */
 	public static void assertArrayEquals(byte[] expecteds, byte[] actuals) {
 		failNoMessage();
@@ -435,7 +426,6 @@ public class Asserty {
 	 *            char array with expected values.
 	 * @param actuals
 	 *            char array with actual values
-	 * @throws Exception
 	 */
 	public static void assertArrayEquals(char[] expecteds, char[] actuals) {
 		failNoMessage();
@@ -465,7 +455,6 @@ public class Asserty {
 	 *            short array with expected values.
 	 * @param actuals
 	 *            short array with actual values
-	 * @throws Exception
 	 */
 	public static void assertArrayEquals(short[] expecteds, short[] actuals) {
 		failNoMessage();
@@ -495,7 +484,6 @@ public class Asserty {
 	 *            int array with expected values.
 	 * @param actuals
 	 *            int array with actual values
-	 * @throws Exception
 	 */
 	public static void assertArrayEquals(int[] expecteds, int[] actuals) {
 		failNoMessage();
@@ -525,28 +513,11 @@ public class Asserty {
 	 *            long array with expected values.
 	 * @param actuals
 	 *            long array with actual values
-	 * @throws Exception
 	 */
 	public static void assertArrayEquals(long[] expecteds, long[] actuals) {
 		failNoMessage();
 	}
 
-	/**
-	 * Asserts that two double arrays are equal. If they are not, an
-	 * {@link AssertionError} is thrown with the given message.
-	 *
-	 * @param message
-	 *            the identifying message for the {@link AssertionError}
-	 *            (<code>null</code> okay)
-	 * @param expecteds
-	 *            double array with expected values.
-	 * @param actuals
-	 *            double array with actual values
-	 * @param delta
-	 *            the maximum delta between <code>expecteds[i]</code> and
-	 *            <code>actuals[i]</code> for which both numbers are still
-	 *            considered equal.
-	 */
 	// not implemented
 	// public static void assertArrayEquals(String message, double[] expecteds,
 	// double[] actuals, double delta)
@@ -555,42 +526,12 @@ public class Asserty {
 	// actuals);
 	// }
 
-	/**
-	 * Asserts that two double arrays are equal. If they are not, an
-	 * {@link AssertionError} is thrown.
-	 *
-	 * @param expecteds
-	 *            double array with expected values.
-	 * @param actuals
-	 *            double array with actual values
-	 * @param delta
-	 *            the maximum delta between <code>expecteds[i]</code> and
-	 *            <code>actuals[i]</code> for which both numbers are still
-	 *            considered equal.
-	 * @throws Exception
-	 */
 	// not implemented
 	// public static void assertArrayEquals(double[] expecteds, double[]
 	// actuals, double delta) {
 	// assertArrayEquals(null, expecteds, actuals, delta);
 	// }
 
-	/**
-	 * Asserts that two float arrays are equal. If they are not, an
-	 * {@link AssertionError} is thrown with the given message.
-	 *
-	 * @param message
-	 *            the identifying message for the {@link AssertionError}
-	 *            (<code>null</code> okay)
-	 * @param expecteds
-	 *            float array with expected values.
-	 * @param actuals
-	 *            float array with actual values
-	 * @param delta
-	 *            the maximum delta between <code>expecteds[i]</code> and
-	 *            <code>actuals[i]</code> for which both numbers are still
-	 *            considered equal.
-	 */
 	// not implemented
 	// public static void assertArrayEquals(String message, float[] expecteds,
 	// float[] actuals, float delta)
@@ -599,20 +540,6 @@ public class Asserty {
 	// actuals);
 	// }
 
-	/**
-	 * Asserts that two float arrays are equal. If they are not, an
-	 * {@link AssertionError} is thrown.
-	 *
-	 * @param expecteds
-	 *            float array with expected values.
-	 * @param actuals
-	 *            float array with actual values
-	 * @param delta
-	 *            the maximum delta between <code>expecteds[i]</code> and
-	 *            <code>actuals[i]</code> for which both numbers are still
-	 *            considered equal.
-	 * @throws Exception
-	 */
 	// not implemented
 	// public static void assertArrayEquals(float[] expecteds, float[] actuals,
 	// float delta) {

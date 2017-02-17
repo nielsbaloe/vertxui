@@ -1,5 +1,4 @@
-- mail maven, todomvc.com, info@nljug.org, vertx-awesome, vertx, GWT list, g-widgets.com, etc
-	http://central.sonatype.org/pages/ossrh-guide.html#deployment
-	http://central.sonatype.org/pages/producers.html
-	https://issues.sonatype.org/browse/OSSRH-28249
-AFTER RELEASE: middle-child-removal + page&id mvcBoostrap-bills + examples: webrtc inapp, jquery mobile, purecss.io
+ADD AFTER 1.0: 
+- optimalisation: middle-child-removal
+- paginated mvcBoostrap-bills
+- examples: webrtc as app, jquery mobile, purecss.io

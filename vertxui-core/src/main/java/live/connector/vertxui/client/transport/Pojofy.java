@@ -89,6 +89,25 @@ public class Pojofy {
 	/**
 	 * Warning: the thing you send can go to anyone connected to the eventbus,
 	 * including other browsers that are connected. So please handle with care!
+	 * 
+	 * @param <I>
+	 *            input type
+	 * @param <O>
+	 *            output type
+	 * @param eventBus
+	 *            the eventbus
+	 * @param address
+	 *            the address
+	 * @param model
+	 *            the model
+	 * @param headers
+	 *            the headers
+	 * @param inMapper
+	 *            the inputmapper
+	 * @param outMapper
+	 *            the outputmapper
+	 * @param handler
+	 *            the callback handler
 	 */
 	public static <I, O> void eventbusSend(EventBus eventBus, String address, I model, JsonObject headers,
 			ObjectMapper<I> inMapper, ObjectMapper<O> outMapper, Consumer<O> handler) {
