@@ -57,10 +57,9 @@ public class View implements EntryPoint {
 
 	@Override
 	public void onModuleLoad() {
-		Store transport = new Store();
-		View view = new View();
-		Controller controller = new Controller(transport, view);
-		view.start(controller);
+		Store store = new Store();
+		Controller controller = new Controller(store, this);
+		start(controller);
 	}
 
 	public void start(Controller controller) {

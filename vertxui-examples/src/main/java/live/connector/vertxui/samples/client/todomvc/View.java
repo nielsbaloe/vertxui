@@ -26,85 +26,95 @@ public class View implements EntryPoint {
 	private ViewOnBoth<State, List<Model>> footer;
 	private ViewOn<List<Model>> toggle;
 
-	// Controller
-	private Controller controller;
-
 	public static String[] css = { "css/base.css", "css/index.css" };
 
-	public View() {
+	@Override
+	public void onModuleLoad() {
+		Store store = new Store();
+		Controller controller = new Controller(store, this);
+		start(controller);
+	}
 
-		// Initialise controller
-		controller = new Controller(this);
+	public void start(Controller controller) {
 
 		// Initialise models
-		List<Model> models = controller.getModels();
-		State state = controller.getState();
+		List<Model> modelsInit = controller.getModels();
+		State stateInit = controller.getState();
 
 		// Initialise views:
 
 		// Static upper part
-
-		Fluent container = Fluent.getElementById("startpoint"); // search for
-																// id=startpoint
+		// search for id=startpoint
+		Fluent container = Fluent.getElementById("startpoint");
 		if (container == null) { // if the existing index.html is not found
 			// Note: todomvc is also the extend-an-existing-index.html example
 			// for vertxui.
 			body.classs("learn-bar").aside();
 			container = body.section("todoapp");
 		}
-		container.header("header", H1(null, "todos"),
-				Input("new-todo").att(Att.placeholder, "What needs to be done?").keydown(controller::onInput));
 
-		// List of items
+		// Header with H1 and Input
+		container.header("header", H1(null, "todos"), Input("new-todo").att(Att.placeholder, "What needs to be done?")
+				.att(Att.autofocus, "1").keydown(controller::onInput));
+
+		// Main view
 		Fluent main = container.section("main").css(Css.display, "block");
 
-		toggle = main.add(models, m -> {
+		// The toggle
+		toggle = main.add(modelsInit, models -> {
+			boolean allChecked = models.size() != 0 && models.stream().filter(x -> !x.isCompleted()).count() == 0;
 
-			boolean allChecked = m.size() != 0 && m.stream().filter(x -> !x.isCompleted()).count() == 0;
-
-			// TODO the css.display is incorrect, but I don't know what css
-			// todomvc uses to do that.
+			// Actually main should have display:none when no models
 			return Input("toggle-all", "checkbox").att(Att.checked, allChecked ? "1" : null)
-					.css(Css.display, m.size() == 0 ? "none" : null).click(controller::onSelectAll);
-
+					.css(Css.display, models.size() == 0 ? "none" : null).click(controller::onSelectAll);
 		});
 
-		list = main.add(state, models, (s, m) -> {
+		// The list of items
+		list = main.add(stateInit, modelsInit, (state, models) -> {
 
 			// Which models should be displayed?
-			Predicate<Model> filter = p -> (s.getButtons() == Buttons.All)
-					|| (p.isCompleted() == (s.getButtons() == Buttons.Completed));
+			Predicate<Model> filter = p -> (state.getButtons() == Buttons.All)
+					|| (p.isCompleted() == (state.getButtons() == Buttons.Completed));
 
-			// Return a list with items
-			return Ul("todo-list", m.stream().filter(filter).map(item -> {
-				Fluent li = Li(item.isCompleted() ? "completed" : null).div("view");
+			// Return an Unordered List with LIsted items.
+			return Ul("todo-list", models.stream().filter(filter).map(item -> {
 
-				Fluent input = li.input("toggle", "checkbox");
-				input.click((fluent, event) -> controller.onSelect(fluent, item));
-				if (item.isCompleted()) {
-					input.att(Att.checked, "!");
+				Fluent li = Li(item.isCompleted() ? "completed" : null);
+
+				Fluent div = li.div("view");
+
+				// Someone has doubleclicked
+				if (item == state.getEditing()) {
+					// add 'editing' to the existing class
+					li.classs(li.classs() != null ? li.classs() + " editing" : "editing");
+
+					// add an extra input field
+					li.input("edit").att(Att.value, item.getTitle()).keydown(controller::onEditKey)
+							.blur(controller::onEditEnd);
 				}
 
-				li.label(null, item.getText());
+				div.input("toggle", "checkbox").att(Att.checked, item.isCompleted() ? "1" : null)
+						.click((fluent, event) -> controller.onSelect(fluent, item));
 
-				li.button("destroy", "button", null).click((f, e) -> controller.onDestroy(item));
+				div.label(null, item.getTitle()).dblclick((fluent, event) -> controller.onEditStart(item));
 
-				return li;
+				div.button("destroy", "button", null).click((f, e) -> controller.onDestroy(item));
+
+				return div;
 			}));
 		});
 
 		// Footer
-		footer = main.add(state, models, (s, m) -> {
-			if (m.size() == 0) {
-				return null;
-			}
-			Fluent result = Footer("footer").css(Css.display, "block");
+		footer = main.add(stateInit, modelsInit, (state, models) -> {
+
+			// Footer
+			Fluent footer = Footer("footer").css(Css.display, models.size() == 0 ? "none" : "block");
 
 			// Counter
-			Fluent counter = result.span("todo-count");
-			long completedCount = m.stream().filter(t -> !t.isCompleted()).count();
-			counter.strong(null, completedCount + "");
-			if (completedCount == 1) {
+			Fluent counter = footer.span("todo-count");
+			long count = models.stream().filter(t -> !t.isCompleted()).count();
+			counter.strong(null, count + "");
+			if (count == 1) {
 				// this is exceptional and bad style, combining plain text and
 				// html. however this is how the todomvc example should work
 				counter.textNode(" item left");
@@ -115,18 +125,19 @@ public class View implements EntryPoint {
 			}
 
 			// Buttons
-			Fluent buttons = result.ul("filters");
-			buttons.li().a((s.getButtons() == Buttons.All ? "selected" : null), "All", "#", controller::onAll);
-			buttons.li().a((s.getButtons() == Buttons.Active ? "selected" : null), "Active", "#", controller::onActive);
-			buttons.li().a((s.getButtons() == Buttons.Completed ? "selected" : null), "Completed", "#",
+			Fluent buttons = footer.ul("filters");
+			buttons.li().a((state.getButtons() == Buttons.All ? "selected" : null), "All", "#/", controller::onAll);
+			buttons.li().a((state.getButtons() == Buttons.Active ? "selected" : null), "Active", "#/active",
+					controller::onActive);
+			buttons.li().a((state.getButtons() == Buttons.Completed ? "selected" : null), "Completed", "#/completed",
 					controller::onCompleted);
 
 			// "Clear Completed" button
-			if (completedCount != models.size()) {
-				result.button("clear-completed", "button", "Clear completed").css(Css.display, "block")
+			if (count != modelsInit.size()) {
+				footer.button("clear-completed", "button", "Clear completed").css(Css.display, "block")
 						.click(controller::onClearCompleted);
 			}
-			return result;
+			return footer;
 		});
 	}
 
@@ -139,10 +150,6 @@ public class View implements EntryPoint {
 	public void syncState() {
 		list.sync();
 		footer.sync();
-	}
-
-	@Override
-	public void onModuleLoad() {
 	}
 
 }

@@ -2,23 +2,25 @@ package live.connector.vertxui.samples.client.todomvc;
 
 public class Model {
 
-	private String text;
+	private String title;
 	private boolean completed;
+	private long id;
 
 	public Model() {
 	}
 
-	public Model(String text, boolean completed) {
-		this.text = text;
+	public Model(String title, boolean completed) {
+		this.title = title;
 		this.completed = false;
+		this.id = (long) (Math.random() * (double) Long.MAX_VALUE);
 	}
 
-	public String getText() {
-		return text;
+	public String getTitle() {
+		return title;
 	}
 
-	public void setText(String text) {
-		this.text = text;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public boolean isCompleted() {
@@ -27,6 +29,14 @@ public class Model {
 
 	public void setCompleted(boolean completed) {
 		this.completed = completed;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 }

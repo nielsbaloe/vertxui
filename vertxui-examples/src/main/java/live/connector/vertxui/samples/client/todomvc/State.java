@@ -9,6 +9,7 @@ package live.connector.vertxui.samples.client.todomvc;
 public class State {
 
 	private Buttons buttons;
+	private Model editing;
 
 	public static enum Buttons {
 		All, Active, Completed;
@@ -17,16 +18,20 @@ public class State {
 	public State() {
 	}
 
-	public State(Buttons buttons) {
-		this.buttons = buttons;
-	}
-
 	public Buttons getButtons() {
 		return buttons;
 	}
 
 	public void setButtons(Buttons buttons) {
 		this.buttons = buttons;
+	}
+
+	public void setEditing(Model editing) {
+		this.editing = editing;
+	}
+
+	public Model getEditing() {
+		return editing;
 	}
 
 }
