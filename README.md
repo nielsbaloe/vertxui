@@ -123,6 +123,8 @@ If necessary, use Java 8 streams to write your user interface:
 
 The TodoMvc and MvcBootstrap examples contain bigger structures with ViewOn and ViewOnBoth.
 
+For more information on Fluent, please take a look at the examples, especially the MVC-bootstrap and todoMVC examples; these are quite big. Here was chosen for a typical and quite convenient store/model/view/control setup, but of course you are free to choose your own way. Although the examples might be a better starting point, you can also take a look at the wiki (https://github.com/nielsbaloe/vertxui/wiki ) for a bit more low-level explanation on Fluent.
+
 ### jUnit
 
 Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit testcases without firing up a browser. Now that is really fast.
