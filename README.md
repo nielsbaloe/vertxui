@@ -16,9 +16,10 @@ Use it in your project by using one of these
 				<groupId>live.connector</groupId>
 				<artifactId>vertxui-core</artifactId>
 				<version>1.0</version>
-			</dependency>
+		</dependency>
 
-	Gradle:	compile 'live.connector:vertxui-core:1.0'
+	Gradle:	
+	         compile 'live.connector:vertxui-core:1.0'
 
 or another source from  https://search.maven.org/#artifactdetails%7Clive.connector%7Cvertxui-core%7C1.0%7Cjar
 
@@ -106,14 +107,14 @@ You can create state-aware Fluent HTML objects with ViewOn and ViewOnBoth. The V
 		});
 
 		input.keyup((fluent,event) -> {
-			 model.name = input.value();
+			 model.name = fluent.domValue();
 			 view.sync(); // re-renders
 		});
 
 The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your view class. You can abuse this to set the state when your Model is just a primitive for example a string. The method state() also calls sync():
 
 		input.keyup((fluent,event) -> {
-			view.state(input.value());
+			view.state(fluent.domValue());
 		});
 
 If necessary, use Java 8 streams to write your user interface:
@@ -135,13 +136,13 @@ Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit test
 		assertTrue(a.tag().equals("H1"));
 	}
 
-If you really need the DOM (for whatever reason), that's possible too (but absolutely not advisable because it's slower). Vertxui then first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. You decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in junit and in the browser ;) . Use runJS and registerJS as follows:
+If you really need the DOM (for whatever reason), that's possible too (but absolutely not advisable because it's slower). Vertxui then first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. You decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in jUnit and in the browser ;) . Use runJS and registerJS as follows:
 
 	public class WithDom extends TestDOM {
 	
 		@GwtIncompatible
 		@Test
-		public void youtJUnitTest() throws Exception {
+		public void yourJUnitTest() throws Exception {
 			...
 			System.out.println("This is java");
 			runJS(3); // run '3'
@@ -185,23 +186,22 @@ The model+view (browser):
 		// Controller		
 		input.keyUp((fluent,changed) -> {
 			model.name = fluent.domValue();
-			Pojofy.ajax("POST", "/ajax", model, modelMap, null, (String s) -> console.log(s));
+			Pojofy.ajax("POST", "/ajax", model, modelMap, null, (String text) -> console.log(text));
 		});
 
 	}
 
 The controller (serverside) can be for example (ajax example):
 
-		router.post("/ajax").handler(Pojofy.ajax(Model.class, (m, c) -> {
-			log.info("Received a pojo from the client: color=" + m.color);
+		router.post("/ajax").handler(Pojofy.ajax(Model.class, (model, c) -> {
+			log.info("Received a pojo from the client: color=" + model.color);
 			return "a string";
 		}));
 
 ### More
 
-Currently GWT -extremely wrapped away- is used, because it is by far the most efficiënt and full-featured Java 2 Javascript implementation out there. In the first month, TeaVM was used, which is 1000% faster in compiling but does not correctly support lambda's. The same goes for jsweet, Vertxui was ported into jsweet in about half an hour, but jsweet does not support all Java constructions (like enums) and does not do a very good job in 100% Java support in general. GWT is actually very very reliable, it's been chewed on since 2006 ;) .
+Currently GWT -extremely wrapped away- is used, because it is by far the most efficiënt and full-featured Java 2 Javascript implementation out there. In the first month, TeaVM was used, which is 1000% faster in compiling but does not correctly support lambda's and does not have a rich ES5 browser in its API. The same goes for jSweet, Vertxui was ported into jSweet in about half an hour, but jSweet does not support all Java constructions (like enums) and does not do a very good job in 100% Java support in general. GWT is actually very very reliable, and has a 100% browser abstraction in classes with Elemental. It has been chewed on since 2006 ;) .
 
 Polyglot language support is possible as long as the sourcecode is included in the jars, there are vague plans to support Groovy as a proof of concept.
-
 
 Niels Gorisse
