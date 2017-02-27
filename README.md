@@ -57,9 +57,9 @@ Examples are included for: hello world (vanilla js and Fluent HTML), automatic b
 
 ### Serverside
 
-The serverside is easy. This single line serves all necessary front-end Javascript code including the necessary (single-lined) wrapping HTML, ready to be shown in the browser. It compiles to javascript too (if there is a source folder), without installing an IDE plugin. Vert.X comes with HTTP compression out of the box so there is no need to do anything else except turning HTTP compression on (see all examples).
+The serverside is easy. This single line serves all generated Javascript code (in folder /a/...) and thea single-lined wrapping HTML (as /index.html). It compiles to javascript too (if there is a source folder), without installing an IDE plugin, just run the server and point your browser to http://localhost/ ;) .
 
-	router.route("/client").handler(new VertxUI(Client.class, true, true));
+	router.get("/*").handler(VertxUI.with(Client.class, "/", debugMode, generateHtml));
 
 ### Automatic browser reloading
 
