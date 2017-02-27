@@ -59,7 +59,7 @@ Examples are included for: hello world (vanilla js and Fluent HTML), automatic b
 
 The serverside is easy. This single line serves a single-lined wrapping HTML file (as /index.html) and all generated Javascript code (in folder /a/... ). It compiles to javascript too (if there is a source folder), without installing an IDE plugin, just run the server and point your browser to http://localhost/ ;) .
 
-	router.get("/*").handler(VertxUI.with(Client.class, "/", debugMode, generateHtml));
+		router.get("/*").handler(VertxUI.with(Client.class, "/", debugMode, generateHtml));
 
 ### Automatic browser reloading
 
