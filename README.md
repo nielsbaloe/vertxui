@@ -21,7 +21,7 @@ Use it in your project by using one of these
 	Gradle:	
 	         compile 'live.connector:vertxui-core:1.0'
 
-or another source from  https://search.maven.org/#artifactdetails%7Clive.connector%7Cvertxui-core%7C1.0%7Cjar
+or another source from  the [MVN Repository](https://mvnrepository.com/artifact/live.connector/vertxui-core/1.0) .
 
 ## General
 
@@ -69,16 +69,14 @@ Server-time translation does not mean you can not debug your code. To debug, jus
   
 ### Clientside pure DOM
 
-* For a full-fedged examples, please look at the [todoMVC](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-todomvc/src/main/java/live/connector/vertxui/samples/client/todomvc) or [mvcBootstrap](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-examples/src/main/java/live/connector/vertxui/samples/client/mvcBootstrap) examples. 
+Note that nowadays the trend is to make websites with rich CSS libraries that require no Javascript for the view;  most of the webpages you are looking at every day are written that way (Bootstrap, jQuery Mobile). These libraries are using plain low-level HTML with CSS for the view, and only Javascript for interaction (and legacy or fall-back behind-the-scenes code). So let's write a bit of HTML easily connectable with CSS, and add some interaction - using Java.
 
-Note that nowadays the trend is to make websites with rich CSS libraries that require no Javascript to write;  most of the webpages you are looking at every day are written that way (Bootstrap, jQuery Mobile). These libraries are using plain low-level HTML, and only Javascript if some interaction happens. So let's write a bit of HTML, in a way that we can easily define CSS classes and add some interaction - using Java.
-
-The clientside with pure DOM looks like plain javascript but then with Java (8's lambda) callbacks. This is pure Elemental/GWT (previously TeaVM), so more or less, it 'is' javascript:
+The clientside with pure DOM looks like plain javascript but then with Java (8's lambda) callbacks. This is pure Elemental/GWT (previously TeaVM), so more or less, it 'is' plain javascript:
 
 		button = document.createElement("button");
 		button.setAttribute("id", "hello-button");
 		button.setTextContent("Click me");
-		button.setOnclick(evt -> clicked());
+		button.setOnclick(event -> click());
 		body.appendChild(button);
 		...
 		
@@ -92,10 +90,10 @@ The clientside with pure DOM looks like plain javascript but then with Java (8's
 
 You can also use Fluent HTML, which is a lot shorter and more readable. Don't worry about speed, Fluent uses a virtual DOM behind the scenes. An id is given to the button in the example below, but that is not the way to go in Fluent; typically you save the object as a class member (or only save the view-on-model), rather than to do all sorts of slow searches on the DOM with document.getElementBy....
 
-		button = body.button("Click me").id("hello-button").click(this::clicked);
+		button = body.button(null, "Click me").id("hello-button").click(this::click);
 		...
 		
-	private void clicked(Fluent __, MouseEvent __) {
+	private void click(Fluent __, MouseEvent __) {
 		button.disabled(true);
 		thinking.css(Style.display, "");
 		...
@@ -125,7 +123,7 @@ If necessary, use Java 8 streams to write your user interface:
 
 	body.ul(Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li("aClass",t)));
 
-For more information on Fluent, please take a look at the examples, especially [todoMVC](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-todomvc/src/main/java/live/connector/vertxui/samples/client/todomvc) or [mvcBootstrap](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-examples/src/main/java/live/connector/vertxui/samples/client/mvcBootstrap); these are quite big. Here was chosen for a typical and quite convenient store/model/view/controller setup, but of course you are free to choose your own way. Although checking out and running all examples might be the best starting point, you can also take a look at the wiki (https://github.com/nielsbaloe/vertxui/wiki ) for a bit more low-level explanation on Fluent.
+For more information on Fluent, please take a look at the examples, especially [todoMVC](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-todomvc/src/main/java/live/connector/vertxui/samples/client/todomvc) or [mvcBootstrap](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-examples/src/main/java/live/connector/vertxui/samples/client/mvcBootstrap); these are quite big. Here was chosen for a typical and quite convenient store/model/view/controller setup, but of course you are free to choose your own way. Although checking out and running all examples might be the best starting point, you can also take a look at the [wiki](https://github.com/nielsbaloe/vertxui/wiki) for a bit more low-level explanation on Fluent.
 
 ### jUnit
 
