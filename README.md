@@ -41,7 +41,7 @@ Serverside [Vert.X](http://vertx.io/) adds:
 * a clientside and eventside EventBus.
 * in general and a wonderful professional speedy async ecosystem.
 
-Pure-Java clientside (not locked-in currently using down-to-the-DOM wrapped-away GWT/elemental) means:
+Pure-Java clientside (not-locked-in down-to-the-DOM wrapped-away Elemental/GWT) means:
 * strong-typed client-side Javascript
 * use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML like React)
 * use the same DTO/entity classes and constants server-side and client-side.
@@ -69,7 +69,9 @@ Server-time translation does not mean you can not debug your code. To debug, jus
   
 ### Clientside pure DOM
 
-The clientside looks like plain javascript but then with Java (8's lambda) callbacks. This is pure GWT elemental (previously TeaVM):
+* For a full-fedged examples, please look at the [todoMVC](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-todomvc/src/main/java/live/connector/vertxui/samples/client/todomvc) or [mvcBootstrap](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-examples/src/main/java/live/connector/vertxui/samples/client/mvcBootstrap) examples. 
+
+The clientside looks like plain javascript but then with Java (8's lambda) callbacks. This is pure Elemental/GWT (previously TeaVM):
 
 		button = document.createElement("button");
 		button.setAttribute("id", "hello-button");
@@ -88,7 +90,7 @@ The clientside looks like plain javascript but then with Java (8's lambda) callb
 
 You can also use fluent HTML, which is a lot shorter and more readable. Don't worry about speed, fluent HTML uses a virtual DOM behind the scenes. An id is given to the button in the example below, but that is not the way to go in Fluent; typically you save the object as a class member (or only save the view-on-model), rather than to do all sorts of slow searches on the DOM with document.getElementBy....
 
-		Button button = body.button("Click me").id("hello-button").click(this::clicked);
+		button = body.button("Click me").id("hello-button").click(this::clicked);
 		...
 		
 	private void clicked(Fluent __, MouseEvent __) {
@@ -99,10 +101,10 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 
 ## View-On-Model
 
-You can create state-aware Fluent HTML objects with ViewOn and ViewOnBoth. The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent Html only updates changed DOM-items, so just declaratively write down how you would like to see things.
+You can create state-aware Fluent HTML objects with ViewOn and ViewOnBoth. The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent only updates changed DOM-items, so just declaratively write down how you would like to see things.
 
 		ViewOn<Model> view = response.add(model, m -> {
-			return Li("myClass").a(null, m.name, "/details?name=" + m.name);
+			return Span("myClass").a(null, m.name, "/details?name=" + m.name);
 			}
 		});
 
@@ -119,11 +121,11 @@ The ViewOn object has a reference to your model, so you don't have to keep a ref
 
 If necessary, use Java 8 streams to write your user interface:
 
-	div(Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li("aClass",t)));
+	body.ul(Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li("aClass",t)));
 
 The TodoMvc and MvcBootstrap examples contain bigger structures with ViewOn and ViewOnBoth.
 
-For more information on Fluent, please take a look at the examples, especially the MVC-bootstrap and todoMVC examples; these are quite big. Here was chosen for a typical and quite convenient store/model/view/control setup, but of course you are free to choose your own way. Although the examples might be a better starting point, you can also take a look at the wiki (https://github.com/nielsbaloe/vertxui/wiki ) for a bit more low-level explanation on Fluent.
+For more information on Fluent, please take a look at the examples, especially the MVC-bootstrap and todoMVC examples; these are quite big. Here was chosen for a typical and quite convenient store/model/view/controller setup, but of course you are free to choose your own way. Although the examples might be a better starting point, you can also take a look at the wiki (https://github.com/nielsbaloe/vertxui/wiki ) for a bit more low-level explanation on Fluent.
 
 ### jUnit
 
@@ -202,7 +204,7 @@ The controller (serverside) can be for example (ajax example):
 
 ### More
 
-Currently GWT -extremely wrapped away- is used, because it is by far the most efficiënt and full-featured Java 2 Javascript implementation out there. In the first month, TeaVM was used, which is 1000% faster in compiling but does not correctly support lambda's and does not have a rich ES5 browser in its API. The same goes for jSweet, Vertxui was ported into jSweet in about half an hour, but jSweet does not support all Java constructions (like enums) and does not do a very good job in 100% Java support in general. GWT is actually very very reliable, and has a 100% browser abstraction in classes with Elemental. It has been chewed on since 2006 ;) .
+Currently Elemental/GWT -extremely wrapped away- is used, because it is by far the most efficiënt and full-featured Java 2 Javascript implementation out there. In the first month, TeaVM was used, which is 1000% faster in compiling but does not correctly support lambda's and does not have a rich ES5 browser in its API. The same goes for jSweet, Vertxui was ported into jSweet in about half an hour, but jSweet does not support all Java constructions (like enums) and does not do a very good job in 100% Java support in general. GWT is actually very very reliable, and has a 100% browser abstraction in classes with Elemental. It has been chewed on since 2006 ;) .
 
 Polyglot language support is possible as long as the sourcecode is included in the jars, there are vague plans to support Groovy as a proof of concept.
 
