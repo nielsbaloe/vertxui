@@ -71,7 +71,9 @@ Server-time translation does not mean you can not debug your code. To debug, jus
 
 * For a full-fedged examples, please look at the [todoMVC](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-todomvc/src/main/java/live/connector/vertxui/samples/client/todomvc) or [mvcBootstrap](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-examples/src/main/java/live/connector/vertxui/samples/client/mvcBootstrap) examples. 
 
-The clientside looks like plain javascript but then with Java (8's lambda) callbacks. This is pure Elemental/GWT (previously TeaVM):
+Note that nowadays the trend is to make websites with rich CSS libraries that require no Javascript to write;  most of the webpages you are looking at every day are written that way (Bootstrap, jQuery Mobile). These libraries are using plain low-level HTML, and only Javascript if some interaction happens. So let's write a bit of HTML, in a way that we can easily define CSS classes and add some interaction - using Java.
+
+The clientside with pure DOM looks like plain javascript but then with Java (8's lambda) callbacks. This is pure Elemental/GWT (previously TeaVM), so more or less, it 'is' javascript:
 
 		button = document.createElement("button");
 		button.setAttribute("id", "hello-button");
@@ -88,7 +90,7 @@ The clientside looks like plain javascript but then with Java (8's lambda) callb
 
 ### Clientside Fluent HTML
 
-You can also use fluent HTML, which is a lot shorter and more readable. Don't worry about speed, fluent HTML uses a virtual DOM behind the scenes. An id is given to the button in the example below, but that is not the way to go in Fluent; typically you save the object as a class member (or only save the view-on-model), rather than to do all sorts of slow searches on the DOM with document.getElementBy....
+You can also use Fluent HTML, which is a lot shorter and more readable. Don't worry about speed, Fluent uses a virtual DOM behind the scenes. An id is given to the button in the example below, but that is not the way to go in Fluent; typically you save the object as a class member (or only save the view-on-model), rather than to do all sorts of slow searches on the DOM with document.getElementBy....
 
 		button = body.button("Click me").id("hello-button").click(this::clicked);
 		...
@@ -101,21 +103,21 @@ You can also use fluent HTML, which is a lot shorter and more readable. Don't wo
 
 ## View-On-Model
 
-You can create state-aware Fluent HTML objects with ViewOn and ViewOnBoth. The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent only updates changed DOM-items, so just declaratively write down how you would like to see things.
+You can create state-aware objects with ViewOn (and ViewOnBoth for two models). The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent only updates changed DOM-items, so just declaratively write down how you would like to see things.
 
-		ViewOn<Model> view = response.add(model, m -> {
+		ViewOn<Model> spanWithLink = response.add(model, m -> {
 			return Span("myClass").a(null, m.name, "/details?name=" + m.name);
 			}
 		});
 
-		input.keyup((fluent,event) -> {
+		someInput.keyup((fluent,event) -> {
 			 model.name = fluent.domValue();
 			 view.sync(); // re-renders
 		});
 
-The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your view class. You can abuse this to set the state when your Model is just a primitive for example a string. The method state() also calls sync():
+The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your view class. You can abuse this to set the state when your Model is just a primitive like a string. The method state() also calls sync():
 
-		input.keyup((fluent,event) -> {
+		someInput.keyup((fluent,event) -> {
 			view.state(fluent.domValue());
 		});
 
@@ -123,13 +125,11 @@ If necessary, use Java 8 streams to write your user interface:
 
 	body.ul(Stream.of("apple","a").filter(a->a.length()>2).map(t -> new Li("aClass",t)));
 
-The TodoMvc and MvcBootstrap examples contain bigger structures with ViewOn and ViewOnBoth.
-
-For more information on Fluent, please take a look at the examples, especially the MVC-bootstrap and todoMVC examples; these are quite big. Here was chosen for a typical and quite convenient store/model/view/controller setup, but of course you are free to choose your own way. Although the examples might be a better starting point, you can also take a look at the wiki (https://github.com/nielsbaloe/vertxui/wiki ) for a bit more low-level explanation on Fluent.
+For more information on Fluent, please take a look at the examples, especially [todoMVC](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-todomvc/src/main/java/live/connector/vertxui/samples/client/todomvc) or [mvcBootstrap](https://github.com/nielsbaloe/vertxui/tree/master/vertxui-examples/src/main/java/live/connector/vertxui/samples/client/mvcBootstrap); these are quite big. Here was chosen for a typical and quite convenient store/model/view/controller setup, but of course you are free to choose your own way. Although checking out and running all examples might be the best starting point, you can also take a look at the wiki (https://github.com/nielsbaloe/vertxui/wiki ) for a bit more low-level explanation on Fluent.
 
 ### jUnit
 
-Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit testcases without firing up a browser. Now that is really fast.
+Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit front-end tests without firing up a browser. Now that is really fast.
 
 	@Test
 	public void test() {
@@ -140,7 +140,7 @@ Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit test
 		assertTrue(a.tag().equals("H1"));
 	}
 
-If you really need the DOM (for whatever reason), that's possible too (but absolutely not advisable because it's slower). Vertxui then first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. You decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in jUnit and in the browser ;) . Use runJS and registerJS as follows:
+If you really need the DOM (I can't think of any reason, but you might), that's possible too (but absolutely not advisable because it's slower). Vertxui then first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. Thanks to a register-and-run procedure, you decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in jUnit and in the browser ;) . Use runJS and registerJS as follows:
 
 	public class WithDom extends TestDOM {
 	
