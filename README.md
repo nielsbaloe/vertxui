@@ -3,9 +3,9 @@ vertxui
 
 Suppose we had native asynchronous Java access at the browser, backed by a no-nonsense Java asynchronous server. Then both browser and server would be using the same Java strong-typed data models/entities/DTO's for ajax/websocket/sockjs traffic.
 
-For the view, we would not want to write HTML or a javascript-lookalike new language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view-on-a-model, similar to ReactJS but then nicely in Java with streams enums namespaces and other basic object oriented mature language features.
+For the view, we would not want to write HTML or a new Java-lookalike language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view-on-a-model, similar to ReactJS but then nicely in Java with streams enums packages classes and other basic mature object oriented language features.
 
-Regarding tooling, we would want to use trusted Java tooling like jUnit, and realtime debugging with automatic browser refreshing after a code change, but we would not want to install any IDE-specific tooling.  
+Regarding tooling, we would want to use trusted Java tooling like jUnit and Mockito, and realtime debugging with automatic browser refreshing after a code change, all in a professional familiar grown-up IDE. We would want plain stacktraces when something goes wrong, so we can trace errors. Ideally without install any IDE-specific tooling.
 
 Welcome to vertxui. This is how Java web programming should have looked like 15 years ago.
 
@@ -30,10 +30,10 @@ VertxUI offers:
 * communicate in 100% the same POJO's at client- and serverside through ajax/websockets/sockjs/eventbus.
 * forget about JavaScript/TypeScript or a tool like ReactJS, but declarate view-on-models by using Java lambdas and streams.
 * no IDE tooling required, the java to javascript translation happens run-time.
-* during development: automatic browser reloading of generated javascript, resources (.css/.jpg/etc) and state
+* during development: automatic runtime browser reloading of generated javascript, resources (.css/.jpg/etc) and state
 * Fluent HTML has a sophisticated virtual DOM behind the scenes (a la ReactJS), only visually updating what has changed.
 * painless nodejs-less websockets/sockjs/eventbus at server and browsers in the same language.
-* speeeeedy junit testing of Fluent HTML objects by testing against virtual DOM, and mixed-languages headless browser testing.
+* fast junit testing of Fluent views against virtual DOM, and mixed-languages headless browser tests with full stacktraces.
 
 Serverside [Vert.X](http://vertx.io/) adds:
 * probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
@@ -41,15 +41,15 @@ Serverside [Vert.X](http://vertx.io/) adds:
 * a clientside and eventside EventBus.
 * in general and a wonderful professional speedy async ecosystem.
 
-Pure-Java clientside (not-locked-in down-to-the-DOM wrapped-away Elemental/GWT) means:
-* strong-typed client-side Javascript
-* use Java 8's lambda's and streams for client-side view and behavior (instead of pseudo-HTML like React)
-* use the same DTO/entity classes and constants server-side and client-side.
+Pure-Java clientside means:
+* use Java 8's lambda's and streams and packages/classes for web view and behavior (instead of TypeScript and ES6)
+* Javascript checked by a grown-up Java compiler in a grown-up IDE (instead of using and learning Lint Gulp and similar)
+* use the same strong-typed entity classes and constants server-side and client-side (instead of typeless)
 * access to both the Java (threads etc) and the Javascript ecosystems
-* extremely easy junit testing of client-side GUI (even without a DOM, but also with a DOM), and other Java tooling
+* extremely easy junit testing of client-side GUI (even without a DOM, but also with a DOM)
 
 VertxUI is
-* _not_ a HTML template engine: no HTML is generated. VertxUI is for writing single-paged-applications (static templating is HTML itsself).
+* _not_ a HTML template engine: no HTML is generated. VertxUI is for writing single-paged-apps or microservices that serve a part of a page.
 * _not_ a new javascript framework; it leans on plain HTML + CSS + standarised javascript, instead adding a new set of javascript tooling. There is zero browser specific code.
 * _not_ a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat (or any other framework which serves plain files) instead of Verx.
 
