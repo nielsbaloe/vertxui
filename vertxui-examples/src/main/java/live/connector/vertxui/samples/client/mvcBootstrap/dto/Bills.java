@@ -17,14 +17,16 @@ public class Bills {
 		public int id;
 		public Name who;
 		public double amount;
+		public String what;
 		public Date date;
 
 		public Bill() { // empty constructor for serialization
 		}
 
-		public Bill(Name who, double amount, Date date) {
+		public Bill(Name who, double amount, String what, Date date) {
 			this.who = who;
 			this.amount = amount;
+			this.what = what;
 			this.date = date;
 		}
 

@@ -54,7 +54,7 @@ public class ServerBootstrap extends AbstractVerticle {
 
 		// Fake initial data
 		bills.all = new ArrayList<>();
-		Bill bill = new Bill(Name.Niels, 2300, new Date());
+		Bill bill = new Bill(Name.Niels, 55, "Weekend shopping", new Date());
 		bills.all.add(bill);
 		grocery.all = new ArrayList<>();
 		grocery.all.add("Chocolate milk");
