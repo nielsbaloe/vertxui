@@ -20,9 +20,9 @@ import live.connector.vertxui.samples.client.mvcBootstrap.dto.Totals;
 public class Store {
 
 	// URL's
-	public static String totalsUrl = "/totals";
-	public static String billsUrl = "/bills";
-	public static String groceryUrl = "/grocery";
+	public static String totalsUrl = "/rest/totals";
+	public static String billsUrl = "/rest/bills";
+	public static String groceryUrl = "/rest/grocery";
 
 	public void getTotals(BiConsumer<Integer, Totals> callback) {
 		Pojofy.ajax("GET", totalsUrl, null, null, totalsMap, callback);
