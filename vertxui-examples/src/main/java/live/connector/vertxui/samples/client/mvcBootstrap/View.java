@@ -12,6 +12,7 @@ import static live.connector.vertxui.client.fluent.Fluent.Td;
 import static live.connector.vertxui.client.fluent.Fluent.Ul;
 import static live.connector.vertxui.client.fluent.FluentBase.body;
 import static live.connector.vertxui.client.fluent.FluentBase.head;
+import static live.connector.vertxui.client.fluent.FluentBase.window;
 
 import java.util.Date;
 
@@ -238,6 +239,18 @@ public class View implements EntryPoint {
 			grocery.hide(false);
 			break;
 		}
+	}
+
+	public void errorBillAdd() {
+		window.alert("Could not add the new bill");
+	}
+
+	public void errorGroceryDelete(String text) {
+		window.alert("Could not delete grocery item '" + text + "'.");
+	}
+
+	public void errorGroceryAdd(String text) {
+		window.alert("Could not delete grocery item '" + text + "'.");
 	}
 
 }

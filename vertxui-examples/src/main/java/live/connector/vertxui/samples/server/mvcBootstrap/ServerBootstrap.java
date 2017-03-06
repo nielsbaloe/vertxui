@@ -44,10 +44,10 @@ public class ServerBootstrap extends AbstractVerticle {
 		router.get(Store.totalsUrl).handler(Pojofy.ajax(null, this::getTotals));
 
 		router.get(Store.billsUrl).handler(Pojofy.ajax(null, this::getBills));
-		router.put(Store.billsUrl).handler(Pojofy.ajax(Bill.class, this::addBill));
+		router.post(Store.billsUrl).handler(Pojofy.ajax(Bill.class, this::addBill));
 
 		router.get(Store.groceryUrl).handler(Pojofy.ajax(null, this::getGrocery));
-		router.put(Store.groceryUrl).handler(Pojofy.ajax(null, this::addGrocery));
+		router.post(Store.groceryUrl).handler(Pojofy.ajax(null, this::addGrocery));
 		router.delete(Store.groceryUrl).handler(Pojofy.ajax(null, this::delGrocery));
 
 		AllExamplesServer.startWarAndServer(View.class, router, server);
@@ -85,9 +85,10 @@ public class ServerBootstrap extends AbstractVerticle {
 		return bills;
 	}
 
-	public void addBill(Bill bill, RoutingContext context) {
+	public long addBill(Bill bill, RoutingContext context) {
 		bill.id = bills.all.size();
 		bills.all.add(bill);
+		return bill.id;
 	}
 
 }

@@ -1,6 +1,7 @@
 package live.connector.vertxui.samples.client.mvcBootstrap;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import com.github.nmorel.gwtjackson.client.ObjectMapper;
 import com.google.gwt.core.client.GWT;
@@ -36,16 +37,28 @@ public class Store {
 		Pojofy.ajax("GET", groceryUrl, null, null, groceryMap, callback);
 	}
 
-	public void deleteGrocery(String value) {
-		Pojofy.ajax("DELETE", groceryUrl, value, null, null, null);
+	public void deleteGrocery(String value, Consumer<String> revertCallback) {
+		Pojofy.ajax("DELETE", groceryUrl, value, null, null, (status, __) -> {
+			if (status != 200) {
+				revertCallback.accept(value);
+			}
+		});
 	}
 
-	public void addGrocery(String text) {
-		Pojofy.ajax("PUT", groceryUrl, text, null, null, null);
+	public void addGrocery(String text, Consumer<String> revertCallback) {
+		Pojofy.ajax("POST", groceryUrl, text, null, null, (status, __) -> {
+			if (status != 200) {
+				revertCallback.accept(text);
+			}
+		});
 	}
 
-	public void addBill(Bill bill) {
-		Pojofy.ajax("PUT", billsUrl, bill, billMap, null, null);
+	public void addBill(Bill bill, Consumer<Bill> revertCallback) {
+		Pojofy.ajax("POST", billsUrl, bill, billMap, null, (status, __) -> {
+			if (status != 200) {
+				revertCallback.accept(bill);
+			}
+		});
 	}
 
 	// POJO MAPPERS

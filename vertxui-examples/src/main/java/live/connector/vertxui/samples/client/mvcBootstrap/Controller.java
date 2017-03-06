@@ -75,7 +75,11 @@ public class Controller {
 			view.syncGrocery();
 
 			// Push change to server
-			store.addGrocery(text);
+			store.addGrocery(text, textOnError -> {
+				view.errorGroceryAdd(text);
+				grocery.all.remove(text);
+				view.syncGrocery();
+			});
 		}
 
 	}
@@ -94,7 +98,11 @@ public class Controller {
 		view.syncGrocery();
 
 		// Push change to server
-		store.deleteGrocery(text);
+		store.deleteGrocery(text, textOnError -> {
+			view.errorGroceryDelete(text);
+			grocery.all.add(text);
+			view.syncGrocery();
+		});
 	}
 
 	public void onAddBill(String name, String amount, String what, Date date) {
@@ -107,7 +115,11 @@ public class Controller {
 		view.syncBills();
 
 		// Push change to server
-		store.addBill(bill);
+		store.addBill(bill, billOnError -> {
+			view.errorBillAdd();
+			bills.all.remove(billOnError);
+			view.syncBills();
+		});
 	}
 
 	public void onMenuHome(Fluent __, Event ___) {

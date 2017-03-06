@@ -1,6 +1,7 @@
 package live.connector.vertxui.samples.client.testjUnitWithDom;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import live.connector.vertxui.samples.client.mvcBootstrap.Store;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills;
@@ -26,14 +27,14 @@ public class StoreNone extends Store {
 	}
 
 	@Override
-	public void deleteGrocery(String value) {
+	public void deleteGrocery(String value, Consumer<String> revertCallback) {
 	}
 
 	@Override
-	public void addGrocery(String text) {
+	public void addGrocery(String text, Consumer<String> revertCallback) {
 	}
 
 	@Override
-	public void addBill(Bill bill) {
+	public void addBill(Bill bill, Consumer<Bill> revertCallback) {
 	}
 }
