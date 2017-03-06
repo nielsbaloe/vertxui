@@ -84,11 +84,7 @@ public class Controller {
 
 	}
 
-	public void onGroceryDelete(Fluent fluent, MouseEvent event) {
-
-		fluent.domChecked(); // synchronize virtual DOM
-		fluent.att(Att.checked, null); // before adjusting it
-
+	public void onGroceryDelete(Fluent fluent, MouseEvent __) {
 		String text = fluent.domValue();
 
 		// Apply change in model

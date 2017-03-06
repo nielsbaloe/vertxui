@@ -80,7 +80,7 @@ public class View implements EntryPoint {
 		// Initialise view:
 
 		// Page head
-		head.meta().att(Att.charset, "utf-8");
+		head.meta().att(Att.charset, "UTF-8");
 		head.meta().att(Att.name_, "viewport", Att.content, "width=device-width, initial-scale=1");
 
 		// Header
@@ -186,7 +186,16 @@ public class View implements EntryPoint {
 					.css(Css.maxWidth, "200px").keypress(controller::onGroceryAdd));
 			form.div(grocery.all.stream().map(s -> {
 				Fluent result = Div().css(Css.marginTop, "20px");
-				result.input(null, "checkbox").att(Att.value, s).click(controller::onGroceryDelete);
+				result.input(null, "checkbox").att(Att.value, s).click((fluent, event) -> {
+
+					// Reset checkbox:
+					fluent.domChecked(); // synchronize the virtual DOM
+					fluent.att(Att.checked, null); // before adjusting it
+
+					if (window.confirm("Delete '" + s + "'?")) {
+						controller.onGroceryDelete(fluent, event);
+					}
+				});
 				result.span(null, s).css(Css.fontSize, "140%", Css.marginLeft, "20px");
 				return result;
 			}));
