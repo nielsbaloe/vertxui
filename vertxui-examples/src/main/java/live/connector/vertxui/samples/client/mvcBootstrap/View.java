@@ -250,7 +250,7 @@ public class View implements EntryPoint {
 	}
 
 	public void errorGroceryAdd(String text) {
-		window.alert("Could not delete grocery item '" + text + "'.");
+		window.alert("Could not add grocery item '" + text + "'.");
 	}
 
 }
