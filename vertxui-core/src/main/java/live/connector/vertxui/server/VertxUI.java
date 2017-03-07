@@ -39,6 +39,12 @@ public class VertxUI {
 	 */
 	public static String folderSource = null;
 
+	/**
+	 * Set the charset of your application, if not utf-8; it will be put into
+	 * the generated index.html.
+	 */
+	public static String charset = "utf-8";
+
 	private static String folderBuild = null;
 
 	/**
@@ -247,7 +253,7 @@ public class VertxUI {
 
 		// Write the final index.html file
 		if (withHtml) {
-			StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head>");
+			StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head><meta charset=\"" + charset + "\">");
 			try {
 				for (String script : (String[]) classs.getDeclaredField("scripts").get(null)) {
 					html.append("<script src='");
