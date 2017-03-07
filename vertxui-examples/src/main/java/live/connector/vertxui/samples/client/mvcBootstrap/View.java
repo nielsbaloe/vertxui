@@ -80,7 +80,6 @@ public class View implements EntryPoint {
 		// Initialise view:
 
 		// Page head
-		head.meta().att(Att.charset, "UTF-8");
 		head.meta().att(Att.name_, "viewport", Att.content, "width=device-width, initial-scale=1");
 
 		// Header
@@ -108,9 +107,9 @@ public class View implements EntryPoint {
 			double niels = totals.all.get(Name.Niels);
 			double linda = totals.all.get(Name.Linda);
 
-			result.div("col-sm-3").span("label label-" + (niels > linda ? "success" : "warning"),
+			result.div("col-sm-3").h4().span("label label-" + (niels > linda ? "success" : "warning"),
 					Name.Niels.name() + ": " + niels + "");
-			result.div("col-sm-3").span("label label-" + (linda > niels ? "success" : "warning"),
+			result.div("col-sm-3").h4().span("label label-" + (linda > niels ? "success" : "warning"),
 					Name.Linda.name() + ": " + linda + "");
 			result.div("col-sm-3");
 			return result;
@@ -119,7 +118,7 @@ public class View implements EntryPoint {
 		// a detached view on a bills form
 		billsForm = new ViewOn<Boolean>(false, opened -> {
 			if (opened == false) {
-				return Button("btn btn-success", "button", "Add").click((fluent, event) -> {
+				return Button("btn btn-primary", "button", "Add").click((fluent, event) -> {
 
 					// change the state of myself, which causes redrawing of
 					// myself!
