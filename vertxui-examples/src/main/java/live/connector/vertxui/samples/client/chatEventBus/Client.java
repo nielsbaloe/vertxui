@@ -2,6 +2,7 @@ package live.connector.vertxui.samples.client.chatEventBus;
 
 import static live.connector.vertxui.client.fluent.FluentBase.body;
 import static live.connector.vertxui.client.fluent.FluentBase.console;
+import static live.connector.vertxui.client.fluent.FluentBase.head;
 import static live.connector.vertxui.client.fluent.FluentBase.window;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -29,6 +30,8 @@ public class Client implements EntryPoint {
 	public static final String addressPojo = "serviceForDto";
 
 	public Client() {
+		head.script(AllExamplesClient.figwheelyLocation);
+
 		String name = window.prompt("What is your name?", "");
 
 		Fluent input = body.input(null, "text");

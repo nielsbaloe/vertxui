@@ -25,6 +25,7 @@ import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
+import live.connector.vertxui.samples.client.AllExamplesClient;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Bill;
 import live.connector.vertxui.samples.client.mvcBootstrap.dto.Bills.Name;
@@ -63,6 +64,7 @@ public class View implements EntryPoint {
 	}
 
 	public void start(Controller controller) {
+		head.script(AllExamplesClient.figwheelyLocation);
 
 		// Initialise models:
 		String menuStart = "home";

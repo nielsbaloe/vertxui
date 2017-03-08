@@ -2,6 +2,7 @@ package live.connector.vertxui.samples.client.chatSockjs;
 
 import static live.connector.vertxui.client.fluent.FluentBase.body;
 import static live.connector.vertxui.client.fluent.FluentBase.console;
+import static live.connector.vertxui.client.fluent.FluentBase.head;
 import static live.connector.vertxui.client.fluent.FluentBase.window;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -23,6 +24,8 @@ import live.connector.vertxui.samples.client.Dto;
 public class Client implements EntryPoint {
 
 	public Client() {
+		head.script(AllExamplesClient.figwheelyLocation);
+
 		String name = window.prompt("What is your name?", "");
 
 		Fluent input = body.input(null, "text");

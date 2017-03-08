@@ -21,6 +21,9 @@ import io.vertx.ext.web.handler.StaticHandler;
  * recompilation (if it is java for javascript compilation) and notify the
  * browser of these changes.
  * 
+ * You can also send a message to the browser, for example:
+ * <dd>vertx.eventBus().publish(FigWheely.figNotify, "bla die bla");
+ * 
  * @author ng
  *
  */
@@ -33,7 +36,8 @@ public class FigWheely extends AbstractVerticle {
 
 	protected static boolean started = false;
 
-	private static final String browserIds = "figwheelyEventBus";
+	private final static String browserIds = "figwheelyEventBus";
+	public final static String figNotify = "figNotify";
 	private static List<Watchable> watchables = new ArrayList<>();
 
 	private static class Watchable {
@@ -133,6 +137,14 @@ public class FigWheely extends AbstractVerticle {
 			}
 		});
 
+		// Ensure that even outside this class people can push messages to the
+		// browser
+		vertx.eventBus().consumer(figNotify, message -> {
+			for (Object obj : vertx.sharedData().getLocalMap(browserIds).keySet()) {
+				vertx.eventBus().send((String) obj, message.body());
+			}
+		});
+
 		vertx.executeBlocking(future -> {
 			while (true) {
 				try {
@@ -154,14 +166,10 @@ public class FigWheely extends AbstractVerticle {
 										.forEach(w -> w.lastModified = w.file.lastModified());
 							}
 							// log.info("url=" + url);
-							for (Object obj : vertx.sharedData().getLocalMap(browserIds).keySet()) {
-								vertx.eventBus().send((String) obj, "reload: " + watchable.url);
-							}
+							vertx.eventBus().publish(figNotify, "reload: " + watchable.url);
 						} catch (IOException | InterruptedException e) {
 							e.printStackTrace();
-							for (Object obj : vertx.sharedData().getLocalMap(browserIds).keySet()) {
-								vertx.eventBus().send((String) obj, "error: " + e.getMessage());
-							}
+							vertx.eventBus().publish(figNotify, "error: " + e.getMessage());
 						}
 					}
 				}
@@ -172,7 +180,7 @@ public class FigWheely extends AbstractVerticle {
 
 	// Internet Explorer 11 does not have .endsWith()
 	private static final String script = "function endsWith(str, suffix) {return str.indexOf(suffix, str.length - suffix.length) !== -1;}"
-			+ "new WebSocket('ws://localhost:" + port + "/" + url
+			+ "var _fig= new WebSocket('ws://localhost:" + port + "/" + url
 			+ "').onmessage = function(m) {console.log(m.data);removejscssfile(m.data.substr(8));};                                         \n "
 			+ "console.log('FigWheely started');                                                                                \n "
 			+ "function removejscssfile(filename){                 \n"

@@ -2,6 +2,7 @@ package client.app;
 
 import static live.connector.vertxui.client.fluent.FluentBase.body;
 import static live.connector.vertxui.client.fluent.FluentBase.console;
+import static live.connector.vertxui.client.fluent.FluentBase.head;
 
 import com.google.gwt.core.client.EntryPoint;
 
@@ -18,6 +19,8 @@ public class View implements EntryPoint {
 	}
 
 	public void start(Controller controller) {
+		head.script("/figwheely.js");
+
 		console.log("Hi there console");
 		body.div(null, "Hi there body").css(Css.fontSize, "330%");
 		controller.doAjax();

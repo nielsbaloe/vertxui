@@ -74,19 +74,9 @@ public class Store {
 	public interface BillMap extends ObjectMapper<Bills.Bill> {
 	}
 
-	public static TotalsMap totalsMap = null;
-	public static GroceryMap groceryMap = null;
-	public static BillsMap billsMap = null;
-	public static BillMap billMap = null;
-
-	static {
-		// thanks to this construction, we can read the URL's in the servercode
-		if (GWT.isClient()) {
-			totalsMap = GWT.create(TotalsMap.class);
-			groceryMap = GWT.create(GroceryMap.class);
-			billsMap = GWT.create(BillsMap.class);
-			billMap = GWT.create(BillMap.class);
-		}
-	}
+	public static TotalsMap totalsMap = GWT.isClient() ? GWT.create(TotalsMap.class) : null;
+	public static GroceryMap groceryMap = GWT.isClient() ? GWT.create(GroceryMap.class) : null;
+	public static BillsMap billsMap = GWT.isClient() ? GWT.create(BillsMap.class) : null;
+	public static BillMap billMap = GWT.isClient() ? GWT.create(BillMap.class) : null;
 
 }

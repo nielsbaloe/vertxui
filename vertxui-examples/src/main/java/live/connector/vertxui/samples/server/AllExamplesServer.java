@@ -9,7 +9,7 @@ import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.ext.web.Router;
-import live.connector.vertxui.samples.client.figwheely.Client;
+import live.connector.vertxui.samples.client.AllExamplesClient;
 import live.connector.vertxui.server.FigWheely;
 import live.connector.vertxui.server.VertxUI;
 
@@ -25,8 +25,10 @@ public class AllExamplesServer {
 		boolean debug = true;
 
 		// Serve the javascript for figwheely (and turn it on too)
-		router.get(Client.figLocation).handler(FigWheely.create());
-
+		if (debug) {
+			router.get(AllExamplesClient.figwheelyLocation).handler(FigWheely.create());
+		}
+		
 		// The main compiled js
 		router.get("/*").handler(VertxUI.with(classs, "/", debug, true));
 

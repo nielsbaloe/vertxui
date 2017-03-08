@@ -6,6 +6,7 @@ import static live.connector.vertxui.client.fluent.Fluent.head;
 import com.google.gwt.core.client.EntryPoint;
 
 import live.connector.vertxui.client.fluent.Fluent;
+import live.connector.vertxui.samples.client.AllExamplesClient;
 
 public class Client implements EntryPoint {
 
@@ -16,10 +17,8 @@ public class Client implements EntryPoint {
 	 * look at your browser at the same time. Do NOT reload your browser.
 	 */
 
-	public static String figLocation = "/figwheely.js";
-
 	public Client() {
-		head.stylesheet("/sourcez/sample.css?" + System.currentTimeMillis()).script(figLocation);
+		head.script(AllExamplesClient.figwheelyLocation).stylesheet("/sourcez/sample.css?" + System.currentTimeMillis());
 
 		body.div().id("picture");
 		Fluent button = body.button(null, "button", "Look at the css, and change something WITHOUT reloading.");

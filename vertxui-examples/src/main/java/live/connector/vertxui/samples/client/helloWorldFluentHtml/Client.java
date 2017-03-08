@@ -2,6 +2,7 @@ package live.connector.vertxui.samples.client.helloWorldFluentHtml;
 
 import static live.connector.vertxui.client.fluent.FluentBase.body;
 import static live.connector.vertxui.client.fluent.FluentBase.console;
+import static live.connector.vertxui.client.fluent.FluentBase.head;
 
 import com.google.gwt.core.client.EntryPoint;
 
@@ -21,6 +22,8 @@ public class Client implements EntryPoint {
 	private Fluent thinking;
 
 	public Client() {
+		head.script(AllExamplesClient.figwheelyLocation);
+
 		button = body.div().button(null, "button", "Click me!").id("hello-button").click(this::clicked);
 		response = body.div();
 		thinking = body.div().txt("The server waits as demonstration!").id("thinking-panel").css(Css.display, "none");
