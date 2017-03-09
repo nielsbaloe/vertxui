@@ -129,6 +129,9 @@ public class FigWheely extends AbstractVerticle {
 			webSocket.closeHandler(data -> {
 				vertx.sharedData().getLocalMap(browserIds).remove(id);
 			});
+			webSocket.handler(buffer -> {
+				log.info(buffer.toString());
+			});
 		});
 		server.listen(port, listenHandler -> {
 			if (listenHandler.failed()) {
@@ -180,9 +183,9 @@ public class FigWheely extends AbstractVerticle {
 
 	// Internet Explorer 11 does not have .endsWith()
 	private static final String script = "function endsWith(str, suffix) {return str.indexOf(suffix, str.length - suffix.length) !== -1;}"
-			+ "var _fig= new WebSocket('ws://localhost:" + port + "/" + url
-			+ "').onmessage = function(m) {console.log(m.data);removejscssfile(m.data.substr(8));};                                         \n "
-			+ "console.log('FigWheely started');                                                                                \n "
+			+ "var _fig = new WebSocket('ws://localhost:" + port + "/" + url + "'); "
+			+ "_fig.onmessage = function(m) {console.log(m.data);removejscssfile(m.data.substr(8));};                                         \n "
+			+ "console.log('FigWheely loaded');                                                                                \n "
 			+ "function removejscssfile(filename){                 \n"
 			+ "if (endsWith(filename,'js')) filetype='js'; else filetype='css';         "
 			+ "var el = (filetype=='js')? 'script':'link';                                              "
