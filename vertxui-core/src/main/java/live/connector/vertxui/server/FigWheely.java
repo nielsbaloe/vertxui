@@ -148,36 +148,29 @@ public class FigWheely extends AbstractVerticle {
 			}
 		});
 
-		vertx.executeBlocking(future -> {
-			while (true) {
-				try {
-					Thread.sleep(250);
-				} catch (InterruptedException e) {
-				}
-				for (Watchable watchable : watchables) {
-					if (watchable.file.lastModified() != watchable.lastModified) {
-						log.info("Changed: target-url=" + watchable.url + "  file=" + watchable.file.getName());
-						watchable.lastModified = watchable.file.lastModified();
-						try {
-							if (watchable.handler != null) {
-								watchable.handler.translate();
+		vertx.setPeriodic(250, id -> {
+			for (Watchable watchable : watchables) {
+				if (watchable.file.lastModified() != watchable.lastModified) {
+					log.info("Changed: target-url=" + watchable.url + "  file=" + watchable.file.getName());
+					watchable.lastModified = watchable.file.lastModified();
+					try {
+						if (watchable.handler != null) {
+							watchable.handler.translate();
 
-								// also update lastModified for same handler:
-								// when multiple .java sourcefiles were changed
-								// and saved at once.
-								watchables.stream().filter(w -> w.root.equals(watchable.root))
-										.forEach(w -> w.lastModified = w.file.lastModified());
-							}
-							// log.info("url=" + url);
-							vertx.eventBus().publish(figNotify, "reload: " + watchable.url);
-						} catch (IOException | InterruptedException e) {
-							e.printStackTrace();
-							vertx.eventBus().publish(figNotify, "error: " + e.getMessage());
+							// also update lastModified for same handler:
+							// when multiple .java sourcefiles were changed
+							// and saved at once.
+							watchables.stream().filter(w -> w.root.equals(watchable.root))
+									.forEach(w -> w.lastModified = w.file.lastModified());
 						}
+						// log.info("url=" + url);
+						vertx.eventBus().publish(figNotify, "reload: " + watchable.url);
+					} catch (IOException | InterruptedException e) {
+						e.printStackTrace();
+						vertx.eventBus().publish(figNotify, "error: " + e.getMessage());
 					}
 				}
 			}
-		}, result -> {
 		});
 	}
 
