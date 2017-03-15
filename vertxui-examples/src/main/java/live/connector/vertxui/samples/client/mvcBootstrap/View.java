@@ -18,8 +18,6 @@ import java.util.Date;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.shared.DateTimeFormat;
-import com.google.gwt.i18n.shared.DefaultDateTimeFormatInfo;
 
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Css;
@@ -42,19 +40,11 @@ public class View implements EntryPoint {
 	private ViewOn<Grocery> grocery;
 
 	public static String[] css = new String[] { "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css",
-			"https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" };
+			"https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.5.1/css/pikaday.min.css" };
 
-	public static String[] scripts = new String[] { "https://code.jquery.com/jquery-1.12.4.js",
-			"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js",
-			"https://code.jquery.com/ui/1.12.1/jquery-ui.js" };
-
-	protected DateTimeFormat dater = new InnerDateTimeFormat("dd/MM/yyyy");
-
-	class InnerDateTimeFormat extends DateTimeFormat {
-		protected InnerDateTimeFormat(String pattern) {
-			super(pattern, new DefaultDateTimeFormatInfo());
-		}
-	}
+	public static String[] scripts = new String[] {
+			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js",
+			"https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.5.1/pikaday.min.js" };
 
 	@Override
 	public void onModuleLoad() {
@@ -135,7 +125,7 @@ public class View implements EntryPoint {
 			Fluent name = Select("form-control", Option(null, Name.Niels.name()), Option(null, Name.Linda.name()));
 			Fluent amount = Input("form-control", "number").att(Att.min, "0", Att.max, "2000", Att.value, "")
 					.keypress(controller::onBillOnlyNumeric);
-			Fluent when = new ComponentDatePicker();
+			ComponentDatePicker when = new ComponentDatePicker();
 			Fluent what = Input("form-control", "text");
 
 			Fluent text = Span("input-group-addon").css(Css.width, "100px");
@@ -152,7 +142,7 @@ public class View implements EntryPoint {
 				}
 				Date date = null;
 				try {
-					date = dater.parse(when.domValue());
+					date = when.getDate();
 				} catch (IllegalArgumentException e) {
 					Fluent.window.alert("Please fill in the date.");
 					return;
@@ -171,7 +161,7 @@ public class View implements EntryPoint {
 			result.add(billsForm);
 			Fluent table = result.table("table table-condensed table-striped").tbody();
 			for (Bill bill : bills.all) {
-				String when = dater.format(bill.date);
+				String when = ComponentDatePicker.dateTimeFormat.format(bill.date);
 				table.tr(Td(null, bill.who.name()), Td(null, bill.amount + ""), Td(null, bill.what), Td(null, when));
 			}
 			return result;

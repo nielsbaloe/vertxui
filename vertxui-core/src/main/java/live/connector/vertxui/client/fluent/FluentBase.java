@@ -62,8 +62,8 @@ public class FluentBase implements Viewable {
 													return window.top.document;
 														}-*/;
 
-	public native static void eval(String code) /*-{
-												window.top.eval(code);
+	public native static String eval(String code) /*-{
+												return window.top.eval(code);
 												}-*/;
 
 	/**
