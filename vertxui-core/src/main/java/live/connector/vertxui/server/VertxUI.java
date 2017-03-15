@@ -15,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 
@@ -169,6 +170,8 @@ public class VertxUI {
 		}
 	}
 
+	private long periodicId;
+
 	protected void translate() throws IOException, InterruptedException {
 
 		// Write index.html file which autoreloads
@@ -204,81 +207,74 @@ public class VertxUI {
 		FileUtils.writeStringToFile(gwtXml, content.toString());
 
 		// Compile to javacript
-		try {
-			String options = "-strict -XdisableUpdateCheck -war " + getTargetFolder(debug);
-			if (debug) {
-				options += " -draftCompile -optimize 0 -style DETAILED"; // -incremental
-			} else {
-				options += " -XnoclassMetadata -nodraftCompile -optimize 9 -noincremental";
-			}
-			String classpath = System.getProperty("java.class.path");
-			String sep = (System.getenv("path.separator") == null) ? (classpath.contains(";") ? ";" : ":")
-					: System.getenv("path.separator");
-			classpath += sep + folderSource;
-			classpath = Stream.of(classpath.split(sep)).map(c -> "\"" + c + "\"" + sep).reduce("", String::concat);
+		String options = "-strict -XdisableUpdateCheck -war " + getTargetFolder(debug);
+		if (debug) {
+			options += " -draftCompile -optimize 0 -style DETAILED"; // -incremental
+		} else {
+			options += " -XnoclassMetadata -nodraftCompile -optimize 9 -noincremental";
+		}
+		String classpath = System.getProperty("java.class.path");
+		String sep = (System.getenv("path.separator") == null) ? (classpath.contains(";") ? ";" : ":")
+				: System.getenv("path.separator");
+		classpath += sep + folderSource;
+		classpath = Stream.of(classpath.split(sep)).map(c -> "\"" + c + "\"" + sep).reduce("", String::concat);
 
-			String line = null;
-			Process p = Runtime.getRuntime()
-					.exec("java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile);
-			StringBuilder info = new StringBuilder();
-			boolean error = false;
-			try (BufferedReader bri = new BufferedReader(new InputStreamReader(p.getInputStream()));
-					BufferedReader bre = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
-				while (p.isAlive()) {
-					while ((line = bri.readLine()) != null) {
-						info.append(line + "\n");
-						if (line.contains("[ERROR]")) {
-							System.err.print(".");
-							error = true;
-						} else {
-							System.out.print(".");
-						}
-					}
-					while ((line = bre.readLine()) != null) {
-						info.append(line + "\n");
+		Process p = Runtime.getRuntime()
+				.exec("java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile);
+		StringBuilder info = new StringBuilder();
+		BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		BufferedReader erput = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+
+		Vertx vertx = Vertx.currentContext().owner();
+		periodicId = vertx.setPeriodic(100, __ -> {
+
+			// Read input
+			try {
+				if (input.ready()) {
+					String line = input.readLine();
+					info.append(line + "\n");
+					if (line.contains("[ERROR]")) {
 						System.err.print(".");
-						error = true;
+					} else {
+						System.out.print(".");
 					}
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			if (error) {
-				throw new IOException("Compile error(s): " + info);
-			}
-			System.out.println("*");
-			// log.info("compiled in " + (System.currentTimeMillis() - start) +
-			// " ms.");
-		} finally {
-			gwtXml.delete();
-		}
 
-		// Write the final index.html file
-		if (withHtml) {
-			StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head><meta charset=\"" + charset + "\">");
+			// Read error
 			try {
-				for (String script : (String[]) classs.getDeclaredField("scripts").get(null)) {
-					html.append("<script src='");
-					html.append(script);
-					html.append("'></script>");
+				if (erput.ready()) {
+					String line = erput.readLine();
+					info.append("[ERROR]" + line + "\n");
+					System.err.print(".");
 				}
-			} catch (NoSuchFieldException e) {
-				// is OK, does not exist
-			} catch (Exception e) {
-				throw new IllegalArgumentException("Could not access public static String scripts[]", e);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			try {
-				for (String css : (String[]) classs.getDeclaredField("css").get(null)) {
-					html.append("<link rel=stylesheet href='");
-					html.append(css);
-					html.append("'/>");
+
+			// Break
+			if (!p.isAlive()) {
+				vertx.cancelTimer(periodicId);
+				gwtXml.delete();
+				writeHtml();
+				String result = info.toString();
+				if (result.contains("[ERROR]")) {
+					System.err.println("Compile error(s): " + info);
+				} else {
+					System.out.println("*");
 				}
-			} catch (NoSuchFieldException e) {
-				// is OK, does not exist
-			} catch (Exception e) {
-				throw new IllegalArgumentException("Could not access public static String css[]", e);
+				try {
+					input.close();
+				} catch (IOException ___) {
+				}
+				try {
+					erput.close();
+				} catch (IOException ___) {
+				}
 			}
-			html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
-			FileUtils.writeStringToFile(new File(VertxUI.getTargetFolder(debug) + "/index.html"), html.toString());
-		}
+		});
 
 		// OLD ATTEMPT TO RUN GWT EMBEDDED
 		// OLD ATTEMPT TO RUN GWT EMBEDDED
@@ -309,6 +305,38 @@ public class VertxUI {
 		// com.google.gwt.dev.Compiler.compile(new PrintWriterTreeLogger(),
 		// options, module);
 		// System.exit(0);
+	}
+
+	private void writeHtml() {
+		if (!withHtml) {
+			return;
+		}
+		StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head><meta charset=\"" + charset + "\">");
+		try {
+			for (String script : (String[]) classs.getDeclaredField("scripts").get(null)) {
+				html.append("<script src='");
+				html.append(script);
+				html.append("'></script>");
+			}
+		} catch (NoSuchFieldException e) {
+			// is OK, does not exist
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not access public static String scripts[]", e);
+		}
+		try {
+			for (String css : (String[]) classs.getDeclaredField("css").get(null)) {
+				html.append("<link rel=stylesheet href='");
+				html.append(css);
+				html.append("'/>");
+			}
+		} catch (NoSuchFieldException e) {
+			// is OK, does not exist
+		} catch (Exception e) {
+			throw new IllegalArgumentException("Could not access public static String css[]", e);
+		}
+		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
+		Vertx.currentContext().owner().fileSystem().writeFile(VertxUI.getTargetFolder(debug) + "/index.html",
+				Buffer.buffer(html.toString()), null);
 	}
 
 }
