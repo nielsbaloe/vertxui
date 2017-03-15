@@ -335,8 +335,13 @@ public class VertxUI {
 			throw new IllegalArgumentException("Could not access public static String css[]", e);
 		}
 		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
-		Vertx.currentContext().owner().fileSystem().writeFile(VertxUI.getTargetFolder(debug) + "/index.html",
-				Buffer.buffer(html.toString()), null);
+
+		String filename = VertxUI.getTargetFolder(debug) + "/index.html";
+		Vertx.currentContext().owner().fileSystem().writeFile(filename, Buffer.buffer(html.toString()), result -> {
+			if (result.failed()) {
+				System.err.println("Could not write to " + filename + ": " + result.cause());
+			}
+		});
 	}
 
 }
