@@ -170,8 +170,6 @@ public class VertxUI {
 		}
 	}
 
-	private long periodicId;
-
 	protected void translate() throws IOException, InterruptedException {
 
 		// Write index.html file which autoreloads
@@ -225,56 +223,7 @@ public class VertxUI {
 		BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		BufferedReader erput = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
-		Vertx vertx = Vertx.currentContext().owner();
-		periodicId = vertx.setPeriodic(100, __ -> {
-
-			// Read input
-			try {
-				if (input.ready()) {
-					String line = input.readLine();
-					info.append(line + "\n");
-					if (line.contains("[ERROR]")) {
-						System.err.print(".");
-					} else {
-						System.out.print(".");
-					}
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			// Read error
-			try {
-				if (erput.ready()) {
-					String line = erput.readLine();
-					info.append("[ERROR]" + line + "\n");
-					System.err.print(".");
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			// Break
-			if (!p.isAlive()) {
-				vertx.cancelTimer(periodicId);
-				gwtXml.delete();
-				writeHtml();
-				String result = info.toString();
-				if (result.contains("[ERROR]")) {
-					System.err.println("Compile error(s): " + info);
-				} else {
-					System.out.println("*");
-				}
-				try {
-					input.close();
-				} catch (IOException ___) {
-				}
-				try {
-					erput.close();
-				} catch (IOException ___) {
-				}
-			}
-		});
+		Vertx.currentContext().owner().setTimer(100, __ -> translateContinue(gwtXml, p, info, input, erput));
 
 		// OLD ATTEMPT TO RUN GWT EMBEDDED
 		// OLD ATTEMPT TO RUN GWT EMBEDDED
@@ -305,6 +254,57 @@ public class VertxUI {
 		// com.google.gwt.dev.Compiler.compile(new PrintWriterTreeLogger(),
 		// options, module);
 		// System.exit(0);
+	}
+
+	private void translateContinue(File gwtXml, Process p, StringBuilder info, BufferedReader input,
+			BufferedReader erput) {
+		// Read input
+		try {
+			if (input.ready()) {
+				String line = input.readLine();
+				info.append(line + "\n");
+				if (line.contains("[ERROR]")) {
+					System.err.print(".");
+				} else {
+					System.out.print(".");
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// Read error
+		try {
+			if (erput.ready()) {
+				String line = erput.readLine();
+				info.append("[ERROR]" + line + "\n");
+				System.err.print(".");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// Break
+		if (!p.isAlive()) {
+			gwtXml.delete();
+			writeHtml();
+			String result = info.toString();
+			if (result.contains("[ERROR]")) {
+				System.err.println("Compile error(s): " + info);
+			} else {
+				System.out.println("*");
+			}
+			try {
+				input.close();
+			} catch (IOException ___) {
+			}
+			try {
+				erput.close();
+			} catch (IOException ___) {
+			}
+		} else { // continue
+			Vertx.currentContext().owner().setTimer(100, ___ -> translateContinue(gwtXml, p, info, input, erput));
+		}
 	}
 
 	private void writeHtml() {
