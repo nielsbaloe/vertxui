@@ -101,9 +101,9 @@ public class Controller {
 		});
 	}
 
-	public void onAddBill(String name, String amount, String what, Date date) {
+	public void onAddBill(String name, int amount, String what, Date date) {
 		// Apply change in model
-		Bill bill = new Bills.Bill(Name.valueOf(name), Integer.parseInt(amount), what, date);
+		Bill bill = new Bills.Bill(Name.valueOf(name), amount, what, date);
 		bills.all.add(bill);
 		Collections.sort(bills.all);
 

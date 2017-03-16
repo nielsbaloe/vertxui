@@ -136,7 +136,17 @@ public class View implements EntryPoint {
 			result.div("input-group", text.clone().txt("What"), what).css(Css.width, "80%");
 
 			result.button("btn btn-success", "button", "OK").click((fluent, event) -> {
-				if (amount.domValue().isEmpty()) {
+				int much = 0;
+				try {
+					String muchRead = amount.domValue();
+					if (muchRead.isEmpty()) {
+						throw new Exception("Illegal amount");
+					}
+					much = Integer.parseInt(amount.domValue());
+					if (much == 0) {
+						throw new Exception("Much is 0");
+					}
+				} catch (Exception __) {
 					Fluent.window.alert("Please fill in an amount.");
 					return;
 				}
@@ -147,7 +157,7 @@ public class View implements EntryPoint {
 					Fluent.window.alert("Please fill in the date.");
 					return;
 				}
-				controller.onAddBill(name.domValue(), amount.domValue(), what.domValue(), date);
+				controller.onAddBill(name.domValue(), much, what.domValue(), date);
 				billsForm.state(false);
 			});
 			return result;
