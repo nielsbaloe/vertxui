@@ -32,7 +32,7 @@ public class Asserty {
 				return;
 			}
 		}
-		throw new IllegalArgumentException("Method '" + which + "' was not defined.");
+		throw new IllegalArgumentException("Method '" + which + "' was not defined, map keys: "+map.keySet());
 	}
 
 	public static void failNoMessage() {

@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>io.vertx</groupId>
 			<artifactId>vertx-web</artifactId>
-			<version>3.4.0</version>
+			<version>3.4.1</version>
 		</dependency>
 		<!--client -->
 		<dependency>
@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>com.github.nmorel.gwtjackson</groupId>
 			<artifactId>gwt-jackson</artifactId>
-			<version>0.14.1</version>
+			<version>0.14.2</version>
 		</dependency>
 		<!-- Test -->
 		<dependency>
@@ -91,7 +91,7 @@
 			</resource>
 		</resources>
 
-	<!-- see http://central.sonatype.org/pages/apache-maven.html#using-a-profile -->
+		<!-- see http://central.sonatype.org/pages/apache-maven.html#using-a-profile -->
 		<plugins>
 			<plugin>
 				<groupId>org.sonatype.plugins</groupId>

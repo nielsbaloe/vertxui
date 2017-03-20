@@ -2,6 +2,7 @@ package live.connector.vertxui.server;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
@@ -13,9 +14,9 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 
+import io.vertx.core.Context;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 
@@ -217,13 +218,18 @@ public class VertxUI {
 		classpath += sep + folderSource;
 		classpath = Stream.of(classpath.split(sep)).map(c -> "\"" + c + "\"" + sep).reduce("", String::concat);
 
-		Process p = Runtime.getRuntime()
+		Process process = Runtime.getRuntime()
 				.exec("java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile);
 		StringBuilder info = new StringBuilder();
-		BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		BufferedReader erput = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+		BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+		BufferedReader erput = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
-		Vertx.currentContext().owner().setTimer(100, __ -> translateContinue(gwtXml, p, info, input, erput));
+		Context context = Vertx.currentContext();
+		if (context == null) { // for TestDOM
+			translateContinue(gwtXml, process, info, input, erput);
+		} else {
+			Vertx.currentContext().owner().setTimer(100, __ -> translateContinue(gwtXml, process, info, input, erput));
+		}
 
 		// OLD ATTEMPT TO RUN GWT EMBEDDED
 		// OLD ATTEMPT TO RUN GWT EMBEDDED
@@ -256,7 +262,7 @@ public class VertxUI {
 		// System.exit(0);
 	}
 
-	private void translateContinue(File gwtXml, Process p, StringBuilder info, BufferedReader input,
+	private void translateContinue(File gwtXml, Process process, StringBuilder info, BufferedReader input,
 			BufferedReader erput) {
 		// Read input
 		try {
@@ -285,7 +291,7 @@ public class VertxUI {
 		}
 
 		// Break
-		if (!p.isAlive()) {
+		if (!process.isAlive()) {
 			gwtXml.delete();
 			writeHtml();
 			String result = info.toString();
@@ -303,7 +309,19 @@ public class VertxUI {
 			} catch (IOException ___) {
 			}
 		} else { // continue
-			Vertx.currentContext().owner().setTimer(100, ___ -> translateContinue(gwtXml, p, info, input, erput));
+
+			Context context = Vertx.currentContext();
+			if (context == null) { // for TestDOM
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
+				translateContinue(gwtXml, process, info, input, erput);
+			} else {
+				Vertx.currentContext().owner().setTimer(100,
+						__ -> translateContinue(gwtXml, process, info, input, erput));
+			}
+
 		}
 	}
 
@@ -336,12 +354,13 @@ public class VertxUI {
 		}
 		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
 
-		String filename = VertxUI.getTargetFolder(debug) + "/index.html";
-		Vertx.currentContext().owner().fileSystem().writeFile(filename, Buffer.buffer(html.toString()), result -> {
-			if (result.failed()) {
-				System.err.println("Could not write to " + filename + ": " + result.cause());
-			}
-		});
+		// Write to file (not using vertx because this is also done with
+		// non-vertx inside TestDOM)
+		try (FileWriter fileWriter = new FileWriter(VertxUI.getTargetFolder(debug) + "/index.html")) {
+			fileWriter.write(html.toString());
+		} catch (IOException ie) {
+			throw new IllegalArgumentException("Could not write index.html file", ie);
+		}
 	}
 
 }
