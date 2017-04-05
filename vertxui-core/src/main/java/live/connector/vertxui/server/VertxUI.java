@@ -205,19 +205,21 @@ public class VertxUI {
 		content.append("</module>");
 		FileUtils.writeStringToFile(gwtXml, content.toString());
 
-		// Compile to javacript
+		// Compile to javascript
 		String options = "-strict -XdisableUpdateCheck -war " + getTargetFolder(debug);
 		if (debug) {
 			options += " -draftCompile -optimize 0 -style DETAILED"; // -incremental
 		} else {
 			options += " -XnoclassMetadata -nodraftCompile -optimize 9 -noincremental";
 		}
-		String classpath = System.getProperty("java.class.path");
-		String sep = (System.getenv("path.separator") == null) ? (classpath.contains(";") ? ";" : ":")
-				: System.getenv("path.separator");
-		classpath += sep + folderSource;
-		classpath = Stream.of(classpath.split(sep)).map(c -> "\"" + c + "\"" + sep).reduce("", String::concat);
 
+		// Extract and extend the classpath
+		String classpath = System.getProperty("java.class.path");
+		String separator = (System.getenv("path.separator") == null) ? (classpath.contains(";") ? ";" : ":")
+				: System.getenv("path.separator");
+		classpath = "\"" + classpath + separator + folderSource + "\"";
+
+		// Run GWT
 		Process process = Runtime.getRuntime()
 				.exec("java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile);
 		StringBuilder info = new StringBuilder();
