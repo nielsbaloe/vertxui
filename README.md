@@ -3,9 +3,9 @@ vertxui
 
 Suppose we had native asynchronous Java access at the browser, backed by a no-nonsense Java asynchronous server. Then both browser and server would be using the same Java strong-typed data models/entities/DTO's for ajax/websocket/sockjs traffic.
 
-For the view, we would not want to write HTML or a new Java-lookalike language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view-on-a-model, similar to ReactJS but then nicely in Java with streams enums packages classes and other basic mature object oriented language features.
+For the view, we would not want to write HTML or a new Java/C#-lookalike language, but write in a fluent descriptive notation with Java 8 lambda's for event handling. And a clean way to describe a view-on-a-model, similar to ReactJS but then nicely in Java with streams enums packages classes and other basic mature object oriented language features.
 
-Regarding tooling, we would want to use trusted Java tooling like jUnit and Mockito, and realtime debugging with automatic browser refreshing after a code change, all in a professional familiar grown-up IDE. We would want plain stacktraces when something goes wrong, so we can trace errors. Ideally without install any IDE-specific tooling.
+Regarding tooling, we would want to use trusted Java tooling like jUnit and Mockito, and realtime debugging with automatic browser refreshing after a code change, all in a professional familiar grown-up IDE. We would want plain stacktraces when something goes wrong, so we can trace errors. Ideally without having to install any IDE-specific tooling.
 
 Welcome to vertxui. This is how Java web programming should have looked like 15 years ago.
 
@@ -22,8 +22,11 @@ Use it in your project by using one of these
 	         compile 'live.connector:vertxui-core:1.0'
 
 or another source from  the [MVN Repository](https://mvnrepository.com/artifact/live.connector/vertxui-core/1.0) .
+For a laid back demo how to get it up and working from scratch and to see some running examples, look at [this video](https://www.youtube.com/watch?v=ZusasYDjMKo).
 
 ## General
+
+VertxUI is ideal for writing single-paged-apps or microservices that serve a part of a page.
 
 VertxUI offers:
 * 100% java, 100% asynchronous
@@ -49,9 +52,10 @@ Pure-Java clientside means:
 * extremely easy junit testing of client-side GUI (even without a DOM, but also with a DOM)
 
 VertxUI is
-* _not_ a HTML template engine: no HTML is generated. VertxUI is for writing single-paged-apps or microservices that serve a part of a page.
-* _not_ a new javascript framework; it leans on plain HTML + CSS + standarised javascript, instead adding a new set of javascript tooling. There is zero browser specific code.
-* _not_ a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat (or any other framework which serves plain files) instead of Verx.
+* _not_ a new GUI toolkit: it doesn't introduce or have any GUI elements, but uses external HTML + CSS libraries such as bootstrap.
+* _not_ a new HTML template engine: no HTML is generated, cached, parsed or saved.
+* _not_ a new Javascript framework: it leans on plain HTML + CSS + standarised javascript, instead adding a new set of javascript tooling. There is zero browser specific code.
+* _not_ a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat (or any other framework which serves plain files) instead of Verx. Down the drain, even the internal java to javascript bridge is easily swappable.
 
 Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, a Bootstrap application, and more. Vertxui mixes well with pure html+css frameworks like bootstrap, purecss, jquery mobile and similar.
 
