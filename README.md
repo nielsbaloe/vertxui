@@ -61,7 +61,7 @@ Examples are included for: hello world (vanilla js and Fluent HTML), automatic b
 
 ### Serverside
 
-The serverside is easy. This single line serves a single-lined wrapping HTML file (as /index.html) and all generated Javascript code (in folder /a/... ). It compiles to javascript too (if there is a source folder), without installing an IDE plugin, just run the server and point your browser to http://localhost/ ;) .
+The serverside is easy. This single line generates a single-lined wrapping HTML file (as /index.html) and serves it along with all generated Javascript code (in folder /a/... ). It compiles to javascript too (if there is a source folder), without installing an IDE plugin, just run a class with a main() method and point your browser to http://localhost/ ;) .
 
 		router.get("/*").handler(VertxUI.with(Client.class, "/", isDebugMode, doGenerateHtml));
 
@@ -73,7 +73,7 @@ Server-time translation does not mean you can not debug your code. To debug, jus
   
 ### Clientside pure DOM
 
-Note that nowadays the trend is to make websites with rich CSS libraries that require no Javascript for the view;  most of the webpages you are looking at every day are written that way (Bootstrap, jQuery Mobile). These libraries are using plain low-level HTML with CSS for the view, and only Javascript for interaction (and legacy or fall-back behind-the-scenes code). So let's write a bit of HTML easily connectable with CSS, and add some interaction - using Java.
+Note that nowadays the trend is to make websites with rich CSS libraries that require no Javascript for the view;  most of the webpages you are looking at every day are written that way (Bootstrap, jQuery Mobile). These libraries are using plain low-level HTML with CSS, and only Javascript for interaction (and legacy or fall-back behind-the-scenes code). So let's write a bit of HTML easily connectable with CSS, and add some interaction - using Java.
 
 The clientside with pure DOM looks like plain javascript but then with Java (8's lambda) callbacks. This is pure Elemental/GWT (previously TeaVM), so more or less, it 'is' plain javascript:
 
@@ -105,7 +105,7 @@ You can also use Fluent HTML, which is a lot shorter and more readable. Don't wo
 
 ## View-On-Model
 
-You can create state-aware objects with ViewOn (and ViewOnBoth for two models). The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent only updates changed DOM-items, so just declaratively write down how you would like to see things.
+You can create state-aware visual objects with ViewOn (and ViewOnBoth for two models). The ViewOn<> constructor receives your model (or state) object and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent only updates DOM-items that were changed, so just declaratively write down how you would like to see things and don't worry about changing elements.
 
 		ViewOn<Model> spanWithLink = response.add(model, m -> {
 			return Span("myClass").a(null, m.name, "/details?name=" + m.name);
@@ -113,8 +113,8 @@ You can create state-aware objects with ViewOn (and ViewOnBoth for two models). 
 		});
 
 		someInput.keyup((fluent,event) -> {
-			 model.name = fluent.domValue();
-			 view.sync(); // re-renders
+			 model.name = fluent.domValue(); // change the model
+			 spanWithLink.sync(); // re-render the view
 		});
 
 The ViewOn object has a reference to your model, so you don't have to keep a reference to it in your view class. You can abuse this to set the state when your Model is just a primitive like a string. The method state() also calls sync():
@@ -142,13 +142,13 @@ Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit fron
 		assertTrue(a.tag().equals("H1"));
 	}
 
-If you really need the DOM (I can't think of any reason, but you might), that's possible too (but absolutely not advisable because it's slower). Vertxui then first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. Thanks to a register-and-run procedure, you decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in jUnit and in the browser ;) . Use runJS and registerJS as follows:
+If you really need the DOM (I can't think of a good case that easily, but you might), that's possible too (but it's absolutely not advised because it's slower). Vertxui then first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. Thanks to a register-and-run procedure, you decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in jUnit and in the browser ;) . Use runJS and registerJS as follows:
 
 	public class WithDom extends TestDOM {
 	
 		@GwtIncompatible
 		@Test
-		public void yourJUnitTest() throws Exception {
+		public void yourJUnitTestStartpoint() throws Exception {
 			...
 			System.out.println("This is java");
 			runJS(3); // run '3'
