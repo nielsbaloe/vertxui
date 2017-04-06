@@ -46,15 +46,16 @@ Serverside [Vert.X](http://vertx.io/) adds:
 
 Pure-Java clientside means:
 * use Java 8's lambda's and streams and packages/classes for web view and behavior (instead of TypeScript and ES6)
-* Javascript checked by a grown-up Java compiler in a grown-up IDE (instead of using and learning Lint Gulp and similar)
+* indirectly writing Javascript with a grown-up Java compiler in a grown-up IDE (instead of using and learning Lint Gulp and similar)
 * use the same strong-typed entity classes and constants server-side and client-side (instead of typeless)
 * access to both the Java (threads etc) and the Javascript ecosystems
 * extremely easy junit testing of client-side GUI (even without a DOM, but also with a DOM)
+* zero browser-specific hacks, only ES5 Javascript which runs in [any browser that is used today](http://caniuse.com/#feat=es5).
 
 VertxUI is
-* _not_ a new GUI toolkit: it doesn't introduce or have any GUI elements, but uses external HTML + CSS libraries such as bootstrap.
-* _not_ a new HTML template engine: no HTML is generated, cached, parsed or saved.
-* _not_ a new Javascript framework: it leans on plain HTML + CSS + standarised javascript, instead adding a new set of javascript tooling. There is zero browser specific code.
+* _not_ a new GUI toolkit: there are no vertxui GUI elements, only external HTML/CSS libraries like bootstrap are used.
+* _not_ a new HTML template engine: no HTML is parsed or generated (except one one-liner index.html for booting).
+* _not_ a new Javascript toolkit: just use java, no need for external libraries like jquery.
 * _not_ a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat (or any other framework which serves plain files) instead of Verx. Down the drain, even the internal java to javascript bridge is easily swappable.
 
 Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, a Bootstrap application, and more. Vertxui mixes well with pure html+css frameworks like bootstrap, purecss, jquery mobile and similar.
