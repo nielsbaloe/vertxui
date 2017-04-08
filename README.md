@@ -85,7 +85,7 @@ The clientside with pure DOM looks like plain javascript but then with Java (8's
 		body.appendChild(button);
 		...
 		
-	private void clicked() {
+	private void click() {
 		button.setAttribute("disabled", "");
 		thinking.getStyle().setProperty("display", "");
 		...
@@ -106,7 +106,7 @@ You can also use Fluent HTML, which is a lot shorter and more readable. Don't wo
 
 ## View-On-Model
 
-You can create state-aware visual objects with ViewOn (and ViewOnBoth for two models). The ViewOn<> constructor receives your model (or state) object and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent only updates DOM-items that were changed, so just declaratively write down how you would like to see things and don't worry about changing elements.
+You can create state-aware visual objects with ViewOn (and ViewOnBoth for two models). The ViewOn<> constructor receives your model (or state) and a function how to translate this to a (Fluent HTML) view. On a sync() call, Fluent only updates DOM-items that were changed, so just declaratively write down how you would like to see things and don't worry about changing elements.
 
 		ViewOn<Model> spanWithLink = response.add(model, m -> {
 			return Span("myClass").a(null, m.name, "/details?name=" + m.name);
@@ -143,7 +143,7 @@ Because Fluent HTML has a Virtual DOM, you can also 'abuse' it to run jUnit fron
 		assertTrue(a.tag().equals("H1"));
 	}
 
-If you really need the DOM (I can't think of a good case that easily, but you might), that's possible too (but it's absolutely not advised because it's slower). Vertxui then first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. Thanks to a register-and-run procedure, you decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in jUnit and in the browser ;) . Use runJS and registerJS as follows:
+If you really need the DOM (I can't think of a good case that easily, but you might), that's possible too (but it's absolutely not advised because it's slower). Vertxui first compiles to javascript and then runs your java test inside a real representative headless 100%-java browser. Thanks to a register-and-run procedure, you decide when and which javascript tests are run, so you are absolutely free to mix java and javascript execution in your test. Do not add a constructor, because that will be run in jUnit and in the browser ;) . Use runJS and registerJS as follows:
 
 	public class WithDom extends TestDOM {
 	
