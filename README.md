@@ -29,24 +29,23 @@ For a laid back demo how to get it up and working from scratch and to see some r
 VertxUI is ideal for writing single-paged-apps or microservices that serve a part of a page.
 
 VertxUI offers:
-* 100% java, 100% asynchronous
-* communicate in 100% the same POJO's at client- and serverside through ajax/websockets/sockjs/eventbus.
-* forget about JavaScript/TypeScript or a tool like ReactJS, but declarate view-on-models by using Java lambdas and streams.
-* no IDE tooling required, the java to javascript translation happens run-time.
-* during development: automatic runtime browser reloading of generated javascript, resources (.css/.jpg/etc) and state
-* Fluent HTML has a sophisticated virtual DOM behind the scenes (a la ReactJS), only visually updating what has changed.
-* painless nodejs-less websockets/sockjs/eventbus at server and browsers in the same language.
+* 100% java, 100% asynchronous.
+* communication in 100% the same POJO's at client- and serverside through ajax/websockets/sockjs/eventbus.
+* no JavaScript/TypeScript or tools like ReactJS, but declarate view-on-models by using Java lambdas.
+* automatic runtime browser reloading of generated javascript, resources (.css/.jpg/etc) and state.
+* a sophisticated virtual DOM behind the scenes (a la ReactJS), only updating visual changes.
+* painless nodejs-less websockets/sockjs/eventbus at server and browsers in the one language.
 * fast junit testing of Fluent views against virtual DOM, and mixed-languages headless browser tests with full stacktraces.
 
 Serverside [Vert.X](http://vertx.io/) adds:
-* probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver
+* probably the easiest and [fastest](https://dzone.com/articles/inside-vertx-comparison-nodejs) node.js-alike webserver.
 * no need for anything else: no Apache and Tomcat.
 * a clientside and eventside EventBus.
-* in general and a wonderful professional speedy async ecosystem.
+* in general a wonderful professional speedy async ecosystem.
 
 Pure-Java clientside means:
-* use Java 8's lambda's and streams and packages/classes for web view and behavior (instead of TypeScript and ES6)
-* indirectly writing Javascript with a grown-up Java compiler in a grown-up IDE (instead of using and learning Lint Gulp and similar)
+* use Java 8's lambda's and streams and packages/classes for web view and behavior (instead of TypeScript and ES6).
+* working a grown-up Java compiler and grown-up IDE (instead of Lint and Gulp and thousands others to choose from).
 * use the same strong-typed entity classes and constants server-side and client-side (instead of typeless)
 * access to both the Java (threads etc) and the Javascript ecosystems
 * extremely easy junit testing of client-side GUI (even without a DOM, but also with a DOM)
@@ -56,6 +55,7 @@ VertxUI is
 * _not_ a new GUI toolkit: there are no vertxui GUI elements, only external HTML/CSS libraries like bootstrap are used.
 * _not_ a new HTML template engine: no HTML is parsed or generated (except one one-liner index.html for booting).
 * _not_ a new Javascript toolkit: just use java, no need for external libraries like jquery.
+* _not_ an IDE plugin, the java to javascript translation happens run-time in all IDE's.
 * _not_ a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat (or any other framework which serves plain files) instead of Verx. Down the drain, even the internal java to javascript bridge is easily swappable.
 
 Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, a Bootstrap application, and more. Vertxui mixes well with pure html+css frameworks like bootstrap, purecss, jquery mobile and similar.
