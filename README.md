@@ -45,9 +45,9 @@ Serverside [Vert.X](http://vertx.io/) adds:
 
 Pure-Java clientside means:
 * use Java 8's lambda's and streams and packages/classes for web view and behavior (instead of TypeScript and ES6).
-* working a grown-up Java compiler and grown-up IDE (instead of Lint and Gulp and thousands others to choose from).
+* use a grown-up Java compiler and a grown-up IDE (instead of Lint and Gulp and thousands others to choose from).
 * use the same strong-typed entity classes and constants server-side and client-side (instead of typeless)
-* access to both the Java (threads etc) and the Javascript ecosystems
+* access to both the Java and the Javascript ecosystems
 * extremely easy junit testing of client-side GUI (even without a DOM, but also with a DOM)
 * zero browser-specific hacks, only ES5 Javascript which runs in [any browser that is used today](http://caniuse.com/#feat=es5).
 
