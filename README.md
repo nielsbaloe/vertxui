@@ -56,7 +56,7 @@ VertxUI is
 * _not_ a new HTML template engine: no HTML is parsed or generated (except one one-liner index.html for booting).
 * _not_ a new Javascript toolkit: just use java, no need for external libraries like jquery.
 * _not_ an IDE plugin, the java to javascript translation happens run-time in all IDE's.
-* _not_ a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat (or any other framework which serves plain files) instead of Verx. Down the drain, even the internal java to javascript bridge is easily swappable.
+* _not_ a locked-in solution: you can also use VertxUI to extend an existing page, or use Tomcat (or any other framework which serves plain files) instead of VertX. Down the drain, even the internal java to javascript bridge is easily swappable.
 
 Examples are included for: hello world (vanilla js and Fluent HTML), automatic browser reloading (Figwheely), 3 webchats with: websockets SockJS and EventBus, POJO (de)serialization for ajax websockets sockJS and eventbus, TodoMVC, a Bootstrap application, and more. Vertxui mixes well with pure html+css frameworks like bootstrap, purecss, jquery mobile and similar.
 
