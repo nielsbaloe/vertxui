@@ -1,4 +1,4 @@
 ADD AFTER 1.0: 
 - optimalisation: middle-child-removal
 - paginated mvcBoostrap-bills
-- more examples: webrtc as app, jquery mobile, purecss.io, github.com/Dogfalo/materialize
+- more examples: webrtc as app, jquery mobile, purecss.io, github.com/Dogfalo/materialize , vaadin-grid
