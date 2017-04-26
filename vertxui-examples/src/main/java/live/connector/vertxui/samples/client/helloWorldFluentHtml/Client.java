@@ -7,6 +7,7 @@ import static live.connector.vertxui.client.fluent.FluentBase.head;
 import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.MouseEvent;
+import live.connector.vertxui.client.FigWheelyClient;
 import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.Pojofy;
@@ -22,7 +23,7 @@ public class Client implements EntryPoint {
 	private Fluent thinking;
 
 	public Client() {
-		head.script(AllExamplesClient.figwheelyLocation);
+		head.script(FigWheelyClient.urlJavascript);
 
 		button = body.div().button(null, "button", "Click me!").id("hello-button").click(this::clicked);
 		response = body.div();

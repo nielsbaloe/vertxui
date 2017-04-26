@@ -31,7 +31,7 @@ public class ComponentDatePicker extends Fluent {
 		super("INPUT", null);
 		classs("form-control").att(Att.type, "text").id(id);
 
-		// The non-component version was:
+		// The non-component version was only:
 		// Input("form-control", "text").id("datepicker");
 	}
 

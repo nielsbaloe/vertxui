@@ -130,9 +130,9 @@ public class Renderer {
 			if (!equalsString(newView.text, oldView.text)) {
 				newView.element.setTextContent(newView.text);
 			}
-			compareApply(newView.element, newView.attrs, oldView.attrs, emptyAttributes);
-			compareApply(newView.element, newView.styles, oldView.styles, emptyStyles);
-			compareApply(newView.element, newView.listeners, oldView.listeners, emptyListeners);
+			compareApply(newView.element, newView.attrs, oldView.attrs, emptyAttributes, What.Attributes);
+			compareApply(newView.element, newView.styles, oldView.styles, emptyStyles, What.Styles);
+			compareApply(newView.element, newView.listeners, oldView.listeners, emptyListeners, What.Listeners);
 		}
 
 		// Children
@@ -229,8 +229,12 @@ public class Renderer {
 	private final static String[] emptyListeners = new String[0];
 	private final static Att[] emptyAttributes = new Att[0];
 
+	private enum What {
+		Attributes, Styles, Listeners
+	}
+
 	private static <K extends Comparable<K>, V> void compareApply(Node element, TreeMap<K, V> treeNew,
-			TreeMap<K, V> treeOld, K[] empty) {
+			TreeMap<K, V> treeOld, K[] empty, What what) {
 
 		K[] keysNew = (treeNew == null) ? empty : treeNew.keySet().toArray(empty);
 		K[] keysOld = (treeOld == null) ? empty : treeOld.keySet().toArray(empty);
@@ -255,12 +259,12 @@ public class Renderer {
 				// console.log("setting attribute: " + attNew.nameValid() + ","
 				// + treeNew.get(attNew));
 				if (element != null) {
-					compareApplySet(element, keyNew, treeNew.get(keyNew));
+					compareApplySet(element, keyNew, treeNew.get(keyNew), what);
 				}
 			} else if (keyNew == null && keyOld != null) {
 				// console.log("removing attribute: " + attOld.nameValid());
 				if (element != null) {
-					compareApplyRemove(element, keyOld, treeOld.get(keyOld));
+					compareApplyRemove(element, keyOld, treeOld.get(keyOld), what);
 				}
 				// } else if (nAtt == null && oAtt == null) {
 				// throw new IllegalArgumentException("both can not be null n="
@@ -279,8 +283,8 @@ public class Renderer {
 						// "changing value for " + attNew.nameValid() + " old="
 						// + oldValue + " new=" + newValue);
 						if (element != null) {
-							compareApplyRemove(element, keyNew, oldValue);
-							compareApplySet(element, keyNew, newValue);
+							compareApplyRemove(element, keyNew, oldValue, what);
+							compareApplySet(element, keyNew, newValue, what);
 						}
 						// } else {
 						// console.log("no change " + attNew.nameValid() + "
@@ -288,14 +292,14 @@ public class Renderer {
 					}
 				} else if (compare < 0) {
 					if (element != null) {
-						compareApplySet(element, keyNew, treeNew.get(keyNew));
+						compareApplySet(element, keyNew, treeNew.get(keyNew), what);
 					}
 					// console.log(" setting " + attNew.nameValid());
 					countOld--;
 				} else { // compare>0
 					// console.log(" removing " + attOld.nameValid());
 					if (element != null) {
-						compareApplyRemove(element, keyOld, treeOld.get(keyOld));
+						compareApplyRemove(element, keyOld, treeOld.get(keyOld), what);
 					}
 					countNew--;
 				}
@@ -339,10 +343,10 @@ public class Renderer {
 		// }
 	}
 
-	private static <T, V> void compareApplyRemove(Node element, T name, V value) {
+	private static <T, V> void compareApplyRemove(Node element, T name, V value, What what) {
 		// Fluent.console.log("removing " + name + " with " + value);
-		if (name instanceof Att) {
-
+		switch (what) {
+		case Attributes:
 			switch ((Att) name) {
 			case checked:
 				((InputElement) element).setChecked(false);
@@ -358,18 +362,22 @@ public class Renderer {
 				((Element) element).removeAttribute(((Att) name).nameValid());
 				break;
 			}
-
-		} else if (name instanceof Css) {
+			break;
+		case Styles:
 			((Element) element).getStyle().removeProperty(((Css) name).nameValid());
-		} else {
+			break;
+		case Listeners:
 			element.removeEventListener((String) name, (EventListener) value);
+			break;
+		default:
+			throw new IllegalArgumentException("Not possible");
 		}
 	}
 
-	private static <T, V> void compareApplySet(Node element, T name, V value) {
+	private static <T, V> void compareApplySet(Node element, T name, V value, What what) {
 		// Fluent.console.log("setting " + name + " with " + value);
-		if (name instanceof Att) {
-
+		switch (what) {
+		case Attributes:
 			switch ((Att) name) {
 			case checked:
 				((InputElement) element).setChecked(true);
@@ -383,11 +391,15 @@ public class Renderer {
 				((Element) element).setAttribute(((Att) name).nameValid(), (String) value);
 				break;
 			}
-
-		} else if (name instanceof Css) {
+			break;
+		case Styles:
 			((Element) element).getStyle().setProperty(((Css) name).nameValid(), (String) value);
-		} else {
+			break;
+		case Listeners:
 			element.addEventListener((String) name, (EventListener) value);
+			break;
+		default:
+			throw new IllegalArgumentException("Not possible");
 		}
 	}
 

@@ -1,27 +1,44 @@
-package live.connector.vertxui.samples.server;
+package live.connector.vertxui.components.server;
 
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
+import live.connector.vertx.components.bootstrap.client.example.ExampleClient;
 import live.connector.vertxui.client.FigWheelyClient;
 import live.connector.vertxui.server.FigWheelyServer;
 import live.connector.vertxui.server.VertxUI;
 
-/**
- * @author Niels Gorisse
- *
- */
-public class AllExamplesServer {
+public class ExampleServer extends AbstractVerticle {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	public static void startWarAndServer(Class<?> classs, Router router, HttpServer server) {
+	public static void main(String[] args) {
+		Vertx.vertx().deployVerticle(MethodHandles.lookup().lookupClass().getName());
+	}
+
+	@Override
+	public void start() {
+		// Initialize the router and a webserver with HTTP-compression
+		Router router = Router.router(vertx);
+		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
+
+		boolean debug = true;
+
+		// Serve the javascript for figwheely (and turn it on too)
+		if (debug) {
+			router.get(FigWheelyClient.urlJavascript).handler(FigWheelyServer.create());
+		}
+
+		// The main compiled js
+		router.get("/*").handler(VertxUI.with(ExampleClient.class, "/", debug, true));
 
 		// Make sure that when we exit, we do it properly.
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -35,16 +52,6 @@ public class AllExamplesServer {
 				vertx.close();
 			}
 		});
-
-		boolean debug = true;
-
-		// Serve the javascript for figwheely (and turn it on too)
-		if (debug) {
-			router.get(FigWheelyClient.urlJavascript).handler(FigWheelyServer.create());
-		}
-
-		// The main compiled js
-		router.get("/*").handler(VertxUI.with(classs, "/", debug, true));
 
 		// Start the server
 		server.requestHandler(router::accept).listen(80, listenHandler -> {

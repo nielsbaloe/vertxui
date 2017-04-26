@@ -5,8 +5,6 @@ import com.google.gwt.core.client.GWT;
 
 public class AllExamplesClient {
 
-	public final static String figwheelyLocation = "/figwheely.js";
-
 	// Mapper for json-object
 	public interface DtoMap extends ObjectMapper<Dto> {
 	}

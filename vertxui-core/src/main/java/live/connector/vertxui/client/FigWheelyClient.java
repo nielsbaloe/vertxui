@@ -1,6 +1,12 @@
 package live.connector.vertxui.client;
 
-public class FigWheely {
+public class FigWheelyClient {
+
+	/**
+	 * Convenient url for figwheely, change before using if you want to change
+	 * it.
+	 */
+	public static String urlJavascript = "/figwheely.js";
 
 	/**
 	 * Send a string to the logging of the server. Note that you need to loead

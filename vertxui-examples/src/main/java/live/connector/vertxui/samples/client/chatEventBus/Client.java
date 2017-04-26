@@ -9,6 +9,7 @@ import com.google.gwt.core.client.EntryPoint;
 
 import elemental.events.KeyboardEvent;
 import elemental.json.Json;
+import live.connector.vertxui.client.FigWheelyClient;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.EventBus;
@@ -30,7 +31,7 @@ public class Client implements EntryPoint {
 	public static final String addressPojo = "serviceForDto";
 
 	public Client() {
-		head.script(AllExamplesClient.figwheelyLocation);
+		head.script(FigWheelyClient.urlJavascript);
 
 		String name = window.prompt("What is your name?", "");
 

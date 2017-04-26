@@ -27,12 +27,12 @@ import io.vertx.ext.web.handler.StaticHandler;
  * @author ng
  *
  */
-public class FigWheely extends AbstractVerticle {
+public class FigWheelyServer extends AbstractVerticle {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	public static String url = "figwheelySocket";
-	public static int port = 8090;
+	public static String urlSocket = "figwheelySocket";
+	public static int portSocket = 8090;
 
 	protected static boolean started = false;
 
@@ -109,8 +109,8 @@ public class FigWheely extends AbstractVerticle {
 	public static Handler<RoutingContext> staticHandler(String root, String urlWithoutAsterix) {
 		// log.info("creating figwheely static handler, started=" +
 		// FigWheely.started);
-		if (FigWheely.started) {
-			FigWheely.addFromStaticHandler(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix, root);
+		if (FigWheelyServer.started) {
+			FigWheelyServer.addFromStaticHandler(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix, root);
 		}
 		return StaticHandler.create(root);
 	}
@@ -119,7 +119,7 @@ public class FigWheely extends AbstractVerticle {
 	public void start() {
 		HttpServer server = vertx.createHttpServer();
 		server.websocketHandler(webSocket -> {
-			if (!webSocket.path().equals("/" + url)) {
+			if (!webSocket.path().equals("/" + urlSocket)) {
 				webSocket.reject();
 				return;
 			}
@@ -133,7 +133,7 @@ public class FigWheely extends AbstractVerticle {
 				log.info(buffer.toString());
 			});
 		});
-		server.listen(port, listenHandler -> {
+		server.listen(portSocket, listenHandler -> {
 			if (listenHandler.failed()) {
 				log.log(Level.SEVERE, "Startup error", listenHandler.cause());
 				System.exit(0); // stop on startup error
@@ -176,7 +176,7 @@ public class FigWheely extends AbstractVerticle {
 
 	// Internet Explorer 11 does not have .endsWith()
 	private static final String script = "function endsWith(str, suffix) {return str.indexOf(suffix, str.length - suffix.length) !== -1;}"
-			+ "var _fig = new WebSocket('ws://localhost:" + port + "/" + url + "'); "
+			+ "var _fig = new WebSocket('ws://localhost:" + portSocket + "/" + urlSocket + "'); "
 			+ "_fig.onmessage = function(m) {console.log(m.data);removejscssfile(m.data.substr(8));};                                         \n "
 			+ "console.log('FigWheely loaded');                                                                                \n "
 			+ "function removejscssfile(filename){                 \n"
@@ -205,10 +205,10 @@ public class FigWheely extends AbstractVerticle {
 	public static Handler<RoutingContext> create() {
 		if (!started) {
 			started = true;
-			Vertx.currentContext().owner().deployVerticle(FigWheely.class.getName());
+			Vertx.currentContext().owner().deployVerticle(FigWheelyServer.class.getName());
 		}
 		return context -> {
-			context.response().end(FigWheely.script);
+			context.response().end(FigWheelyServer.script);
 		};
 	}
 

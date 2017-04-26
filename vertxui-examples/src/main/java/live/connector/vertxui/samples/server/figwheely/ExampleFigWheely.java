@@ -7,10 +7,10 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
-import live.connector.vertxui.samples.client.AllExamplesClient;
+import live.connector.vertxui.client.FigWheelyClient;
 import live.connector.vertxui.samples.client.figwheely.Client;
 import live.connector.vertxui.samples.server.AllExamplesServer;
-import live.connector.vertxui.server.FigWheely;
+import live.connector.vertxui.server.FigWheelyServer;
 
 public class ExampleFigWheely extends AbstractVerticle {
 
@@ -25,13 +25,14 @@ public class ExampleFigWheely extends AbstractVerticle {
 		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
 		// Start figwheely
-		router.get(AllExamplesClient.figwheelyLocation).handler(FigWheely.create());
+		// Serve the javascript for figwheely (and turn it on too)
+		router.get(FigWheelyClient.urlJavascript).handler(FigWheelyServer.create());
 
 		// Serve folder assets-figwheely, and notify
 		// clients of changes if figwheely is started (otherwise it is just a
 		// normal StaticHandler).
 		String url = "/sourcez/";
-		router.get(url + "*").handler(FigWheely.staticHandler("assets/figwheely", url));
+		router.get(url + "*").handler(FigWheelyServer.staticHandler("assets/figwheely", url));
 
 		AllExamplesServer.startWarAndServer(Client.class, router, server);
 	}
