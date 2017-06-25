@@ -5,9 +5,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import live.connector.vertxui.client.FigWheelyClient;
 import live.connector.vertxui.server.FigWheelyServer;
@@ -21,20 +21,13 @@ public class AllExamplesServer {
 
 	private final static Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-	public static void startWarAndServer(Class<?> classs, Router router, HttpServer server) {
+	public static void start(Class<?> classs, Router router) {
+		Vertx vertx = Vertx.currentContext().owner();
+		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
+		start(classs, router, httpServer);
+	}
 
-		// Make sure that when we exit, we do it properly.
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				Context context = Vertx.currentContext();
-				if (context == null) {
-					return;
-				}
-				Vertx vertx = context.owner();
-				vertx.deploymentIDs().forEach(vertx::undeploy);
-				vertx.close();
-			}
-		});
+	public static void start(Class<?> classs, Router router, HttpServer httpServer) {
 
 		boolean debug = true;
 
@@ -47,17 +40,15 @@ public class AllExamplesServer {
 		router.get("/*").handler(VertxUI.with(classs, "/", debug, true));
 
 		// Start the server
-		server.requestHandler(router::accept).listen(80, listenHandler -> {
+		httpServer.requestHandler(router::accept).listen(80, listenHandler -> {
 			if (listenHandler.failed()) {
 				log.log(Level.SEVERE, "Startup error", listenHandler.cause());
 				System.exit(0);// stop on startup error
 			}
+			log.info("Initialised:" + router.getRoutes().stream().map(a -> {
+				return "\n\thttp://localhost:" + httpServer.actualPort() + a.getPath();
+			}).distinct().collect(Collectors.joining()));
 		});
-
-		// Show info
-		log.info("Initialised:" + router.getRoutes().stream().map(a -> {
-			return "\n\thttp://localhost:" + server.actualPort() + a.getPath();
-		}).distinct().collect(Collectors.joining()));
 	}
 
 }

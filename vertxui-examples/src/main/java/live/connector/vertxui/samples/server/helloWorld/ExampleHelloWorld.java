@@ -4,8 +4,6 @@ import java.lang.invoke.MethodHandles;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import live.connector.vertxui.samples.client.helloWorld.Client;
 import live.connector.vertxui.samples.server.AllExamplesServer;
@@ -18,18 +16,15 @@ public class ExampleHelloWorld extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		// Initialize the router and a webserver with HTTP-compression
-		Router router = Router.router(vertx);
-		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
-
 		// Wait and do some server stuff for AJAX
+		Router router = Router.router(vertx);
 		router.post(Client.url).handler(handle -> {
 			vertx.setTimer(1000, l -> {
 				handle.response().end("Hello, " + handle.request().getHeader("User-Agent"));
 			});
 		});
 
-		AllExamplesServer.startWarAndServer(Client.class, router, server);
+		AllExamplesServer.start(Client.class, router);
 	}
 
 }

@@ -8,8 +8,6 @@ import java.util.HashMap;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import live.connector.vertxui.samples.client.mvcBootstrap.Store;
@@ -37,12 +35,16 @@ public class ServerBootstrap extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		// Initialize the router and a webserver with HTTP-compression
+		// Fake initial data
+		bills.all = new ArrayList<>();
+		Bill bill = new Bill(Name.Niels, 55, "Weekend shopping", new Date());
+		bills.all.add(bill);
+		grocery.all = new ArrayList<>();
+		grocery.all.add("Chocolate milk");
+
+		// Route all URLs
 		Router router = Router.router(vertx);
-		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
-
 		router.get(Store.totalsUrl).handler(Pojofy.ajax(null, this::getTotals));
-
 		router.get(Store.billsUrl).handler(Pojofy.ajax(null, this::getBills));
 		router.post(Store.billsUrl).handler(Pojofy.ajax(Bill.class, this::addBill));
 
@@ -50,14 +52,7 @@ public class ServerBootstrap extends AbstractVerticle {
 		router.post(Store.groceryUrl).handler(Pojofy.ajax(null, this::addGrocery));
 		router.delete(Store.groceryUrl).handler(Pojofy.ajax(null, this::delGrocery));
 
-		AllExamplesServer.startWarAndServer(View.class, router, server);
-
-		// Fake initial data
-		bills.all = new ArrayList<>();
-		Bill bill = new Bill(Name.Niels, 55, "Weekend shopping", new Date());
-		bills.all.add(bill);
-		grocery.all = new ArrayList<>();
-		grocery.all.add("Chocolate milk");
+		AllExamplesServer.start(View.class, router);
 	}
 
 	public Totals getTotals(String __, RoutingContext context) {

@@ -7,8 +7,6 @@ import java.util.logging.Logger;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
@@ -27,11 +25,8 @@ public class ExampleChatSockjs extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		// Initialize the router and a webserver with HTTP-compression
-		Router router = Router.router(vertx);
-		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
-
 		// Chat with SockJS
+		Router router = Router.router(vertx);
 		List<String> ids = new ArrayList<>();
 		router.route("/chatSockjs/*").handler(SockJSHandler.create(vertx).socketHandler(socket -> {
 			final String id = socket.writeHandlerID();
@@ -52,7 +47,7 @@ public class ExampleChatSockjs extends AbstractVerticle {
 			});
 		}));
 
-		AllExamplesServer.startWarAndServer(Client.class, router, server);
+		AllExamplesServer.start(Client.class, router);
 	}
 
 	public Dto serviceDoSomething(Dto received, JsonObject headers) {
