@@ -5,8 +5,6 @@ import java.util.logging.Logger;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import live.connector.vertxui.samples.client.Dto;
 import live.connector.vertxui.samples.client.helloWorldFluentHtml.Client;
@@ -23,11 +21,9 @@ public class ExampleHelloWorldFluent extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		// Initialize the router and a webserver with HTTP-compression
-		Router router = Router.router(vertx);
-		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
 		// Wait and do some server stuff for AJAX
+		Router router = Router.router(vertx);
 		router.post(Client.url).handler(Pojofy.ajax(String.class, (dto, context) -> {
 			// Without timer, write 'return "Hello,".....' because strings are
 			// returned as is.
@@ -43,7 +39,7 @@ public class ExampleHelloWorldFluent extends AbstractVerticle {
 			return new Dto("purple");
 		}));
 
-		AllExamplesServer.startWarAndServer(Client.class, router, server);
+		AllExamplesServer.start(Client.class, router);
 	}
 
 }

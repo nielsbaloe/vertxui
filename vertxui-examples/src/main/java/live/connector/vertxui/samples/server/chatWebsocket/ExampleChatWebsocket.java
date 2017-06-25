@@ -54,7 +54,7 @@ public class ExampleChatWebsocket extends AbstractVerticle {
 			});
 		});
 
-		AllExamplesServer.startWarAndServer(Client.class, router, server);
+		AllExamplesServer.start(Client.class, router, server);
 	}
 
 	public Dto serviceDoSomething(Dto received, JsonObject headers) {

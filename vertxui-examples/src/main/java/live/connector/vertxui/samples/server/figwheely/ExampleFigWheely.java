@@ -4,8 +4,6 @@ import java.lang.invoke.MethodHandles;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import live.connector.vertxui.client.FigWheelyClient;
 import live.connector.vertxui.samples.client.figwheely.Client;
@@ -20,12 +18,9 @@ public class ExampleFigWheely extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		// Initialize the router and a webserver with HTTP-compression
-		Router router = Router.router(vertx);
-		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
-
 		// Start figwheely
 		// Serve the javascript for figwheely (and turn it on too)
+		Router router = Router.router(vertx);
 		router.get(FigWheelyClient.urlJavascript).handler(FigWheelyServer.create());
 
 		// Serve folder assets-figwheely, and notify
@@ -34,7 +29,7 @@ public class ExampleFigWheely extends AbstractVerticle {
 		String url = "/sourcez/";
 		router.get(url + "*").handler(FigWheelyServer.staticHandler("assets/figwheely", url));
 
-		AllExamplesServer.startWarAndServer(Client.class, router, server);
+		AllExamplesServer.start(Client.class, router);
 	}
 
 }

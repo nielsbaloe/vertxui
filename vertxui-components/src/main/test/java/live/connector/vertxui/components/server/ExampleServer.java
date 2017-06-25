@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -26,13 +25,11 @@ public class ExampleServer extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		// Initialize the router and a webserver with HTTP-compression
-		Router router = Router.router(vertx);
-		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
 		boolean debug = true;
 
 		// Serve the javascript for figwheely (and turn it on too)
+		Router router = Router.router(vertx);
 		if (debug) {
 			router.get(FigWheelyClient.urlJavascript).handler(FigWheelyServer.create());
 		}
@@ -40,31 +37,17 @@ public class ExampleServer extends AbstractVerticle {
 		// The main compiled js
 		router.get("/*").handler(VertxUI.with(ExampleClient.class, "/", debug, true));
 
-		// Make sure that when we exit, we do it properly.
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				Context context = Vertx.currentContext();
-				if (context == null) {
-					return;
-				}
-				Vertx vertx = context.owner();
-				vertx.deploymentIDs().forEach(vertx::undeploy);
-				vertx.close();
-			}
-		});
-
 		// Start the server
+		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 		server.requestHandler(router::accept).listen(80, listenHandler -> {
 			if (listenHandler.failed()) {
 				log.log(Level.SEVERE, "Startup error", listenHandler.cause());
 				System.exit(0);// stop on startup error
 			}
+			log.info("Initialised:" + router.getRoutes().stream().map(a -> {
+				return "\n\thttp://localhost:" + server.actualPort() + a.getPath();
+			}).distinct().collect(Collectors.joining()));
 		});
-
-		// Show info
-		log.info("Initialised:" + router.getRoutes().stream().map(a -> {
-			return "\n\thttp://localhost:" + server.actualPort() + a.getPath();
-		}).distinct().collect(Collectors.joining()));
 	}
 
 }

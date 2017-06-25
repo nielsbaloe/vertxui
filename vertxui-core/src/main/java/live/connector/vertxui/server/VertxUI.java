@@ -340,7 +340,7 @@ public class VertxUI {
 			}
 		} catch (NoSuchFieldException e) {
 			// is OK, does not exist
-		} catch (Exception e) {
+		} catch (IllegalArgumentException | IllegalAccessException | SecurityException e) {
 			throw new IllegalArgumentException("Could not access public static String scripts[]", e);
 		}
 		try {
@@ -351,7 +351,7 @@ public class VertxUI {
 			}
 		} catch (NoSuchFieldException e) {
 			// is OK, does not exist
-		} catch (Exception e) {
+		} catch (IllegalArgumentException | IllegalAccessException | SecurityException e) {
 			throw new IllegalArgumentException("Could not access public static String css[]", e);
 		}
 		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");

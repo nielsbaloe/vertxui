@@ -6,8 +6,6 @@ import java.util.logging.Logger;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
@@ -38,7 +36,6 @@ public class ExampleChatEventbus extends AbstractVerticle {
 	public void start() {
 		// Initialize the router and a webserver with HTTP-compression
 		Router router = Router.router(vertx);
-		HttpServer server = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
 
 		PermittedOptions freewayOK = new PermittedOptions().setAddress(Client.freeway);
 		PermittedOptions myDtoOK = new PermittedOptions().setAddress(Client.addressPojo);
@@ -64,7 +61,7 @@ public class ExampleChatEventbus extends AbstractVerticle {
 		// extra: pojo example
 		Pojofy.eventbus(Client.addressPojo, Dto.class, this::serviceDoSomething);
 
-		AllExamplesServer.startWarAndServer(Client.class, router, server);
+		AllExamplesServer.start(Client.class, router);
 	}
 
 	public Dto serviceDoSomething(Dto received, MultiMap headers) {
