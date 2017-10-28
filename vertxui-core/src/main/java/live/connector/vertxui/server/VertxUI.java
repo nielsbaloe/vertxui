@@ -354,7 +354,12 @@ public class VertxUI {
 		} catch (IllegalArgumentException | IllegalAccessException | SecurityException e) {
 			throw new IllegalArgumentException("Could not access public static String css[]", e);
 		}
-		html.append("</head><body><script src='a/a.nocache.js?time=" + Math.random() + "'></script></body></html>");
+		html.append("</head><body><script>");
+		html.append("document.addEventListener('DOMContentLoaded', function(event) { ");
+		html.append("var x = document.createElement('script'); ");
+		html.append("x.setAttribute('src','a/a.nocache.js?time=' + Math.random() ); ");
+		html.append("document.body.appendChild(x); ");
+		html.append("}); </script></body></html>");
 
 		// Write to file (not using vertx because this is also done with
 		// non-vertx inside TestDOM)
