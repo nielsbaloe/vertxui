@@ -23,6 +23,8 @@ Use it in your project by using one of these
 
 or another source from  the [MVN Repository](https://mvnrepository.com/artifact/live.connector/vertxui-core/1.0) .
 For a laid back demo how to get it up and working from scratch and to see some running examples, look at [this video](https://www.youtube.com/watch?v=ZusasYDjMKo).
+For an in-depth description about VertxUI, please visit [beyondjava.de](https://www.beyondjava.net/blog/vertxui-java-front-end-language/) .
+For a more detailed description about Fluent, please look at the [github wiki](https://github.com/nielsbaloe/vertxui/wiki).
 
 ## General
 
