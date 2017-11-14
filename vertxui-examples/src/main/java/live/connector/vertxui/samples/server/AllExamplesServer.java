@@ -23,7 +23,8 @@ public class AllExamplesServer {
 
 	public static void start(Class<?> classs, Router router) {
 		Vertx vertx = Vertx.currentContext().owner();
-		HttpServer httpServer = vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true));
+		HttpServer httpServer = vertx
+				.createHttpServer(new HttpServerOptions().setPort(8088).setCompressionSupported(true));
 		start(classs, router, httpServer);
 	}
 
@@ -40,7 +41,7 @@ public class AllExamplesServer {
 		router.get("/*").handler(VertxUI.with(classs, "/", debug, true));
 
 		// Start the server
-		httpServer.requestHandler(router::accept).listen(80, listenHandler -> {
+		httpServer.requestHandler(router::accept).listen(listenHandler -> {
 			if (listenHandler.failed()) {
 				log.log(Level.SEVERE, "Startup error", listenHandler.cause());
 				System.exit(0);// stop on startup error

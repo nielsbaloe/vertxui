@@ -22,7 +22,7 @@ import io.vertx.ext.web.handler.StaticHandler;
  * browser of these changes.
  * 
  * You can also send a message to the browser, for example:
- * <dd>vertx.eventBus().publish(FigWheely.figNotify, "bla die bla");
+ * vertx.eventBus().publish(FigWheely.figNotify, "bla die bla");
  * 
  * @author ng
  *

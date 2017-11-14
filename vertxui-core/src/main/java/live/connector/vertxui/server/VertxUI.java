@@ -219,6 +219,13 @@ public class VertxUI {
 				: System.getenv("path.separator");
 		classpath = "\"" + classpath + separator + folderSource + "\"";
 
+		// Check whether the classpath contains gwt
+		if (!classpath.contains("gwt-dev")) {
+			System.err.print("Classpath while running does not contain GWT for translating java to javascript.");
+			System.err.print("System property java.class.path is: " + classpath);
+			return;
+		}
+
 		// Run GWT
 		Process process = Runtime.getRuntime()
 				.exec("java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile);
