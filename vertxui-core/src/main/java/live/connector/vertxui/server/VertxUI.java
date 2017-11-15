@@ -6,10 +6,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -214,15 +217,16 @@ public class VertxUI {
 		}
 
 		// Extract and extend the classpath
-		String classpath = System.getProperty("java.class.path");
-		String separator = (System.getenv("path.separator") == null) ? (classpath.contains(";") ? ";" : ":")
-				: System.getenv("path.separator");
+		String separator = (System.getenv("path.separator") == null)
+				? (System.getProperty("java.class.path").contains(";") ? ";" : ":") : System.getenv("path.separator");
+		String classpath = Arrays.stream(((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs())
+				.map(i -> i.getFile()).collect(Collectors.joining(separator));
 		classpath = "\"" + classpath + separator + folderSource + "\"";
 
 		// Check whether the classpath contains gwt
 		if (!classpath.contains("gwt-dev")) {
-			System.err.print("Classpath while running does not contain GWT for translating java to javascript.");
-			System.err.print("System property java.class.path is: " + classpath);
+			System.err.println("Error: classpath does not contain GWT for translating java to javascript.");
+			System.err.println("System property java.class.path is: " + classpath);
 			return;
 		}
 
