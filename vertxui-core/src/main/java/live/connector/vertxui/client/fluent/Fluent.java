@@ -546,6 +546,10 @@ public class Fluent extends FluentBase {
 		return new Fluent("OUTPUT", this);
 	}
 
+	public static Fluent P() {
+		return new Fluent("P", null);
+	}
+
 	public Fluent p() {
 		return new Fluent("P", this);
 	}
