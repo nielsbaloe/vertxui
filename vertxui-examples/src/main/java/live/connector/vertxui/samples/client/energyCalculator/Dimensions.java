@@ -2,10 +2,10 @@ package live.connector.vertxui.samples.client.energyCalculator;
 
 public class Dimensions {
 
-	public float width;
+	public double width;
 
-	public float length;
+	public double length;
 
-	public float height;
+	public double height;
 
 }
