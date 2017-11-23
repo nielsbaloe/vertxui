@@ -10,7 +10,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,6 +61,12 @@ public class VertxUI {
 		librariesGwt.add("live.connector.vertxui.Vertxui");
 	}
 
+	private static boolean compiling = false;
+
+	public static boolean isCompiling() {
+		return compiling;
+	}
+
 	/**
 	 * Get the target folder of the build. If overwritten, you get that one,
 	 * otherwise you get one of the defaults: build/development or
@@ -100,22 +105,16 @@ public class VertxUI {
 		this.withHtml = withHtml;
 
 		// do a first translation
-		if (Vertx.currentContext() != null) {
+		if (Vertx.currentContext() != null) { // in a regular vertX run
 			Vertx.currentContext().executeBlocking(future -> {
-				try {
-					translate();
-					future.complete();
-				} catch (IOException | InterruptedException e) {
-					log.log(Level.SEVERE, e.getMessage(), e);
+				if (translate() == false) {
 					System.exit(0); // stop on startup errors
 				}
+				future.complete();
 			}, result -> {
 			});
-		} else { // only translating
-			try {
-				translate();
-			} catch (IOException | InterruptedException e) {
-				log.log(Level.SEVERE, e.getMessage(), e);
+		} else { // only translating in a test situation
+			if (translate() == false) {
 				System.exit(0); // stop on startup errors
 			}
 		}
@@ -174,18 +173,32 @@ public class VertxUI {
 		}
 	}
 
-	protected void translate() throws IOException, InterruptedException {
+	/**
+	 * Start the translate. Continues asynchronously.
+	 * 
+	 * @return
+	 */
+	protected boolean translate() {
+
+		compiling = true;
 
 		// Write index.html file which autoreloads
 		if (withHtml) {
-			FileUtils.writeStringToFile(new File(VertxUI.getTargetFolder(debug) + "/index.html"),
-					"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
-							+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
-							+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
-							+ "animation:spin 1.0s linear infinite; } "
-							+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
-							+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
-							+ "</style></head><body><div class=loader></div></body></html>");
+			try {
+				FileUtils.writeStringToFile(new File(VertxUI.getTargetFolder(debug) + "/index.html"),
+						"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
+								+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
+								+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
+								+ "animation:spin 1.0s linear infinite; } "
+								+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
+								+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
+								+ "</style></head><body><div class=loader></div></body></html>");
+			} catch (IOException ie) {
+				System.err.println("Could not write index.html.");
+				ie.printStackTrace();
+				compiling = false;
+				return false;
+			}
 		}
 
 		// Write the .gml.xml file
@@ -206,8 +219,14 @@ public class VertxUI {
 			content.append("<set-configuration-property name='compiler.emulatedStack.recordFileNames' value='true'/>");
 		}
 		content.append("</module>");
-		FileUtils.writeStringToFile(gwtXml, content.toString());
-
+		try {
+			FileUtils.writeStringToFile(gwtXml, content.toString());
+		} catch (IOException ie) {
+			System.err.println("Error: could not write gwt xml file.");
+			ie.printStackTrace();
+			compiling = false;
+			return false;
+		}
 		// Compile to javascript
 		String options = "-strict -XdisableUpdateCheck -war " + getTargetFolder(debug);
 		if (debug) {
@@ -227,22 +246,32 @@ public class VertxUI {
 		if (!classpath.contains("gwt-dev")) {
 			System.err.println("Error: classpath does not contain GWT for translating java to javascript.");
 			System.err.println("System property java.class.path is: " + classpath);
-			return;
+			compiling = false;
+			return false;
 		}
 
 		// Run GWT
-		Process process = Runtime.getRuntime()
-				.exec("java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile);
-		StringBuilder info = new StringBuilder();
-		BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
-		BufferedReader erput = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+		try {
+			Process process = Runtime.getRuntime()
+					.exec("java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile);
+			StringBuilder info = new StringBuilder();
+			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			BufferedReader erput = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
-		Context context = Vertx.currentContext();
-		if (context == null) { // for TestDOM
-			translateContinue(gwtXml, process, info, input, erput);
-		} else {
-			Vertx.currentContext().owner().setTimer(100, __ -> translateContinue(gwtXml, process, info, input, erput));
+			Context context = Vertx.currentContext();
+			if (context == null) { // for TestDOM
+				translateContinue(gwtXml, process, info, input, erput);
+			} else {
+				Vertx.currentContext().owner().setTimer(100,
+						__ -> translateContinue(gwtXml, process, info, input, erput));
+			}
+		} catch (IOException ie) {
+			System.err.println("Error: could not start GWT compiler.");
+			ie.printStackTrace();
+			compiling = false;
+			return false;
 		}
+		return true;
 
 		// OLD ATTEMPT TO RUN GWT EMBEDDED
 		// OLD ATTEMPT TO RUN GWT EMBEDDED
@@ -321,6 +350,7 @@ public class VertxUI {
 				erput.close();
 			} catch (IOException ___) {
 			}
+			compiling = false;
 		} else { // continue
 
 			Context context = Vertx.currentContext();

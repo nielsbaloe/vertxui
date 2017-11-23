@@ -1,7 +1,6 @@
 package live.connector.vertxui.server;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -110,7 +109,8 @@ public class FigWheelyServer extends AbstractVerticle {
 		// log.info("creating figwheely static handler, started=" +
 		// FigWheely.started);
 		if (FigWheelyServer.started) {
-			FigWheelyServer.addFromStaticHandler(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix, root);
+			FigWheelyServer.addFromStaticHandler(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix,
+					root);
 		}
 		return StaticHandler.create(root);
 	}
@@ -150,26 +150,32 @@ public class FigWheelyServer extends AbstractVerticle {
 
 		vertx.setPeriodic(250, id -> {
 			for (Watchable watchable : watchables) {
-				if (watchable.file.lastModified() != watchable.lastModified) {
-					log.info("Changed: target-url=" + watchable.url + "  file=" + watchable.file.getName());
-					watchable.lastModified = watchable.file.lastModified();
-					try {
-						if (watchable.handler != null) {
-							watchable.handler.translate();
-
-							// also update lastModified for same handler:
-							// when multiple .java sourcefiles were changed
-							// and saved at once.
-							watchables.stream().filter(w -> w.root.equals(watchable.root))
-									.forEach(w -> w.lastModified = w.file.lastModified());
-						}
-						// log.info("url=" + url);
-						vertx.eventBus().publish(figNotify, "reload: " + watchable.url);
-					} catch (IOException | InterruptedException e) {
-						e.printStackTrace();
-						vertx.eventBus().publish(figNotify, "error: " + e.getMessage());
-					}
+				if (VertxUI.isCompiling()) {
+					break;
 				}
+				if (watchable.file.lastModified() == watchable.lastModified) {
+					continue;
+				}
+				log.info("Changed: " + watchable.file.getName());
+				watchable.lastModified = watchable.file.lastModified();
+				if (watchable.handler == null) {
+					log.info("Skipping recompile, no handler found.");
+					continue;
+				}
+				// Recompile
+				boolean succeeded = watchable.handler.translate();
+				if (succeeded == false) {
+					vertx.eventBus().publish(figNotify,
+							"unsuccessfull rebuild for url=" + watchable.url + " file=" + watchable.file.getName());
+				}
+				// also update lastModified for same handler:
+				// when multiple .java sourcefiles were changed
+				// and saved at once.
+				watchables.stream().filter(w -> w.root.equals(watchable.root))
+						.forEach(w -> w.lastModified = w.file.lastModified());
+
+				// log.info("url=" + url);
+				vertx.eventBus().publish(figNotify, "reload: " + watchable.url);
 			}
 		});
 	}
