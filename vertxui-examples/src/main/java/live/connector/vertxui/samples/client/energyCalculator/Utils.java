@@ -43,8 +43,9 @@ public class Utils {
 	 * a piece of GUI that shows the R and U values.
 	 */
 
+	private static NumberFormat numberFormat = NumberFormat.getFormat("####.##");
+
 	public static String show(double value) {
-		NumberFormat numberFormat = NumberFormat.getFormat("#.##");
 		return numberFormat.format(value);
 	}
 

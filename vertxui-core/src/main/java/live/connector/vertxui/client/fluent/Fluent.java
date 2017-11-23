@@ -406,6 +406,10 @@ public class Fluent extends FluentBase {
 		return new Fluent("H2", this);
 	}
 
+	public Fluent h2(String classs, String text) {
+		return h2().classs(classs).txt(text);
+	}
+
 	public Fluent h3() {
 		return new Fluent("H3", this);
 	}

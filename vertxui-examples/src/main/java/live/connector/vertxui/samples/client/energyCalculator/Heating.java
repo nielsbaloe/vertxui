@@ -65,8 +65,8 @@ public class Heating {
 
 	// lambda: energie die door een 1m3 blok materiaal stroomt om 1 graden
 	// verschil voor elkaar te boxen.
-	// d dikte van isoleren
-	// R = d / lambda
+	// d dikte van isoleren in m
+	// warmteweerstand R = d / lambda  in m²K/W 
 	// U = k = 1 / R in W/m2K
 	// A oppervlakte in m2
 	// H warmteoverdracht-coefficient = U * A
@@ -77,7 +77,7 @@ public class Heating {
 
 	public Heating() {
 		Fluent heating = body.p();
-		heating.h1(null, "Heating");
+		heating.h2(null, "Heating");
 		heating.span().txt("The room I want to heat has a width of ");
 		heating.add(Utils.getNumberInput().keyup(this::onWidth));
 		heating.span().txt(" meter and a length of ");
