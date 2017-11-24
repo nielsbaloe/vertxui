@@ -14,7 +14,7 @@ public class Utils {
 	 * @return a input field which only allows numeric entry
 	 */
 	public static Fluent getNumberInput() {
-		return Fluent.Input(null, "text").css(Css.width, "33px").keypress((Fluent ___, KeyboardEvent event) -> {
+		return Fluent.Input(null, "text").css(Css.width, "39px").keypress((Fluent ___, KeyboardEvent event) -> {
 			int code = event.getCharCode();
 			if ((code >= 48 && code <= 57) || code == 0 || code == 46) {
 				return;

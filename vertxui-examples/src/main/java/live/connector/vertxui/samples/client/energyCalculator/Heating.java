@@ -1,7 +1,5 @@
 package live.connector.vertxui.samples.client.energyCalculator;
 
-import static live.connector.vertxui.client.fluent.FluentBase.body;
-
 import java.util.function.Function;
 
 import elemental.events.KeyboardEvent;
@@ -66,7 +64,7 @@ public class Heating {
 	// lambda: energie die door een 1m3 blok materiaal stroomt om 1 graden
 	// verschil voor elkaar te boxen.
 	// d dikte van isoleren in m
-	// warmteweerstand R = d / lambda  in m²K/W 
+	// warmteweerstand R = d / lambda in m²K/W
 	// U = k = 1 / R in W/m2K
 	// A oppervlakte in m2
 	// H warmteoverdracht-coefficient = U * A
@@ -75,7 +73,7 @@ public class Heating {
 	// https://huisje.knudde.be/transmissieverliezen
 	// https://huisje.knudde.be/warmteverliesberekening
 
-	public Heating() {
+	public Heating(Fluent body) {
 		Fluent heating = body.p();
 		heating.h2(null, "Heating");
 		heating.span().txt("The room I want to heat has a width of ");
@@ -96,25 +94,27 @@ public class Heating {
 				result.span(null, Utils.show(volume)).css(Css.fontStyle, "italic");
 			}
 			result.span().txt(
-					" m3. That is per default roughly 45 watt/m3 for an inside temperature of 20 degrees, so that is about ");
+					" m3. That is per default roughly 45 watt/m3 for an inside temperature of 20 degrees, so worst case you need ");
 			if (dimensions.height == 0.0 || dimensions.length == 0.0 || dimensions.width == 0.0) {
 				result.span(null, "..");
 			} else {
 				result.span(null, Utils.show(volume * 45.0));
 			}
-			result.span(null, " watt per hour maximum.").br();
+			result.span(null, " watt per hour to heat up the space.").br();
 			return result;
 		});
 
 		Fluent loss = body.p();
-		loss.span(null, "Een preciezere berekening is een warmteverlies- of transmissie berekening. "
-				+ "Dit begint met de U-bepaling voor ieder apart oppervlak (muren, deuren, ramen, enz). Op ");
+		loss.span(null,
+				"A more detailed calculation is called a heat loss calculation or "
+						+ "transmission calculation. This starts with defining the U value for every surface "
+						+ "(walls, floor, roof, windows, etc.). For a near perfect determiniation of each U value "
+						+ "take a look at ");
 		loss.a(null, "u-wert.net", "http://u-wert.net", null).att(Att.target, "_blank");
 		loss.span(null,
-				" kun je precies oppervlaktes bepalen. Versimpeld gezien: " + "stel je hebt 4 wanden, een vloer en een "
-						+ "plat dak, en stel dat alleen het isolatiemateriaal de totale isolatie bepaalt "
-						+ "(wat grofweg ook zo is, alleen ramen en deuren zijn zeer grote energievreters, en er is geen correctie uitgevoerd voor noord/oost/zuid/west orientatie). "
-						+ "Dan geldt:");
+				". Here is a simplified version. Suppose you have 4 walls, a flat roof and a floor, and the "
+						+ "insulation is only defined by the insulation material (this is often true). Suppose we leave "
+						+ "windows and doors (the biggest energy consumers). Then: ");
 
 		Fluent ul = loss.ul();
 
@@ -175,6 +175,7 @@ public class Heating {
 				result.append("..");
 			}
 			result.append(" watt per m2 on (preferably non-electric) floorheating.");
+			result.append(" The amount of energy that you aproximately need per month is not added yet.");
 			return Fluent.Span(null, result.toString());
 		});
 

@@ -1,7 +1,5 @@
 package live.connector.vertxui.samples.client.energyCalculator;
 
-import static live.connector.vertxui.client.fluent.FluentBase.body;
-
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
@@ -12,7 +10,7 @@ public class Cooking {
 
 	private ViewOn<?> conclusion;
 
-	public Cooking() {
+	public Cooking(Fluent body) {
 		body.h2(null, "Cooking");
 		body.span(null, "I am usually cooking about ");
 		body.add(Utils.getNumberInput().att(Att.value, minutes + "").keyup((fluent, ___) -> {

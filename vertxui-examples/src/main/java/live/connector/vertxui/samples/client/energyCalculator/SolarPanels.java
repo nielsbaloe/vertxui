@@ -1,7 +1,5 @@
 package live.connector.vertxui.samples.client.energyCalculator;
 
-import static live.connector.vertxui.client.fluent.FluentBase.body;
-
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
@@ -12,7 +10,7 @@ public class SolarPanels {
 
 	private ViewOn<?> conclusion;
 
-	public SolarPanels() {
+	public SolarPanels(Fluent body) {
 
 		body.h2(null, "Solar Panels");
 		body.span(null, "I have ");

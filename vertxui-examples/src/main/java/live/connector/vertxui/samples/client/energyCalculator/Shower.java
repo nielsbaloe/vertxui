@@ -1,7 +1,5 @@
 package live.connector.vertxui.samples.client.energyCalculator;
 
-import static live.connector.vertxui.client.fluent.FluentBase.body;
-
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
@@ -12,7 +10,7 @@ public class Shower {
 
 	private ViewOn<?> conclusion;
 
-	public Shower() {
+	public Shower(Fluent body) {
 
 		body.h2(null, "Shower");
 		body.span(null, "I usually shower about ");
@@ -52,7 +50,7 @@ public class Shower {
 			text1.append(Utils.show(totalLiters * delta * 1.16));
 			text1.append(" watt per showering.");
 
-			StringBuilder text2 = new StringBuilder("So this is more or less per month (30/7)*");
+			StringBuilder text2 = new StringBuilder("So this is more or less (30/7)*");
 			text2.append(Utils.show(timesPerWeek));
 			text2.append(")*");
 			text2.append(Utils.show(totalLiters * delta * 1.16));
