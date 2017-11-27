@@ -10,6 +10,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -183,9 +184,11 @@ public class VertxUI {
 		compiling = true;
 
 		// Write index.html file which autoreloads
+		File htmlFile = new File(VertxUI.getTargetFolder(debug) + "/index.html");
 		if (withHtml) {
 			try {
-				FileUtils.writeStringToFile(new File(VertxUI.getTargetFolder(debug) + "/index.html"),
+				log.fine("Writing temporary index.html to: " + htmlFile.getAbsolutePath());
+				FileUtils.writeStringToFile(htmlFile,
 						"<!DOCTYPE html><html><head><meta http-equiv='refresh' content='1'/><style>"
 								+ ".loader { border: 2px solid #f3f3f3; border-radius: 50%;"
 								+ "border-top: 2px solid #3498db; width:30px; height:30px; -webkit-animation: spin 1.0s linear infinite;"
@@ -193,9 +196,8 @@ public class VertxUI {
 								+ "@-webkit-keyframes spin { 0% { -webkit-transform: rotate(0deg);} 100% { -webkit-transform: rotate(360deg);}}"
 								+ "@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);}}"
 								+ "</style></head><body><div class=loader></div></body></html>");
-			} catch (IOException ie) {
-				System.err.println("Could not write index.html.");
-				ie.printStackTrace();
+			} catch (IOException e) {
+				log.log(Level.SEVERE, "Could not write index.html:" + e.getMessage(), e);
 				compiling = false;
 				return false;
 			}
@@ -220,10 +222,10 @@ public class VertxUI {
 		}
 		content.append("</module>");
 		try {
+			log.fine("Writing gwt.xml to: " + gwtXml.getAbsolutePath());
 			FileUtils.writeStringToFile(gwtXml, content.toString());
-		} catch (IOException ie) {
-			System.err.println("Error: could not write gwt xml file.");
-			ie.printStackTrace();
+		} catch (IOException e) {
+			log.log(Level.SEVERE, "Could not write gwt xml file:" + e.getMessage(), e);
 			compiling = false;
 			return false;
 		}
@@ -241,6 +243,7 @@ public class VertxUI {
 		String classpath = Arrays.stream(((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs())
 				.map(i -> i.getFile()).collect(Collectors.joining(separator));
 		classpath = "\"" + classpath + separator + folderSource + "\"";
+		log.fine("Classpath = " + classpath);
 
 		// Check whether the classpath contains gwt
 		if (!classpath.contains("gwt-dev")) {
@@ -252,8 +255,9 @@ public class VertxUI {
 
 		// Run GWT
 		try {
-			Process process = Runtime.getRuntime()
-					.exec("java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile);
+			String commandline = "java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile;
+			log.fine("Starting GWT with commandline: " + classpath);
+			Process process = Runtime.getRuntime().exec(commandline);
 			StringBuilder info = new StringBuilder();
 			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			BufferedReader erput = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -265,9 +269,8 @@ public class VertxUI {
 				Vertx.currentContext().owner().setTimer(100,
 						__ -> translateContinue(gwtXml, process, info, input, erput));
 			}
-		} catch (IOException ie) {
-			System.err.println("Error: could not start GWT compiler.");
-			ie.printStackTrace();
+		} catch (IOException e) {
+			log.log(Level.SEVERE, "Could not start GWT compiler:" + e.getMessage(), e);
 			compiling = false;
 			return false;
 		}
@@ -310,6 +313,7 @@ public class VertxUI {
 		try {
 			if (input.ready()) {
 				String line = input.readLine();
+				log.fine("Gwt says: " + line);
 				info.append(line + "\n");
 				if (line.contains("[ERROR]")) {
 					System.err.print(".");
@@ -318,7 +322,7 @@ public class VertxUI {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.log(Level.SEVERE, e.getMessage(), e);
 		}
 
 		// Read error
@@ -329,7 +333,7 @@ public class VertxUI {
 				System.err.print(".");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.log(Level.SEVERE, e.getMessage(), e);
 		}
 
 		// Break
@@ -404,7 +408,9 @@ public class VertxUI {
 
 		// Write to file (not using vertx because this is also done with
 		// non-vertx inside TestDOM)
-		try (FileWriter fileWriter = new FileWriter(VertxUI.getTargetFolder(debug) + "/index.html")) {
+		String htmlFile = VertxUI.getTargetFolder(debug) + "/index.html";
+		log.fine("Writing final index.html to: " + htmlFile);
+		try (FileWriter fileWriter = new FileWriter(htmlFile)) {
 			fileWriter.write(html.toString());
 		} catch (IOException ie) {
 			throw new IllegalArgumentException("Could not write index.html file", ie);
