@@ -256,7 +256,7 @@ public class VertxUI {
 		// Run GWT
 		try {
 			String commandline = "java -cp " + classpath + " com.google.gwt.dev.Compiler " + options + " " + xmlFile;
-			log.fine("Starting GWT with commandline: " + classpath);
+			log.fine("Starting GWT with commandline: " + commandline);
 			Process process = Runtime.getRuntime().exec(commandline);
 			StringBuilder info = new StringBuilder();
 			BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -311,7 +311,7 @@ public class VertxUI {
 			BufferedReader erput) {
 		// Read input
 		try {
-			if (input.ready()) {
+			while (input.ready()) {
 				String line = input.readLine();
 				log.fine("Gwt says: " + line);
 				info.append(line + "\n");
@@ -327,7 +327,7 @@ public class VertxUI {
 
 		// Read error
 		try {
-			if (erput.ready()) {
+			while (erput.ready()) {
 				String line = erput.readLine();
 				info.append("[ERROR]" + line + "\n");
 				System.err.print(".");
