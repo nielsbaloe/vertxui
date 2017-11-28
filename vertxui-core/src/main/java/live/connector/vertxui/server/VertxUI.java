@@ -246,7 +246,7 @@ public class VertxUI {
 				? (System.getProperty("java.class.path").contains(";") ? ";" : ":") : System.getenv("path.separator");
 		String classpath = Arrays.stream(((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs())
 				.map(i -> i.getFile()).collect(Collectors.joining(separator));
-		classpath = "\"" + classpath + separator + folderSource + "\"";
+		classpath = "\"" + classpath + separator + new File(folderSource).getAbsolutePath() + "\"";
 		log.fine("Classpath = " + classpath);
 
 		// Check whether the classpath contains gwt
