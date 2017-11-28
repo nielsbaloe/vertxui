@@ -183,8 +183,8 @@ public class VertxUI {
 
 		compiling = true;
 
-		log.fine("Translating with targetfolder=" + getTargetFolder(debug));
-		log.fine("\tsourceFolder" + folderSource);
+		log.fine("Translating with targetfolder=" + new File(getTargetFolder(debug)).getAbsolutePath());
+		log.fine("\tsourceFolder" + new File(folderSource).getAbsolutePath());
 		log.fine("\tworking folder: " + new File(".").getAbsolutePath());
 
 		// Write index.html file which autoreloads
@@ -234,7 +234,7 @@ public class VertxUI {
 			return false;
 		}
 		// Compile to javascript
-		String options = "-strict -XdisableUpdateCheck -war " + getTargetFolder(debug);
+		String options = "-strict -XdisableUpdateCheck -war " + new File(getTargetFolder(debug)).getAbsolutePath();
 		if (debug) {
 			options += " -draftCompile -optimize 0 -style DETAILED"; // -incremental
 		} else {
