@@ -10,14 +10,16 @@ public class FigWheelyClient {
 
 	/**
 	 * Send a string to the logging of the server. Note that you need to loead
-	 * the figwheely script with head.scriptSync() so that FigWheely.js is
-	 * loaded synchronously. For example:
+	 * the figwheely script with head.scriptSync() in the client/browser
+	 * sourcecode so that FigWheely.js is loaded synchronously. For example:
 	 * 
 	 * head.scriptSync(figwheelyLocation);<br>
 	 * ......... <br>
 	 * FigWheely.toServer("blabla");<br>
 	 * 
 	 * @param message
+	 *            the message which will be distributed to all connected
+	 *            browsers.
 	 */
 	public static final native void toServer(String message)/*-{
 															if (window.top._fig) {

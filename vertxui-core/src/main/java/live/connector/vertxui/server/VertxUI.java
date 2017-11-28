@@ -177,7 +177,7 @@ public class VertxUI {
 	/**
 	 * Start the translate. Continues asynchronously.
 	 * 
-	 * @return
+	 * @return true when started successfully, false when an error occured.
 	 */
 	protected boolean translate() {
 
