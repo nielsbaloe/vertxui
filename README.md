@@ -1,4 +1,4 @@
-vertxui
+VertxUI
 ===
 
 Suppose we had native asynchronous Java access at the browser, backed by a no-nonsense Java asynchronous server. Then both browser and server would be using the same Java strong-typed data models/entities/DTO's for ajax/websocket/sockjs traffic.
