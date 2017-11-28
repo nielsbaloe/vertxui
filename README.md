@@ -7,7 +7,7 @@ For the view, we would not want to write HTML or a new Java/C#-lookalike languag
 
 Regarding tooling, we would want to use trusted Java tooling like jUnit and Mockito, and realtime debugging with automatic browser refreshing after a code change, all in a professional familiar grown-up IDE. We would want plain stacktraces when something goes wrong, so we can trace errors. Ideally without having to install any IDE-specific tooling.
 
-Welcome to vertxui. This is how Java web programming should have looked like 15 years ago.
+Welcome to VertxUI. This is how Java web programming should have looked like 15 years ago.
 
 Use it in your project by using one of these
 
@@ -22,7 +22,7 @@ Use it in your project by using one of these
 	         compile 'live.connector:vertxui-core:1.0'
 
 or another source from  the [MVN Repository](https://mvnrepository.com/artifact/live.connector/vertxui-core/1.0) .
-For a laid back demo how to get it up and working from scratch and to see some running examples, look at [this video](https://www.youtube.com/watch?v=ZusasYDjMKo).
+For a laid back demo how to get it up and working from scratch and to see some running examples, look at [this video](https://www.youtube.com/watch?v=ZusasYDjMKo). And there is also a demo of how to get started (not showing all examples like the Eclipse video) in [IntelliJ](https://www.youtube.com/watch?v=ctVG_8v_Fqk).
 For an in-depth description about VertxUI, please visit [beyondjava.de](https://www.beyondjava.net/blog/vertxui-java-front-end-language/) .
 For a more detailed description about Fluent, please look at the [github wiki](https://github.com/nielsbaloe/vertxui/wiki).
 
