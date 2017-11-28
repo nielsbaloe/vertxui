@@ -183,8 +183,12 @@ public class VertxUI {
 
 		compiling = true;
 
+		log.fine("Translating with targetfolder=" + getTargetFolder(debug));
+		log.fine("\tsourceFolder" + folderSource);
+		log.fine("\tworking folder: " + new File(".").getAbsolutePath());
+
 		// Write index.html file which autoreloads
-		File htmlFile = new File(VertxUI.getTargetFolder(debug) + "/index.html");
+		File htmlFile = new File(getTargetFolder(debug) + "/index.html");
 		if (withHtml) {
 			try {
 				log.fine("Writing temporary index.html to: " + htmlFile.getAbsolutePath());
@@ -205,7 +209,7 @@ public class VertxUI {
 
 		// Write the .gml.xml file
 		String className = classs.getName();
-		String xmlFile = "gwtTemp";
+		final String xmlFile = "gwtTemp";
 		// as path: the "client" package in the name of the classpath of the
 		// given classname
 		String path = className.replace(".", "/");
