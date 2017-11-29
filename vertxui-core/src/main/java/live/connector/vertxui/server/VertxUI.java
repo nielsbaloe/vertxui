@@ -128,8 +128,8 @@ public class VertxUI {
 	 * @param classs
 	 *            the class that will be compiled to javascript
 	 * @param urlWithoutAsterix
-	 *            the url but without asterix for the static file handler; set
-	 *            to null if you only want compiling.
+	 *            the url that will be served, but without asterix for the
+	 *            static file handler; set to null if you only want compiling.
 	 * @param debug
 	 *            debug or not
 	 * @param withHtml
@@ -147,16 +147,18 @@ public class VertxUI {
 				folderSource = location;
 			}
 		});
+		log.fine("source folder that will be used is " + folderSource);
 		if (folderSource == null) {
 			if (debug) {
-				throw new IllegalArgumentException(
-						"Sourcefolder not found but debug is still true, did you compile with debug=false?");
+				throw new IllegalArgumentException("Sourcefolder not found at '" + folderSource
+						+ "' but debug is still true, you didn't set the 'working directory' of your "
+						+ "IntelliJ-run to the root of the project? Or did you want to run with debug=false instead?");
 			}
 			if (urlWithoutAsterix == null) {
-				throw new IllegalArgumentException(
-						"Sourcefolder not found, but urlWithoutAsterix is null, so unable to server files.");
+				throw new IllegalArgumentException("Sourcefolder not found  at '" + folderSource
+						+ "' , but urlWithoutAsterix is null, so unable to server files.");
 			}
-			log.info("Production mode: no source folder found, not translating from java to javascript.");
+			log.info("Production mode: all OK, no source folder found, not translating from java to javascript.");
 		} else {
 			VertxUI translated = new VertxUI(classs, debug, withHtml);
 
@@ -326,7 +328,7 @@ public class VertxUI {
 				}
 			}
 		} catch (IOException e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
+			log.log(Level.SEVERE, "Could not read GWT input stream: " + e.getMessage(), e);
 		}
 
 		// Read error
@@ -337,7 +339,7 @@ public class VertxUI {
 				System.err.print(".");
 			}
 		} catch (IOException e) {
-			log.log(Level.SEVERE, e.getMessage(), e);
+			log.log(Level.SEVERE, "Could not read GWT error stream: " + e.getMessage(), e);
 		}
 
 		// Break
