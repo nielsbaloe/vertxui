@@ -1,5 +1,6 @@
 package live.connector.vertxui.samples.client.mvcBootstrap;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import com.google.gwt.i18n.shared.DateTimeFormat;
@@ -17,15 +18,28 @@ import live.connector.vertxui.client.fluent.Fluent;
  */
 public class ComponentDatePicker extends Fluent {
 
+	public static DateTimeFormat dateTimeFormat = new InnerDateTimeFormat("dd/MM/yyyy");
+
+	private final String id = Math.random() + "";
+
+	public static ArrayList<String> getCss() {
+		ArrayList<String> result = new ArrayList<>();
+		result.add("https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.5.1/css/pikaday.min.css");
+		return result;
+	}
+
+	public static ArrayList<String> getScripts() {
+		ArrayList<String> result = new ArrayList<>();
+		result.add("https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js");
+		result.add("https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.5.1/pikaday.min.js");
+		return result;
+	}
+
 	private static class InnerDateTimeFormat extends DateTimeFormat {
 		protected InnerDateTimeFormat(String pattern) {
 			super(pattern, new DefaultDateTimeFormatInfo());
 		}
 	}
-
-	public static DateTimeFormat dateTimeFormat = new InnerDateTimeFormat("dd/MM/yyyy");
-
-	private String id = Math.random() + "";
 
 	public ComponentDatePicker() {
 		super("INPUT", null);

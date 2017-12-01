@@ -14,6 +14,7 @@ import static live.connector.vertxui.client.fluent.FluentBase.body;
 import static live.connector.vertxui.client.fluent.FluentBase.head;
 import static live.connector.vertxui.client.fluent.FluentBase.window;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -39,12 +40,16 @@ public class View implements EntryPoint {
 	private ViewOn<Boolean> billsForm;
 	private ViewOn<Grocery> grocery;
 
-	public static String[] css = new String[] { "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css",
-			"https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.5.1/css/pikaday.min.css" };
+	public static ArrayList<String> getCss() {
+		ArrayList<String> result = new ArrayList<>();
+		result.add("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css");
+		result.addAll(ComponentDatePicker.getCss());
+		return result;
+	}
 
-	public static String[] scripts = new String[] {
-			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.5.1/pikaday.min.js" };
+	public static ArrayList<String> getScripts() {
+		return ComponentDatePicker.getScripts();
+	}
 
 	@Override
 	public void onModuleLoad() {

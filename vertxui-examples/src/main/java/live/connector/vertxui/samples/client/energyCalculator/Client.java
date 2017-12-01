@@ -2,6 +2,8 @@ package live.connector.vertxui.samples.client.energyCalculator;
 
 import static live.connector.vertxui.client.fluent.FluentBase.body;
 
+import java.util.ArrayList;
+
 import com.google.gwt.core.client.EntryPoint;
 
 import live.connector.vertxui.client.fluent.Css;
@@ -9,11 +11,12 @@ import live.connector.vertxui.client.fluent.Fluent;
 
 public class Client implements EntryPoint {
 
-	// public static String[] scripts = new String[] {
-	// "https://cdn.jsdelivr.net/npm/chart.js@2.7.1/dist/Chart.min.js" };
+	public static ArrayList<String> getScripts() {
+		return ChartJs.getScripts();
+	}
 
 	public Client() {
-
+		// try to put everthing in <div id=here />
 		Fluent root = Fluent.getElementById("here");
 		if (root == null) {
 			root = body;
@@ -25,16 +28,13 @@ public class Client implements EntryPoint {
 						+ "the knowledge how to improve this calculator, I will definitely give feedback on this website.")
 				.css(Css.color, "red");
 
+		new ChartJs();
 		new Heating(root);
 		new Shower(root);
 		new Cooking(root);
 		new SolarTubes(root);
 		new SolarPanels(root);
 		new Stove(root);
-
-		// TODO
-		// http://www.chartjs.org/docs/latest/
-		// https://stackoverflow.com/questions/24590737/gwt-native-js-chart
 
 	}
 

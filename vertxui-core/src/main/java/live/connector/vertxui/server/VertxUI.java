@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -186,7 +188,7 @@ public class VertxUI {
 		compiling = true;
 
 		log.fine("Translating with targetfolder=" + new File(getTargetFolder(debug)).getAbsolutePath());
-		log.fine("\tsourceFolder" + new File(folderSource).getAbsolutePath());
+		log.fine("\tsourceFolder: " + new File(folderSource).getAbsolutePath());
 		log.fine("\tworking folder: " + new File(".").getAbsolutePath());
 
 		// Write index.html file which autoreloads
@@ -230,7 +232,15 @@ public class VertxUI {
 		try {
 			log.fine("Writing gwt.xml to: " + gwtXml.getAbsolutePath());
 			FileUtils.writeStringToFile(gwtXml, content.toString());
-		} catch (IOException e) {
+
+			// sleep for slow systems
+			for (int x = 0; x < 100; x++) {
+				if (gwtXml.exists()) {
+					break;
+				}
+				Thread.sleep(20);
+			}
+		} catch (IOException | InterruptedException e) {
 			log.log(Level.SEVERE, "Could not write gwt xml file:" + e.getMessage(), e);
 			compiling = false;
 			return false;
@@ -378,32 +388,39 @@ public class VertxUI {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void writeHtml() {
 		if (!withHtml) {
 			return;
 		}
 		StringBuilder html = new StringBuilder("<!DOCTYPE html><html><head><meta charset=\"" + charset + "\">");
 		try {
-			for (String script : (String[]) classs.getDeclaredField("scripts").get(null)) {
+			Method getScripts = classs.getDeclaredMethod("getScripts");
+			for (String script : (ArrayList<String>) getScripts.invoke(null, (Object[]) null)) {
 				html.append("<script src='");
 				html.append(script);
 				html.append("'></script>");
 			}
-		} catch (NoSuchFieldException e) {
+		} catch (NoSuchMethodException e) {
 			// is OK, does not exist
 		} catch (IllegalArgumentException | IllegalAccessException | SecurityException e) {
-			throw new IllegalArgumentException("Could not access public static String scripts[]", e);
+			throw new IllegalArgumentException("Could not access public static ArrayList<String> getScripts()", e);
+		} catch (InvocationTargetException e) {
+			throw new IllegalArgumentException("Could not access public static ArrayList<String> getScripts()", e);
 		}
 		try {
-			for (String css : (String[]) classs.getDeclaredField("css").get(null)) {
+			Method getCss = classs.getDeclaredMethod("getCss");
+			for (String css : (ArrayList<String>) getCss.invoke(null, (Object[]) null)) {
 				html.append("<link rel=stylesheet href='");
 				html.append(css);
 				html.append("'/>");
 			}
-		} catch (NoSuchFieldException e) {
+		} catch (NoSuchMethodException e) {
 			// is OK, does not exist
 		} catch (IllegalArgumentException | IllegalAccessException | SecurityException e) {
-			throw new IllegalArgumentException("Could not access public static String css[]", e);
+			throw new IllegalArgumentException("Could not access public static ArrayList<String> getCss()", e);
+		} catch (InvocationTargetException e) {
+			throw new IllegalArgumentException("Could not access public static ArrayList<String> getCss()", e);
 		}
 		html.append("</head><body><script>");
 		html.append("document.addEventListener('DOMContentLoaded', function(event) { ");
