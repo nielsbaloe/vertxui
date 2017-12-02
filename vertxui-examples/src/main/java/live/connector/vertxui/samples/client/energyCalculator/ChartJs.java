@@ -15,15 +15,19 @@ public class ChartJs extends Fluent {
 
 	private String id = Math.random() + "";
 
-	public ChartJs() {
-		super("canvas", null);
-		att(Att.width, "400", Att.height, "400").id(id);
+	public ChartJs(Fluent root) {
+		super("canvas", root);
+		att(Att.width, "400", Att.height, "400", Att.id, id);
 
-		eval("var ctx = document.getElementById('" + id + "');									"
-				+ "console.log(id);																"
+		Fluent.eval("var ctx = document.getElementById('" + getId() + "');									"
 				+ "var data=  [{x: 10,  y: 20 }, { x: 15, y: 10 }];								"
 				+ "var options=[ {showLines: false }];											"
 				+ "var myLineChart = new Chart(ctx, {type: 'line', data: data, options: options});");
+
+	}
+
+	public String getId() {
+		return id;
 	}
 
 	public static ArrayList<String> getScripts() {

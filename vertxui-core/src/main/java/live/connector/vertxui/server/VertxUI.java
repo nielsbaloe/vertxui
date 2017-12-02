@@ -149,7 +149,12 @@ public class VertxUI {
 				folderSource = location;
 			}
 		});
-		log.fine("source folder that will be used is " + folderSource);
+		File sourceFolder = new File(folderSource);
+		if (!sourceFolder.exists()) {
+			throw new IllegalArgumentException("Could not figure at a valid source folder, last attempt ended on "
+					+ sourceFolder.getAbsolutePath());
+		}
+		log.fine("source folder = " + sourceFolder.getAbsolutePath());
 		if (folderSource == null) {
 			if (debug) {
 				throw new IllegalArgumentException("Sourcefolder not found at '" + folderSource
