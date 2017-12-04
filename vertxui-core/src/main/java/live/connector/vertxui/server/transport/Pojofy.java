@@ -14,6 +14,7 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.streams.WriteStream;
 import io.vertx.ext.web.RoutingContext;
+import live.connector.vertxui.server.VertxUI;
 
 /**
  * A Vert.x helper class to communicate in POJO's for ajax, the eventbus and
@@ -38,7 +39,7 @@ public class Pojofy {
 				if (output == null) {
 					// do nothing
 				} else {
-					context.response().putHeader("Content-Type", "application/json");
+					context.response().putHeader("Content-Type", "application/json; charset=" + VertxUI.charset);
 					context.response().end(output);
 				}
 			});
@@ -64,7 +65,7 @@ public class Pojofy {
 			context.response().putHeader("Cache-control", "none");
 			context.response().putHeader("Pragma", "none");
 			context.response().putHeader("Expires", "0");
-			context.response().putHeader("Content-Type", "application/json");
+			context.response().putHeader("Content-Type", "application/json; charset=" + VertxUI.charset);
 
 			context.request().bodyHandler(body -> {
 				context.response().end();

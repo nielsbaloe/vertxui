@@ -177,7 +177,8 @@ public class VertxUI {
 			}
 		}
 		if (urlWithoutAsterix != null) {
-			return StaticHandler.create(VertxUI.getTargetFolder(debug)).setCachingEnabled(false);
+			return StaticHandler.create(VertxUI.getTargetFolder(debug)).setCachingEnabled(false)
+					.setDefaultContentEncoding(VertxUI.charset);
 		} else {
 			return null;
 		}
@@ -244,6 +245,9 @@ public class VertxUI {
 					break;
 				}
 				Thread.sleep(20);
+			}
+			if (!gwtXml.exists()) {
+				throw new IOException("gwt-xml files does not exist although it was writte successfully");
 			}
 		} catch (IOException | InterruptedException e) {
 			log.log(Level.SEVERE, "Could not write gwt xml file:" + e.getMessage(), e);

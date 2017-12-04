@@ -162,7 +162,12 @@ public class View implements EntryPoint {
 					Fluent.window.alert("Please fill in the date.");
 					return;
 				}
-				controller.onAddBill(name.domValue(), much, what.domValue(), date);
+				String description = what.domValue();
+				if (description.length() >= 32) {
+					Fluent.window.alert("Please do not use more than 32 characters for the description.");
+					return;
+				}
+				controller.onAddBill(name.domValue(), much, description, date);
 				billsForm.state(false);
 			});
 			return result;

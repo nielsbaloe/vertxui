@@ -112,7 +112,7 @@ public class FigWheelyServer extends AbstractVerticle {
 			FigWheelyServer.addFromStaticHandler(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix,
 					root);
 		}
-		return StaticHandler.create(root);
+		return StaticHandler.create(root).setCachingEnabled(false).setDefaultContentEncoding(VertxUI.charset);
 	}
 
 	@Override
