@@ -22,7 +22,7 @@ public enum Css {
 	clear, clip, color, columnCount, columnFill, columnGap, columnRule, columnRuleColor, //
 	columnRuleStyle, columnRuleWidth, columns, columnSpan, columnWidth, content, counterIncrement, //
 	counterReset, cursor, direction, display, emptyCells, filter, flex, flexBasis, flexDirection, //
-	flexFlow, flexGrow, flexShrink, flexWrap, cssFloat, font, fontFamily, fontSize, fontStyle, //
+	flexFlow, flexGrow, flexShrink, flexWrap, Float, font, fontFamily, fontSize, fontStyle, //
 	fontVariant, fontWeight, fontSizeAdjust, fontStretch, hangingPunctuation, height, hyphens, //
 	icon, imageOrientation, justifyContent, left, letterSpacing, lineHeight, listStyle, //
 	listStyleImage, listStylePosition, listStyleType, margin, marginBottom, marginLeft, //
@@ -39,6 +39,9 @@ public enum Css {
 	wordSpacing, wordWrap, widows, zIndex;
 
 	public String nameValid() {
+		if (name().equals("Float")) {
+			return "float";
+		}
 		StringBuffer result = new StringBuffer();
 		for (char a : name().toCharArray()) {
 			if (Character.isUpperCase(a)) {
@@ -49,16 +52,19 @@ public enum Css {
 		return result.toString().toLowerCase();
 	}
 
-	public static Css valueOfValid(String linestyle) {
-		String x = null;
-		for (String y : linestyle.split("-")) {
-			if (x == null) {
-				x = y;
+	public static Css valueOfValid(String lineStyle) {
+		if (lineStyle.equals("float")) {
+			return Css.Float;
+		}
+		StringBuffer result = new StringBuffer();
+		for (String y : lineStyle.split("-")) {
+			if (result.length() == 0) {
+				result.append(y);
 			} else {
-				x += y.substring(0, 1).toUpperCase() + y.substring(1);
+				result.append(y.substring(0, 1).toUpperCase() + y.substring(1));
 			}
 		}
-		return valueOf(x);
+		return valueOf(result.toString());
 	}
 
 }

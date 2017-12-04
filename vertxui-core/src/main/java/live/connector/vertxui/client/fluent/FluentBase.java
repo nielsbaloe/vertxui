@@ -63,8 +63,8 @@ public class FluentBase implements Viewable {
 														}-*/;
 
 	public native static String eval(String code) /*-{
-												return window.top.eval(code);
-												}-*/;
+													return window.top.eval(code);
+													}-*/;
 
 	/**
 	 * If we are attached to DOM , 'element' exists, otherwise this is null.
@@ -474,6 +474,30 @@ public class FluentBase implements Viewable {
 			event.stopPropagation();
 			listener.accept((Fluent) this, (MouseEvent) event);
 		});
+	}
+
+	/**
+	 * Set multiple css parameters in one call.
+	 * 
+	 * @param name
+	 *            name of first parameter
+	 * @param value
+	 *            value of first parameter
+	 * @param name2
+	 *            name of second parameter
+	 * @param value2
+	 *            value of second parameter
+	 * @param name3
+	 *            name of third parameter
+	 * @param value3
+	 *            value of third parameter
+	 * @return this
+	 */
+	public Fluent css(Css name, String value, Css name2, String value2, Css name3, String value3) {
+		css(name, value);
+		css(name2, value2);
+		css(name3, value3);
+		return (Fluent) this;
 	}
 
 	/**

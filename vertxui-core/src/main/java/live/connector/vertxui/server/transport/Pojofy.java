@@ -38,6 +38,7 @@ public class Pojofy {
 				if (output == null) {
 					// do nothing
 				} else {
+					context.response().putHeader("Content-Type", "application/json");
 					context.response().end(output);
 				}
 			});
@@ -63,6 +64,7 @@ public class Pojofy {
 			context.response().putHeader("Cache-control", "none");
 			context.response().putHeader("Pragma", "none");
 			context.response().putHeader("Expires", "0");
+			context.response().putHeader("Content-Type", "application/json");
 
 			context.request().bodyHandler(body -> {
 				context.response().end();
