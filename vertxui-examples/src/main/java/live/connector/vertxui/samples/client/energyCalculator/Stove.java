@@ -38,6 +38,7 @@ public class Stove {
 		conclusion = body.add(null, ___ -> {
 
 			// http://www.warmteprijzen.nl/brandhout_prijzen.html
+			// http://www.warmteprijzen.nl/rekenmachine_kwh.html
 
 			StringBuilder text1 = new StringBuilder("So for one hour the stove can give at maximum ");
 			text1.append(Utils.show(power));
@@ -49,11 +50,11 @@ public class Stove {
 			text1.append(" watt per hour.");
 
 			StringBuilder text2 = new StringBuilder("For this I need ");
-			text2.append(Utils.show(power));
-			text2.append(" / ");
 			text2.append(Utils.show(wood));
+			text2.append(" / ");
+			text2.append(Utils.show(power));
 			text2.append(" = ");
-			double kgNeeded = power / wood;
+			double kgNeeded = wood / power;
 			text2.append(Utils.show(kgNeeded));
 			text2.append(" kg of wood. So with 1 m3 of wood, I can use the stove for about ");
 			text2.append(Utils.show(kgPerCubic));

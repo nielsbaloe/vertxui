@@ -6,7 +6,7 @@ import live.connector.vertxui.client.fluent.ViewOn;
 
 public class Shower {
 
-	private double minutes = 7, literPerMinute = 7, degrees = 40, timesPerWeek = 7;
+	private double minutes = 7, literPerMinute = 7, degrees = 38, timesPerWeek = 7, waterTemperature = 11;
 
 	private ViewOn<?> conclusion;
 
@@ -36,13 +36,13 @@ public class Shower {
 		body.span(null, " times per week.");
 		conclusion = body.add(null, ___ -> {
 			double totalLiters = minutes * literPerMinute;
-			double delta = degrees - 15.0;
+			double delta = degrees - waterTemperature;
 
 			StringBuilder text1 = new StringBuilder("So this means that in total ");
 			text1.append(Utils.show(totalLiters));
-			text1.append(" liters is used, which needs to be heated up about deltaT=");
-			text1.append(Utils.show(degrees) + "-15=" + Utils.show(delta));
-			text1.append(" degrees. This takes liters*deltaT*1,16W = ");
+			text1.append(" liters is used, which needs to be heated up about ");
+			text1.append(Utils.show(degrees) + "-" + Utils.show(waterTemperature) + "=" + Utils.show(delta));
+			text1.append(" degrees. This takes liters*degrees*1,16W = ");
 			text1.append(Utils.show(totalLiters));
 			text1.append("*");
 			text1.append(Utils.show(delta));

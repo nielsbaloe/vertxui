@@ -25,11 +25,16 @@ public class SolarTubes {
 		}));
 		body.span(null, " heat tubes. ").br();
 		conclusion = body.add(null, ___ -> {
-			StringBuilder text1 = new StringBuilder("That would bring me a total of ");
-			text1.append(Utils.show(collectors * tubes));
+
 			// 110.000: source:
 			// https://econo.nl/berekening-zonneboiler-subsidie-2017 with 45
 			// degrees.
+
+			// percentages:
+			// https://econo.nl/berekening-zonneboiler-subsidie-2017
+
+			StringBuilder text1 = new StringBuilder("That would bring me a total of ");
+			text1.append(Utils.show(collectors * tubes));
 			text1.append(" heat pipes, which each give about 110.000 watt a year, so that is in total 110.000*");
 			text1.append(Utils.show(collectors * tubes));
 			text1.append("=");
@@ -62,8 +67,6 @@ public class SolarTubes {
 			result.br();
 			result.span(null, text3.toString());
 
-			// percentages:
-			// https://econo.nl/berekening-zonneboiler-subsidie-2017
 			result.br();
 			result.span(null, "Jan. (1,3%) =" + Utils.show(0.013 * yearly) + " watt");
 			result.br();

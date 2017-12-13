@@ -39,6 +39,13 @@ public class SolarPanels {
 
 		conclusion = body.add(null, ___ -> {
 
+			// not:
+			// http://www.e2energie.nl/zonne-energie-productie-per-maand.html
+			// not:
+			// https://www.essent.nl/content/particulier/kennisbank/zonnepanelen/opbrengst-zonnepanelen-per-maand.html
+
+			// http://www.zonurencalculator.nl/sun_hours_calculation
+
 			StringBuilder text1 = new StringBuilder("The peak production is peak*quantity = ");
 			double peak = quantity * strength;
 			text1.append(Utils.show(peak));
@@ -62,12 +69,6 @@ public class SolarPanels {
 			result.br();
 			result.span(null, text3.toString());
 
-			// not:
-			// http://www.e2energie.nl/zonne-energie-productie-per-maand.html
-			// not:
-			// https://www.essent.nl/content/particulier/kennisbank/zonnepanelen/opbrengst-zonnepanelen-per-maand.html
-
-			// http://www.zonurencalculator.nl/sun_hours_calculation
 			double yearly = peak * 1040;
 			result.br();
 			result.span(null, "Jan. (1,3%) =" + Utils.show(0.013 * yearly) + " watt");

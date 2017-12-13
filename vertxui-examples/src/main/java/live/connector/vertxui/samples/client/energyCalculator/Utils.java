@@ -32,7 +32,7 @@ public class Utils {
 	 */
 	public static double getDomNumber(Fluent fluent) {
 		String value = fluent.domValue();
-		if (value.endsWith(".") || value.length() == 0) {
+		if (value.length() == 0 || value.endsWith(".")) {
 			value += "0";
 		}
 		return Double.parseDouble(value);
@@ -43,7 +43,7 @@ public class Utils {
 	 * a piece of GUI that shows the R and U values.
 	 */
 
-	private static NumberFormat numberFormat = NumberFormat.getFormat("####.##");
+	private static NumberFormat numberFormat = NumberFormat.getFormat("##,###.##");
 
 	public static String show(double value) {
 		return numberFormat.format(value);
