@@ -10,7 +10,7 @@ public class Shower {
 
 	private ViewOn<?> conclusion;
 
-	public Shower(Fluent body) {
+	public Shower(Fluent body, ChartJs chart) {
 
 		body.h2(null, "Shower");
 		body.span(null, "I usually shower about ");
@@ -42,11 +42,11 @@ public class Shower {
 			text1.append(Utils.show(totalLiters));
 			text1.append(" liters is used, which needs to be heated up about ");
 			text1.append(Utils.show(degrees) + "-" + Utils.show(waterTemperature) + "=" + Utils.show(delta));
-			text1.append(" degrees. This takes liters*degrees*1,16W = ");
+			text1.append(" degrees. This takes liters*degrees*1.16W = ");
 			text1.append(Utils.show(totalLiters));
 			text1.append("*");
 			text1.append(Utils.show(delta));
-			text1.append("*1,16=");
+			text1.append("*1.16=");
 			text1.append(Utils.show(totalLiters * delta * 1.16));
 			text1.append(" watt per showering.");
 
@@ -55,8 +55,12 @@ public class Shower {
 			text2.append(")*");
 			text2.append(Utils.show(totalLiters * delta * 1.16));
 			text2.append(" = ");
-			text2.append(Utils.show(totalLiters * delta * 1.16 * timesPerWeek * (30.0 / 7.0)));
+			double perMonth = totalLiters * delta * 1.16 * timesPerWeek * (30.0 / 7.0);
+			text2.append(Utils.show(perMonth));
 			text2.append(" watt per month.");
+
+			chart.showData("Shower", "blue", new double[] { perMonth, perMonth, perMonth, perMonth, perMonth, perMonth,
+					perMonth, perMonth, perMonth, perMonth, perMonth, perMonth });
 
 			Fluent result = Fluent.P();
 			result.span(null, text1.toString());

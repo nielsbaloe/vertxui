@@ -28,11 +28,13 @@ public class Client implements EntryPoint {
 						+ "the knowledge how to improve this calculator, I will definitely give feedback on this website.")
 				.css(Css.color, "red");
 
-		new ChartJs(root);
+		ChartJs chart = new ChartJs(root);
+		chart.css(Css.position, "sticky");
+		chart.css(Css.top, 0);
 		new Heating(root);
-		new Shower(root);
+		new Shower(root, chart);
 		new Cooking(root);
-		new SolarTubes(root);
+		new SolarTubes(root, chart);
 		new SolarPanels(root);
 		new Stove(root);
 

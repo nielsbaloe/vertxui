@@ -10,7 +10,7 @@ public class SolarTubes {
 
 	public ViewOn<?> conclusion;
 
-	public SolarTubes(Fluent body) {
+	public SolarTubes(Fluent body, ChartJs chart) {
 
 		body.h2(null, "Solar tubes");
 		body.span(null, "I want to have ");
@@ -92,6 +92,12 @@ public class SolarTubes {
 			result.br();
 			result.span(null, "Dec. (1,3%) =" + Utils.show(0.013 * yearly) + " watt");
 			result.br();
+
+			chart.showData("Solar tubes", "brown",
+					new double[] { 0.013 * yearly, 0.038 * yearly, 0.087 * yearly, 0.138 * yearly, 0.13 * yearly,
+							0.13 * yearly, 0.13 * yearly, 0.13 * yearly, 0.10 * yearly, 0.067 * yearly, 0.024 * yearly,
+							0.013 * yearly });
+
 			return result;
 		});
 

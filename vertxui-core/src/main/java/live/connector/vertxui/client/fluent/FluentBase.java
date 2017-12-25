@@ -520,6 +520,19 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
+	 * Set a css style which needs a number.
+	 * 
+	 * @param name
+	 *            name of css item
+	 * @param x
+	 *            number-value of css item
+	 * @return this
+	 */
+	public Fluent css(Css name, int x) {
+		return css(name, x + "");
+	}
+
+	/**
 	 * Set or remove (by value null) a css style.
 	 * 
 	 * @param name
