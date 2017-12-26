@@ -538,12 +538,24 @@ public class Fluent extends FluentBase {
 		return new Fluent("OPTION", this);
 	}
 
+	public Fluent option(String classs, String inner) {
+		return option().classs(classs).txt(inner);
+	}
+
+	public Fluent option(String classs, String inner, String value) {
+		return option(classs, inner).att(Att.value, value);
+	}
+
 	public static Fluent Option() {
 		return new Fluent("OPTION", null);
 	}
 
 	public static Fluent Option(String classs, String inner) {
 		return Option().classs(classs).txt(inner);
+	}
+
+	public static Fluent Option(String classs, String inner, String value) {
+		return Option(classs, inner).att(Att.value, value);
 	}
 
 	public Fluent output() {
@@ -690,6 +702,18 @@ public class Fluent extends FluentBase {
 		return new Fluent("SELECT", this);
 	}
 
+	public Fluent select(String classs) {
+		return select().classs(classs);
+	}
+
+	public Fluent select(String classs, String... namesValues) {
+		Fluent result = select(classs);
+		for (int x = 0; x < namesValues.length; x += 2) {
+			result.option(null, namesValues[x], namesValues[x + 1]);
+		}
+		return result;
+	}
+
 	public static Fluent Select() {
 		return new Fluent("SELECT", null);
 	}
@@ -700,6 +724,14 @@ public class Fluent extends FluentBase {
 
 	public static Fluent Select(String classs, Fluent... fluents) {
 		return Select().classs(classs).add(fluents);
+	}
+
+	public static Fluent Select(String classs, String... namesValues) {
+		Fluent result = Fluent.Select();
+		for (int x = 0; x < namesValues.length; x += 2) {
+			result.option(null, namesValues[x], namesValues[x + 1]);
+		}
+		return result;
 	}
 
 	public Fluent small() {
@@ -877,5 +909,4 @@ public class Fluent extends FluentBase {
 	public Fluent video() {
 		return new Fluent("VIDEO", this);
 	}
-
 }

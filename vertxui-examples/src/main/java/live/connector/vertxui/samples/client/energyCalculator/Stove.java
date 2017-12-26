@@ -19,22 +19,26 @@ public class Stove {
 			conclusion.sync();
 		}));
 		body.span(null, " watt per hour, and has an efficiency of ");
-		body.add(Utils.getNumberInput().att(Att.value, efficiency + "").keyup((fluent, ___) -> {
-			efficiency = Utils.getDomNumber(fluent);
-			conclusion.sync();
-		}));
+		body.select(null,
+				new String[] { "60", "60", "70", "70", "75", "75", "80", "80", "85", "85", "90", "90", "95", "95" })
+				.att(Att.value, efficiency + "").changed((fluent, ___) -> {
+					efficiency = Double.parseDouble(fluent.domSelectedOptions()[0]);
+					conclusion.sync();
+				});
 		body.span(null, " percent. I use wood that is ");
-		body.add(Utils.getNumberInput().att(Att.value, kgPerCubic + "").keyup((fluent, ___) -> {
-			kgPerCubic = Utils.getDomNumber(fluent);
-			conclusion.sync();
-		}));
-		body.span(null, " kg/m3 (zachthout 350, spar 380, hardhout 544, eik beuk 750, "
-				+ "berk 600) and it has an energy output of ");
-		body.add(Utils.getNumberInput().att(Att.value, wood + "").keyup((fluent, ___) -> {
-			wood = Utils.getDomNumber(fluent);
-			conclusion.sync();
-		}));
-		body.span(null, " watt per kilo (undried wood 2000, 1 summer dried wood 3400, normaly dried wood 4220).");
+		body.select(null, new String[] { "350 (zachthout)", "350", "380 (spar)", "380", "544 (hardhout)", "544",
+				"600 (berk)", "600", "750 (eik, beuk)", "750" }).att(Att.value, kgPerCubic + "")
+				.changed((fluent, ___) -> {
+					kgPerCubic = Double.parseDouble(fluent.domSelectedOptions()[0]);
+					conclusion.sync();
+				});
+		body.span(null, " kg/m3 and that is ");
+		body.select(null, new String[] { "normal (4222 w/kg)", "4222", "1 summer (3400 w/kg)", "3400",
+				"not (2000 w/kg)", "2000" }).att(Att.value, wood + "").changed((fluent, ___) -> {
+					wood = Double.parseDouble(fluent.domSelectedOptions()[0]);
+					conclusion.sync();
+				});
+		body.span(null, " dried wood.");
 		conclusion = body.add(null, ___ -> {
 
 			// http://www.warmteprijzen.nl/brandhout_prijzen.html

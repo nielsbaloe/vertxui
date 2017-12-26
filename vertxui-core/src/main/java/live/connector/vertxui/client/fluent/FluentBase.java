@@ -19,6 +19,8 @@ import elemental.events.KeyboardEvent;
 import elemental.events.MouseEvent;
 import elemental.events.UIEvent;
 import elemental.html.Console;
+import elemental.html.HTMLOptionsCollection;
+import elemental.html.HtmlElement;
 import elemental.html.InputElement;
 import elemental.html.SelectElement;
 import elemental.html.Window;
@@ -349,10 +351,26 @@ public class FluentBase implements Viewable {
 	 *            the listener
 	 * @return this
 	 */
+	public Fluent changed(BiConsumer<Fluent, UIEvent> listener) {
+		return listen(Event.CHANGE, event -> {
+			event.stopPropagation();
+			listener.accept((Fluent) this, (UIEvent) event);
+		});
+	}
+
+	/**
+	 * A convenient helper method for this event listener - also executes
+	 * event.stopPropagation().
+	 * 
+	 * @param listener
+	 *            the listener
+	 * @return this
+	 */
 	public Fluent keypress(BiConsumer<Fluent, KeyboardEvent> listener) {
 		return listen(Event.KEYPRESS, event -> {
 			event.stopPropagation();
 			listener.accept((Fluent) this, (KeyboardEvent) event);
+
 		});
 	}
 
@@ -725,6 +743,20 @@ public class FluentBase implements Viewable {
 			attrs.put(Att.checked, "1");
 		} else {
 			attrs.remove(Att.checked);
+		}
+		return result;
+	}
+
+	/**
+	 * Get the selected options. No synchronisation with the virtual DOM.
+	 * 
+	 * @return the values of options that are selected
+	 */
+	public String[] domSelectedOptions() {
+		HTMLOptionsCollection selects = (HTMLOptionsCollection) ((SelectElement) element).getSelectedOptions();
+		String[] result = new String[selects.length()];
+		for (int x = 0; x < selects.length(); x++) {
+			result[x] = ((HtmlElement) selects.at(x)).getAttribute("value");
 		}
 		return result;
 	}
