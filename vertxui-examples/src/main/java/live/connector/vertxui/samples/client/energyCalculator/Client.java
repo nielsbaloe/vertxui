@@ -8,6 +8,7 @@ import com.google.gwt.core.client.EntryPoint;
 
 import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.Fluent;
+import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
 
 public class Client implements EntryPoint {
 

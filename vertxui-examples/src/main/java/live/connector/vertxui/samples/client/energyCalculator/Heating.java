@@ -7,6 +7,7 @@ import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
+import live.connector.vertxui.samples.client.energyCalculator.components.InputNumber;
 
 public class Heating {
 
@@ -77,11 +78,11 @@ public class Heating {
 		Fluent heating = body.p();
 		heating.h2(null, "Heating");
 		heating.span().txt("The room I want to heat has a width of ");
-		heating.add(Utils.getNumberInput().keyup(this::onWidth));
+		heating.add(new InputNumber().keyup(this::onWidth));
 		heating.span().txt(" meter and a length of ");
-		heating.add(Utils.getNumberInput().keyup(this::onLength));
+		heating.add(new InputNumber().keyup(this::onLength));
 		heating.span().txt(" meter and a height of ");
-		heating.add(Utils.getNumberInput().keyup(this::onHeight));
+		heating.add(new InputNumber().keyup(this::onHeight));
 		heating.span().txt(" meter.");
 		heating.br();
 		heating.span().txt("So my room has a volume of ");
@@ -91,14 +92,14 @@ public class Heating {
 			if (dimensions.height == 0.0 || dimensions.length == 0.0 || dimensions.width == 0.0) {
 				result.span(null, "..");
 			} else {
-				result.span(null, Utils.show(volume)).css(Css.fontStyle, "italic");
+				result.span(null, InputNumber.show(volume)).css(Css.fontStyle, "italic");
 			}
 			result.span().txt(
 					" m3. That is per default roughly 45 watt/m3 for an inside temperature of 20 degrees, so worst case you need ");
 			if (dimensions.height == 0.0 || dimensions.length == 0.0 || dimensions.width == 0.0) {
 				result.span(null, "..");
 			} else {
-				result.span(null, Utils.show(volume * 45.0));
+				result.span(null, InputNumber.show(volume * 45.0));
 			}
 			result.span(null, " watt per hour to heat up the space.").br();
 			return result;
@@ -120,27 +121,27 @@ public class Heating {
 
 		Fluent liRoof = ul.li();
 		liRoof.span(null, "The roof is made of insulation material with lambda=");
-		liRoof.add(Utils.getNumberInput().keyup(this::onRoofLambda).att(Att.value, "" + Surface.defaultLambda));
+		liRoof.add(new InputNumber().keyup(this::onRoofLambda).att(Att.value, "" + Surface.defaultLambda));
 		liRoof.span(null, " with a thickness of ");
-		liRoof.add(Utils.getNumberInput().keyup(this::onRoofThickness));
+		liRoof.add(new InputNumber().keyup(this::onRoofThickness));
 		liRoof.span(null, " cm. ");
 		roofR = liRoof.add(roof, showRandU);
 		roofDetails = liRoof.ul().add(roof, showHandQ);
 
 		Fluent liFloor = ul.li();
 		liFloor.span(null, "The floor is made of insulation material with lambda=");
-		liFloor.add(Utils.getNumberInput().keyup(this::onFloorLambda).att(Att.value, "" + Surface.defaultLambda));
+		liFloor.add(new InputNumber().keyup(this::onFloorLambda).att(Att.value, "" + Surface.defaultLambda));
 		liFloor.span(null, " with a thickness of ");
-		liFloor.add(Utils.getNumberInput().keyup(this::onFloorThickness));
+		liFloor.add(new InputNumber().keyup(this::onFloorThickness));
 		liFloor.span(null, " cm. ");
 		floorR = liFloor.add(floor, showRandU);
 		floorDetails = liFloor.ul().add(floor, showHandQ);
 
 		Fluent liWalls = ul.li();
 		liWalls.span(null, "The four walls are made of insulation material with lambda=");
-		liWalls.add(Utils.getNumberInput().keyup(this::onWallLambda).att(Att.value, "" + Surface.defaultLambda));
+		liWalls.add(new InputNumber().keyup(this::onWallLambda).att(Att.value, "" + Surface.defaultLambda));
 		liWalls.span(null, " with a thickness of ");
-		liWalls.add(Utils.getNumberInput().keyup(this::onWallThickness));
+		liWalls.add(new InputNumber().keyup(this::onWallThickness));
 		liWalls.span(null, " cm. ");
 		wallsR = liWalls.add(wall1, showRandU);
 
@@ -155,14 +156,14 @@ public class Heating {
 					"So, the total transmission energy for 1 degree is Q1 = (Hwalls+Hroof+Hfloor)*1 = ");
 			Double total = wall1.getH() + wall2.getH() + wall3.getH() + wall4.getH() + roof.getH() + floor.getH();
 			if (!total.isNaN() && !total.isInfinite()) {
-				result.append(Utils.show(total));
+				result.append(InputNumber.show(total));
 			} else {
 				result.append("..");
 			}
 			result.append(
 					" watt per degree, so your peak heating should be (maximum air difference between -9 outside and 20 degrees inside): Q = (H+H+H) *29 = ");
 			if (!total.isNaN() && !total.isInfinite()) {
-				result.append(Utils.show(Math.floor(total * 29)));
+				result.append(InputNumber.show(Math.floor(total * 29)));
 			} else {
 				result.append("..");
 			}
@@ -170,7 +171,7 @@ public class Heating {
 
 			result.append(" According to this very unexact number, you need about Q/A = ");
 			if (!total.isNaN() && !total.isInfinite()) {
-				result.append(Utils.show(Math.floor(total * 29 / (cubic.state().length * cubic.state().width))));
+				result.append(InputNumber.show(Math.floor(total * 29 / (cubic.state().length * cubic.state().width))));
 			} else {
 				result.append("..");
 			}
@@ -182,7 +183,7 @@ public class Heating {
 	}
 
 	private void onWidth(Fluent fluent, KeyboardEvent ____) {
-		double value = Utils.getDomNumber(fluent);
+		double value = ((InputNumber) fluent).domValueDouble();
 
 		Dimensions dimensions = cubic.state();
 		dimensions.width = value;
@@ -204,7 +205,7 @@ public class Heating {
 	}
 
 	private void onLength(Fluent fluent, KeyboardEvent ____) {
-		double value = Utils.getDomNumber(fluent);
+		double value = ((InputNumber) fluent).domValueDouble();
 
 		Dimensions dimensions = cubic.state();
 		dimensions.length = value;
@@ -226,7 +227,7 @@ public class Heating {
 	}
 
 	private void onHeight(Fluent fluent, KeyboardEvent ____) {
-		double value = Utils.getDomNumber(fluent);
+		double value = ((InputNumber) fluent).domValueDouble();
 
 		Dimensions dimensions = cubic.state();
 		dimensions.height = value;
@@ -248,7 +249,7 @@ public class Heating {
 	}
 
 	private void onWallLambda(Fluent fluent, KeyboardEvent ____) {
-		double value = Utils.getDomNumber(fluent);
+		double value = ((InputNumber) fluent).domValueDouble();
 
 		wall1.lambda = value;
 		wallDetails1.sync();
@@ -267,7 +268,9 @@ public class Heating {
 	}
 
 	private void onWallThickness(Fluent fluent, KeyboardEvent event) {
-		double value = Utils.getDomNumber(fluent) * 0.01; // from cm to meter
+		double value = ((InputNumber) fluent).domValueDouble() * 0.01; // from
+																		// cm to
+																		// meter
 
 		wall1.thickness = value;
 		wallDetails1.sync();
@@ -286,7 +289,7 @@ public class Heating {
 	}
 
 	private void onRoofLambda(Fluent fluent, KeyboardEvent event) {
-		double value = Utils.getDomNumber(fluent);
+		double value = ((InputNumber) fluent).domValueDouble();
 
 		roof.lambda = value;
 		roofR.sync();
@@ -296,7 +299,9 @@ public class Heating {
 	}
 
 	private void onRoofThickness(Fluent fluent, KeyboardEvent event) {
-		double value = Utils.getDomNumber(fluent) * 0.01; // from cm to meter
+		double value = ((InputNumber) fluent).domValueDouble() * 0.01; // from
+																		// cm to
+		// meter
 
 		roof.thickness = value;
 		roofR.sync();
@@ -306,7 +311,7 @@ public class Heating {
 	}
 
 	private void onFloorLambda(Fluent fluent, KeyboardEvent event) {
-		double value = Utils.getDomNumber(fluent);
+		double value = ((InputNumber) fluent).domValueDouble();
 
 		floor.lambda = value;
 		floorR.sync();
@@ -316,7 +321,9 @@ public class Heating {
 	}
 
 	private void onFloorThickness(Fluent fluent, KeyboardEvent event) {
-		double value = Utils.getDomNumber(fluent) * 0.01; // from cm to meter
+		double value = ((InputNumber) fluent).domValueDouble() * 0.01; // from
+																		// cm to
+		// meter
 
 		floor.thickness = value;
 		floorR.sync();
@@ -343,13 +350,13 @@ public class Heating {
 		if (surface.sizeY == 0.0 || surface.sizeX == 0.0) {
 			result.append("..");
 		} else {
-			result.append(Utils.show(surface.getA()));
+			result.append(InputNumber.show(surface.getA()));
 		}
 		result.append("m2. Heat transfer coefficient H = U * A = ");
 		if (surface.sizeY == 0.0 || surface.sizeX == 0.0 || surface.thickness == 0.0) {
 			result.append("..");
 		} else {
-			result.append(Utils.show(surface.getH()));
+			result.append(InputNumber.show(surface.getH()));
 		}
 		return Fluent.Li().span(null, result.toString());
 	};
@@ -357,13 +364,13 @@ public class Heating {
 	public static Function<Surface, Fluent> showRandU = surface -> {
 		StringBuilder text = new StringBuilder("So, the Rd = meter/lambda =");
 		if (surface.thickness != 0.0) {
-			text.append(Utils.show(surface.getR()));
+			text.append(InputNumber.show(surface.getR()));
 		} else {
 			text.append("..");
 		}
 		text.append(" and the U=1/R=");
 		if (surface.thickness != 0.0) {
-			text.append(Utils.show(surface.getU()));
+			text.append(InputNumber.show(surface.getU()));
 		} else {
 			text.append("..");
 		}

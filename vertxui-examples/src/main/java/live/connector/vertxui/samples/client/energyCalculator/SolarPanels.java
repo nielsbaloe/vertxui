@@ -3,6 +3,7 @@ package live.connector.vertxui.samples.client.energyCalculator;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
+import live.connector.vertxui.samples.client.energyCalculator.components.InputNumber;
 
 public class SolarPanels {
 
@@ -14,23 +15,23 @@ public class SolarPanels {
 
 		body.h2(null, "Solar Panels");
 		body.span(null, "I have ");
-		body.add(Utils.getNumberInput().att(Att.value, quantity + "").keyup((fluent, ___) -> {
-			quantity = Utils.getDomNumber(fluent);
+		body.add(new InputNumber().att(Att.value, quantity + "").keyup((fluent, ___) -> {
+			quantity = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
 		body.span(null, " solar panels wich each a peak of ");
-		body.add(Utils.getNumberInput().att(Att.value, strength + "").keyup((fluent, ___) -> {
-			strength = Utils.getDomNumber(fluent);
+		body.add(new InputNumber().att(Att.value, strength + "").keyup((fluent, ___) -> {
+			strength = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
 		body.span(null, " watt and with a width ");
-		body.add(Utils.getNumberInput().att(Att.value, width + "").keyup((fluent, ___) -> {
-			width = Utils.getDomNumber(fluent);
+		body.add(new InputNumber().att(Att.value, width + "").keyup((fluent, ___) -> {
+			width = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
 		body.span(null, " meter and length ");
-		body.add(Utils.getNumberInput().att(Att.value, length + "").keyup((fluent, ___) -> {
-			length = Utils.getDomNumber(fluent);
+		body.add(new InputNumber().att(Att.value, length + "").keyup((fluent, ___) -> {
+			length = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
 		body.span(null, " meter. ");
@@ -48,18 +49,18 @@ public class SolarPanels {
 
 			StringBuilder text1 = new StringBuilder("The peak production is peak*quantity = ");
 			double peak = quantity * strength;
-			text1.append(Utils.show(peak));
+			text1.append(InputNumber.show(peak));
 			text1.append(" watt. In the Netherlands there are 1040 effective sun hours (2016) so that is ");
-			text1.append(Utils.show(peak * 1040));
+			text1.append(InputNumber.show(peak * 1040));
 			text1.append(" watt per year.");
 
 			StringBuilder text2 = new StringBuilder("The area for these solar collectors is ");
 			double area = width * length * quantity;
-			text2.append(Utils.show(area));
+			text2.append(InputNumber.show(area));
 			text2.append(" m2 of roof.");
 
 			StringBuilder text3 = new StringBuilder("The efficiency of the panels is peak/area =");
-			text3.append(Utils.show(peak / area));
+			text3.append(InputNumber.show(peak / area));
 			text3.append(" watt per m2.");
 
 			Fluent result = Fluent.P();
@@ -71,29 +72,29 @@ public class SolarPanels {
 
 			double yearly = peak * 1040;
 			result.br();
-			result.span(null, "Jan. (1,3%) =" + Utils.show(0.013 * yearly) + " watt");
+			result.span(null, "Jan. (1,3%) =" + InputNumber.show(0.013 * yearly) + " watt");
 			result.br();
-			result.span(null, "Febr. (3,8%) =" + Utils.show(0.038 * yearly) + " watt");
+			result.span(null, "Febr. (3,8%) =" + InputNumber.show(0.038 * yearly) + " watt");
 			result.br();
-			result.span(null, "Maart. (7,3%) =" + Utils.show(0.073 * yearly) + " watt");
+			result.span(null, "Maart. (7,3%) =" + InputNumber.show(0.073 * yearly) + " watt");
 			result.br();
-			result.span(null, "April. (11,5%) =" + Utils.show(0.115 * yearly) + " watt");
+			result.span(null, "April. (11,5%) =" + InputNumber.show(0.115 * yearly) + " watt");
 			result.br();
-			result.span(null, "Mei. (14,7%) =" + Utils.show(0.147 * yearly) + " watt");
+			result.span(null, "Mei. (14,7%) =" + InputNumber.show(0.147 * yearly) + " watt");
 			result.br();
-			result.span(null, "Juni. (13,2%) =" + Utils.show(0.132 * yearly) + " watt");
+			result.span(null, "Juni. (13,2%) =" + InputNumber.show(0.132 * yearly) + " watt");
 			result.br();
-			result.span(null, "Juli. (14,6%) =" + Utils.show(0.146 * yearly) + " watt");
+			result.span(null, "Juli. (14,6%) =" + InputNumber.show(0.146 * yearly) + " watt");
 			result.br();
-			result.span(null, "Aug. (13,2%) =" + Utils.show(0.132 * yearly) + " watt");
+			result.span(null, "Aug. (13,2%) =" + InputNumber.show(0.132 * yearly) + " watt");
 			result.br();
-			result.span(null, "Sept. (10,1%) =" + Utils.show(0.101 * yearly) + " watt");
+			result.span(null, "Sept. (10,1%) =" + InputNumber.show(0.101 * yearly) + " watt");
 			result.br();
-			result.span(null, "Okt. (5,4%) =" + Utils.show(0.054 * yearly) + " watt");
+			result.span(null, "Okt. (5,4%) =" + InputNumber.show(0.054 * yearly) + " watt");
 			result.br();
-			result.span(null, "Nov. (2,5%) =" + Utils.show(0.025 * yearly) + " watt");
+			result.span(null, "Nov. (2,5%) =" + InputNumber.show(0.025 * yearly) + " watt");
 			result.br();
-			result.span(null, "Dec. (1,5%) =" + Utils.show(0.015 * yearly) + " watt");
+			result.span(null, "Dec. (1,5%) =" + InputNumber.show(0.015 * yearly) + " watt");
 			result.br();
 			return result;
 		});

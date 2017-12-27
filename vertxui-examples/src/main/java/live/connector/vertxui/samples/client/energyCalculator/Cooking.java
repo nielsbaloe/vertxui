@@ -3,6 +3,7 @@ package live.connector.vertxui.samples.client.energyCalculator;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
+import live.connector.vertxui.samples.client.energyCalculator.components.InputNumber;
 
 public class Cooking {
 
@@ -13,24 +14,24 @@ public class Cooking {
 	public Cooking(Fluent body) {
 		body.h2(null, "Cooking");
 		body.span(null, "I am usually cooking about ");
-		body.add(Utils.getNumberInput().att(Att.value, minutes + "").keyup((fluent, ___) -> {
-			minutes = Utils.getDomNumber(fluent);
+		body.add(new InputNumber().att(Att.value, minutes + "").keyup((fluent, ___) -> {
+			minutes = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
 		body.span(null, " minutes with ");
-		body.add(Utils.getNumberInput().att(Att.value, plates + "").keyup((fluent, ___) -> {
-			plates = Utils.getDomNumber(fluent);
+		body.add(new InputNumber().att(Att.value, plates + "").keyup((fluent, ___) -> {
+			plates = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
 		body.span(null, " plates on an electric cooking plate which consumes ");
-		body.add(Utils.getNumberInput().att(Att.value, energy + "").keyup((fluent, ___) -> {
-			energy = Utils.getDomNumber(fluent);
+		body.add(new InputNumber().att(Att.value, energy + "").keyup((fluent, ___) -> {
+			energy = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
 		body.span(null, " watt (electric 1500 watt, ceramic 1400 watt, induction 1300 watt).");
 		body.span(null, " I cook about ");
-		body.add(Utils.getNumberInput().att(Att.value, timesPerWeek + "").keyup((fluent, ___) -> {
-			timesPerWeek = Utils.getDomNumber(fluent);
+		body.add(new InputNumber().att(Att.value, timesPerWeek + "").keyup((fluent, ___) -> {
+			timesPerWeek = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
 		body.span(null, " times per week.");
@@ -43,15 +44,15 @@ public class Cooking {
 			text1.append(" this means that for every time cooking I consume about ");
 			text1.append(" hours*plates*energy*0.5 = ");
 			double perDinner = (minutes / 60.0) * plates * energy * 0.5;
-			text1.append(Utils.show(perDinner));
+			text1.append(InputNumber.show(perDinner));
 			text1.append(" watt per dinner.");
 
 			StringBuilder text2 = new StringBuilder("This is more or less (30/7)*");
-			text2.append(Utils.show(timesPerWeek));
+			text2.append(InputNumber.show(timesPerWeek));
 			text2.append("*");
-			text2.append(Utils.show(perDinner));
+			text2.append(InputNumber.show(perDinner));
 			text2.append("=");
-			text2.append(Utils.show(Math.floor(perDinner * timesPerWeek * 30.0 / 7.0)));
+			text2.append(InputNumber.show(Math.floor(perDinner * timesPerWeek * 30.0 / 7.0)));
 			text2.append(" watt per month.");
 
 			Fluent result = Fluent.P();

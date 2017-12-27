@@ -20,7 +20,6 @@ import elemental.events.MouseEvent;
 import elemental.events.UIEvent;
 import elemental.html.Console;
 import elemental.html.HTMLOptionsCollection;
-import elemental.html.HtmlElement;
 import elemental.html.InputElement;
 import elemental.html.SelectElement;
 import elemental.html.Window;
@@ -748,15 +747,40 @@ public class FluentBase implements Viewable {
 	}
 
 	/**
-	 * Get the selected options. No synchronisation with the virtual DOM.
+	 * Get the selected items if it has been changed by the DOM. Also
+	 * synchronizes with the virtual DOM, which is why you should prefer this
+	 * above reading out the event.targetEvent()... .
 	 * 
 	 * @return the values of options that are selected
 	 */
 	public String[] domSelectedOptions() {
-		HTMLOptionsCollection selects = (HTMLOptionsCollection) ((SelectElement) element).getSelectedOptions();
-		String[] result = new String[selects.length()];
-		for (int x = 0; x < selects.length(); x++) {
-			result[x] = ((HtmlElement) selects.at(x)).getAttribute("value");
+		HTMLOptionsCollection elements = (HTMLOptionsCollection) ((SelectElement) element).getSelectedOptions();
+		String[] result = new String[elements.length()];
+
+		// Reset virtual DOM
+		for (Viewable child : childs) {
+			if (child instanceof Fluent) {
+				Fluent fluent = (Fluent) child;
+				fluent.att(Att.selected, false + "");
+			}
+		}
+
+		// Set virtual DOM and collect
+		for (int x = 0; x < elements.length(); x++) {
+			Element select = (Element) elements.at(x);
+
+			// writing in virtual DOM
+			for (Viewable child : childs) {
+				if (child instanceof Fluent) {
+					Fluent fluent = (Fluent) child;
+					if (select == fluent.element) {
+						fluent.attrs.put(Att.selected, true + "");
+					}
+				}
+			}
+
+			// collect
+			result[x] = select.getAttribute("value");
 		}
 		return result;
 	}

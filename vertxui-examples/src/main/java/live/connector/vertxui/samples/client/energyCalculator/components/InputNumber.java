@@ -1,20 +1,21 @@
-package live.connector.vertxui.samples.client.energyCalculator;
+package live.connector.vertxui.samples.client.energyCalculator.components;
 
 import com.google.gwt.i18n.client.NumberFormat;
 
 import elemental.events.KeyboardEvent;
+import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.Fluent;
 
-public class Utils {
+/**
+ * An GUI input html piece which only allows numbers.
+ * 
+ */
+public class InputNumber extends Fluent {
 
-	/**
-	 * An GUI input piece which only allows numbers.
-	 * 
-	 * @return a input field which only allows numeric entry
-	 */
-	public static Fluent getNumberInput() {
-		return Fluent.Input(null, "text").css(Css.width, "39px").keypress((Fluent ___, KeyboardEvent event) -> {
+	public InputNumber() {
+		super("input", null);
+		att(Att.type, "text").css(Css.width, "39px").keypress((Fluent ___, KeyboardEvent event) -> {
 			int code = event.getCharCode();
 			if ((code >= 48 && code <= 57) || code == 0 || code == 46) {
 				return;
@@ -24,14 +25,16 @@ public class Utils {
 	}
 
 	/**
-	 * Get the double value out of an input field.
+	 * Get the double value out of this input field.
 	 * 
 	 * @param fluent
 	 *            the input field
 	 * @return a floating point number that has been entered.
 	 */
-	public static double getDomNumber(Fluent fluent) {
-		String value = fluent.domValue();
+	public double domValueDouble() {
+		String value = super.domValue();
+		// correct if there is no input at some point, or a dot is the last
+		// input now
 		if (value.length() == 0 || value.endsWith(".")) {
 			value += "0";
 		}

@@ -1,4 +1,4 @@
-package live.connector.vertxui.samples.client.energyCalculator;
+package live.connector.vertxui.samples.client.energyCalculator.components;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,10 +28,10 @@ public class ChartJs extends Fluent {
 
 	public ChartJs(Fluent root) {
 		super("canvas", root);
+		att(Att.width, "500", Att.height, "200", Att.id, id).css(Css.Float, "right");
 
 		names = new ArrayList<>();
 
-		att(Att.width, "500", Att.height, "200", Att.id, id).css(Css.Float, "right");
 		String eval = "var ctx = document.getElementById('" + id + "');						"
 				+ "var data=  { labels: ['Jan.', 'Febr.','Maart','April','Mei','Juni','July','Aug.','Sept.','Okt.','Nov.','Dec.'], datasets: [] };"
 				+ "var chart = new Chart(ctx, {type:'line', data:data, options:{responsive:false,maintainAspectRatio:false}  });";
