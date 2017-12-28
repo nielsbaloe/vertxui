@@ -7,6 +7,7 @@ import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
+import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
 import live.connector.vertxui.samples.client.energyCalculator.components.InputNumber;
 
 public class Heating {
@@ -62,6 +63,11 @@ public class Heating {
 	private ViewOn<Surface> floorDetails;
 	private ViewOn<Heating> totals;
 
+	// For updating the chart
+	private Client client;
+	private ChartJs chart;
+	private double transmission = 0;
+
 	// lambda: energie die door een 1m3 blok materiaal stroomt om 1 graden
 	// verschil voor elkaar te boxen.
 	// d dikte van isoleren in m
@@ -69,12 +75,20 @@ public class Heating {
 	// U = k = 1 / R in W/m2K
 	// A oppervlakte in m2
 	// H warmteoverdracht-coefficient = U * A
-	// Q transmissieverlies = U * A * deltaTemp = (Hdak + Hgrond + HmUur1 +
+	// Q transmissionverlies = U * A * deltaTemp = (Hdak + Hgrond + HmUur1 +
 	// Haangrenzend) * deltaTemp
-	// https://huisje.knudde.be/transmissieverliezen
+	// https://huisje.knudde.be/transmissionverliezen
 	// https://huisje.knudde.be/warmteverliesberekening
 
-	public Heating(Fluent body) {
+	// Vollast uren naar 2000-norm:
+	// https://warmtepomp-weetjes.nl/warmtepomp/indicatietabel/
+
+	public Heating(Fluent body, ChartJs chart, Client clientt) {
+		clientt.setHeating(this);
+
+		this.client = clientt;
+		this.chart = chart;
+
 		Fluent heating = body.p();
 		heating.h2(null, "Heating");
 		heating.span().txt("The room I want to heat has a width of ");
@@ -151,7 +165,7 @@ public class Heating {
 		wallDetails3 = wallDetails.add(wall3, showHandQ);
 		wallDetails4 = wallDetails.add(wall4, showHandQ);
 
-		totals = loss.add(this, client -> {
+		totals = loss.add(this, ____ -> {
 			StringBuilder result = new StringBuilder(
 					"So, the total transmission energy for 1 degree is Q1 = (Hwalls+Hroof+Hfloor)*1 = ");
 			Double total = wall1.getH() + wall2.getH() + wall3.getH() + wall4.getH() + roof.getH() + floor.getH();
@@ -161,24 +175,74 @@ public class Heating {
 				result.append("..");
 			}
 			result.append(
-					" watt per degree, so your peak heating should be (maximum air difference between -9 outside and 20 degrees inside): Q = (H+H+H) *29 = ");
+					" watt per degree, so your peak heating should be (maximum air difference between -10 outside and 20 degrees inside): Q = (H+H+H) *30 = ");
 			if (!total.isNaN() && !total.isInfinite()) {
-				result.append(InputNumber.show(Math.floor(total * 29)));
+				transmission = Math.floor(total * 30);
+				chartChanged();
+				result.append(InputNumber.show(transmission));
 			} else {
 				result.append("..");
 			}
 			result.append(" watt.");
 
-			result.append(" According to this very unexact number, you need about Q/A = ");
+			result.append(" ( If you would have floor heating, you would need ");
 			if (!total.isNaN() && !total.isInfinite()) {
-				result.append(InputNumber.show(Math.floor(total * 29 / (cubic.state().length * cubic.state().width))));
+				double needed = Math.floor(transmission / (cubic.state().length * cubic.state().width));
+				result.append(InputNumber.show(needed));
 			} else {
 				result.append("..");
 			}
 			result.append(" watt per m2 on (preferably non-electric) floorheating.");
-			result.append(" The amount of energy that you aproximately need per month is not added yet.");
-			return Fluent.Span(null, result.toString());
+
+			result.append(" The amount of energy that you aproximately need per month is (in 'vollast uren'):");
+
+			Fluent returner = Fluent.P();
+			returner.div(null, result.toString());
+
+			returner.span(null, "Jan. (304 hour) =" + InputNumber.show(304 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "Febr. (299 hour) =" + InputNumber.show(299 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "Maart. (225 hour) =" + InputNumber.show(225 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "April. (148 hour) =" + InputNumber.show(148 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "Mei. (49 hour) =" + InputNumber.show(49 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "Juni. (0 hour) =" + InputNumber.show(0 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "Juli. (0 hour) =" + InputNumber.show(0 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "Aug. (0) =" + InputNumber.show(0 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "Sept. (13 hour) =" + InputNumber.show(13 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "Okt. (110 hour) =" + InputNumber.show(110 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "Nov. (212 hour) =" + InputNumber.show(212 * transmission) + " watt");
+			returner.br();
+			returner.span(null, "Dec. (289 hour) =" + InputNumber.show(289 * transmission) + " watt");
+			returner.br();
+
+			return returner;
+
 		});
+
+	}
+
+	public void chartChanged() {
+		Shower shower = client.getShower();
+		if (shower == null) {
+			return;
+		}
+		double showerResult = shower.getResultPerMonth();
+		chart.showData("Heating + Shower", "red",
+				new double[] { showerResult + (304 * transmission), showerResult + (299 * transmission),
+						showerResult + (225 * transmission), showerResult + (148 * transmission),
+						showerResult + (49 * transmission), showerResult + (0 * transmission),
+						showerResult + (0 * transmission), showerResult + (0 * transmission),
+						showerResult + (13 * transmission), showerResult + (110 * transmission),
+						showerResult + (212 * transmission), showerResult + (289 * transmission) });
 
 	}
 

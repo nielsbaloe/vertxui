@@ -95,7 +95,7 @@ public class SolarTubes {
 			result.span(null, "Dec. (1,3%) =" + InputNumber.show(0.013 * yearly) + " watt");
 			result.br();
 
-			chart.showData("Solar tubes", "brown",
+			chart.showData("Solar tubes", "green",
 					new double[] { 0.013 * yearly, 0.038 * yearly, 0.087 * yearly, 0.138 * yearly, 0.13 * yearly,
 							0.13 * yearly, 0.13 * yearly, 0.13 * yearly, 0.10 * yearly, 0.067 * yearly, 0.024 * yearly,
 							0.013 * yearly });

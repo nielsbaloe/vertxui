@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import live.connector.vertxui.client.fluent.Att;
-import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.Fluent;
 
 /**
@@ -16,9 +15,9 @@ import live.connector.vertxui.client.fluent.Fluent;
  */
 public class ChartJs extends Fluent {
 
-	private String id = Math.random() + "";
+	private String id = "chartJs" + Math.round(Math.random() * 1000000000);
 
-	private List<String> names;
+	private List<String> names = new ArrayList<>();
 
 	public static ArrayList<String> getScripts() {
 		ArrayList<String> result = new ArrayList<>();
@@ -26,15 +25,14 @@ public class ChartJs extends Fluent {
 		return result;
 	}
 
-	public ChartJs(Fluent root) {
+	public ChartJs(Fluent root, int width, int height) {
 		super("canvas", root);
-		att(Att.width, "500", Att.height, "200", Att.id, id).css(Css.Float, "right");
-
-		names = new ArrayList<>();
+		att(Att.id, id, Att.width, width + "", Att.height, 200 + "");
 
 		String eval = "var ctx = document.getElementById('" + id + "');						"
-				+ "var data=  { labels: ['Jan.', 'Febr.','Maart','April','Mei','Juni','July','Aug.','Sept.','Okt.','Nov.','Dec.'], datasets: [] };"
-				+ "var chart = new Chart(ctx, {type:'line', data:data, options:{responsive:false,maintainAspectRatio:false}  });";
+				+ "var data = { labels: ['Jan.', 'Febr.','Maart','April','Mei','Juni','July','Aug.','Sept.','Okt.','Nov.','Dec.'], datasets: [] };"
+				+ "var c" + id
+				+ "=new Chart(ctx, {type:'line', data:data, options:{responsive:false,maintainAspectRatio:false} });";
 		eval(eval);
 	}
 
@@ -51,13 +49,14 @@ public class ChartJs extends Fluent {
 		int position = names.indexOf(title);
 
 		// show
-		String eval = "if (chart.data.datasets['" + position + "'] === undefined) {chart.data.datasets.push({});}"
-				+ "chart.data.datasets['" + position + "'].label='" + title + "';  						"
-				+ "chart.data.datasets['" + position + "'].data=" + Arrays.toString(data) + "; 			"
-				+ "chart.data.datasets['" + position + "'].fill=false;									"
-				+ "chart.data.datasets['" + position + "'].backgroundColor= '" + color + "';			"
-				+ "chart.data.datasets['" + position + "'].borderColor= '" + color + "';				"
-				+ "chart.update();";
+		String eval = "var cdata= c" + id + ".data;																"
+				+ "if (cdata.datasets['" + position + "'] === undefined) {cdata.datasets.push({});}"
+				+ "cdata.datasets['" + position + "'].label='" + title + "';  						"
+				+ "cdata.datasets['" + position + "'].data=" + Arrays.toString(data) + "; 			"
+				+ "cdata.datasets['" + position + "'].fill=false;									"
+				+ "cdata.datasets['" + position + "'].backgroundColor= '" + color + "';				"
+				+ "cdata.datasets['" + position + "'].borderColor= '" + color + "';";
+		eval += "c" + id + ".update();";
 		eval(eval);
 	}
 

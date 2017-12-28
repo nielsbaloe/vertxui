@@ -5,7 +5,6 @@ import static live.connector.vertxui.client.fluent.Fluent.Div;
 import static live.connector.vertxui.client.fluent.Fluent.Form;
 import static live.connector.vertxui.client.fluent.Fluent.Input;
 import static live.connector.vertxui.client.fluent.Fluent.Label;
-import static live.connector.vertxui.client.fluent.Fluent.Option;
 import static live.connector.vertxui.client.fluent.Fluent.Select;
 import static live.connector.vertxui.client.fluent.Fluent.Span;
 import static live.connector.vertxui.client.fluent.Fluent.Td;
@@ -127,7 +126,7 @@ public class View implements EntryPoint {
 
 			// input fields in bootstrap: a div/input-group with a
 			// span/input-group-addon and a form element/form-control, pfff
-			Fluent name = Select("form-control", Option(null, Name.Niels.name()), Option(null, Name.Linda.name()));
+			Fluent name = Select("form-control", Name.Niels.name(), null, Name.Linda.name(), null);
 			Fluent amount = Input("form-control", "number").att(Att.min, "0", Att.max, "2000", Att.value, "")
 					.keypress(controller::onBillOnlyNumeric);
 			ComponentDatePicker when = new ComponentDatePicker();

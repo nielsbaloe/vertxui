@@ -707,6 +707,10 @@ public class Fluent extends FluentBase {
 	}
 
 	public Fluent select(String classs, String... namesValues) {
+		if (namesValues.length % 2 != 0) {
+			throw new IllegalArgumentException(
+					"options for the select should be tupels of names and values, given=" + namesValues);
+		}
 		Fluent result = select(classs);
 		for (int x = 0; x < namesValues.length; x += 2) {
 			result.option(null, namesValues[x], namesValues[x + 1]);
@@ -722,12 +726,12 @@ public class Fluent extends FluentBase {
 		return Select().classs(classs);
 	}
 
-	public static Fluent Select(String classs, Fluent... fluents) {
-		return Select().classs(classs).add(fluents);
-	}
-
 	public static Fluent Select(String classs, String... namesValues) {
-		Fluent result = Fluent.Select();
+		if (namesValues.length % 2 != 0) {
+			throw new IllegalArgumentException(
+					"options for the select should be tupels of names and values, given=" + namesValues);
+		}
+		Fluent result = Select(classs);
 		for (int x = 0; x < namesValues.length; x += 2) {
 			result.option(null, namesValues[x], namesValues[x + 1]);
 		}

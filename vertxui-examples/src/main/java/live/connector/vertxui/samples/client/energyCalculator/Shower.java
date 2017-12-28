@@ -12,7 +12,10 @@ public class Shower {
 
 	private ViewOn<?> conclusion;
 
-	public Shower(Fluent body, ChartJs chart) {
+	private double resultPerMonth;
+
+	public Shower(Fluent body, ChartJs chart, Client client) {
+		client.setShower(this);
 
 		body.h2(null, "Shower");
 		body.span(null, "I usually shower about ");
@@ -58,12 +61,19 @@ public class Shower {
 			text2.append(")*");
 			text2.append(InputNumber.show(totalLiters * delta * 1.16));
 			text2.append(" = ");
-			double perMonth = totalLiters * delta * 1.16 * timesPerWeek * (30.0 / 7.0);
-			text2.append(InputNumber.show(perMonth));
+
+			resultPerMonth = totalLiters * delta * 1.16 * timesPerWeek * (30.0 / 7.0);
+			if (client.getHeating() != null) {
+				client.getHeating().chartChanged();
+			}
+
+			text2.append(InputNumber.show(resultPerMonth));
 			text2.append(" watt per month.");
 
-			chart.showData("Shower", "blue", new double[] { perMonth, perMonth, perMonth, perMonth, perMonth, perMonth,
-					perMonth, perMonth, perMonth, perMonth, perMonth, perMonth });
+			chart.showData("Shower", "brown",
+					new double[] { resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth,
+							resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth,
+							resultPerMonth, resultPerMonth });
 
 			Fluent result = Fluent.P();
 			result.span(null, text1.toString());
@@ -74,4 +84,7 @@ public class Shower {
 
 	}
 
+	public double getResultPerMonth() {
+		return resultPerMonth;
+	}
 }
