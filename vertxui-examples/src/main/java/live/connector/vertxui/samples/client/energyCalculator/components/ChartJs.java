@@ -3,6 +3,8 @@ package live.connector.vertxui.samples.client.energyCalculator.components;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
@@ -29,10 +31,12 @@ public class ChartJs extends Fluent {
 		super("canvas", root);
 		att(Att.id, id, Att.width, width + "", Att.height, 200 + "");
 
-		String eval = "var ctx = document.getElementById('" + id + "');						"
-				+ "var data = { labels: ['Jan.', 'Febr.','Maart','April','Mei','Juni','July','Aug.','Sept.','Okt.','Nov.','Dec.'], datasets: [] };"
-				+ "var c" + id
-				+ "=new Chart(ctx, {type:'line', data:data, options:{responsive:false,maintainAspectRatio:false} });";
+		String months = Stream.of(MonthTable.months).map(month -> "'" + month + "'").collect(Collectors.joining(","));
+		String eval = "var canvas = document.getElementById('" + id + "');										"
+				+ "var data = { labels: [" + months + "], datasets: [] };										"
+				+ "var options = { responsive: false, maintainAspectRatio: false };								"
+				+ "var c" + id + " = new Chart( canvas, { type: 'line', data: data, options: options });		";
+		// Fluent.console.log(eval);
 		eval(eval);
 	}
 

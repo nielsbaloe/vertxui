@@ -41,13 +41,12 @@ public class InputNumber extends Fluent {
 		return Double.parseDouble(value);
 	}
 
-	/**
-	 * A method that converts a Surface object (with lambda and thickness) into
-	 * a piece of GUI that shows the R and U values.
-	 */
-
 	private static NumberFormat numberFormat = NumberFormat.getFormat("##,###.##");
 
+	/**
+	 * Helper method to show a number with maximum of two digits and a dot, with
+	 * a comma for each thousand.
+	 */
 	public static String show(double value) {
 		return numberFormat.format(value);
 	}

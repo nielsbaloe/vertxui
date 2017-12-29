@@ -126,7 +126,7 @@ public class View implements EntryPoint {
 
 			// input fields in bootstrap: a div/input-group with a
 			// span/input-group-addon and a form element/form-control, pfff
-			Fluent name = Select("form-control", Name.Niels.name(), null, Name.Linda.name(), null);
+			Fluent name = Select("form-control", null, Name.Niels.name(), null, Name.Linda.name(), null);
 			Fluent amount = Input("form-control", "number").att(Att.min, "0", Att.max, "2000", Att.value, "")
 					.keypress(controller::onBillOnlyNumeric);
 			ComponentDatePicker when = new ComponentDatePicker();

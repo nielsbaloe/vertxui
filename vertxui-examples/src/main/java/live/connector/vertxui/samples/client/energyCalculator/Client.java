@@ -11,13 +11,19 @@ import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
 
 // TODO
-// heating al standaard wat ingevuld
-// chart: negatieve waarden voor bijstook
-// toevoegen chart voor electriciteit
-// ramen
+// !! att(selected) kapot voor alle selects !! 
+// heating: overal standaard wat ingevuld
+// water chart: negatieve waarden voor bijstook
+// electrical chart: toevoegen
 // overal selects ipv invulvelden
 // referentie naar alle bronnen
-// aantal personen toevoegen bij Shower
+// zonneboilers: waarschuwen bij R waarde te laag voor bouwbesluit
+// zonneboilers: switch maken met/zonder CRC
+// zonneboiler+zonnepanelen: breedte totale zonneboilers+zonnepanelen te groot
+// shower: aantal personen toevoegen bij Shower
+// shower: per maand precies aantal dagen
+// core: orginele folders bewaren voor bekijken directory change ipv per file (zodat aanmaken werkt)
+// core: nagaan waarom zoveel meuk in temp blijft hangen bij de standaard GWT opties
 
 public class Client implements EntryPoint {
 

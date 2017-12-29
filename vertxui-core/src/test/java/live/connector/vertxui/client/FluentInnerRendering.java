@@ -38,15 +38,15 @@ public class FluentInnerRendering extends TestDOM {
 		ViewOn<Integer> children = Fluent.body.add(0, i -> {
 			switch (i) {
 			case 0:
-				return Ul(Li(null, "a"), Li(null, "b"), Li(null, "c"));
+				return Ul(null, Li(null, "a"), Li(null, "b"), Li(null, "c"));
 			case 1:
-				return Ul(Li(null, "a"), Li(null, "b"), Li(null, "c"));
+				return Ul(null, Li(null, "a"), Li(null, "b"), Li(null, "c"));
 			case 2:
-				return Ul(Li(null, "a"), Li(null, "c"));
+				return Ul(null, Li(null, "a"), Li(null, "c"));
 			case 3:
-				return Ul(Li(null, "a"), Li(null, "b"));
+				return Ul(null, Li(null, "a"), Li(null, "b"));
 			case 4:
-				return Ul(Li(null, "c"), Li(null, "b"), Li(null, "a"));
+				return Ul(null, Li(null, "c"), Li(null, "b"), Li(null, "a"));
 			default:
 				return null;
 			}

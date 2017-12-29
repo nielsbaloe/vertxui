@@ -628,6 +628,9 @@ public class FluentBase implements Viewable {
 				if (element != null) { // if visual
 
 					switch (name) {
+					// case selected:
+					// ((OptionElement) element).setSelected(true);
+					// break;
 					case checked:
 						((InputElement) element).setChecked(true);
 						break;
@@ -652,6 +655,9 @@ public class FluentBase implements Viewable {
 				if (element != null) { // if visual
 
 					switch (name) {
+					// case selected:
+					// ((OptionElement) element).setSelected(false);
+					// break;
 					case checked:
 						((InputElement) element).setChecked(false);
 						break;
@@ -761,7 +767,7 @@ public class FluentBase implements Viewable {
 		for (Viewable child : childs) {
 			if (child instanceof Fluent) {
 				Fluent fluent = (Fluent) child;
-				fluent.att(Att.selected, false + "");
+				fluent.attrs.remove(Att.selected.nameValid());
 			}
 		}
 
@@ -774,7 +780,7 @@ public class FluentBase implements Viewable {
 				if (child instanceof Fluent) {
 					Fluent fluent = (Fluent) child;
 					if (select == fluent.element) {
-						fluent.attrs.put(Att.selected, true + "");
+						fluent.attrs.put(Att.selected, "true");
 					}
 				}
 			}

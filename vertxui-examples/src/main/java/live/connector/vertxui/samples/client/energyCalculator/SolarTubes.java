@@ -5,12 +5,14 @@ import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
 import live.connector.vertxui.samples.client.energyCalculator.components.InputNumber;
+import live.connector.vertxui.samples.client.energyCalculator.components.MonthTable;
 
 public class SolarTubes {
 
 	private double collectors = 2, tubes = 18;
 
-	public ViewOn<?> conclusion;
+	private ViewOn<?> conclusion;
+	public MonthTable monthTable;
 
 	public SolarTubes(Fluent body, ChartJs chart) {
 
@@ -26,6 +28,12 @@ public class SolarTubes {
 			conclusion.sync();
 		}));
 		body.span(null, " heat tubes. ").br();
+
+		// already create monthTable, so that we do not need to check for its
+		// existance in the conclusion
+		monthTable = new MonthTable(new String[] { "1,3% ", "3,8% ", "7,3% ", "11,5% ", "14,7% ", "13,2% ", "14,6% ",
+				"13,2% ", "10,1% ", "5,4% ", "2,5% ", "1,5% " });
+
 		conclusion = body.add(null, ___ -> {
 
 			// 110.000: source:
@@ -69,36 +77,12 @@ public class SolarTubes {
 			result.br();
 			result.span(null, text3.toString());
 
-			result.br();
-			result.span(null, "Jan. (1,3%) =" + InputNumber.show(0.013 * yearly) + " watt");
-			result.br();
-			result.span(null, "Febr. (3,8%) =" + InputNumber.show(0.038 * yearly) + " watt");
-			result.br();
-			result.span(null, "Maart. (8,7%) =" + InputNumber.show(0.087 * yearly) + " watt");
-			result.br();
-			result.span(null, "April. (13,8%) =" + InputNumber.show(0.138 * yearly) + " watt");
-			result.br();
-			result.span(null, "Mei. (13%) =" + InputNumber.show(0.13 * yearly) + " watt");
-			result.br();
-			result.span(null, "Juni. (13%) =" + InputNumber.show(0.13 * yearly) + " watt");
-			result.br();
-			result.span(null, "Juli. (13%) =" + InputNumber.show(0.13 * yearly) + " watt");
-			result.br();
-			result.span(null, "Aug. (13%) =" + InputNumber.show(0.13 * yearly) + " watt");
-			result.br();
-			result.span(null, "Sept. (10%) =" + InputNumber.show(0.10 * yearly) + " watt");
-			result.br();
-			result.span(null, "Okt. (6,7%) =" + InputNumber.show(0.067 * yearly) + " watt");
-			result.br();
-			result.span(null, "Nov. (2,4%) =" + InputNumber.show(0.024 * yearly) + " watt");
-			result.br();
-			result.span(null, "Dec. (1,3%) =" + InputNumber.show(0.013 * yearly) + " watt");
-			result.br();
-
-			chart.showData("Solar tubes", "green",
-					new double[] { 0.013 * yearly, 0.038 * yearly, 0.087 * yearly, 0.138 * yearly, 0.13 * yearly,
-							0.13 * yearly, 0.13 * yearly, 0.13 * yearly, 0.10 * yearly, 0.067 * yearly, 0.024 * yearly,
-							0.013 * yearly });
+			// update chart and table
+			double[] data = new double[] { 0.013 * yearly, 0.038 * yearly, 0.087 * yearly, 0.138 * yearly,
+					0.13 * yearly, 0.13 * yearly, 0.13 * yearly, 0.13 * yearly, 0.10 * yearly, 0.067 * yearly,
+					0.024 * yearly, 0.013 * yearly };
+			chart.showData("Solar tubes", "green", data);
+			monthTable.state2(data);
 
 			return result;
 		});

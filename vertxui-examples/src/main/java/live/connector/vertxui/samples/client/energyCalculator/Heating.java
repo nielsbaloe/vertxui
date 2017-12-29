@@ -3,12 +3,14 @@ package live.connector.vertxui.samples.client.energyCalculator;
 import java.util.function.Function;
 
 import elemental.events.KeyboardEvent;
+import elemental.events.UIEvent;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
 import live.connector.vertxui.samples.client.energyCalculator.components.InputNumber;
+import live.connector.vertxui.samples.client.energyCalculator.components.MonthTable;
 
 public class Heating {
 
@@ -23,6 +25,7 @@ public class Heating {
 		public double sizeY;
 		public double lambda = defaultLambda;
 		public double thickness; // in meter
+
 		public static final double defaultLambda = 0.039;
 
 		public double getR() {
@@ -49,6 +52,8 @@ public class Heating {
 	private Surface wall4 = new Surface();
 	private Surface roof = new Surface();
 	private Surface floor = new Surface();
+	private double windowPercentage = 0.1;
+	private double windowU = (1.0 / 0.333);
 
 	// Dynamic views
 	private ViewOn<Dimensions> cubic;
@@ -62,6 +67,7 @@ public class Heating {
 	private ViewOn<Surface> floorR;
 	private ViewOn<Surface> floorDetails;
 	private ViewOn<Heating> totals;
+	private MonthTable monthTable;
 
 	// For updating the chart
 	private Client client;
@@ -92,7 +98,11 @@ public class Heating {
 		Fluent heating = body.p();
 		heating.h2(null, "Heating");
 		heating.span().txt("The room I want to heat has a width of ");
-		heating.add(new InputNumber().keyup(this::onWidth));
+		Fluent widthSelector = heating.select(null, "2.3",
+				new String[] { "2.2", "2.2", "2.3", "2.3", "2.4", "2.4", "2.5", "2.5", "2.6", "2.6", "2.7", "2.7",
+						"2.8", "2.8", "2.9", "2.9", "3.0", "3.0", "3.1", "3.1", "3.2", "3.2", "3.3", "3.3", "3.4",
+						"3.4", "3.5", "3.5", "3.6", "3.6", "3.7", "3.7", "3.8", "3.8", "3.9", "3.9", "4.0", "4.0" })
+				.changed(this::onWidth);
 		heating.span().txt(" meter and a length of ");
 		heating.add(new InputNumber().keyup(this::onLength));
 		heating.span().txt(" meter and a height of ");
@@ -156,16 +166,31 @@ public class Heating {
 		liWalls.add(new InputNumber().keyup(this::onWallLambda).att(Att.value, "" + Surface.defaultLambda));
 		liWalls.span(null, " with a thickness of ");
 		liWalls.add(new InputNumber().keyup(this::onWallThickness));
-		liWalls.span(null, " cm. ");
-		wallsR = liWalls.add(wall1, showRandU);
+		liWalls.span(null, " cm, and total window amount is ");
+		liWalls.select(null, windowPercentage + "",
+				new String[] { "10%", "0.1", "20%", "0.2", "30%", "0.3", "40%", "0.4", "50%", "0.5", "60%", "0.6" })
+				.changed((fluent, ___) -> {
+					windowPercentage = Double.parseDouble(fluent.domSelectedOptions()[0]);
+					totals.sync();
+				});
+		liWalls.span(null, " made of ");
+		liWalls.select(null,
+				(1.0 / windowU) + "", new String[] { "single (R=0.175)", "0.175", "double (R=0.333)", "0.333",
+						"HR (R=0.563)", "0.563", "HR+ (R=0.729)", "0.729", "HR++ (R=0.833)", "0.833" })
+				.changed((fluent, ___) -> {
+					windowU = 1.0 / Double.parseDouble(fluent.domSelectedOptions()[0]);
+					totals.sync();
+				});
+		liWalls.span(null, " glass.");
 
 		Fluent wallDetails = liWalls.ul();
+		wallsR = wallDetails.add(wall1, showRandU);
 		wallDetails1 = wallDetails.add(wall1, showHandQ);
 		wallDetails2 = wallDetails.add(wall2, showHandQ);
 		wallDetails3 = wallDetails.add(wall3, showHandQ);
 		wallDetails4 = wallDetails.add(wall4, showHandQ);
 
-		totals = loss.add(this, ____ -> {
+		totals = body.add(this, ____ -> {
 			StringBuilder result = new StringBuilder(
 					"So, the total transmission energy for 1 degree is Q1 = (Hwalls+Hroof+Hfloor)*1 = ");
 			Double total = wall1.getH() + wall2.getH() + wall3.getH() + wall4.getH() + roof.getH() + floor.getH();
@@ -176,6 +201,18 @@ public class Heating {
 			}
 			result.append(
 					" watt per degree, so your peak heating should be (maximum air difference between -10 outside and 20 degrees inside): Q = (H+H+H) *30 = ");
+			if (!total.isNaN() && !total.isInfinite()) {
+				result.append(InputNumber.show(Math.floor(total * 30)));
+			} else {
+				result.append("..");
+			}
+			result.append(" watt. With windows, this is: ");
+			double wallPercentage = 1.0 - windowPercentage;
+			double full1 = (wall1.getH() * wallPercentage) + (wall1.getA() * windowPercentage * windowU);
+			double full2 = (wall2.getH() * wallPercentage) + (wall2.getA() * windowPercentage * windowU);
+			double full3 = (wall3.getH() * wallPercentage) + (wall3.getA() * windowPercentage * windowU);
+			double full4 = (wall4.getH() * wallPercentage) + (wall4.getA() * windowPercentage * windowU);
+			total = full1 + full2 + full3 + full4 + roof.getH() + floor.getH();
 			if (!total.isNaN() && !total.isInfinite()) {
 				transmission = Math.floor(total * 30);
 				chartChanged();
@@ -196,58 +233,37 @@ public class Heating {
 
 			result.append(" The amount of energy that you aproximately need per month is (in 'vollast uren'):");
 
-			Fluent returner = Fluent.P();
-			returner.div(null, result.toString());
-
-			returner.span(null, "Jan. (304 hour) =" + InputNumber.show(304 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "Febr. (299 hour) =" + InputNumber.show(299 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "Maart. (225 hour) =" + InputNumber.show(225 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "April. (148 hour) =" + InputNumber.show(148 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "Mei. (49 hour) =" + InputNumber.show(49 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "Juni. (0 hour) =" + InputNumber.show(0 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "Juli. (0 hour) =" + InputNumber.show(0 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "Aug. (0) =" + InputNumber.show(0 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "Sept. (13 hour) =" + InputNumber.show(13 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "Okt. (110 hour) =" + InputNumber.show(110 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "Nov. (212 hour) =" + InputNumber.show(212 * transmission) + " watt");
-			returner.br();
-			returner.span(null, "Dec. (289 hour) =" + InputNumber.show(289 * transmission) + " watt");
-			returner.br();
-
-			return returner;
+			return Fluent.Div(null, result.toString());
 
 		});
+
+		monthTable = new MonthTable(new String[] { "304 hours", "299 hours", "255 hours", "148 hours", "49 hours",
+				"0 hours", "0 hours", "0 hours", "13 hours", "110 hours", "212 hours", "289 hours" });
+		body.add(monthTable);
+
+		// Setting the default values into all fields
+		onWidth(widthSelector, null);
 
 	}
 
 	public void chartChanged() {
-		Shower shower = client.getShower();
-		if (shower == null) {
-			return;
+		// update table
+		double data[] = new double[] { (304 * transmission), (299 * transmission), (225 * transmission),
+				(148 * transmission), (49 * transmission), (0 * transmission), (0 * transmission), (0 * transmission),
+				(13 * transmission), (110 * transmission), (212 * transmission), (289 * transmission) };
+		monthTable.state2(data);
+
+		// update chart
+		double showerResult = client.getShower().getResultPerMonth();
+		for (int x = 0; x < data.length; x++) {
+			data[x] += showerResult;
 		}
-		double showerResult = shower.getResultPerMonth();
-		chart.showData("Heating + Shower", "red",
-				new double[] { showerResult + (304 * transmission), showerResult + (299 * transmission),
-						showerResult + (225 * transmission), showerResult + (148 * transmission),
-						showerResult + (49 * transmission), showerResult + (0 * transmission),
-						showerResult + (0 * transmission), showerResult + (0 * transmission),
-						showerResult + (13 * transmission), showerResult + (110 * transmission),
-						showerResult + (212 * transmission), showerResult + (289 * transmission) });
+		chart.showData("Heating + Shower", "red", data);
 
 	}
 
-	private void onWidth(Fluent fluent, KeyboardEvent ____) {
-		double value = ((InputNumber) fluent).domValueDouble();
+	private void onWidth(Fluent fluent, UIEvent ____) {
+		double value = Double.parseDouble(fluent.domSelectedOptions()[0]);
 
 		Dimensions dimensions = cubic.state();
 		dimensions.width = value;

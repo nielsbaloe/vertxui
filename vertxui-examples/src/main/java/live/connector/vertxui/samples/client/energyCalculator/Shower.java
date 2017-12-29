@@ -8,7 +8,7 @@ import live.connector.vertxui.samples.client.energyCalculator.components.InputNu
 
 public class Shower {
 
-	private double minutes = 7, literPerMinute = 7, degrees = 38, timesPerWeek = 7, waterTemperature = 11;
+	private double minutes = 9, literPerMinute = 7, degrees = 38, timesPerWeek = 7, waterTemperature = 11;
 
 	private ViewOn<?> conclusion;
 

@@ -706,16 +706,33 @@ public class Fluent extends FluentBase {
 		return select().classs(classs);
 	}
 
-	public Fluent select(String classs, String... namesValues) {
+	private Fluent selectValues(String defaultValue, String... namesValues) {
 		if (namesValues.length % 2 != 0) {
 			throw new IllegalArgumentException(
-					"options for the select should be tupels of names and values, given=" + namesValues);
+					"options for the select should be tupels of names and values, namesValues=" + namesValues);
 		}
-		Fluent result = select(classs);
+		boolean defaultFound = false;
 		for (int x = 0; x < namesValues.length; x += 2) {
-			result.option(null, namesValues[x], namesValues[x + 1]);
+			Fluent option = option(null, namesValues[x], namesValues[x + 1]);
+			if (defaultValue != null && namesValues[x + 1].equals(defaultValue)) {
+				if (defaultFound) {
+					throw new IllegalArgumentException("DefaultValue already selected, defaultValue=" + defaultValue
+							+ " namesValues=" + namesValues);
+				}
+				option.att(Att.selected, "true");
+				defaultFound = true;
+			}
 		}
-		return result;
+		if (!defaultFound && defaultValue != null) {
+			throw new IllegalArgumentException(
+					"DefaultValue does not exist in given list of names&values, defaultValue=" + defaultValue
+							+ " namesValues=" + namesValues);
+		}
+		return this;
+	}
+
+	public Fluent select(String classs, String defaultName, String... namesValues) {
+		return select(classs).selectValues(defaultName, namesValues);
 	}
 
 	public static Fluent Select() {
@@ -726,16 +743,8 @@ public class Fluent extends FluentBase {
 		return Select().classs(classs);
 	}
 
-	public static Fluent Select(String classs, String... namesValues) {
-		if (namesValues.length % 2 != 0) {
-			throw new IllegalArgumentException(
-					"options for the select should be tupels of names and values, given=" + namesValues);
-		}
-		Fluent result = Select(classs);
-		for (int x = 0; x < namesValues.length; x += 2) {
-			result.option(null, namesValues[x], namesValues[x + 1]);
-		}
-		return result;
+	public static Fluent Select(String classs, String defaultName, String... namesValues) {
+		return Select(classs).selectValues(defaultName, namesValues);
 	}
 
 	public Fluent small() {
@@ -838,6 +847,10 @@ public class Fluent extends FluentBase {
 		return new Fluent("TH", this);
 	}
 
+	public Fluent th(String classs, String inner) {
+		return th().classs(classs).txt(inner);
+	}
+
 	public Fluent thead() {
 		return new Fluent("THEAD", this);
 	}
@@ -896,14 +909,6 @@ public class Fluent extends FluentBase {
 
 	public static Fluent Ul(String classs, Stream<Fluent> items) {
 		return Ul().classs(classs).add(items);
-	}
-
-	public static Fluent Ul(Fluent... items) {
-		return Ul().add(items);
-	}
-
-	public static Fluent Ul(Stream<Fluent> items) {
-		return Ul().add(items);
 	}
 
 	public Fluent var() {
