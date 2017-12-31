@@ -767,7 +767,7 @@ public class FluentBase implements Viewable {
 		for (Viewable child : childs) {
 			if (child instanceof Fluent) {
 				Fluent fluent = (Fluent) child;
-				fluent.attrs.remove(Att.selected.nameValid());
+				fluent.attrs.remove(Att.selected);
 			}
 		}
 

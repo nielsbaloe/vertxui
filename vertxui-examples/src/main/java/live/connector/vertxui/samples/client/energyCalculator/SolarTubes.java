@@ -9,12 +9,14 @@ import live.connector.vertxui.samples.client.energyCalculator.components.MonthTa
 
 public class SolarTubes {
 
-	private double collectors = 2, tubes = 18;
+	private double collectors = 2, tubes = 30;
 
 	private ViewOn<?> conclusion;
-	public MonthTable monthTable;
+	private MonthTable monthTable;
+	private double[] data = new double[12];
 
-	public SolarTubes(Fluent body, ChartJs chart) {
+	public SolarTubes(Fluent body, ChartJs chart, Client client) {
+		client.setSolarTubes(this);
 
 		body.h2(null, "Solar tubes");
 		body.span(null, "I want to have ");
@@ -78,14 +80,19 @@ public class SolarTubes {
 			result.span(null, text3.toString());
 
 			// update chart and table
-			double[] data = new double[] { 0.013 * yearly, 0.038 * yearly, 0.087 * yearly, 0.138 * yearly,
-					0.13 * yearly, 0.13 * yearly, 0.13 * yearly, 0.13 * yearly, 0.10 * yearly, 0.067 * yearly,
-					0.024 * yearly, 0.013 * yearly };
-			chart.showData("Solar tubes", "green", data);
+			data = new double[] { 0.013 * yearly, 0.038 * yearly, 0.087 * yearly, 0.138 * yearly, 0.13 * yearly,
+					0.13 * yearly, 0.13 * yearly, 0.13 * yearly, 0.10 * yearly, 0.067 * yearly, 0.024 * yearly,
+					0.013 * yearly };
+			chart.showData("Solar tubes", "blue", data);
 			monthTable.state2(data);
+			client.getHeating().updateShortage();
 
 			return result;
 		});
 
+	}
+
+	public double[] getResult() {
+		return data;
 	}
 }

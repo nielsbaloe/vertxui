@@ -27,7 +27,7 @@ public class ChartJs extends Fluent {
 		return result;
 	}
 
-	public ChartJs(Fluent root, int width, int height) {
+	public ChartJs(Fluent root, int width, int height, String title) {
 		super("canvas", root);
 		att(Att.id, id, Att.width, width + "", Att.height, 200 + "");
 
@@ -35,15 +35,17 @@ public class ChartJs extends Fluent {
 		String eval = "var canvas = document.getElementById('" + id + "');										"
 				+ "var data = { labels: [" + months + "], datasets: [] };										"
 				+ "var options = { responsive: false, maintainAspectRatio: false };								"
-				+ "var c" + id + " = new Chart( canvas, { type: 'line', data: data, options: options });		";
+				+ "var title = { text: '" + title + "'};															"
+				+ "var c" + id + "=new Chart(canvas,{type:'line',data:data,options:options,title:title});		";
 		// Fluent.console.log(eval);
 		eval(eval);
 	}
 
 	public void showData(String title, String color, double[] data) {
-		// round data
+		// /1000 and rounded
+		double show[] = new double[data.length];
 		for (int x = 0; x < data.length; x++) {
-			data[x] = Math.round(data[x]);
+			show[x] = Math.round(data[x] * 0.001);
 		}
 
 		// get position in dataset array
@@ -56,7 +58,7 @@ public class ChartJs extends Fluent {
 		String eval = "var cdata= c" + id + ".data;																"
 				+ "if (cdata.datasets['" + position + "'] === undefined) {cdata.datasets.push({});}"
 				+ "cdata.datasets['" + position + "'].label='" + title + "';  						"
-				+ "cdata.datasets['" + position + "'].data=" + Arrays.toString(data) + "; 			"
+				+ "cdata.datasets['" + position + "'].data=" + Arrays.toString(show) + "; 			"
 				+ "cdata.datasets['" + position + "'].fill=false;									"
 				+ "cdata.datasets['" + position + "'].backgroundColor= '" + color + "';				"
 				+ "cdata.datasets['" + position + "'].borderColor= '" + color + "';";

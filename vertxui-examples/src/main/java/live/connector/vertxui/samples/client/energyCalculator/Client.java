@@ -11,24 +11,32 @@ import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
 
 // TODO
-// !! att(selected) kapot voor alle selects !! 
-// heating: overal standaard wat ingevuld
-// water chart: negatieve waarden voor bijstook
-// electrical chart: toevoegen
-// overal selects ipv invulvelden
-// referentie naar alle bronnen
-// zonneboilers: waarschuwen bij R waarde te laag voor bouwbesluit
-// zonneboilers: switch maken met/zonder CRC
-// zonneboiler+zonnepanelen: breedte totale zonneboilers+zonnepanelen te groot
-// shower: aantal personen toevoegen bij Shower
-// shower: per maand precies aantal dagen
-// core: orginele folders bewaren voor bekijken directory change ipv per file (zodat aanmaken werkt)
-// core: nagaan waarom zoveel meuk in temp blijft hangen bij de standaard GWT opties
+// MUST HAVE
+// !- electrical chart: toevoegen
+// - heating: berekening ook ventilatie en joints toevoegen, roof 15% extra ivm straling?
+// 		-> zoek op 'heat house transmission calculation'
+// SHOULD HAVE
+// - overal selects ipv invulvelden
+// - referentie naar alle bronnen
+// NICE TO HAVE
+// - chart.js title werkt niet
+// - waarschuwingen
+// -- als breedte + isolatie meer dan 2.55 breed of 13.60 lang of 3.6 hoog
+// -- als R waarde te laag voor bouwbesluit: vloer 3,5, wand 4.5, dak 6,0  (24 14 18 cm)
+// -- als breedte totale zonneboilers+zonnepanelen te groot bij zowel zonneboiler als zonnepanelen
+// -- als heating in maart niet de moeite met zonneboilers
+// - extra opties
+// -- zonneboilers: switch maken met/zonder CRC
+// -- shower: aantal personen toevoegen bij Shower
+// -- shower: per maand precies aantal dagen
+// -- core: orginele folders bewaren voor bekijken directory change ipv per file (zodat aanmaken werkt)
+// -- core: nagaan waarom zoveel meuk in temp blijft hangen bij de standaard GWT opties
 
 public class Client implements EntryPoint {
 
 	private Shower shower;
 	private Heating heating;
+	private SolarTubes solarTubes;
 
 	public static ArrayList<String> getScripts() {
 		return ChartJs.getScripts();
@@ -47,18 +55,15 @@ public class Client implements EntryPoint {
 						+ "the knowledge how to improve this calculator, I will definitely give feedback on this website.")
 				.css(Css.color, "red");
 
-		ChartJs chart = new ChartJs(root, 500, 200);
-		// sticky
-		chart.css(Css.position, "sticky", Css.top, "0");
-		// position
-		chart.css(Css.Float, "right");
-		// transparant white background
-		chart.css(Css.backgroundColor, "rgba(255, 255, 255, 0.6)");
+		ChartJs chart = new ChartJs(root, 500, 200, "Warm water (kW)");
+		chart.css(Css.position, "sticky", Css.top, "0"); // sticky
+		chart.css(Css.Float, "right"); // position
+		chart.css(Css.backgroundColor, "rgba(255, 255, 255, 0.6)"); // background
 
 		new Heating(root, chart, this);
 		new Shower(root, chart, this);
 		new Cooking(root);
-		new SolarTubes(root, chart);
+		new SolarTubes(root, chart, this);
 		new SolarPanels(root);
 		new Stove(root);
 	}
@@ -77,6 +82,14 @@ public class Client implements EntryPoint {
 
 	public Heating getHeating() {
 		return heating;
+	}
+
+	public SolarTubes getSolarTubes() {
+		return solarTubes;
+	}
+
+	public void setSolarTubes(SolarTubes solarTubes) {
+		this.solarTubes = solarTubes;
 	}
 
 	@Override
