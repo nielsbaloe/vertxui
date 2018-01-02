@@ -34,9 +34,8 @@ public class ChartJs extends Fluent {
 		String months = Stream.of(MonthTable.months).map(month -> "'" + month + "'").collect(Collectors.joining(","));
 		String eval = "var canvas = document.getElementById('" + id + "');										"
 				+ "var data = { labels: [" + months + "], datasets: [] };										"
-				+ "var options = { responsive: false, maintainAspectRatio: false };								"
-				+ "var title = { text: '" + title + "'};															"
-				+ "var c" + id + "=new Chart(canvas,{type:'line',data:data,options:options,title:title});		";
+				+ "var options={responsive:false,maintainAspectRatio:false,title:{display:true,text:'" + title + "'}};"
+				+ "var c" + id + "=new Chart(canvas,{ type:'line', data:data, options:options});		";
 		// Fluent.console.log(eval);
 		eval(eval);
 	}

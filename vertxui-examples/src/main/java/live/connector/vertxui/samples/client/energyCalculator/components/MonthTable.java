@@ -30,7 +30,13 @@ public class MonthTable extends ViewOnBoth<String[], double[]> {
 			Fluent dataRow = result.tr();
 			if (datas != null) {
 				for (double data : datas) {
-					dataRow.td(null, InputNumber.show(Math.round(data)) + " watt").css(Css.border, "1px solid black");
+					String string = null;
+					if (infoInitial == null) {
+						string = Utils.format(data);
+					} else {
+						string = Utils.format(Math.round(data * 0.001)) + " kW";
+					}
+					dataRow.td(null, string).css(Css.border, "1px solid black");
 				}
 			}
 

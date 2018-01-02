@@ -1,7 +1,5 @@
 package live.connector.vertxui.samples.client.energyCalculator.components;
 
-import com.google.gwt.i18n.client.NumberFormat;
-
 import elemental.events.KeyboardEvent;
 import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Css;
@@ -39,16 +37,6 @@ public class InputNumber extends Fluent {
 			value += "0";
 		}
 		return Double.parseDouble(value);
-	}
-
-	private static NumberFormat numberFormat = NumberFormat.getFormat("##,###.##");
-
-	/**
-	 * Helper method to show a number with maximum of two digits and a dot, with
-	 * a comma for each thousand.
-	 */
-	public static String show(double value) {
-		return numberFormat.format(value);
 	}
 
 }

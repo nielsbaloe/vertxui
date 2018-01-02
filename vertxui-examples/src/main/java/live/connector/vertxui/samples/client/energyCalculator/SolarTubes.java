@@ -1,34 +1,34 @@
 package live.connector.vertxui.samples.client.energyCalculator;
 
-import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
-import live.connector.vertxui.samples.client.energyCalculator.components.InputNumber;
 import live.connector.vertxui.samples.client.energyCalculator.components.MonthTable;
+import live.connector.vertxui.samples.client.energyCalculator.components.Utils;
 
 public class SolarTubes {
 
-	private double collectors = 2, tubes = 30;
-
+	private double quantity = 2, tubes = 20;
 	private ViewOn<?> conclusion;
 	private MonthTable monthTable;
-	private double[] data = new double[12];
+	private double[] result = new double[12];
+	private double totalLength;
 
 	public SolarTubes(Fluent body, ChartJs chart, Client client) {
 		client.setSolarTubes(this);
 
 		body.h2(null, "Solar tubes");
-		body.span(null, "I want to have ");
-		body.add(new InputNumber().att(Att.value, collectors + "").keyup((fluent, ___) -> {
-			collectors = ((InputNumber) fluent).domValueDouble();
+		body.span(null, "I want ");
+		body.select(null, quantity + "", Utils.getSelectNumbers(0, 1, 100)).changed((fluent, ___) -> {
+			quantity = Double.parseDouble(fluent.domSelectedOptions()[0]);
 			conclusion.sync();
-		}));
+		});
 		body.span(null, " collectors with each ");
-		body.add(new InputNumber().att(Att.value, tubes + "").keyup((fluent, ___) -> {
-			tubes = ((InputNumber) fluent).domValueDouble();
-			conclusion.sync();
-		}));
+		body.select(null, tubes + "", "8", "8", "18", "18", "20", "20", "24", "24", "30", "30", "36", "36", "48", "48",
+				"54", "54").changed((fluent, ___) -> {
+					tubes = Double.parseDouble(fluent.domSelectedOptions()[0]);
+					conclusion.sync();
+				});
 		body.span(null, " heat tubes. ").br();
 
 		// already create monthTable, so that we do not need to check for its
@@ -38,61 +38,68 @@ public class SolarTubes {
 
 		conclusion = body.add(null, ___ -> {
 
-			// 110.000: source:
+			// Source 110.000:
 			// https://econo.nl/berekening-zonneboiler-subsidie-2017 with 45
 			// degrees.
-
 			// percentages:
 			// https://econo.nl/berekening-zonneboiler-subsidie-2017
 
-			StringBuilder text1 = new StringBuilder("That would bring me a total of ");
-			text1.append(InputNumber.show(collectors * tubes));
-			text1.append(" heat pipes, which each give about 110.000 watt a year, so that is in total 110.000*");
-			text1.append(InputNumber.show(collectors * tubes));
-			text1.append("=");
-			double yearly = collectors * tubes * 110000;
-			text1.append(InputNumber.show(yearly));
+			StringBuilder text1 = new StringBuilder("Total: ");
+			text1.append(Utils.format(quantity * tubes));
+			text1.append(" heat pipes = 110,000 W * ");
+			text1.append(Utils.format(quantity * tubes));
+			text1.append(" = ");
+			double yearly = quantity * tubes * 1100_00;
+			text1.append(Utils.format(yearly));
 			text1.append(" watt a year.");
 
-			StringBuilder text2 = new StringBuilder(" The roof size per collector is about 1.98m height and ");
+			StringBuilder text2 = new StringBuilder(" Size: 1.98m x (0.115*");
+			text2.append(Utils.format(tubes));
+			text2.append("*");
+			text2.append(Utils.format(quantity));
+			text2.append(") = 1.98m x ");
 			double tubeWidth = 0.115;
-			text2.append(InputNumber.show(tubeWidth));
-			text2.append("m per pipe, so the total roof area is 1.98m * (");
-			text2.append(InputNumber.show(tubeWidth));
-			text2.append("*");
-			text2.append(InputNumber.show(tubes));
-			text2.append("*");
-			text2.append(InputNumber.show(collectors));
-			text2.append(") = ");
-			double area = 1.98 * tubeWidth * tubes * collectors;
-			text2.append(InputNumber.show(area));
+			double length = tubeWidth * tubes * quantity;
+			text2.append(Utils.format(length));
+			text2.append("m = ");
+			double area = 1.98 * length;
+			text2.append(Utils.format(area));
 			text2.append(" m2 roof.");
 
+			totalLength = tubeWidth * tubes * quantity;
+			client.getHeating().warnLength();
+
 			StringBuilder text3 = new StringBuilder("The efficiency of the panels is (yearly/1040)/area =");
-			text3.append(InputNumber.show((yearly / 1040) / area));
+			text3.append(Utils.format((yearly / 1040) / area));
 			text3.append(" watt per m2.");
 
-			Fluent result = Fluent.P();
-			result.span(null, text1.toString());
-			result.br();
-			result.span(null, text2.toString());
-			result.br();
-			result.span(null, text3.toString());
+			Fluent returner = Fluent.P();
+			returner.span(null, text1.toString());
+			returner.br();
+			returner.span(null, text2.toString());
+			returner.br();
+			returner.span(null, text3.toString());
+			returner.add(monthTable);
 
 			// update chart and table
-			data = new double[] { 0.013 * yearly, 0.038 * yearly, 0.087 * yearly, 0.138 * yearly, 0.13 * yearly,
+			result = new double[] { 0.013 * yearly, 0.038 * yearly, 0.087 * yearly, 0.138 * yearly, 0.13 * yearly,
 					0.13 * yearly, 0.13 * yearly, 0.13 * yearly, 0.10 * yearly, 0.067 * yearly, 0.024 * yearly,
 					0.013 * yearly };
-			chart.showData("Solar tubes", "blue", data);
-			monthTable.state2(data);
-			client.getHeating().updateShortage();
+			chart.showData("Solar tubes", "green", result);
+			monthTable.state2(result);
+			client.getHeating().updateHeatgap();
 
-			return result;
+			return returner;
 		});
 
 	}
 
 	public double[] getResult() {
-		return data;
+		return result;
 	}
+
+	public double getTotalLength() {
+		return totalLength;
+	}
+
 }

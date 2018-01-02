@@ -4,14 +4,17 @@ import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.InputNumber;
+import live.connector.vertxui.samples.client.energyCalculator.components.Utils;
 
 public class Cooking {
 
-	private double minutes = 30.0, plates = 2.0, energy = 1300.0, timesPerWeek = 6.0;
-
+	private double minutes = 30.0, plates = 2.0, energy = 1300.0, timesPerWeek = 6.0, other = 3_000_000;
 	private ViewOn<?> conclusion;
+	private double[] result = new double[12];
 
-	public Cooking(Fluent body) {
+	public Cooking(Fluent body, Client client) {
+		client.setCooking(this);
+
 		body.h2(null, "Cooking");
 		body.span(null, "I am usually cooking about ");
 		body.add(new InputNumber().att(Att.value, minutes + "").keyup((fluent, ___) -> {
@@ -34,7 +37,12 @@ public class Cooking {
 			timesPerWeek = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
-		body.span(null, " times per week.");
+		body.span(null, " times per week. For all other things I use");
+		body.add(new InputNumber().att(Att.value, other + "").keyup((fluent, ___) -> {
+			other = ((InputNumber) fluent).domValueDouble();
+			conclusion.sync();
+		}));
+		body.span(null, " watt per year");
 		body.br();
 		body.br();
 
@@ -44,16 +52,31 @@ public class Cooking {
 			text1.append(" this means that for every time cooking I consume about ");
 			text1.append(" hours*plates*energy*0.5 = ");
 			double perDinner = (minutes / 60.0) * plates * energy * 0.5;
-			text1.append(InputNumber.show(perDinner));
+			text1.append(Utils.format(perDinner));
 			text1.append(" watt per dinner.");
 
 			StringBuilder text2 = new StringBuilder("This is more or less (30/7)*");
-			text2.append(InputNumber.show(timesPerWeek));
+			text2.append(Utils.format(timesPerWeek));
 			text2.append("*");
-			text2.append(InputNumber.show(perDinner));
+			text2.append(Utils.format(perDinner));
 			text2.append("=");
-			text2.append(InputNumber.show(Math.floor(perDinner * timesPerWeek * 30.0 / 7.0)));
+			double resultPerMonth = Math.floor(perDinner * timesPerWeek * 30.0 / 7.0);
+			text2.append(Utils.format(resultPerMonth));
 			text2.append(" watt per month.");
+
+			// Cooking
+			double[] cooking = new double[] { resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth,
+					resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth,
+					resultPerMonth, resultPerMonth };
+			client.getElectricChart().showData("Cooking", "darkblue", cooking);
+
+			// Cooking+other
+			double withOtherPerMonth = resultPerMonth + other / 12.0;
+			result = new double[] { withOtherPerMonth, withOtherPerMonth, withOtherPerMonth, withOtherPerMonth,
+					withOtherPerMonth, withOtherPerMonth, withOtherPerMonth, withOtherPerMonth, withOtherPerMonth,
+					withOtherPerMonth, withOtherPerMonth, withOtherPerMonth };
+			client.getElectricChart().showData("Cooking+other", "blue", result);
+			client.getHeating().updateHeatgap();
 
 			Fluent result = Fluent.P();
 			result.span(null, text1.toString());
@@ -63,4 +86,7 @@ public class Cooking {
 		});
 	}
 
+	public double[] getResult() {
+		return result;
+	}
 }
