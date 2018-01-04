@@ -7,8 +7,9 @@ import live.connector.vertxui.samples.client.energyCalculator.components.Utils;
 
 public class Stove {
 
-	private double power = 4000, efficiency = 60, kgPerCubic = 350, wood = 4220;
+	private double power = 5000, efficiency = 75, kgPerCubic = 350, wood = 4220;
 	private ViewOn<?> conclusion;
+	private ViewOn<Double> total;
 	private MonthTable monthTable;
 	private Client client;
 
@@ -46,6 +47,9 @@ public class Stove {
 
 		// initialise now to avoid null-pointer error later
 		monthTable = new MonthTable(null);
+		total = new ViewOn<>(null, total -> {
+			return Fluent.Span(null, " in total " + Utils.format(total) + "m3 wood.");
+		});
 
 		conclusion = body.add(null, ___ -> {
 
@@ -73,14 +77,14 @@ public class Stove {
 			text2.append(Utils.format(kgNeeded));
 			text2.append("/");
 			text2.append(Utils.format(kgPerCubic));
-			text2.append(" m3 of wood. The table below gives how many m3 wood you need to fill the heatgap.");
-
-			updateTable();
+			text2.append(" m3 of wood. The table below show how much wood you may need for the heatgap, ");
 
 			Fluent result = Fluent.P();
 			result.span(null, text1.toString());
 			result.br();
 			result.span(null, text2.toString());
+			result.add(total);
+			updateTable();
 
 			return result;
 		});
@@ -97,6 +101,7 @@ public class Stove {
 		double[] m3 = new double[12];
 		double maxStove = power * 0.01 * efficiency;
 		double kgNeeded = power / wood;
+		double all = 0;
 		for (int x = 0; x < 12; x++) {
 			if (heatgap[x] == 0) {
 				m3[x] = 0;
@@ -104,10 +109,12 @@ public class Stove {
 				double hours = (-1.0 * heatgap[x]) / maxStove;
 				double kgNeededNow = hours * kgNeeded;
 				m3[x] = kgNeededNow / kgPerCubic;
+				all += m3[x];
 			}
 		}
 
 		monthTable.state(heatgapString, m3);
+		total.state(all);
 	}
 
 }

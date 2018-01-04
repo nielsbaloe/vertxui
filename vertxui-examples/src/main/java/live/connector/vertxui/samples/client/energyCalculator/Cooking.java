@@ -8,7 +8,7 @@ import live.connector.vertxui.samples.client.energyCalculator.components.Utils;
 
 public class Cooking {
 
-	private double minutes = 30.0, plates = 2.0, energy = 1300.0, timesPerWeek = 6.0, other = 3_000_000;
+	private double minutes = 45.0, plates = 2.0, energy = 1300.0, timesPerWeek = 6.0, other = 3_000;
 	private ViewOn<?> conclusion;
 	private double[] result = new double[12];
 
@@ -37,12 +37,12 @@ public class Cooking {
 			timesPerWeek = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
-		body.span(null, " times per week. For all other things I use");
+		body.span(null, " times per week. For all other things I use ");
 		body.add(new InputNumber().att(Att.value, other + "").keyup((fluent, ___) -> {
 			other = ((InputNumber) fluent).domValueDouble();
 			conclusion.sync();
 		}));
-		body.span(null, " watt per year");
+		body.span(null, " kW per year.");
 		body.br();
 		body.br();
 
@@ -52,26 +52,26 @@ public class Cooking {
 			text1.append(" this means that for every time cooking I consume about ");
 			text1.append(" hours*plates*energy*0.5 = ");
 			double perDinner = (minutes / 60.0) * plates * energy * 0.5;
-			text1.append(Utils.format(perDinner));
+			text1.append(Utils.format(Math.round(perDinner)));
 			text1.append(" watt per dinner.");
 
-			StringBuilder text2 = new StringBuilder("This is more or less (30/7)*");
+			StringBuilder text2 = new StringBuilder("This is more or less (30.5/7)*");
 			text2.append(Utils.format(timesPerWeek));
 			text2.append("*");
 			text2.append(Utils.format(perDinner));
 			text2.append("=");
-			double resultPerMonth = Math.floor(perDinner * timesPerWeek * 30.0 / 7.0);
-			text2.append(Utils.format(resultPerMonth));
-			text2.append(" watt per month.");
+			double resultPerMonth = Math.round(perDinner * timesPerWeek * 30.5 / 7.0);
+			text2.append(Utils.format(Math.round(resultPerMonth * 0.001)));
+			text2.append(" kW per month.");
 
-			// Cooking
-			double[] cooking = new double[] { resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth,
-					resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth, resultPerMonth,
-					resultPerMonth, resultPerMonth };
+			double perDay = perDinner * (timesPerWeek / 7.0);
+
+			double[] cooking = new double[] { perDay * 31, perDay * 28, perDay * 31, perDay * 30, perDay * 31,
+					perDay * 30, perDay * 31, perDay * 31, perDay * 30, perDay * 31, perDay * 30, perDay * 31 };
 			client.getElectricChart().showData("Cooking", "darkblue", cooking);
 
 			// Cooking+other
-			double withOtherPerMonth = resultPerMonth + other / 12.0;
+			double withOtherPerMonth = resultPerMonth + other * 1000 / 12.0;
 			result = new double[] { withOtherPerMonth, withOtherPerMonth, withOtherPerMonth, withOtherPerMonth,
 					withOtherPerMonth, withOtherPerMonth, withOtherPerMonth, withOtherPerMonth, withOtherPerMonth,
 					withOtherPerMonth, withOtherPerMonth, withOtherPerMonth };

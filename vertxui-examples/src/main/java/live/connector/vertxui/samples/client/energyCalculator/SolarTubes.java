@@ -38,7 +38,7 @@ public class SolarTubes {
 
 		conclusion = body.add(null, ___ -> {
 
-			// Source 110.000:
+			// Source 110kW:
 			// https://econo.nl/berekening-zonneboiler-subsidie-2017 with 45
 			// degrees.
 			// percentages:
@@ -46,12 +46,12 @@ public class SolarTubes {
 
 			StringBuilder text1 = new StringBuilder("Total: ");
 			text1.append(Utils.format(quantity * tubes));
-			text1.append(" heat pipes = 110,000 W * ");
+			text1.append(" heat pipes = 110kW*");
 			text1.append(Utils.format(quantity * tubes));
 			text1.append(" = ");
-			double yearly = quantity * tubes * 1100_00;
-			text1.append(Utils.format(yearly));
-			text1.append(" watt a year.");
+			double yearly = quantity * tubes * 110000;
+			text1.append(Utils.format(yearly * 0.001));
+			text1.append(" kW per year.");
 
 			StringBuilder text2 = new StringBuilder(" Size: 1.98m x (0.115*");
 			text2.append(Utils.format(tubes));
@@ -67,10 +67,10 @@ public class SolarTubes {
 			text2.append(" m2 roof.");
 
 			totalLength = tubeWidth * tubes * quantity;
-			client.getHeating().warnLength();
+			client.getHeating().warnPanelsLength();
 
-			StringBuilder text3 = new StringBuilder("The efficiency of the panels is (yearly/1040)/area =");
-			text3.append(Utils.format((yearly / 1040) / area));
+			StringBuilder text3 = new StringBuilder("The efficiency of the panels is (yearly/1040)/area = ");
+			text3.append(Utils.format(Math.round((yearly / 1040) / area)));
 			text3.append(" watt per m2.");
 
 			Fluent returner = Fluent.P();

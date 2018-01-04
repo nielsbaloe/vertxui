@@ -13,23 +13,12 @@ import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
 
 //
-//toelichting: niet behandeld in cursus, wel serieuze tool om je kennis te laten maken met begrippen.
+//TODO
+//- toelichting: niet behandeld in cursus, wel serieuze tool om je kennis te laten maken met begrippen.
 //uitnodiging om met de grafiek te spelen, bv. hoeveel zonnepanelen nodig om ook in wintermaanden zelfvoorzienend te zijn? wat als je niet 7 maar 70 minuten doucht? en wat als je niet 5 maar 50 cm in je muren isoleert?
-//release met release=true
-//
-// TODO
-// 3 waarschuwingen
-// - als breedte + isolatie meer dan 2.55 breed of 13.60 lang of 3.6 hoog
-// - als R waarde te laag voor bouwbesluit: vloer 3,5, wand 4.5, dak 6,0  (24 14 18 cm)
-// - als heating in maart niet de moeite met zonneboilers
-// - als roof beneden 6.5 rc is ivm vollast uren
-// 4 extra opties
-// - zonneboilers: switch maken met/zonder CRC
-// - shower: aantal personen toevoegen bij Shower
-// - shower en cooking: per maand exact aantal dagen
-// 5 rest
-// - core: orginele folders bewaren voor bekijken directory change ipv per file (zodat aanmaken werkt)
-// - core: nagaan waarom zoveel meuk in temp blijft hangen bij de standaard GWT opties
+//- release met release=true
+//- core: orginele folders bewaren voor bekijken directory change ipv per file (zodat aanmaken werkt)
+//- core: nagaan waarom zoveel meuk in temp blijft hangen bij de standaard GWT opties
 
 public class Client implements EntryPoint {
 
@@ -41,7 +30,7 @@ public class Client implements EntryPoint {
 	private ChartJs waterChart;
 	private Cooking cooking;
 	private Stove stove;
-	private ViewOn<HashMap<String, String>> warnings;
+	private ViewOn<HashMap<String, String>> infoAndwarnings;
 
 	public static ArrayList<String> getScripts() {
 		return ChartJs.getScripts();
@@ -68,13 +57,18 @@ public class Client implements EntryPoint {
 		electricChart.css(Css.backgroundColor, "rgba(255, 255, 255, 0.8)"); // background
 		waterChart = new ChartJs(conclusions, 500, 300, "Warm water (kW)");
 		waterChart.css(Css.backgroundColor, "rgba(255, 255, 255, 0.8)"); // background
-		warnings = conclusions.add(new HashMap<>(), warnings -> {
+		infoAndwarnings = conclusions.add(new HashMap<>(), infoAndWarnings -> {
 			Fluent result = Fluent.Div();
 			result.css(Css.backgroundColor, "rgba(255, 255, 255, 0.8)"); // background
-			for (String warning : warnings.values()) {
-				Fluent p = result.p(null, warning);
-				p.css(Css.color, "red");
-			}
+			infoAndWarnings.forEach((key, message) -> {
+				Fluent span = result.span(null, message);
+				if (key.startsWith("info")) {
+					span.css(Css.color, "purple");
+				} else {
+					span.css(Css.color, "red");
+				}
+				result.br();
+			});
 			return result;
 		});
 
@@ -84,6 +78,7 @@ public class Client implements EntryPoint {
 
 		new Cooking(root, this);
 		new SolarPanels(root, this);
+
 		new Stove(root, this);
 	}
 
@@ -95,8 +90,8 @@ public class Client implements EntryPoint {
 		return shower;
 	}
 
-	protected ViewOn<HashMap<String, String>> getWarnings() {
-		return warnings;
+	protected ViewOn<HashMap<String, String>> getInfoAndWarnings() {
+		return infoAndwarnings;
 	}
 
 	protected void setHeating(Heating heating) {

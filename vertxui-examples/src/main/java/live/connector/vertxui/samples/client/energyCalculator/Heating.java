@@ -59,7 +59,7 @@ public class Heating {
 		}
 	}
 
-	// Source: Model and Rsi and Rse:
+	// Source: Model and Rsi and Rse, compensatie orientatie en koude wanden
 	// http://fvb.constructiv.be/~/media/Files/Shared/FVB/Centrale%20verwarming/NL/CV-warmteverliesberekening4_1A_theorie_for_web.pdf
 	private Surface wall1 = new Surface(0.13, 0.04);
 	private Surface wall2 = new Surface(0.13, 0.04);
@@ -67,22 +67,20 @@ public class Heating {
 	private Surface wall4 = new Surface(0.13, 0.04);
 	private Surface roof = new Surface(0.10, 0.04);
 	private Surface floor = new Surface(0.17, 0.04);
-	private double windowPercentage = 20;
+	private double windowPercentage = 16;
 	private double windowU = (1.0 / 0.333);
 
 	// Dynamic views
 	private ViewOn<Dimensions> cubic;
-	private ViewOn<Surface> wallsR; // looks at wall1
 	private ViewOn<Surface> wallDetails1;
 	private ViewOn<Surface> wallDetails2;
 	private ViewOn<Surface> wallDetails3;
 	private ViewOn<Surface> wallDetails4;
-	private ViewOn<Surface> roofR;
 	private ViewOn<Surface> roofDetails;
-	private ViewOn<Surface> floorR;
 	private ViewOn<Surface> floorDetails;
 	private ViewOn<Heating> totals;
 	private MonthTable monthTable;
+	private ViewOn<Heating> windowViewer;
 
 	// For updating the chart
 	private Client client;
@@ -100,15 +98,15 @@ public class Heating {
 
 		Fluent heating = body.p();
 		heating.h2(null, "Heating");
-		heating.span().txt("The square (tiny) house has a width ");
-		Fluent widthSelector = heating.select(null, "2.3", Utils.getSelectNumbers(2.2, 0.1, 4.0))
+		heating.span().txt("The square (tiny) house is inside width ");
+		Fluent widthSelector = heating.select(null, "2.1", Utils.getSelectNumbers(1.5, 0.1, 4.0))
 				.changed(this::onWidth);
 		heating.span().txt(" m, length ");
 		Fluent lengthSelector = heating.select(null, "8", Utils.getSelectNumbers(4.0, 0.5, 15.0))
 				.changed(this::onLength);
 		heating.span().txt(" m, height ");
-		Fluent heightSelector = heating.select(null, "3", Utils.getSelectNumbers(2.0, 0.2, 4.0))
-				.changed(this::onLength);
+		Fluent heightSelector = heating.select(null, "3", Utils.getSelectNumbers(2.0, 0.2, 5.0))
+				.changed(this::onHeight);
 		heating.span().txt(" m, so ");
 		cubic = heating.add(new Dimensions(), dimensions -> {
 			Fluent result = Fluent.Span();
@@ -138,7 +136,6 @@ public class Heating {
 		Fluent roofThicknessSelector = liRoof.select(null, "25", Utils.getSelectNumbers(5, 5, 100))
 				.changed(this::onRoofThickness);
 		liRoof.span(null, " cm. ");
-		roofR = liRoof.add(roof, showRandU);
 		roofDetails = liRoof.ul().add(roof, showHandQ);
 
 		Fluent liFloor = ul.li();
@@ -153,7 +150,6 @@ public class Heating {
 		Fluent floorThicknessSelector = liFloor.select(null, "15", Utils.getSelectNumbers(5, 5, 100))
 				.changed(this::onFloorThickness);
 		liFloor.span(null, " cm. ");
-		floorR = liFloor.add(floor, showRandU);
 		floorDetails = liFloor.ul().add(floor, showHandQ);
 
 		Fluent liWalls = ul.li();
@@ -168,16 +164,21 @@ public class Heating {
 		Fluent wallsThicknessSelector = liWalls.select(null, "20", Utils.getSelectNumbers(5, 5, 100))
 				.changed(this::onWallThickness);
 		liWalls.span(null, " cm.");
-		wallsR = liWalls.add(wall1, showRandU);
 		liWalls.br();
 
 		// Windows
 		liWalls.span(null, "All windows are ");
-		liWalls.select(null, windowPercentage + "", Utils.getSelectNumbers(0, 5, 70)).changed((fluent, ___) -> {
+		liWalls.select(null, windowPercentage + "", Utils.getSelectNumbers(0, 2, 50)).changed((fluent, ___) -> {
 			windowPercentage = Double.parseDouble(fluent.domSelectedOptions()[0]);
 			totals.sync();
+			windowViewer.sync();
 		});
-		liWalls.span(null, "% of all walls made of ");
+		liWalls.span(null, "% of all walls ");
+		windowViewer = liWalls.add(this, all -> {
+			double value = (wall1.getA() + wall2.getA() + wall3.getA() + wall4.getA()) * windowPercentage * 0.01;
+			return Fluent.Span(null, "(" + Utils.format(value) + " m2)");
+		});
+		liWalls.span(null, " made of ");
 		liWalls.select(null,
 				(1.0 / windowU) + "", new String[] { "single (R=0.175)", "0.175", "double (R=0.333)", "0.333",
 						"HR (R=0.563)", "0.563", "HR+ (R=0.729)", "0.729", "HR++ (R=0.833)", "0.833" })
@@ -195,26 +196,19 @@ public class Heating {
 
 		totals = body.add(this, ____ -> {
 			StringBuilder result = new StringBuilder(
-					"The total transmission energy for 1 degree is Q1 = (Hwalls+Hroof+Hfloor)*1 = ");
-			Double total = wall1.getH() + wall2.getH() + wall3.getH() + wall4.getH() + roof.getH() + floor.getH();
-			if (!total.isNaN() && !total.isInfinite()) {
-				result.append(Utils.format(total));
-			} else {
-				result.append("..");
+					"The peak of your heating is (from -10 outside to 20 degree inside, without infiltration loss): Q=(H+H+...)*30=");
+			Double totalH = wall1.getH() + wall2.getH() + wall3.getH() + wall4.getH() + roof.getH() + floor.getH();
+			if (totalH.isNaN() || totalH.isInfinite()) {
+				totalH = new Double(0);
 			}
-			result.append(" watt per degree, so the peak heating is (-10 outside, 20 inside): Q=(H+H+...)*30=");
-			if (!total.isNaN() && !total.isInfinite()) {
-				transmission = total * 30.0;
-				result.append(Utils.format(Math.round(transmission)));
-			} else {
-				result.append("..");
-			}
-			result.append(" watt, and with small correction for the (unknown) orientation: ");
+			transmission = totalH * 30.0;
+			result.append(Utils.format(Math.round(transmission)));
+			result.append(" watt, and with small correction for the (unknown) orientation and cold walls: ");
 
 			// Orientation loss
 			double orientationLoss = 1.02;
-			if (!total.isNaN() && !total.isInfinite()) {
-				transmission = total * orientationLoss * 30.0;
+			if (!totalH.isNaN() && !totalH.isInfinite()) {
+				transmission = totalH * orientationLoss * 30.0;
 				result.append(Utils.format(Math.round(transmission)));
 			} else {
 				result.append("..");
@@ -228,24 +222,39 @@ public class Heating {
 			double full2 = (wall2.getH() * wallPercentage) + (wall2.getA() * windowU * win);
 			double full3 = (wall3.getH() * wallPercentage) + (wall3.getA() * windowU * win);
 			double full4 = (wall4.getH() * wallPercentage) + (wall4.getA() * windowU * win);
-			total = full1 + full2 + full3 + full4 + roof.getH() + floor.getH();
-			if (!total.isNaN() && !total.isInfinite()) {
-				transmission = total * orientationLoss * 30.0;
+			totalH = full1 + full2 + full3 + full4 + roof.getH() + floor.getH();
+			if (!totalH.isNaN() && !totalH.isInfinite()) {
+				transmission = totalH * orientationLoss * 30.0;
+				result.append(Utils.format(Math.round(transmission)));
+			} else {
+				result.append("..");
+			}
+
+			// Warmte-acumulatie (opwarmtoeslag)
+			result.append(" watt, and with warmth-accumulation 10W/m2: ");
+			if (!totalH.isNaN() && !totalH.isInfinite()) {
+				double a = wall1.getA() + wall2.getA() + wall3.getA() + wall4.getA() + roof.getA() + floor.getA();
+
+				transmission += (a * 10);
 				result.append(Utils.format(Math.round(transmission)));
 			} else {
 				result.append("..");
 			}
 
 			// Ventilation
-			result.append(" watt, and with ventilation (0.34*m3*d): ");
-			if (!total.isNaN() && !total.isInfinite()) {
-				transmission += (0.34 * cubic.state().getM3() * 30);
+			result.append(" watt, and with ventilation (0.34*m3*2*30): ");
+			if (!totalH.isNaN() && !totalH.isInfinite()) {
+				transmission += (0.34 * cubic.state().getM3() * 2 * 30);
 				updateHeatingPlusShower();
 				result.append(Utils.format(Math.round(transmission)));
+				double perm3 = transmission / cubic.state().getM3();
+				result.append(" watt (");
+				result.append(Utils.format(Math.round(perm3)));
+				result.append(" W/m3)");
 			} else {
 				result.append("..");
 			}
-			result.append(" watt. The amount of energy that you aproximately need per month is (in 'vollast uren'):");
+			result.append(". Per month (in 'vollast uren'):");
 			return Fluent.Div(null, result.toString());
 		});
 
@@ -312,9 +321,15 @@ public class Heating {
 				}
 				client.getElectricChart().showData("Cooking+other+heatgap", "lightblue", forElectric);
 			}
+			// add stove
 			if (client.getStove() != null) {
 				client.getStove().updateTable();
 			}
+			// show Januari heatgap
+			final String key = "infoJanuariHeatgap";
+			client.getInfoAndWarnings().state().put(key,
+					"Januari heatgap: " + Utils.format(Math.round(heatgap[0] * -0.001)) + "kW.");
+			client.getInfoAndWarnings().sync();
 		}
 	}
 
@@ -338,6 +353,8 @@ public class Heating {
 		floorDetails.sync();
 
 		totals.sync();
+		warnTrailerWidth();
+		windowViewer.sync();
 	}
 
 	private void onLength(Fluent fluent, UIEvent ____) {
@@ -360,8 +377,9 @@ public class Heating {
 		floorDetails.sync();
 
 		totals.sync();
-
-		warnLength();
+		warnPanelsLength();
+		warnTrailerLength();
+		windowViewer.sync();
 	}
 
 	private void onHeight(Fluent fluent, UIEvent ____) {
@@ -384,6 +402,8 @@ public class Heating {
 		wallDetails4.sync();
 
 		totals.sync();
+		warnTrailerHeight();
+		windowViewer.sync();
 	}
 
 	private void onWallLambda(Fluent fluent, UIEvent ____) {
@@ -391,7 +411,6 @@ public class Heating {
 
 		wall1.lambda = value;
 		wallDetails1.sync();
-		wallsR.sync();
 
 		wall2.lambda = value;
 		wallDetails2.sync();
@@ -410,7 +429,6 @@ public class Heating {
 
 		wall1.thickness = value;
 		wallDetails1.sync();
-		wallsR.sync();
 
 		wall2.thickness = value;
 		wallDetails2.sync();
@@ -422,13 +440,15 @@ public class Heating {
 		wallDetails4.sync();
 
 		totals.sync();
+		warnTrailerWidth();
+		warnTrailerLength();
+		warnBouwbesluitWalls();
 	}
 
 	private void onRoofLambda(Fluent fluent, UIEvent event) {
 		double value = Double.parseDouble(fluent.domSelectedOptions()[0]);
 
 		roof.lambda = value;
-		roofR.sync();
 		roofDetails.sync();
 
 		totals.sync();
@@ -438,17 +458,17 @@ public class Heating {
 		double value = Double.parseDouble(fluent.domSelectedOptions()[0]) * 0.01;
 
 		roof.thickness = value;
-		roofR.sync();
 		roofDetails.sync();
 
 		totals.sync();
+		warnTrailerHeight();
+		warnBouwbesluitRoof();
 	}
 
 	private void onFloorLambda(Fluent fluent, UIEvent event) {
 		double value = Double.parseDouble(fluent.domSelectedOptions()[0]);
 
 		floor.lambda = value;
-		floorR.sync();
 		floorDetails.sync();
 
 		totals.sync();
@@ -458,33 +478,53 @@ public class Heating {
 		double value = Double.parseDouble(fluent.domSelectedOptions()[0]) * 0.01;
 
 		floor.thickness = value;
-		floorR.sync();
 		floorDetails.sync();
 
 		totals.sync();
+		warnBouwbesluitFloor();
 	}
 
 	public static Function<Surface, Fluent> showHandQ = surface -> {
 		StringBuilder result = new StringBuilder();
+
+		// A
 		result.append("Surface A=");
 		if (surface.sizeX == 0.0) {
 			result.append("..");
 		} else {
 			result.append(surface.sizeX);
 		}
-		result.append("m * ");
+		result.append("m*");
 		if (surface.sizeY == 0.0) {
 			result.append("..");
 		} else {
 			result.append(surface.sizeY);
 		}
-		result.append("m = ");
+		result.append("m=");
 		if (surface.sizeY == 0.0 || surface.sizeX == 0.0) {
 			result.append("..");
 		} else {
 			result.append(Utils.format(surface.getA()));
 		}
-		result.append("m2. Heat transfer coefficient H = U * A = ");
+
+		// R
+		result.append("m2, isolation R=Rsi+(tickness/lambda)+Rse=");
+		if (surface.thickness != 0.0) {
+			result.append(Utils.format(surface.getR()));
+		} else {
+			result.append("..");
+		}
+
+		// U
+		result.append(", U=1/R=");
+		if (surface.thickness != 0.0) {
+			result.append(Utils.format(surface.getU()));
+		} else {
+			result.append("..");
+		}
+
+		// U
+		result.append(", Heat transfer coefficient H=U*A=");
 		if (surface.sizeY == 0.0 || surface.sizeX == 0.0 || surface.thickness == 0.0) {
 			result.append("..");
 		} else {
@@ -493,47 +533,117 @@ public class Heating {
 		return Fluent.Li().span(null, result.toString());
 	};
 
-	public static Function<Surface, Fluent> showRandU = surface -> {
-		StringBuilder text = new StringBuilder("R=Rsi+(tickness/lambda)+Rse=");
-		if (surface.thickness != 0.0) {
-			text.append(Utils.format(surface.getR()));
-		} else {
-			text.append("..");
-		}
-		text.append(" and U=1/R=");
-		if (surface.thickness != 0.0) {
-			text.append(Utils.format(surface.getU()));
-		} else {
-			text.append("..");
-		}
-		return Fluent.Span(null, text.toString());
-	};
+	private void warnTrailerWidth() {
+		final String name = "dimensionsWidth";
+		ViewOn<HashMap<String, String>> warnings = client.getInfoAndWarnings();
 
-	public void warnLength() {
+		Dimensions dimensions = cubic.state();
+		if (dimensions.width + (wall1.thickness * 2.0) > 2.55) {
+			warnings.state().put(name,
+					"Warning: the total width is bigger than fits on a trailer movable by car: width:"
+							+ Utils.format(dimensions.width) + " + wall-insulation:" + Utils.format(wall1.thickness)
+							+ "*2 > 2.55");
+		} else {
+			warnings.state().remove(name);
+		}
+		warnings.sync();
+	}
+
+	private void warnTrailerLength() {
+		final String name = "dimensionsLength";
+		ViewOn<HashMap<String, String>> warnings = client.getInfoAndWarnings();
+
+		Dimensions dimensions = cubic.state();
+		if (dimensions.length + (wall1.thickness * 2.0) > 12.0) {
+			warnings.state().put(name,
+					"Warning: the total width is bigger than fits on a trailer movable by car: length:"
+							+ Utils.format(dimensions.length) + " + wall-insulation:" + Utils.format(wall1.thickness)
+							+ "*2 > 12.0");
+		} else {
+			warnings.state().remove(name);
+		}
+		warnings.sync();
+	}
+
+	private void warnTrailerHeight() {
+		final String name = "dimensionsHeight";
+		ViewOn<HashMap<String, String>> warnings = client.getInfoAndWarnings();
+
+		Dimensions dimensions = cubic.state();
+		if (dimensions.height + roof.thickness > 4.0) {
+			warnings.state().put(name,
+					"Warning: the total height is bigger than fits on a trailer movable by car: height:"
+							+ Utils.format(dimensions.height) + " + roof-insulation:" + Utils.format(roof.thickness)
+							+ " > 4.0");
+		} else {
+			warnings.state().remove(name);
+		}
+		warnings.sync();
+	}
+
+	public void warnPanelsLength() {
+		final String name = "totalLength";
+		ViewOn<HashMap<String, String>> infoAndWarnings = client.getInfoAndWarnings();
+
 		if (client.getSolarPanels() == null || client.getSolarTubes() == null) {
 			return;
 		}
-		ViewOn<HashMap<String, String>> warnings = client.getWarnings();
-		final String name = "totalWidth";
 		double totalLength = cubic.state().length;
 
 		double solarTubesLength = client.getSolarTubes().getTotalLength();
 		double solarPanelsLength = client.getSolarPanels().getTotalLength();
 		if (solarTubesLength + solarPanelsLength > totalLength) {
-			warnings.state().put(name,
-					"Warning: the panels do not fit your roof: roof length = " + Utils.format(totalLength)
-							+ "m, solar tubes length = " + Utils.format(solarTubesLength) + "m, solar panels length = "
-							+ Utils.format(solarPanelsLength) + "m.");
-			warnings.sync();
+			infoAndWarnings.state().put(name,
+					"Warning: the panels do not fit your roof: solar-tubes-length:" + Utils.format(solarTubesLength)
+							+ "m + solar-panels-length:" + Utils.format(solarPanelsLength) + "m > roof-length:"
+							+ Utils.format(totalLength) + "m.");
 		} else {
-			warnings.state().remove(name);
-			warnings.sync();
+			infoAndWarnings.state().remove(name);
 		}
-
+		infoAndWarnings.sync();
 	}
 
 	public double[] getHeatgap() {
 		return heatgap;
+	}
+
+	public void warnBouwbesluitFloor() {
+		final String name = "bouwbesluitFloor";
+		ViewOn<HashMap<String, String>> warnings = client.getInfoAndWarnings();
+
+		if (floor.getR() < 3.5) {
+			warnings.state().put(name, "Warning: the floor is not insulated good enough for the Bouwbesluit 2015: R:"
+					+ Utils.format(floor.getR()) + " < 3.5");
+		} else {
+			warnings.state().remove(name);
+		}
+		warnings.sync();
+	}
+
+	public void warnBouwbesluitRoof() {
+		final String name = "bouwbesluitRoof";
+		ViewOn<HashMap<String, String>> warnings = client.getInfoAndWarnings();
+
+		if (roof.getR() < 6.0) {
+			warnings.state().put(name, "Warning: the roof is not insulated good enough for the Bouwbesluit 2015: R:"
+					+ Utils.format(roof.getR()) + " < 6.0");
+		} else {
+			warnings.state().remove(name);
+		}
+		warnings.sync();
+	}
+
+	public void warnBouwbesluitWalls() {
+		final String name = "bouwbesluitWalls";
+		ViewOn<HashMap<String, String>> warnings = client.getInfoAndWarnings();
+
+		if (wall1.getR() < 4.5) {
+			warnings.state().put(name, "Warning: the walls are not insulated good enough for the Bouwbesluit 2015: R:"
+					+ Utils.format(wall1.getR()) + " < 4.5");
+		} else {
+			warnings.state().remove(name);
+		}
+		warnings.sync();
 	}
 
 }

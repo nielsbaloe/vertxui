@@ -1,15 +1,13 @@
 package live.connector.vertxui.samples.client.energyCalculator;
 
-import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
-import live.connector.vertxui.samples.client.energyCalculator.components.InputNumber;
 import live.connector.vertxui.samples.client.energyCalculator.components.MonthTable;
 import live.connector.vertxui.samples.client.energyCalculator.components.Utils;
 
 public class SolarPanels {
 
-	private double quantity = 4, strength = 275, width = 1.650, length = 0.992;
+	private double quantity = 3, strength = 280, width = 1.650, length = 0.992;
 	private ViewOn<?> conclusion;
 	private MonthTable monthTable;
 	private double totalLength;
@@ -24,21 +22,33 @@ public class SolarPanels {
 			quantity = Double.parseDouble(fluent.domSelectedOptions()[0]);
 			conclusion.sync();
 		});
-		body.span(null, " solar panels wich each a peak of ");
-		body.add(new InputNumber().att(Att.value, strength + "").keyup((fluent, ___) -> {
-			strength = ((InputNumber) fluent).domValueDouble();
-			conclusion.sync();
-		}));
-		body.span(null, " watt and with a widthxlength ");
-		body.select(null, "1.65x0.992", new String[] { "1.65x0.992", "1.65x0.992", "1.559x1.046", "1.559x1.046" })
+		body.span(null, " solar panels each ");
+		body.select(null, "280W 1.65x0.992",
+				new String[] { "280W 1.65x0.992", "280W 1.65x0.992", "290W 1.65x0.992", "290W 1.65x0.992",
+						"300W 1.65x0.992", "300W 1.65x0.992", "330W 1.559x1.046", "330W 1.559x1.046",
+						"370W 1.710x1.016", "370W 1.710x1.016" })
 				.changed((fluent, ___) -> {
 					String selected = fluent.domSelectedOptions()[0];
-					if (selected.equals("1.65x0.992")) {
+					if (selected.equals("280W 1.65x0.992")) {
+						strength = 280;
 						width = 1.650;
 						length = 0.992;
-					} else {
+					} else if (selected.equals("290W 1.65x0.992")) {
+						strength = 290;
+						width = 1.650;
+						length = 0.992;
+					} else if (selected.equals("300W 1.65x0.992")) {
+						strength = 300;
+						width = 1.650;
+						length = 0.992;
+					} else if (selected.equals("330W 1.559x1.046")) {
+						strength = 330;
 						width = 1.559;
 						length = 1.046;
+					} else if (selected.equals("370W 1.710x1.016")) {
+						strength = 370;
+						width = 1.710;
+						length = 1.016;
 					}
 					conclusion.sync();
 				});
@@ -57,8 +67,8 @@ public class SolarPanels {
 			double peak = quantity * strength;
 			text1.append(Utils.format(peak));
 			text1.append(" watt. In the Netherlands there are 1040 effective sun hours (2016) so that is ");
-			text1.append(Utils.format(peak * 1040));
-			text1.append(" watt per year.");
+			text1.append(Utils.format(Math.round(peak * 1040 * 0.001)));
+			text1.append(" kW per year.");
 
 			StringBuilder text2 = new StringBuilder("The area for these solar collectors is ");
 			double area = width * length * quantity;
@@ -66,7 +76,7 @@ public class SolarPanels {
 			text2.append(" m2 of roof.");
 
 			totalLength = length * quantity;
-			client.getHeating().warnLength();
+			client.getHeating().warnPanelsLength();
 
 			StringBuilder text3 = new StringBuilder("The efficiency of the panels is peak/area =");
 			text3.append(Utils.format(peak / area));
