@@ -588,7 +588,7 @@ public class Heating {
 		if (client.getSolarPanels() == null || client.getSolarTubes() == null) {
 			return;
 		}
-		double totalLength = cubic.state().length;
+		double totalLength = cubic.state().length + (wall1.thickness * 2);
 
 		double solarTubesLength = client.getSolarTubes().getTotalLength();
 		double solarPanelsLength = client.getSolarPanels().getTotalLength();
@@ -596,7 +596,7 @@ public class Heating {
 			infoAndWarnings.state().put(name,
 					"Warning: the panels do not fit your roof: solar-tubes-length:" + Utils.format(solarTubesLength)
 							+ "m + solar-panels-length:" + Utils.format(solarPanelsLength) + "m > roof-length:"
-							+ Utils.format(totalLength) + "m.");
+							+ Utils.format(cubic.state().length) + "m + 2*insulation:" + Utils.format(wall1.thickness));
 		} else {
 			infoAndWarnings.state().remove(name);
 		}

@@ -12,14 +12,6 @@ import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
 
-//
-//TODO
-//- toelichting: niet behandeld in cursus, wel serieuze tool om je kennis te laten maken met begrippen.
-//uitnodiging om met de grafiek te spelen, bv. hoeveel zonnepanelen nodig om ook in wintermaanden zelfvoorzienend te zijn? wat als je niet 7 maar 70 minuten doucht? en wat als je niet 5 maar 50 cm in je muren isoleert?
-//- release met release=true
-//- core: orginele folders bewaren voor bekijken directory change ipv per file (zodat aanmaken werkt)
-//- core: nagaan waarom zoveel meuk in temp blijft hangen bij de standaard GWT opties
-
 public class Client implements EntryPoint {
 
 	private Shower shower;
@@ -43,23 +35,19 @@ public class Client implements EntryPoint {
 			root = body;
 		}
 		root.p().txt(
-				"By using this energy calculator, I understand that it is extremely beta, contains serious errors, "
-						+ "does not take windows and doors and construction junctures and sun orientation into account yet, "
-						+ "will be improved and does not contain any visual feedback yet. If I see an error or if I have "
-						+ "the knowledge how to improve this calculator, I will definitely give feedback on this website.")
+				"By using this energy calculator, you understand that it is extremely beta, and probably contains serious errors. "
+						+ "Please help! For example, if you are an engineer and you see an improvement in the"
+						+ " heat calculation, or if you know a lot about wood and you see an error: e-mail us!")
 				.css(Css.color, "red");
 
-		Fluent conclusions = root.p();
+		Fluent conclusions = root.div();
 		conclusions.css(Css.position, "sticky", Css.top, "0px"); // sticky
 		conclusions.css(Css.backgroundColor, "rgba(255, 255, 255, 0.8)"); // background
 		electricChart = new ChartJs(conclusions, 500, 300, "Electricity (kW)");
 		electricChart.css(Css.Float, "right"); // position
-		electricChart.css(Css.backgroundColor, "rgba(255, 255, 255, 0.8)"); // background
 		waterChart = new ChartJs(conclusions, 500, 300, "Warm water (kW)");
-		waterChart.css(Css.backgroundColor, "rgba(255, 255, 255, 0.8)"); // background
 		infoAndwarnings = conclusions.add(new HashMap<>(), infoAndWarnings -> {
 			Fluent result = Fluent.Div();
-			result.css(Css.backgroundColor, "rgba(255, 255, 255, 0.8)"); // background
 			infoAndWarnings.forEach((key, message) -> {
 				Fluent span = result.span(null, message);
 				if (key.startsWith("info")) {
