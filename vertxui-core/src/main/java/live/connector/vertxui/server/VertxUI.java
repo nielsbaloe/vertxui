@@ -172,8 +172,7 @@ public class VertxUI {
 			if (FigWheelyServer.started) {
 				String clientFolder = (folderSource + "/" + classs.getName()).replace(".", "/");
 				clientFolder = clientFolder.substring(0, clientFolder.lastIndexOf("client") + 6);
-				FigWheelyServer.addFromVertX(Vertx.currentContext().owner().fileSystem(),
-						urlWithoutAsterix + "a/a.nocache.js", clientFolder, translated, clientFolder);
+				FigWheelyServer.addWatchable(urlWithoutAsterix + "a/a.nocache.js", clientFolder, translated);
 			}
 		}
 		if (urlWithoutAsterix != null) {

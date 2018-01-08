@@ -40,58 +40,37 @@ public class FigWheelyServer extends AbstractVerticle {
 	private static List<Watchable> watchables = new ArrayList<>();
 
 	private static class Watchable {
-		long lastModified;
-		File file;
+
+		public Watchable(String url, String root, VertxUI handler) {
+			this.url = url;
+			this.root = root;
+			this.handler = handler;
+			this.lastState = getCurrentState();
+		}
+
 		String url;
 		String root;
-
 		VertxUI handler;
+		String lastState;
 
-	}
+		public String getCurrentState() {
+			StringBuilder result = new StringBuilder();
+			getContent(Vertx.currentContext().owner().fileSystem(), root, result);
+			return result.toString();
+		}
 
-	protected static Watchable addFile(File file, String url, String root) {
-		// log.info("Adding: file=" + file + " url=" + url);
-		Watchable watchable = new Watchable();
-		watchable.file = file;
-		watchable.lastModified = file.lastModified();
-		watchable.url = url;
-		watchable.root = root;
-		watchables.add(watchable);
-		return watchable;
-	}
-
-	protected static void addFromVertX(FileSystem fileSystem, String url, String sourcePath, VertxUI handler,
-			String rootroot) {
-		fileSystem.readDir(sourcePath, files -> {
-			if (files.result() == null) {
-				return;
-			}
-			for (String file : files.result()) {
+		private void getContent(FileSystem fileSystem, String path, StringBuilder result) {
+			fileSystem.readDirBlocking(path).forEach(file -> {
 				File jfile = new File(file);
 				if (jfile.isDirectory()) {
-					addFromVertX(fileSystem, url, jfile.getAbsolutePath(), handler, rootroot);
+					getContent(fileSystem, jfile.getAbsolutePath(), result);
 				} else {
-					// note that url is NOT changed in the loop
-					addFile(jfile, url, rootroot).handler = handler;
+					result.append(jfile.getAbsolutePath());
+					result.append(jfile.lastModified());
 				}
-			}
-		});
-	}
+			});
+		}
 
-	protected static void addFromStaticHandler(FileSystem fileSystem, String sourcePath, String url, String rootroot) {
-		fileSystem.readDir(sourcePath, files -> {
-			if (files.result() == null) {
-				return;
-			}
-			for (String item : files.result()) {
-				File file = new File(item);
-				if (file.isFile()) {
-					addFile(file, url + file.getName(), rootroot);
-				} else {
-					addFromStaticHandler(fileSystem, item, url + file.getName() + "/", rootroot);
-				}
-			}
-		});
 	}
 
 	/**
@@ -109,8 +88,7 @@ public class FigWheelyServer extends AbstractVerticle {
 		// log.info("creating figwheely static handler, started=" +
 		// FigWheely.started);
 		if (FigWheelyServer.started) {
-			FigWheelyServer.addFromStaticHandler(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix,
-					root);
+			FigWheelyServer.addWatchable(urlWithoutAsterix, root, null);
 		}
 		return StaticHandler.create(root).setCachingEnabled(false).setDefaultContentEncoding(VertxUI.charset);
 	}
@@ -149,15 +127,16 @@ public class FigWheelyServer extends AbstractVerticle {
 		});
 
 		vertx.setPeriodic(250, id -> {
+			if (VertxUI.isCompiling()) {
+				return;
+			}
 			for (Watchable watchable : watchables) {
-				if (VertxUI.isCompiling()) {
-					break;
-				}
-				if (watchable.file.lastModified() == watchable.lastModified) {
+				String currentState = watchable.getCurrentState();
+				if (watchable.lastState.equals(currentState)) {
 					continue;
 				}
-				log.info("Changed: " + watchable.file.getName());
-				watchable.lastModified = watchable.file.lastModified();
+				log.info("Changed: " + watchable.root);
+				watchable.lastState = currentState;
 				if (watchable.handler == null) {
 					log.info("Skipping recompile, no handler found.");
 					continue;
@@ -166,15 +145,8 @@ public class FigWheelyServer extends AbstractVerticle {
 				boolean succeeded = watchable.handler.translate();
 				if (succeeded == false) {
 					vertx.eventBus().publish(figNotify,
-							"unsuccessfull rebuild for url=" + watchable.url + " file=" + watchable.file.getName());
+							"unsuccessfull rebuild for url=" + watchable.url + " root=" + watchable.root);
 				}
-				// also update lastModified for same handler:
-				// when multiple .java sourcefiles were changed
-				// and saved at once.
-				watchables.stream().filter(w -> w.root.equals(watchable.root))
-						.forEach(w -> w.lastModified = w.file.lastModified());
-
-				// log.info("url=" + url);
 				vertx.eventBus().publish(figNotify, "reload: " + watchable.url);
 			}
 		});
@@ -216,6 +188,10 @@ public class FigWheelyServer extends AbstractVerticle {
 		return context -> {
 			context.response().end(FigWheelyServer.script);
 		};
+	}
+
+	public static void addWatchable(String url, String root, VertxUI handler) {
+		watchables.add(new Watchable(url, root, handler));
 	}
 
 }
