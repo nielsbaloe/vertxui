@@ -48,12 +48,26 @@ public class FigWheelyServer extends AbstractVerticle {
 			this.lastState = getCurrentState();
 		}
 
+		public Watchable(String url, String root) {
+			this.url = url;
+			this.root = root;
+			this.lastState = getCurrentState();
+		}
+
 		String url;
 		String root;
 		VertxUI handler;
 		String lastState;
 
 		public String getCurrentState() {
+
+			// file
+			File file = new File(root);
+			if (file.isFile()) {
+				return file.getAbsolutePath() + file.lastModified();
+			}
+
+			// folder
 			StringBuilder result = new StringBuilder();
 			getContent(Vertx.currentContext().owner().fileSystem(), root, result);
 			return result.toString();
@@ -88,9 +102,27 @@ public class FigWheelyServer extends AbstractVerticle {
 		// log.info("creating figwheely static handler, started=" +
 		// FigWheely.started);
 		if (FigWheelyServer.started) {
-			FigWheelyServer.addWatchable(urlWithoutAsterix, root, null);
+			FigWheelyServer.addFromStaticHandler(Vertx.factory.context().owner().fileSystem(), root, urlWithoutAsterix,
+					root);
 		}
+
 		return StaticHandler.create(root).setCachingEnabled(false).setDefaultContentEncoding(VertxUI.charset);
+	}
+
+	private static void addFromStaticHandler(FileSystem fileSystem, String sourcePath, String url, String rootroot) {
+		fileSystem.readDir(sourcePath, files -> {
+			if (files.result() == null) {
+				return;
+			}
+			for (String item : files.result()) {
+				File file = new File(item);
+				if (file.isFile()) {
+					watchables.add(new Watchable(url + file.getName(), item));
+				} else {
+					addFromStaticHandler(fileSystem, item, url + file.getName() + "/", rootroot);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -139,13 +171,13 @@ public class FigWheelyServer extends AbstractVerticle {
 				watchable.lastState = currentState;
 				if (watchable.handler == null) {
 					log.info("Skipping recompile, no handler found.");
-					continue;
-				}
-				// Recompile
-				boolean succeeded = watchable.handler.translate();
-				if (succeeded == false) {
-					vertx.eventBus().publish(figNotify,
-							"unsuccessfull rebuild for url=" + watchable.url + " root=" + watchable.root);
+				} else {
+					// Recompile
+					boolean succeeded = watchable.handler.translate();
+					if (succeeded == false) {
+						vertx.eventBus().publish(figNotify,
+								"unsuccessfull rebuild for url=" + watchable.url + " root=" + watchable.root);
+					}
 				}
 				vertx.eventBus().publish(figNotify, "reload: " + watchable.url);
 			}
