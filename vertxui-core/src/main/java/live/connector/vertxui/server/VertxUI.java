@@ -265,7 +265,7 @@ public class VertxUI {
 		String separator = (System.getenv("path.separator") == null)
 				? (System.getProperty("java.class.path").contains(";") ? ";" : ":") : System.getenv("path.separator");
 		String classpath = Arrays.stream(((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs())
-				.map(i -> i.getFile()).collect(Collectors.joining(separator));
+				.map(file -> new File(file.getPath()).getAbsolutePath()).collect(Collectors.joining(separator));
 		classpath = "\"" + classpath + separator + new File(folderSource).getAbsolutePath() + "\"";
 		log.fine("Classpath = " + classpath);
 
