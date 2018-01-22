@@ -53,7 +53,7 @@ public class SolarTubes {
 			text1.append(Utils.format(yearly * 0.001));
 			text1.append(" kW per year.");
 
-			StringBuilder text2 = new StringBuilder(" Size: 1.98m x (0.115*");
+			StringBuilder text2 = new StringBuilder("Roof size: 1.98m x (0.115*");
 			text2.append(Utils.format(tubes));
 			text2.append("*");
 			text2.append(Utils.format(quantity));

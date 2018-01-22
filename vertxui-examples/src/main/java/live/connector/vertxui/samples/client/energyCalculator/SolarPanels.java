@@ -70,7 +70,7 @@ public class SolarPanels {
 			text1.append(Utils.format(Math.round(peak * 1040 * 0.001)));
 			text1.append(" kW per year.");
 
-			StringBuilder text2 = new StringBuilder("The area for these solar collectors is ");
+			StringBuilder text2 = new StringBuilder("Roof size: ");
 			double area = width * length * quantity;
 			text2.append(Utils.format(area));
 			text2.append(" m2 of roof.");

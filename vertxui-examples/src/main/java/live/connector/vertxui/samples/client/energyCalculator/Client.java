@@ -54,8 +54,8 @@ public class Client implements EntryPoint {
 					span.css(Css.color, "purple");
 				} else {
 					span.css(Css.color, "red");
+					result.br();
 				}
-				result.br();
 			});
 			return result;
 		});

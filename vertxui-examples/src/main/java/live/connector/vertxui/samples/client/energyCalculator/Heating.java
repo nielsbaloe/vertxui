@@ -84,7 +84,7 @@ public class Heating {
 
 	// For updating the chart
 	private Client client;
-	private double transmission = 0;
+	private Double transmission = new Double(0);
 	private double[] heatingAndShower = new double[12];
 	private double[] heatgap = new double[12];
 
@@ -194,72 +194,85 @@ public class Heating {
 		wallDetails3 = wallDetails.add(wall3, showHandQ);
 		wallDetails4 = wallDetails.add(wall4, showHandQ);
 
+		monthTable = new MonthTable(new String[] { "288 hours", "282 hours", "198 hours", "111 hours", "0 hours",
+				"0 hours", "0 hours", "0 hours", "0 hours", "67 hours", "183 hours", "271 hours" });
+
 		totals = body.add(this, ____ -> {
-			StringBuilder result = new StringBuilder(
-					"The peak of your heating is (from -10 outside to 20 degree inside, without infiltration loss): Q=(H+H+...)*30=");
-			Double totalH = wall1.getH() + wall2.getH() + wall3.getH() + wall4.getH() + roof.getH() + floor.getH();
-			if (totalH.isNaN() || totalH.isInfinite()) {
-				totalH = new Double(0);
-			}
-			transmission = totalH * 30.0;
-			result.append(Utils.format(Math.round(transmission)));
-			result.append(" watt, and with small correction for the (unknown) orientation and cold walls: ");
+			Fluent returner = Fluent.Span();
+			returner.span(null, "The deltaT = from -10 outside to 20 degrees inside = 30 degrees.");
+			returner.br();
+			returner.span(null, "The peak heating Q (without neglictable orientation and cold walls) is: ");
+			returner.br();
+			returner.span(null,
+					"Q = deltaT * (  (Hwalls+Hfloor+Hroof) +  Hwindows + Hventilation ) + warmthAccumulation");
+			returner.br();
+
+			// Double totalH = wall1.getH() + wall2.getH() + wall3.getH() +
+			// wall4.getH() + roof.getH() + floor.getH();
+			// transmission = totalH * 30.0;
+			// result.append(Utils.format(Math.round(transmission)));
+			// result.append(" watt, and with small correction for the (unknown)
+			// orientation and cold walls: ");
 
 			// Orientation loss
-			double orientationLoss = 1.02;
-			if (!totalH.isNaN() && !totalH.isInfinite()) {
-				transmission = totalH * orientationLoss * 30.0;
-				result.append(Utils.format(Math.round(transmission)));
-			} else {
-				result.append("..");
-			}
-			result.append(" watt, and with windows: ");
+			// double orientationLoss = 1.02;
+			// if (!totalH.isNaN() && !totalH.isInfinite()) {
+			// transmission = totalH * orientationLoss * 30.0;
+			// result.append(Utils.format(Math.round(transmission)));
+			// } else {
+			// result.append("..");
+			// }
+			// result.append(" watt, and with windows: ");
 
 			// Windows
 			double win = windowPercentage * 0.01;
 			double wallPercentage = 1.0 - win;
-			double full1 = (wall1.getH() * wallPercentage) + (wall1.getA() * windowU * win);
-			double full2 = (wall2.getH() * wallPercentage) + (wall2.getA() * windowU * win);
-			double full3 = (wall3.getH() * wallPercentage) + (wall3.getA() * windowU * win);
-			double full4 = (wall4.getH() * wallPercentage) + (wall4.getA() * windowU * win);
-			totalH = full1 + full2 + full3 + full4 + roof.getH() + floor.getH();
-			if (!totalH.isNaN() && !totalH.isInfinite()) {
-				transmission = totalH * orientationLoss * 30.0;
-				result.append(Utils.format(Math.round(transmission)));
-			} else {
-				result.append("..");
-			}
+			Double totalWindows = (wall1.getA() * windowU * win) + (wall2.getA() * windowU * win)
+					+ (wall3.getA() * windowU * win) + (wall4.getA() * windowU * win);
+			Double totalNotWindows = (wall1.getH() * wallPercentage) + (wall2.getH() * wallPercentage)
+					+ (wall3.getH() * wallPercentage) + (wall4.getH() * wallPercentage) + roof.getH() + floor.getH();
 
-			// Warmte-acumulatie (opwarmtoeslag)
-			result.append(" watt, and with warmth-accumulation 10W/m2: ");
-			if (!totalH.isNaN() && !totalH.isInfinite()) {
-				double a = wall1.getA() + wall2.getA() + wall3.getA() + wall4.getA() + roof.getA() + floor.getA();
-
-				transmission += (a * 10);
-				result.append(Utils.format(Math.round(transmission)));
-			} else {
-				result.append("..");
+			if (totalNotWindows.isNaN() || totalNotWindows.isInfinite()) {
+				transmission = 0.0;
+				return Fluent.Span();
 			}
+			returner.span(null, "Q = 30 * (" + Utils.format(totalNotWindows) + " + " + Utils.format(totalWindows));
 
 			// Ventilation
-			result.append(" watt, and with ventilation (0.34*m3*2*30): ");
-			if (!totalH.isNaN() && !totalH.isInfinite()) {
-				transmission += (0.34 * cubic.state().getM3() * 2 * 30);
-				updateHeatingPlusShower();
-				result.append(Utils.format(Math.round(transmission)));
-				double perm3 = transmission / cubic.state().getM3();
-				result.append(" watt (");
-				result.append(Utils.format(Math.round(perm3)));
-				result.append(" W/m3)");
-			} else {
-				result.append("..");
+			returner.span(null, " + (0.34* (min75max150:3.6*" + Utils.format(floor.getA()) + ")) ");
+			double Hventilation = floor.getA() * 3.6;
+			if (Hventilation < 75.0) {
+				Hventilation = 75.0;
+			} else if (Hventilation > 150.0) {
+				Hventilation = 150.0;
 			}
-			result.append(". Per month (in 'vollast uren'):");
-			return Fluent.Div(null, result.toString());
+			Hventilation *= 0.34;
+
+			// Warmte-acumulatie (opwarmtoeslag)
+			double totalA = wall1.getA() + wall2.getA() + wall3.getA() + wall4.getA() + roof.getA() + floor.getA();
+			returner.span(null, " +  10(W/m2)*" + Utils.format(totalA));
+
+			transmission = (30 * (totalNotWindows + totalWindows + Hventilation)) + (10 * totalA);
+			if (transmission.isNaN() || transmission.isInfinite()) {
+				transmission = 0.0;
+				return Fluent.Span();
+			}
+			updateHeatingPlusShower();
+
+			returner.br();
+			returner.span(null, "Q = " + Utils.format(Math.round(transmission)));
+			returner.span(null, " W (");
+			double perm3 = transmission / cubic.state().getM3();
+			String losss = Utils.format(Math.round(perm3)) + " W/m3";
+			returner.span(null, losss + ")");
+			client.getInfoAndWarnings().state().put("infoTransmission", "Transmissionloss = " + losss + ".");
+			client.getInfoAndWarnings().sync();
+			returner.br();
+
+			returner.span(null, "Per month (in 'vollast uren'):");
+			return returner;
 		});
 
-		monthTable = new MonthTable(new String[] { "288 hours", "282 hours", "198 hours", "111 hours", "0 hours",
-				"0 hours", "0 hours", "0 hours", "0 hours", "67 hours", "183 hours", "271 hours" });
 		body.add(monthTable);
 
 		// Setting the default values into all fields

@@ -866,8 +866,11 @@ public class FluentBase implements Viewable {
 	 *            the CSS-class attribute.
 	 * @return this
 	 */
-	public Fluent classs(String string) {
-		return att(Att.class_, string);
+	public Fluent classs(String className) {
+		// if (className.indexOf(' ')!=-1) {
+		// Fluent.console.error("Error: you are setting a class to object but it
+		// contains a space: className="+className); }
+		return att(Att.class_, className);
 	}
 
 	/**
