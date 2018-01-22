@@ -84,7 +84,7 @@ public class Heating {
 
 	// For updating the chart
 	private Client client;
-	private Double transmission = new Double(0);
+	private Double transmission = 0.0;
 	private double[] heatingAndShower = new double[12];
 	private double[] heatgap = new double[12];
 
@@ -126,8 +126,8 @@ public class Heating {
 		Fluent liRoof = ul.li();
 		liRoof.span(null, "The roof insulation: ");
 
-		Fluent roofLambdaSelector = liRoof.select(null, "0.038",
-				new String[] { "ecological insolation (lambda = 0.040)", "0.040",
+		Fluent roofLambdaSelector = liRoof
+				.select(null, "0.038", new String[] { "ecological insolation (lambda = 0.040)", "0.040",
 						"ecological insolation (lambda = 0.039)", "0.039", "ecological insolation (lambda = 0.038)",
 						"0.038", "chemical stuff (lambda= 0.036)", "0.036", "chemical stuff (lambda = 0.035)", "0.035",
 						"chemical stuff (lambda = 0.030)", "0.030", "chemical stuff (lambda = 0.022)", "0.022" })
@@ -140,8 +140,8 @@ public class Heating {
 
 		Fluent liFloor = ul.li();
 		liFloor.span(null, "The floor insulation: ");
-		Fluent floorLambdaSelector = liFloor.select(null, "0.038",
-				new String[] { "ecological insolation (lambda = 0.040)", "0.040",
+		Fluent floorLambdaSelector = liFloor
+				.select(null, "0.038", new String[] { "ecological insolation (lambda = 0.040)", "0.040",
 						"ecological insolation (lambda = 0.039)", "0.039", "ecological insolation (lambda = 0.038)",
 						"0.038", "chemical stuff (lambda= 0.036)", "0.036", "chemical stuff (lambda = 0.035)", "0.035",
 						"chemical stuff (lambda = 0.030)", "0.030", "chemical stuff (lambda = 0.022)", "0.022" })
@@ -154,8 +154,8 @@ public class Heating {
 
 		Fluent liWalls = ul.li();
 		liWalls.span(null, "All four walls insulation: ");
-		Fluent wallsLambdaSelector = liWalls.select(null, "0.038",
-				new String[] { "ecological insolation (lambda = 0.040)", "0.040",
+		Fluent wallsLambdaSelector = liWalls
+				.select(null, "0.038", new String[] { "ecological insolation (lambda = 0.040)", "0.040",
 						"ecological insolation (lambda = 0.039)", "0.039", "ecological insolation (lambda = 0.038)",
 						"0.038", "chemical stuff (lambda= 0.036)", "0.036", "chemical stuff (lambda = 0.035)", "0.035",
 						"chemical stuff (lambda = 0.030)", "0.030", "chemical stuff (lambda = 0.022)", "0.022" })
@@ -179,9 +179,8 @@ public class Heating {
 			return Fluent.Span(null, "(" + Utils.format(value) + " m2)");
 		});
 		liWalls.span(null, " made of ");
-		liWalls.select(null,
-				(1.0 / windowU) + "", new String[] { "single (R=0.175)", "0.175", "double (R=0.333)", "0.333",
-						"HR (R=0.563)", "0.563", "HR+ (R=0.729)", "0.729", "HR++ (R=0.833)", "0.833" })
+		liWalls.select(null, (1.0 / windowU) + "", new String[] { "single (R=0.175)", "0.175", "double (R=0.333)",
+				"0.333", "HR (R=0.563)", "0.563", "HR+ (R=0.729)", "0.729", "HR++ (R=0.833)", "0.833" })
 				.changed((fluent, ___) -> {
 					windowU = 1.0 / Double.parseDouble(fluent.domSelectedOptions()[0]);
 					totals.sync();

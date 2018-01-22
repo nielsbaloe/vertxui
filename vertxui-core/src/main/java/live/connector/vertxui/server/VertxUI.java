@@ -8,13 +8,10 @@ import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
@@ -47,8 +44,8 @@ public class VertxUI {
 	public static String folderSource = null;
 
 	/**
-	 * Set the charset of your application, if not utf-8; it will be put into
-	 * the generated index.html.
+	 * Set the charset of your application, if not utf-8; it will be put into the
+	 * generated index.html.
 	 */
 	public static String charset = "utf-8";
 
@@ -72,8 +69,8 @@ public class VertxUI {
 
 	/**
 	 * Get the target folder of the build. If overwritten, you get that one,
-	 * otherwise you get one of the defaults: build/development or
-	 * build/production depending on debug or not.
+	 * otherwise you get one of the defaults: build/development or build/production
+	 * depending on debug or not.
 	 * 
 	 * @param debugMode
 	 *            whether we are in debug mode or not.
@@ -91,9 +88,8 @@ public class VertxUI {
 	}
 
 	/**
-	 * Set the location of your target build folder, in case you do not want it
-	 * in build/development (when debug=true) or build/production (when
-	 * debug=false).
+	 * Set the location of your target build folder, in case you do not want it in
+	 * build/development (when debug=true) or build/production (when debug=false).
 	 * 
 	 * @param targetFolder
 	 *            the target folder
@@ -124,14 +120,14 @@ public class VertxUI {
 	}
 
 	/**
-	 * Create a VertXUI static-handler at the target folder and translate the
-	 * given class from java to javascript. Give url:null for only translating.
+	 * Create a VertXUI static-handler at the target folder and translate the given
+	 * class from java to javascript. Give url:null for only translating.
 	 * 
 	 * @param classs
 	 *            the class that will be compiled to javascript
 	 * @param urlWithoutAsterix
-	 *            the url that will be served, but without asterix for the
-	 *            static file handler; set to null if you only want compiling.
+	 *            the url that will be served, but without asterix for the static
+	 *            file handler; set to null if you only want compiling.
 	 * @param debug
 	 *            debug or not
 	 * @param withHtml
@@ -263,9 +259,9 @@ public class VertxUI {
 
 		// Extract and extend the classpath
 		String separator = (System.getenv("path.separator") == null)
-				? (System.getProperty("java.class.path").contains(";") ? ";" : ":") : System.getenv("path.separator");
-		String classpath = Arrays.stream(((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs())
-				.map(file -> new File(file.getPath()).getAbsolutePath()).collect(Collectors.joining(separator));
+				? (System.getProperty("java.class.path").contains(";") ? ";" : ":")
+				: System.getenv("path.separator");
+		String classpath = System.getProperty("java.class.path");
 		classpath = "\"" + classpath + separator + new File(folderSource).getAbsolutePath() + "\"";
 		log.fine("Classpath = " + classpath);
 
