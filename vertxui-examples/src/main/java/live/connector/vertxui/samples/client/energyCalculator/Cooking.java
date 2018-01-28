@@ -74,7 +74,8 @@ public class Cooking {
 
 			double perDay = perDinner * (timesPerWeek / 7.0);
 			if (enabled == false) {
-				perDay = 0;
+				perDay = 0.0;
+				resultPerMonth = 0.0;
 			}
 
 			double[] cooking = new double[] { perDay * 31, perDay * 28, perDay * 31, perDay * 30, perDay * 31,
