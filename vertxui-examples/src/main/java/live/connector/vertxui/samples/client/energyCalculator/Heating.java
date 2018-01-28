@@ -213,13 +213,13 @@ public class Heating {
 			this.enableVentilation = fluent.domChecked();
 			totals.sync();
 		});
-		body.span(null, "Include ventilation loss.");
+		body.span(null, " Include ventilation loss.");
 		body.br();
 		body.input(null, "checkbox").att(Att.checked, "1").click((fluent, ______) -> {
 			this.enableWarmthAccumulation = fluent.domChecked();
 			totals.sync();
 		});
-		body.span(null, "Include warmth accumulation.");
+		body.span(null, " Include warmth accumulation.");
 		body.br();
 
 		totals = body.add(this, ____ -> {

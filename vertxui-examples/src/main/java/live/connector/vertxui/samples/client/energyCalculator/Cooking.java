@@ -22,7 +22,7 @@ public class Cooking {
 			conclusion.sync();
 		});
 		body.span(null,
-				"WARNING: electronic cooking off-grid is absolutely non-sense, the power peaks that you need are huge - this is just for calculating how much external energy you would need.");
+				" WARNING: electronic cooking off-grid is absolutely non-sense, the power peaks that you need are huge - this is just for calculating how much external energy you would need.");
 		body.br();
 		body.span(null, "I am usually cooking about ");
 		body.add(new InputNumber().att(Att.value, minutes + "").keyup((fluent, ___) -> {
