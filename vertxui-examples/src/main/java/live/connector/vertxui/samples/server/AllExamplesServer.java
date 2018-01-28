@@ -29,7 +29,7 @@ public class AllExamplesServer {
 
 	public static void start(Class<?> classs, Router router, HttpServer httpServer) {
 
-		boolean debug = true;
+		boolean debug = false;
 
 		// Serve the javascript for figwheely (and turn it on too)
 		if (debug) {

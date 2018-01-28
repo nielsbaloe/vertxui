@@ -12,6 +12,12 @@ import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
 
+/**
+ * TODO from feedback:
+ * 
+ * - kozijnen
+ * 
+ */
 public class Client implements EntryPoint {
 
 	private Shower shower;
@@ -52,6 +58,7 @@ public class Client implements EntryPoint {
 				Fluent span = result.span(null, message);
 				if (key.startsWith("info")) {
 					span.css(Css.color, "purple");
+					result.br();
 				} else {
 					span.css(Css.color, "red");
 					result.br();

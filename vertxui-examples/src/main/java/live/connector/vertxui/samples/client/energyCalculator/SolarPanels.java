@@ -1,5 +1,6 @@
 package live.connector.vertxui.samples.client.energyCalculator;
 
+import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.MonthTable;
@@ -11,12 +12,17 @@ public class SolarPanels {
 	private ViewOn<?> conclusion;
 	private MonthTable monthTable;
 	private double totalLength;
+	private boolean enabled = true;
 
 	public SolarPanels(Fluent body, Client client) {
 		client.setSolarPanels(this);
 
 		body.h2(null, "Solar Panels");
-		body.span(null, "I have ");
+		body.input(null, "checkbox").att(Att.checked, "1").click((fluent, b) -> {
+			this.enabled = fluent.domChecked();
+			conclusion.sync();
+		});
+		body.span(null, " I want ");
 
 		body.select(null, quantity + "", Utils.getSelectNumbers(0, 1, 100)).changed((fluent, ___) -> {
 			quantity = Double.parseDouble(fluent.domSelectedOptions()[0]);
@@ -96,6 +102,11 @@ public class SolarPanels {
 					0.025 * yearly, 0.015 * yearly };
 			monthTable.state2(data);
 
+			if (!enabled) {
+				for (int x = 0; x != data.length; x++) {
+					data[x] = 0.0;
+				}
+			}
 			client.getElectricChart().showData("Solar panels", "green", data);
 
 			return result;

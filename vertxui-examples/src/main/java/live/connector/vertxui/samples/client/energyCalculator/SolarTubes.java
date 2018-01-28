@@ -1,5 +1,6 @@
 package live.connector.vertxui.samples.client.energyCalculator;
 
+import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
@@ -13,12 +14,17 @@ public class SolarTubes {
 	private MonthTable monthTable;
 	private double[] result = new double[12];
 	private double totalLength;
+	private boolean enabled = true;
 
 	public SolarTubes(Fluent body, ChartJs chart, Client client) {
 		client.setSolarTubes(this);
 
 		body.h2(null, "Solar tubes");
-		body.span(null, "I want ");
+		body.input(null, "checkbox").att(Att.checked, "1").click((fluent, b) -> {
+			this.enabled = fluent.domChecked();
+			conclusion.sync();
+		});
+		body.span(null, " I want ");
 		body.select(null, quantity + "", Utils.getSelectNumbers(0, 1, 100)).changed((fluent, ___) -> {
 			quantity = Double.parseDouble(fluent.domSelectedOptions()[0]);
 			conclusion.sync();
@@ -85,8 +91,15 @@ public class SolarTubes {
 			result = new double[] { 0.013 * yearly, 0.038 * yearly, 0.087 * yearly, 0.138 * yearly, 0.13 * yearly,
 					0.13 * yearly, 0.13 * yearly, 0.13 * yearly, 0.10 * yearly, 0.067 * yearly, 0.024 * yearly,
 					0.013 * yearly };
-			chart.showData("Solar tubes", "green", result);
 			monthTable.state2(result);
+
+			if (!enabled) {
+				for (int x = 0; x != result.length; x++) {
+					result[x] = 0.0;
+				}
+			}
+
+			chart.showData("Solar tubes", "green", result);
 			client.getHeating().updateHeatgap();
 
 			return returner;

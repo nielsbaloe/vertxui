@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 import elemental.events.UIEvent;
+import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Css;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
@@ -87,6 +88,10 @@ public class Heating {
 	private Double transmission = 0.0;
 	private double[] heatingAndShower = new double[12];
 	private double[] heatgap = new double[12];
+	private boolean enabled = true;
+	private boolean enableWindows = true;
+	private boolean enableVentilation = true;
+	private boolean enableWarmthAccumulation = true;
 
 	// Source: vollast uren naar 2016-2018 waarde:
 	// https://warmtepomp-weetjes.nl/warmtepomp/indicatietabel/
@@ -98,7 +103,11 @@ public class Heating {
 
 		Fluent heating = body.p();
 		heating.h2(null, "Heating");
-		heating.span().txt("The square (tiny) house is inside width ");
+		heating.input(null, "checkbox").att(Att.checked, "1").click((fluent, b) -> {
+			this.enabled = fluent.domChecked();
+			totals.sync();
+		});
+		heating.span().txt(" The square (tiny) house is inside width ");
 		Fluent widthSelector = heating.select(null, "2.1", Utils.getSelectNumbers(1.5, 0.1, 4.0))
 				.changed(this::onWidth);
 		heating.span().txt(" m, length ");
@@ -167,6 +176,10 @@ public class Heating {
 		liWalls.br();
 
 		// Windows
+		liWalls.input(null, "checkbox").att(Att.checked, "1").click((fluent, b) -> {
+			this.enableWindows = fluent.domChecked();
+			totals.sync();
+		});
 		liWalls.span(null, "All windows are ");
 		liWalls.select(null, windowPercentage + "", Utils.getSelectNumbers(0, 2, 50)).changed((fluent, ___) -> {
 			windowPercentage = Double.parseDouble(fluent.domSelectedOptions()[0]);
@@ -195,6 +208,19 @@ public class Heating {
 
 		monthTable = new MonthTable(new String[] { "288 hours", "282 hours", "198 hours", "111 hours", "0 hours",
 				"0 hours", "0 hours", "0 hours", "0 hours", "67 hours", "183 hours", "271 hours" });
+
+		body.input(null, "checkbox").att(Att.checked, "1").click((fluent, ______) -> {
+			this.enableVentilation = fluent.domChecked();
+			totals.sync();
+		});
+		body.span(null, "Include ventilation loss.");
+		body.br();
+		body.input(null, "checkbox").att(Att.checked, "1").click((fluent, ______) -> {
+			this.enableWarmthAccumulation = fluent.domChecked();
+			totals.sync();
+		});
+		body.span(null, "Include warmth accumulation.");
+		body.br();
 
 		totals = body.add(this, ____ -> {
 			Fluent returner = Fluent.Span();
@@ -226,6 +252,11 @@ public class Heating {
 			// Windows
 			double win = windowPercentage * 0.01;
 			double wallPercentage = 1.0 - win;
+
+			if (!enableWindows) {
+				win = 0.0;
+				wallPercentage = 1.0;
+			}
 			Double totalWindows = (wall1.getA() * windowU * win) + (wall2.getA() * windowU * win)
 					+ (wall3.getA() * windowU * win) + (wall4.getA() * windowU * win);
 			Double totalNotWindows = (wall1.getH() * wallPercentage) + (wall2.getH() * wallPercentage)
@@ -251,10 +282,22 @@ public class Heating {
 			double totalA = wall1.getA() + wall2.getA() + wall3.getA() + wall4.getA() + roof.getA() + floor.getA();
 			returner.span(null, " +  10(W/m2)*" + Utils.format(totalA));
 
-			transmission = (30 * (totalNotWindows + totalWindows + Hventilation)) + (10 * totalA);
+			double allH = totalNotWindows + totalWindows;
+			if (enableVentilation) {
+				allH += Hventilation;
+			}
+			transmission = (30 * allH);
+			if (enableWarmthAccumulation) {
+				transmission += (10 * totalA);
+			}
+
 			if (transmission.isNaN() || transmission.isInfinite()) {
 				transmission = 0.0;
 				return Fluent.Span();
+			}
+
+			if (!enabled) {
+				transmission = 0.0;
 			}
 			updateHeatingPlusShower();
 

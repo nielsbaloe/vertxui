@@ -11,11 +11,19 @@ public class Cooking {
 	private double minutes = 45.0, plates = 2.0, energy = 1300.0, timesPerWeek = 6.0, other = 3_000;
 	private ViewOn<?> conclusion;
 	private double[] result = new double[12];
+	private boolean enabled = true;
 
 	public Cooking(Fluent body, Client client) {
 		client.setCooking(this);
 
 		body.h2(null, "Cooking");
+		body.input(null, "checkbox").att(Att.checked, "1").click((fluent, b) -> {
+			this.enabled = fluent.domChecked();
+			conclusion.sync();
+		});
+		body.span(null,
+				"WARNING: electronic cooking off-grid is absolutely non-sense, the power peaks that you need are huge - this is just for calculating how much external energy you would need.");
+		body.br();
 		body.span(null, "I am usually cooking about ");
 		body.add(new InputNumber().att(Att.value, minutes + "").keyup((fluent, ___) -> {
 			minutes = ((InputNumber) fluent).domValueDouble();
@@ -65,6 +73,9 @@ public class Cooking {
 			text2.append(" kW per month.");
 
 			double perDay = perDinner * (timesPerWeek / 7.0);
+			if (enabled == false) {
+				perDay = 0;
+			}
 
 			double[] cooking = new double[] { perDay * 31, perDay * 28, perDay * 31, perDay * 30, perDay * 31,
 					perDay * 30, perDay * 31, perDay * 31, perDay * 30, perDay * 31, perDay * 30, perDay * 31 };

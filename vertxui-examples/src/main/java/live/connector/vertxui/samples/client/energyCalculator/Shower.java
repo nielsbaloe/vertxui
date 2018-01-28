@@ -1,5 +1,6 @@
 package live.connector.vertxui.samples.client.energyCalculator;
 
+import live.connector.vertxui.client.fluent.Att;
 import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
@@ -10,13 +11,17 @@ public class Shower {
 	private double duration = 9, lPerMinute = 7, degrees = 38, timesPerWeek = 7, waterDegrees = 11, people = 1;
 	private ViewOn<?> conclusion;
 	private double[] result = new double[12];
+	private boolean enabled = true;
 
 	public Shower(Fluent body, ChartJs chart, Client client) {
 		client.setShower(this);
 
 		body.h2(null, "Shower");
-
-		body.span(null, "People: ");
+		body.input(null, "checkbox").att(Att.checked, "1").click((fluent, b) -> {
+			this.enabled = fluent.domChecked();
+			conclusion.sync();
+		});
+		body.span(null, " People: ");
 		body.select(null, people + "", Utils.getSelectNumbers(1, 1, 15.0)).changed((fluent, ___) -> {
 			people = Double.parseDouble(fluent.domSelectedOptions()[0]);
 			conclusion.sync();
@@ -71,6 +76,9 @@ public class Shower {
 			text2.append(Utils.format(Math.round(resultPerMonth * 0.001)));
 			text2.append(" kW per month.");
 
+			if (!enabled) {
+				perShower = 0.0;
+			}
 			double perDay = perShower * people * (timesPerWeek / 7.0);
 			result = new double[] { perDay * 31, perDay * 28, perDay * 31, perDay * 30, perDay * 31, perDay * 30,
 					perDay * 31, perDay * 31, perDay * 30, perDay * 31, perDay * 30, perDay * 31 };
