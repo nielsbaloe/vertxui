@@ -129,40 +129,31 @@ public class VertxUI {
 	 *            the url that will be served, but without asterix for the static
 	 *            file handler; set to null if you only want compiling.
 	 * @param debug
-	 *            debug or not
+	 *            debug (true) or production (false)
 	 * @param withHtml
-	 *            with a generated .html file or not.
+	 *            with a generated .html file or not (advisable)
 	 * @return the static file handler.
 	 */
 	public static Handler<RoutingContext> with(Class<?> classs, String urlWithoutAsterix, boolean debug,
 			boolean withHtml) {
 
-		// If no sourceLocation, then we are in production so we don't do
+		// Look for a sourcefolder. If none, we are in production so we don't do
 		// anything at all.
-		String sourceFilePath = classs.getName().replace(".", "/") + ".java";
+		String clientFile = classs.getName().replace(".", "/") + ".java";
 		Stream.of("src", "src/main", "src/main/java", "src/test", "src/test/java", folderSource).forEach(location -> {
-			if (location != null && new File(location + "/" + sourceFilePath).exists()) {
+			if (location != null && new File(location + "/" + clientFile).exists()) {
 				folderSource = location;
 			}
 		});
-		File sourceFolder = new File(folderSource);
-		if (!sourceFolder.exists()) {
-			throw new IllegalArgumentException("Could not figure at a valid source folder, last attempt ended on "
-					+ sourceFolder.getAbsolutePath());
-		}
-		log.fine("source folder = " + sourceFolder.getAbsolutePath());
-		if (folderSource == null) {
+		log.fine("source folder = " + new File(folderSource).getAbsolutePath());
+		if (folderSource == null) { // production
 			if (debug) {
-				throw new IllegalArgumentException("Sourcefolder not found at '" + folderSource
-						+ "' but debug is still true, you didn't set the 'working directory' of your "
-						+ "IntelliJ-run to the root of the project? Or did you want to run with debug=false instead?");
-			}
-			if (urlWithoutAsterix == null) {
-				throw new IllegalArgumentException("Sourcefolder not found  at '" + folderSource
-						+ "' , but urlWithoutAsterix is null, so unable to server files.");
+				throw new IllegalArgumentException(
+						"Sourcefolder not found but debug is still true, you didn't set the 'working directory' of your "
+								+ "IntelliJ-run to the root of the project? Or did you want to run with debug=false instead?");
 			}
 			log.info("Production mode: all OK, no source folder found, not translating from java to javascript.");
-		} else {
+		} else { // inside IDE
 			VertxUI translated = new VertxUI(classs, debug, withHtml);
 
 			if (FigWheelyServer.started) {
@@ -171,7 +162,7 @@ public class VertxUI {
 				FigWheelyServer.addWatchable(urlWithoutAsterix + "a/a.nocache.js", clientFolder, translated);
 			}
 		}
-		if (urlWithoutAsterix != null) {
+		if (urlWithoutAsterix != null) { // only serve files when a target-URL is given
 			return StaticHandler.create(VertxUI.getTargetFolder(debug)).setCachingEnabled(false)
 					.setDefaultContentEncoding(VertxUI.charset);
 		} else {
