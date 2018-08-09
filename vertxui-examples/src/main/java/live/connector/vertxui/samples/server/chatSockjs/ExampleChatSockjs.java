@@ -28,7 +28,7 @@ public class ExampleChatSockjs extends AbstractVerticle {
 		// Chat with SockJS
 		Router router = Router.router(vertx);
 		List<String> ids = new ArrayList<>();
-		router.route("/chatSockjs/*").handler(SockJSHandler.create(vertx).socketHandler(socket -> {
+		router.route(Client.url + "/*").handler(SockJSHandler.create(vertx).socketHandler(socket -> {
 			final String id = socket.writeHandlerID();
 			ids.add(id); // entering
 			socket.endHandler(data -> {

@@ -6,9 +6,9 @@ import java.util.logging.Logger;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
+import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
-import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import live.connector.vertxui.samples.client.Dto;
 import live.connector.vertxui.samples.client.chatEventBus.Client;
@@ -41,7 +41,7 @@ public class ExampleChatEventbus extends AbstractVerticle {
 		PermittedOptions myDtoOK = new PermittedOptions().setAddress(Client.addressPojo);
 		BridgeOptions firewall = new BridgeOptions().addInboundPermitted(freewayOK).addOutboundPermitted(freewayOK)
 				.addInboundPermitted(myDtoOK).addOutboundPermitted(myDtoOK);
-		router.route("/chatEventbus/*").handler(SockJSHandler.create(vertx).bridge(firewall
+		router.route(Client.url + "/*").handler(SockJSHandler.create(vertx).bridge(firewall
 		// If you want to know the sender, add it as header:
 		// , be -> {
 		// if (be.type() == BridgeEventType.RECEIVE || be.type() ==

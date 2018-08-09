@@ -16,12 +16,15 @@ import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.transport.Pojofy;
 import live.connector.vertxui.samples.client.AllExamplesClient;
 import live.connector.vertxui.samples.client.Dto;
+import live.connector.vertxui.samples.server.AllExamplesServer;
 
 /**
  * @author Niels Gorisse
  */
 
 public class Client implements EntryPoint {
+
+	public static final String url = "/chatWebsocket";
 
 	public Client() {
 		head.script(FigWheelyClient.urlJavascript);
@@ -31,7 +34,7 @@ public class Client implements EntryPoint {
 		Fluent input = body.input(null, "text");
 		Fluent messages = body.div();
 
-		WebSocket socket = window.newWebSocket("ws://localhost/chatWebsocket");
+		WebSocket socket = window.newWebSocket("ws://localhost:" + AllExamplesServer.port + url);
 		socket.setBinaryType("arraybuffer"); // blobs need decoding
 		socket.setOnopen(e -> {
 			socket.send(name + ": Ola, I'm " + name + ".");
@@ -57,6 +60,8 @@ public class Client implements EntryPoint {
 						Json.parse("{\"action\":\"save\"}"));
 			}
 		});
+
+		input.focus();
 	}
 
 	public static String urlPojo = "/pojo";

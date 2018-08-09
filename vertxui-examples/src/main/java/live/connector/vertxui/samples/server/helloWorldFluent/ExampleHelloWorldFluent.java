@@ -9,6 +9,7 @@ import io.vertx.ext.web.Router;
 import live.connector.vertxui.samples.client.Dto;
 import live.connector.vertxui.samples.client.helloWorldFluentHtml.Client;
 import live.connector.vertxui.samples.server.AllExamplesServer;
+import live.connector.vertxui.server.VertxUI;
 import live.connector.vertxui.server.transport.Pojofy;
 
 public class ExampleHelloWorldFluent extends AbstractVerticle {
@@ -28,6 +29,7 @@ public class ExampleHelloWorldFluent extends AbstractVerticle {
 			// Without timer, write 'return "Hello,".....' because strings are
 			// returned as is.
 			vertx.setTimer(1000, l -> {
+				context.response().putHeader("Content-Type", "text/plain; charset=" + VertxUI.charset);
 				context.response().end("Hello, " + context.request().getHeader("User-Agent"));
 			});
 			return null; // null means: we take care of the request() ourselves

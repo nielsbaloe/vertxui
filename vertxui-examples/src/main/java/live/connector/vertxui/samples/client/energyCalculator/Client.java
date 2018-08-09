@@ -12,12 +12,6 @@ import live.connector.vertxui.client.fluent.Fluent;
 import live.connector.vertxui.client.fluent.ViewOn;
 import live.connector.vertxui.samples.client.energyCalculator.components.ChartJs;
 
-/**
- * TODO from feedback:
- * 
- * - kozijnen
- * 
- */
 public class Client implements EntryPoint {
 
 	private Shower shower;

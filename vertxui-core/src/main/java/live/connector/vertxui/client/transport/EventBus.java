@@ -1,6 +1,7 @@
 package live.connector.vertxui.client.transport;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
@@ -22,9 +23,19 @@ public class EventBus extends JavaScriptObject {
 	protected EventBus() {
 	}
 
-	static {
-		SockJS.ensureStaticLoadingJsFile();
-		Fluent.head.scriptSync("https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
+	/**
+	 * You have to load
+	 * "https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js"
+	 * first. You can do this here with scriptSync() or with
+	 * EntryPoint::getScripts().
+	 * 
+	 * @param then what to do when the script is loaded
+	 */
+	public static void importJs(Consumer<Void> then) {
+		SockJS.importJs((Void) -> {
+			Fluent.head.scriptSync(then,
+					"https://raw.githubusercontent.com/vert-x3/vertx-bus-bower/master/vertx-eventbus.js");
+		});
 	}
 
 	public final native static EventBus create(String address, String[] options) /*-{
@@ -40,14 +51,10 @@ public class EventBus extends JavaScriptObject {
 	 * including other browsers that are connected. So please handle with care!
 	 */
 	/**
-	 * @param address
-	 *            the address
-	 * @param message
-	 *            the message
-	 * @param headers
-	 *            the headers
-	 * @param receiver
-	 *            the callback
+	 * @param address  the address
+	 * @param message  the message
+	 * @param headers  the headers
+	 * @param receiver the callback
 	 */
 	public final native void send(String address, String message, JsonObject headers,
 			BiConsumer<JsonObject, JsonObject> receiver)/*-{

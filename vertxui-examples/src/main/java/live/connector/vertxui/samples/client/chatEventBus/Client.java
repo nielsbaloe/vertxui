@@ -30,35 +30,39 @@ public class Client implements EntryPoint {
 	// EventBus-address of myDto objects
 	public static final String addressPojo = "serviceForDto";
 
+	public static final String url = "/chatEventbus";
+
 	public Client() {
 		head.script(FigWheelyClient.urlJavascript);
+		EventBus.importJs((Void) -> {
 
-		String name = window.prompt("What is your name?", "");
+			String name = window.prompt("What is your name?", "");
+			Fluent input = body.input(null, "text");
+			Fluent messages = body.div();
 
-		Fluent input = body.input(null, "text");
-		Fluent messages = body.div();
+			EventBus eventBus = EventBus.create(url, null);
+			eventBus.onopen(event -> {
+				eventBus.publish(freeway, name + ": Ola, I'm " + name + ".", null);
+				eventBus.registerHandler(freeway, null, (error, in) -> { // onmessage
+					messages.li(null, in.get("body").asString());
+				});
 
-		EventBus eventBus = EventBus.create("http://localhost/chatEventbus", null);
-		eventBus.onopen(event -> {
-			eventBus.publish(freeway, name + ": Ola, I'm " + name + ".", null);
-			eventBus.registerHandler(freeway, null, (error, in) -> { // onmessage
-				messages.li(null, in.get("body").asString());
+				// extra example: pojo consume
+				Pojofy.eventbusReceive(eventBus, addressPojo, null, AllExamplesClient.dto,
+						a -> console.log("Received pojo: " + a.color));
 			});
 
-			// extra example: pojo consume
-			Pojofy.eventbusReceive(eventBus, addressPojo, null, AllExamplesClient.dto,
-					a -> console.log("Received pojo: " + a.color));
-		});
+			input.keydown((fluent, event) -> {
+				if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
+					eventBus.publish(freeway, name + ": " + input.domValue(), null);
+					input.att(Att.value, null);
 
-		input.keydown((fluent, event) -> {
-			if (event.getKeyCode() == KeyboardEvent.KeyCode.ENTER) {
-				eventBus.publish(freeway, name + ": " + input.domValue(), null);
-				input.att(Att.value, null);
-
-				// extra example: object publish
-				Pojofy.eventbusPublish(eventBus, addressPojo, new Dto("blue by " + name),
-						Json.parse("{\"action\":\"save\"}"), AllExamplesClient.dto);
-			}
+					// extra example: object publish
+					Pojofy.eventbusPublish(eventBus, addressPojo, new Dto("blue by " + name),
+							Json.parse("{\"action\":\"save\"}"), AllExamplesClient.dto);
+				}
+			});
+			input.focus();
 		});
 	}
 

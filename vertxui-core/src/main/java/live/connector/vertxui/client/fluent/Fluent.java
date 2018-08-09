@@ -1,11 +1,13 @@
 package live.connector.vertxui.client.fluent;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.xhr.client.XMLHttpRequest;
 
+import elemental.dom.Element;
 import elemental.dom.Node;
 import elemental.events.MouseEvent;
 
@@ -173,15 +175,14 @@ public class Fluent extends FluentBase {
 	}
 
 	/**
-	 * If you really really have to combine plain text and DOM elements next to
-	 * each other: create a html text NODE. The resulting behavior is plain
-	 * text. For 99% of all cases, please please use txt(...) to set the text of
-	 * an node, however this fails when there are other html tags inside too
-	 * (which is badly ugly and therefore not recommended). So if you can, do
-	 * not use this method, and try to avoid mixing tags and text.
+	 * If you really really have to combine plain text and DOM elements next to each
+	 * other: create a html text NODE. The resulting behavior is plain text. For 99%
+	 * of all cases, please please use txt(...) to set the text of an node, however
+	 * this fails when there are other html tags inside too (which is badly ugly and
+	 * therefore not recommended). So if you can, do not use this method, and try to
+	 * avoid mixing tags and text.
 	 * 
-	 * @param text
-	 *            the text for a textNode
+	 * @param text the text for a textNode
 	 * @return this
 	 */
 	public Fluent textNode(String text) {
@@ -616,17 +617,21 @@ public class Fluent extends FluentBase {
 	}
 
 	/**
-	 * Load javascript files synchronously and evalue/execute them directly too.
-	 * You can also add them at the head of the html-document with
-	 * Vertx.addLibrariesJs(), which is the same but more 'to the rules'. You
-	 * need this if you want to use the javascript right after loading it (which
-	 * is normal in most cases).
+	 * Load javascript files asynchronously and evalue/execute them directly too. As
+	 * browsers do not allow synchronous calls, you must also give a function that
+	 * is executed right afterwards.
 	 * 
-	 * @param jss
-	 *            javascript file(s)
+	 * If you do not need js files right away in your startup sequence, add them
+	 * through Fluent.script().
+	 * 
+	 * If you do need your js file right away in your startup sequence, use
+	 * EntryPoint::getScripts() or Fluent.scriptSync().
+	 * 
+	 * 
+	 * @param jss javascript file(s)
 	 * @return this
 	 */
-	public Fluent scriptSync(String... jss) {
+	public Fluent scriptSync(Consumer<Void> then, String... jss) {
 		if (!GWT.isClient()) {
 			return this;
 		}
@@ -635,42 +640,32 @@ public class Fluent extends FluentBase {
 			xhr.setOnReadyStateChange(a -> {
 				if (a.getReadyState() == XMLHttpRequest.DONE && a.getStatus() == 200) {
 					eval(xhr.getResponseText());
+					// new Fluent("script", this).inner(xhr.getResponseText());
+					// Element src = document.createElement("script");
+					// src.setAttribute("type", "text/javascript");
+					// // src.setAttribute("src", js);
+					// src.setInnerText(xhr.getResponseText());
+					// element.appendChild(src);
+
+					then.accept(null);
 				}
 			});
-			xhr.open("GET", js, false);
+			xhr.open("GET", js, true);
 			xhr.send();
 		}
 		return this;
 	}
 
 	/**
-	 * Load one or more javascript files, asynchronous as normal. You can't use
-	 * these libraries in your code directly, for that, use scriptSync().
+	 * Load one or more javascript files asynchronous. You can't use these libraries
+	 * in your code directly, for that, create an Entrypoint::getScripts().
 	 * 
-	 * @param jss
-	 *            javascript urls
+	 * @param jss javascript urls
 	 * @return this
 	 */
 	public Fluent script(String... jss) {
 		for (String js : jss) {
 			new Fluent("script", this).att(Att.type, "text/javascript").att(Att.src, js);
-
-			// This works too, is async
-			// XMLHttpRequestSyc xhr = (XMLHttpRequestSyc)
-			// XMLHttpRequestSyc.create();
-			// xhr.setOnReadyStateChange(a -> {
-			// if (a.getReadyState() == XMLHttpRequest.DONE && a.getStatus() ==
-			// 200) {
-			// new Fluent("script", this).inner(xhr.getResponseText());
-			// // Element src = document.createElement("script");
-			// // src.setAttribute("type", "text/javascript");
-			// // // src.setAttribute("src", js);
-			// // src.setInnerText(xhr.getResponseText());
-			// // element.appendChild(src);
-			// }
-			// });
-			// xhr.open("GET", js, false);
-			// xhr.send();
 		}
 		return this;
 	}
@@ -917,5 +912,20 @@ public class Fluent extends FluentBase {
 
 	public Fluent video() {
 		return new Fluent("VIDEO", this);
+	}
+
+	public Fluent focus() {
+		((Element) element).focus();
+		return this;
+	}
+
+	public Fluent blur() {
+		((Element) element).blur();
+		return this;
+	}
+
+	public Fluent click() {
+		((Element) element).click();
+		return this;
 	}
 }

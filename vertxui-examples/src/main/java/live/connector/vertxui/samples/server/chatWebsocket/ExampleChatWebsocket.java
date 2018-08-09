@@ -33,7 +33,7 @@ public class ExampleChatWebsocket extends AbstractVerticle {
 		// Chat with websocket
 		List<String> ids = new ArrayList<>();
 		server.websocketHandler(socket -> {
-			if (!socket.path().equals("/chatWebsocket")) {
+			if (!socket.path().equals(Client.url)) {
 				socket.reject();
 				return;
 			}

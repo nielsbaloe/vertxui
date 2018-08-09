@@ -7,6 +7,7 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
 import live.connector.vertxui.samples.client.helloWorld.Client;
 import live.connector.vertxui.samples.server.AllExamplesServer;
+import live.connector.vertxui.server.VertxUI;
 
 public class ExampleHelloWorld extends AbstractVerticle {
 
@@ -20,6 +21,7 @@ public class ExampleHelloWorld extends AbstractVerticle {
 		Router router = Router.router(vertx);
 		router.post(Client.url).handler(handle -> {
 			vertx.setTimer(1000, l -> {
+				handle.response().putHeader("Content-Type", "text/plain; charset=" + VertxUI.charset);
 				handle.response().end("Hello, " + handle.request().getHeader("User-Agent"));
 			});
 		});
