@@ -5,6 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
@@ -40,6 +41,19 @@ public class AllExamplesServer {
 
 		// The main compiled js
 		router.get("/*").handler(VertxUI.with(classs, "/", debug, true));
+
+		// Make sure that when we exit, we close vertxes too.
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				Context context = Vertx.currentContext();
+				if (context == null) {
+					return;
+				}
+				Vertx vertx = context.owner();
+				vertx.deploymentIDs().forEach(vertx::undeploy);
+				vertx.close();
+			}
+		});
 
 		// Start the server
 		httpServer.requestHandler(router::accept).listen(port, listenHandler -> {
