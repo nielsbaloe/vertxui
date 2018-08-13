@@ -26,7 +26,7 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
-			<scope>test</scope>
+			<!--scope>test</scope  ..actually used in src/main/java/client/test/ViewTestWithDom.java -->
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
