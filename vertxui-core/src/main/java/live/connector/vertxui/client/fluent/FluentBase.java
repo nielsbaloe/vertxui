@@ -862,7 +862,7 @@ public class FluentBase implements Viewable {
 	/**
 	 * Convenient method to get the given CSS-class attribute.
 	 * 
-	 * @param string
+	 * @param className
 	 *            the CSS-class attribute.
 	 * @return this
 	 */
