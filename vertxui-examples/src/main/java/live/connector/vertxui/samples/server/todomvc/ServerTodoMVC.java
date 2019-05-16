@@ -10,6 +10,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
+import live.connector.vertxui.client.FigWheelyClient;
 import live.connector.vertxui.samples.client.todomvc.View;
 import live.connector.vertxui.samples.server.AllExamplesServer;
 import live.connector.vertxui.server.FigWheelyServer;
@@ -43,7 +44,7 @@ public class ServerTodoMVC extends AbstractVerticle {
 
 		// if debugging, figwheely can notify the browser of code changes.
 		if (debug) {
-			router.get("/figwheely.js").handler(FigWheelyServer.create());
+			router.get(FigWheelyClient.urlJavascript).handler(FigWheelyServer.create());
 		}
 
 		// Make sure that when we exit, we close vertxes too.
@@ -60,7 +61,7 @@ public class ServerTodoMVC extends AbstractVerticle {
 		});
 
 		// Create and start the server
-		vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true)).requestHandler(router::accept)
+		vertx.createHttpServer(new HttpServerOptions().setCompressionSupported(true)).requestHandler(router)
 				.listen(AllExamplesServer.port, listenHandler -> {
 					if (listenHandler.failed()) {
 						log.log(Level.SEVERE, "Startup error", listenHandler.cause());

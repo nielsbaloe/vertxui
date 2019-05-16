@@ -89,13 +89,11 @@ public class FigWheelyServer extends AbstractVerticle {
 
 	/**
 	 * Serve the root folder as static handler, but with notifications to the
-	 * browser if folder change. Does not work when figwheely wasn't started
-	 * before, so there is no performance loss if you leave this on.
+	 * browser if folder change. Does not work when figwheely wasn't started before,
+	 * so there is no performance loss if you leave this on.
 	 * 
-	 * @param root
-	 *            the root folder
-	 * @param urlWithoutAsterix
-	 *            the url but without the asterix at the end
+	 * @param root              the root folder
+	 * @param urlWithoutAsterix the url but without the asterix at the end
 	 * @return a static file handler with figwheely support
 	 */
 	public static Handler<RoutingContext> staticHandler(String root, String urlWithoutAsterix) {
@@ -207,8 +205,8 @@ public class FigWheelyServer extends AbstractVerticle {
 			+ "       parent.appendChild(script);   	                 \n" + "  }  } };                           ";
 
 	/**
-	 * Create handler which serves the figwheely javascript. Also turns on the
-	 * wheel of figwheely.
+	 * Create handler which serves the figwheely javascript. Also turns on the wheel
+	 * of figwheely.
 	 * 
 	 * @return the static handler which servers the necessary javascript.
 	 */
@@ -218,7 +216,7 @@ public class FigWheelyServer extends AbstractVerticle {
 			Vertx.currentContext().owner().deployVerticle(FigWheelyServer.class.getName());
 		}
 		return context -> {
-			context.response().end(FigWheelyServer.script);
+			context.response().putHeader("Content-Type", "text/javascript; charset=utf-8").end(FigWheelyServer.script);
 		};
 	}
 

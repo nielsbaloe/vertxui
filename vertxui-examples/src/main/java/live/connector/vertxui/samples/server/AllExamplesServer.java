@@ -56,7 +56,7 @@ public class AllExamplesServer {
 		});
 
 		// Start the server
-		httpServer.requestHandler(router::accept).listen(port, listenHandler -> {
+		httpServer.requestHandler(router).listen(port, listenHandler -> {
 			if (listenHandler.failed()) {
 				log.log(Level.SEVERE, "Startup error", listenHandler.cause());
 				System.exit(0);// stop on startup error
