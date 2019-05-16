@@ -628,7 +628,8 @@ public class Fluent extends FluentBase {
 	 * EntryPoint::getScripts() or Fluent.scriptSync().
 	 * 
 	 * 
-	 * @param jss javascript file(s)
+	 * @param then what should happen after loading in the script
+	 * @param jss  javascript file(s)
 	 * @return this
 	 */
 	public Fluent scriptSync(Consumer<Void> then, String... jss) {
